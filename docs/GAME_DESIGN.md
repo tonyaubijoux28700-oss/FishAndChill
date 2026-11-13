@@ -81,9 +81,15 @@ Les données doivent être faciles à ajouter en masse, par exemple par import d
 - Débloquées par la progression (argent, matériel minimum, ou les deux) **[À décider]**.
 - **[À décider]** : comment voyager (carte du monde, menu…).
 
+## Sac
+
+- Les prises vont d'abord dans le **sac**, limité à **3 places** au départ (agrandissable par la suite).
+- Sac plein : à la prise suivante, le joueur choisit de relâcher un poisson du sac ou le nouveau.
+- On vide le sac au **bâtiment de l'aquarium** (près de la plage de départ, touche E).
+
 ## Économie et matériel
 
-- Les **doublons** se vendent ; le premier exemplaire de chaque espèce va dans l'aquarium.
+- Au dépôt, chaque nouvelle espèce entre dans l'aquarium ; les **doublons** sont vendus contre des pièces.
 - **[À décider]** : peut-on vendre un exemplaire plus grand pour améliorer son record ?
 - Le matériel est amélioré par catégorie :
   - **Canne** : facilite le QTE (zone de réussite plus large, curseur plus lent).

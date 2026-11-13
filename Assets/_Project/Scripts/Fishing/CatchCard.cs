@@ -27,6 +27,7 @@ namespace FishAndChill.Fishing
         private readonly Text _scientificName;
         private readonly Text _details;
         private readonly Text _footer;
+        private readonly Text _hint;
         private float _age;
 
         public CatchCard(RectTransform canvas, Font font)
@@ -62,17 +63,25 @@ namespace FishAndChill.Fishing
             _details = AddText(_panel, "Détails", font, 30, FontStyle.Normal, new Vector2(0f, -185f), new Vector2(680f, 44f));
             _footer = AddText(_panel, "Pied", font, 30, FontStyle.Bold, new Vector2(0f, -228f), new Vector2(680f, 44f));
 
-            Text hint = AddText(_panel, "Aide", font, 22, FontStyle.Normal, new Vector2(0f, -272f), new Vector2(680f, 34f));
-            hint.text = "Espace pour continuer";
-            hint.color = MutedText;
+            _hint = AddText(_panel, "Aide", font, 22, FontStyle.Normal, new Vector2(0f, -272f), new Vector2(680f, 34f));
+            _hint.color = MutedText;
 
             Hide();
         }
 
         public bool IsVisible => _root.activeSelf;
 
+        /// <summary>Carte simple (sans sac) : utilisée pour prévisualiser une espèce.</summary>
         public void Show(FishSpecies species, float sizeCm, bool isNew)
         {
+            Show(new CaughtFish(species, sizeCm), isNew, false, -1, -1);
+        }
+
+        /// <summary>Carte de prise avec l'état du sac (<paramref name="bagCount"/> &lt; 0 : pas de sac).</summary>
+        public void Show(CaughtFish fish, bool isNew, bool bagFull, int bagCount, int bagCapacity)
+        {
+            FishSpecies species = fish.Species;
+            float sizeCm = fish.SizeCm;
             Color rarityColor = species.Rarity.DisplayColor();
 
             _title.text = isNew ? "Nouvelle espèce !" : "Belle prise !";
@@ -85,8 +94,23 @@ namespace FishAndChill.Fishing
             _name.text = species.CommonName;
             _scientificName.text = species.ScientificName;
             _details.text = $"{sizeCm:0} cm   •   <color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{species.Rarity.DisplayName()}</color>";
-            _footer.text = isNew ? "Direction l'aquarium !" : $"Déjà dans l'aquarium : se revendra {species.BasePrice} pièces";
-            _footer.color = isNew ? NewSpeciesColor : MutedText;
+            string bag = bagCount >= 0 ? $" (sac {bagCount}/{bagCapacity})" : string.Empty;
+            if (bagFull)
+            {
+                _footer.text = "Sac plein ! Relâche un poisson pour garder celui-ci";
+                _footer.color = NewSpeciesColor;
+                _hint.text = "1, 2, 3 : relâcher ce poisson du sac   •   Espace : relâcher le nouveau";
+                _hint.color = Color.white;
+            }
+            else
+            {
+                _footer.text = isNew
+                    ? $"Rapporte-la à l'aquarium !{bag}"
+                    : $"Doublon : se vendra {species.BasePrice} pièces{bag}";
+                _footer.color = isNew ? NewSpeciesColor : MutedText;
+                _hint.text = "Espace pour continuer";
+                _hint.color = MutedText;
+            }
 
             _age = 0f;
             _root.SetActive(true);

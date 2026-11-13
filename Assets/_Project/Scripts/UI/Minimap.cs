@@ -28,6 +28,7 @@ namespace FishAndChill.UI
             public RawImage Image;
             public RectTransform Dot;
             public Image DotImage;
+            public RectTransform Landmark;
         }
 
         [SerializeField] private WorldMap _map;
@@ -38,6 +39,11 @@ namespace FishAndChill.UI
 
         [SerializeField, Tooltip("Couleur de chaque tuile sur la carte.")]
         private List<TileColor> _palette = new List<TileColor>();
+
+        [SerializeField, Tooltip("Lieu à signaler sur la carte (l'aquarium).")]
+        private Transform _landmark;
+
+        [SerializeField] private Color _landmarkColor = new Color(1.00f, 0.60f, 0.15f);
 
         [SerializeField] private Color _waterColor = new Color(0.20f, 0.62f, 0.72f);
         [SerializeField] private Color _unknownLandColor = new Color(0.80f, 0.75f, 0.55f);
@@ -202,6 +208,13 @@ namespace FishAndChill.UI
             Vector2 size = view.Image.rectTransform.sizeDelta;
             view.Dot.anchoredPosition = new Vector2((normalized.x - 0.5f) * size.x, (normalized.y - 0.5f) * size.y);
 
+            view.Landmark.gameObject.SetActive(_landmark != null);
+            if (_landmark != null)
+            {
+                Vector2 mark = MinimapMath.WorldToNormalized(_landmark.position, _worldBounds);
+                view.Landmark.anchoredPosition = new Vector2((mark.x - 0.5f) * size.x, (mark.y - 0.5f) * size.y);
+            }
+
             Color color = _playerColor;
             color.a = MinimapMath.BlinkAlpha(Time.unscaledTime);
             view.DotImage.color = color;
@@ -230,7 +243,7 @@ namespace FishAndChill.UI
         /// <summary>Petite carte permanente, ancrée en bas à droite de l'écran.</summary>
         private MapView BuildCornerView(RectTransform root, Font font)
         {
-            Image frame = AddImage(root, "Petite carte", new Color(0.07f, 0.10f, 0.14f, 0.85f));
+            Image frame = AddImage(root, "Petite carte", new Color(0.07f, 0.10f, 0.14f, 1f));
             RectTransform rect = frame.rectTransform;
             rect.anchorMin = rect.anchorMax = new Vector2(1f, 0f);
             rect.pivot = new Vector2(1f, 0f);
@@ -254,7 +267,7 @@ namespace FishAndChill.UI
         /// <summary>Grande carte au centre, ouverte avec M.</summary>
         private MapView BuildLargeView(RectTransform root, Font font)
         {
-            Image frame = AddImage(root, "Grande carte", new Color(0.07f, 0.10f, 0.14f, 0.92f));
+            Image frame = AddImage(root, "Grande carte", new Color(0.07f, 0.10f, 0.14f, 1f));
             RectTransform rect = frame.rectTransform;
             rect.anchoredPosition = new Vector2(0f, -45f);
             rect.sizeDelta = new Vector2(640f, 560f);
@@ -271,7 +284,7 @@ namespace FishAndChill.UI
             MapView view = CreateView(frame.gameObject, rect, 20f, new Vector2(0f, -10f));
 
             Text close = AddText(rect, "Fermer", font, 22, TextAnchor.MiddleCenter);
-            close.text = "Le point rouge, c'est toi  •  M ou Échap pour fermer";
+            close.text = "Point rouge : toi  •  Losange orange : aquarium  •  M ou Échap pour fermer";
             close.color = new Color(0.80f, 0.84f, 0.88f);
             close.rectTransform.anchoredPosition = new Vector2(0f, -256f);
             close.rectTransform.sizeDelta = new Vector2(600f, 34f);
@@ -285,13 +298,20 @@ namespace FishAndChill.UI
             var image = imageObject.GetComponent<RawImage>();
             image.rectTransform.anchoredPosition = imageOffset;
 
+            Image landmark = AddImage(image.rectTransform, "Aquarium", _landmarkColor);
+            landmark.rectTransform.sizeDelta = new Vector2(dotSize * 0.9f, dotSize * 0.9f);
+            landmark.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            var landmarkBorder = landmark.gameObject.AddComponent<Outline>();
+            landmarkBorder.effectColor = new Color(0.25f, 0.12f, 0.02f);
+            landmarkBorder.effectDistance = new Vector2(2f, -2f);
+
             Image dot = AddImage(image.rectTransform, "Toi", _playerColor);
             dot.rectTransform.sizeDelta = new Vector2(dotSize, dotSize);
             var dotBorder = dot.gameObject.AddComponent<Outline>();
             dotBorder.effectColor = Color.white;
             dotBorder.effectDistance = new Vector2(2f, -2f);
 
-            return new MapView { Root = rootObject, Image = image, Dot = dot.rectTransform, DotImage = dot };
+            return new MapView { Root = rootObject, Image = image, Dot = dot.rectTransform, DotImage = dot, Landmark = landmark.rectTransform };
         }
 
         private static Image AddImage(RectTransform parent, string name, Color color)

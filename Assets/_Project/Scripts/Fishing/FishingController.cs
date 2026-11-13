@@ -13,6 +13,9 @@ namespace FishAndChill.Fishing
         Bite,
         Reeling,
         Result,
+
+        /// <summary>Poisson attrapé alors que le sac est plein : le joueur choisit quoi relâcher.</summary>
+        BagFull,
     }
 
     /// <summary>
@@ -24,6 +27,9 @@ namespace FishAndChill.Fishing
         private const string IdleMessage = "ZQSD pour te déplacer — Espace pour lancer, face à l'eau";
 
         [SerializeField] private FishingZone _zone;
+
+        [SerializeField, Tooltip("Sac, aquarium et pièces du joueur. Sans lui, les prises ne sont pas conservées.")]
+        private PlayerProgress _progress;
 
         [Header("Lancer")]
         [SerializeField, Tooltip("Le pêcheur : le lancer part de sa position, dans la direction où il regarde.")]
@@ -60,7 +66,8 @@ namespace FishAndChill.Fishing
 
         public event Action StateChanged;
         public event Action<QtePressResult> QtePressed;
-        public event Action<FishSpecies, bool> FishCaught;
+        /// <summary>Un poisson est attrapé : (poisson, nouvelle espèce ?, sac plein ?).</summary>
+        public event Action<CaughtFish, bool, bool> FishCaught;
 
         public FishingState State { get; private set; } = FishingState.Idle;
         public FishingZone Zone => _zone;
@@ -71,6 +78,10 @@ namespace FishAndChill.Fishing
         public float HookedSizeCm { get; private set; }
         public QteChallenge Challenge { get; private set; }
         public CatchLog CatchLog { get; } = new CatchLog();
+        public PlayerProgress Progress => _progress;
+
+        /// <summary>Le poisson qui attend une décision quand le sac est plein.</summary>
+        public CaughtFish PendingFish { get; private set; }
         public string Message { get; private set; } = IdleMessage;
 
         /// <summary>Avancement de la phase en cours, de 0 à 1 (attente, fenêtre de touche, résultat).</summary>
@@ -79,15 +90,56 @@ namespace FishAndChill.Fishing
         private void Awake()
         {
             _random = new System.Random();
+            if (_progress != null)
+            {
+                _progress.EnsureCreated();
+            }
         }
 
         private void Update()
         {
             Tick(Time.deltaTime);
+            if (State == FishingState.BagFull)
+            {
+                int slot = FishingInput.SlotPressedThisFrame();
+                if (slot >= 0)
+                {
+                    ChooseReplace(slot);
+                    return;
+                }
+            }
+
             if (FishingInput.ActionPressedThisFrame())
             {
                 PressAction();
             }
+        }
+
+        /// <summary>Sac plein : relâche le poisson de la place <paramref name="slot"/> et garde le nouveau.</summary>
+        public void ChooseReplace(int slot)
+        {
+            if (State != FishingState.BagFull || _progress == null || slot < 0 || slot >= _progress.Bag.Count)
+            {
+                return;
+            }
+
+            CaughtFish released = _progress.Bag.Replace(slot, PendingFish);
+            string kept = PendingFish.Species.CommonName;
+            PendingFish = null;
+            Finish($"Tu relâches ton {released.Species.CommonName} ({released.SizeCm:0} cm) et gardes le {kept}.");
+        }
+
+        /// <summary>Sac plein : relâche le poisson qui vient d'être attrapé.</summary>
+        public void ChooseRelease()
+        {
+            if (State != FishingState.BagFull)
+            {
+                return;
+            }
+
+            string name = PendingFish.Species.CommonName;
+            PendingFish = null;
+            Finish($"Tu relâches le {name}. Bon vent !");
         }
 
         /// <summary>Fait avancer le temps. Public pour pouvoir piloter le prototype hors clavier.</summary>
@@ -155,6 +207,10 @@ namespace FishAndChill.Fishing
                     }
 
                     break;
+
+                case FishingState.BagFull:
+                    ChooseRelease();
+                    break;
             }
         }
 
@@ -217,14 +273,50 @@ namespace FishAndChill.Fishing
         private void Catch()
         {
             FishSpecies species = HookedSpecies;
-            bool isNew = CatchLog.Register(species.Id);
+            var fish = new CaughtFish(species, HookedSizeCm);
+            CatchLog.Register(species.Id);
+            bool isNew = IsNewForCollection(species.Id);
             string header = $"{species.CommonName} ({species.Rarity.DisplayName()}) — {HookedSizeCm:0} cm";
+
+            if (_progress != null && !_progress.Bag.TryAdd(fish))
+            {
+                // Sac plein : on attend que le joueur choisisse quoi relâcher (pas de délai).
+                PendingFish = fish;
+                StartPhase(FishingState.BagFull, 0f, $"{header}\nSac plein ! 1, 2 ou 3 : relâcher ce poisson du sac — Espace : relâcher le nouveau.");
+                FishCaught?.Invoke(fish, isNew, true);
+                return;
+            }
+
             string detail = isNew
-                ? "Nouvelle espèce ! Direction l'aquarium."
-                : $"Déjà dans l'aquarium : se revendra {species.BasePrice} pièces.";
+                ? "Nouvelle espèce ! Rapporte-la à l'aquarium."
+                : $"Doublon : se vendra {species.BasePrice} pièces à l'aquarium.";
 
             StartPhase(FishingState.Result, _catchResultSeconds, $"{header}\n{detail}");
-            FishCaught?.Invoke(species, isNew);
+            FishCaught?.Invoke(fish, isNew, false);
+        }
+
+        /// <summary>Nouvelle pour la collection : ni dans l'aquarium, ni déjà dans le sac.</summary>
+        private bool IsNewForCollection(string speciesId)
+        {
+            if (_progress == null)
+            {
+                return CatchLog.CountOf(speciesId) == 1;
+            }
+
+            if (_progress.Aquarium.Contains(speciesId))
+            {
+                return false;
+            }
+
+            foreach (CaughtFish carried in _progress.Bag.Fish)
+            {
+                if (carried.SpeciesId == speciesId)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private void Finish(string message)

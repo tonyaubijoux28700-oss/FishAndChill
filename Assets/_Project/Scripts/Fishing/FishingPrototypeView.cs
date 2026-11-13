@@ -26,6 +26,7 @@ namespace FishAndChill.Fishing
         private FishingController _controller;
         private PlayerMovement _playerMovement;
         private CatchCard _catchCard;
+        private bool _cardWasBagFull;
         private Sprite _square;
         private Sprite[] _shadowSprites;
         private Sprite _bobberSprite;
@@ -69,6 +70,13 @@ namespace FishAndChill.Fishing
 
         private void Start()
         {
+            // L'en-tête suit l'aquarium (mis à jour au dépôt, même sans changement d'état de la pêche).
+            if (_controller.Progress != null)
+            {
+                _controller.Progress.EnsureCreated();
+                _controller.Progress.Changed += RefreshHeaderIfReady;
+            }
+
             if (Camera.main != null && _controller.Zone != null)
             {
                 Camera.main.backgroundColor = _controller.Zone.WaterColor;
@@ -242,11 +250,29 @@ namespace FishAndChill.Fishing
             }
         }
 
+        private void OnDestroy()
+        {
+            if (_controller != null && _controller.Progress != null)
+            {
+                _controller.Progress.Changed -= RefreshHeaderIfReady;
+            }
+        }
+
+        private void RefreshHeaderIfReady()
+        {
+            if (_header != null)
+            {
+                RefreshHeader();
+            }
+        }
+
         private void RefreshHeader()
         {
             string zone = _controller.Zone != null ? _controller.Zone.DisplayName : "(aucune zone)";
             CatchLog log = _controller.CatchLog;
-            _header.text = $"{zone}\nEspèces : {log.SpeciesCount}     Captures : {log.TotalCatches}";
+            PlayerProgress progress = _controller.Progress;
+            int inAquarium = progress != null && progress.Aquarium != null ? progress.Aquarium.SpeciesCount : log.SpeciesCount;
+            _header.text = $"{zone}\nAquarium : {inAquarium} espèce{(inAquarium > 1 ? "s" : string.Empty)}     Captures : {log.TotalCatches}";
         }
 
         // ---------- Événements ----------
@@ -258,9 +284,13 @@ namespace FishAndChill.Fishing
                 return;
             }
 
-            if (_controller.State != FishingState.Result)
+            // La carte reste affichée pendant le choix « sac plein », puis se ferme une fois le choix fait.
+            bool cardPhase = _controller.State == FishingState.BagFull
+                || (_controller.State == FishingState.Result && !_cardWasBagFull);
+            if (!cardPhase)
             {
                 _catchCard.Hide();
+                _cardWasBagFull = false;
             }
 
             if (_controller.State == FishingState.Waiting)
@@ -285,10 +315,14 @@ namespace FishAndChill.Fishing
             _flashTimer = 0.15f;
         }
 
-        private void OnFishCaught(FishSpecies species, bool isNew)
+        private void OnFishCaught(CaughtFish fish, bool isNew, bool bagFull)
         {
             RefreshHeader();
-            _catchCard.Show(species, _controller.HookedSizeCm, isNew);
+            PlayerProgress progress = _controller.Progress;
+            int count = progress != null ? progress.Bag.Count : -1;
+            int capacity = progress != null ? progress.Bag.Capacity : -1;
+            _catchCard.Show(fish, isNew, bagFull, count, capacity);
+            _cardWasBagFull = bagFull;
         }
 
         // ---------- Utilitaires ----------

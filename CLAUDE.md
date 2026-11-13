@@ -55,6 +55,18 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Zone de départ : **Île Mahana** (fictive, tropicale) avec 8 vraies espèces indo-pacifiques.
   La zone « Lac d'Annecy » reste en données pour plus tard. Palmiers sur la Tilemap `Décor` (non bloquants).
 
+## Sac, aquarium et pièces
+
+- `PlayerProgress` (objet « Partie ») : `Inventory` (sac, 3 places au départ, `UpgradeCapacity` pour plus tard),
+  `AquariumCollection` (un exemplaire par espèce), `Wallet` (pièces). Logique pure testée.
+- Chaque prise va dans le sac. Sac plein → état `FishingState.BagFull` : 1/2/3 relâche ce poisson du sac
+  (`ChooseReplace`), Espace relâche le nouveau (`ChooseRelease`).
+- `AquariumStation` (bâtiment « Aquarium », placé par `MapSetup.FindAquariumSite`) : obstacle sur la carte,
+  touche **E** (lettre, selon la disposition du clavier) devant la porte → `Deposit` : nouvelles espèces dans
+  l'aquarium, doublons vendus au `BasePrice`. Repère orange sur la minimap.
+- `UI/InventoryHud` : sac en bas à gauche, pièces en haut à droite, invite de dépôt, résumé du dépôt.
+- Pas encore de sauvegarde : tout repart de zéro à chaque lancement.
+
 ## Minimap
 
 - Petite carte **toujours visible en bas à droite** ; **M** ouvre la grande carte au centre (la petite se masque).

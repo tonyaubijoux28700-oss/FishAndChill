@@ -49,9 +49,39 @@ namespace FishAndChill.World
             return !IsLand(worldPosition);
         }
 
-        /// <summary>Un personnage de rayon <paramref name="radius"/> peut-il se tenir ici (ses 4 coins sur la terre) ?</summary>
+        private readonly System.Collections.Generic.List<Rect> _obstacles = new System.Collections.Generic.List<Rect>();
+
+        /// <summary>Ajoute une zone infranchissable (bâtiment…), en coordonnées du monde.</summary>
+        public void AddObstacle(Rect area) => _obstacles.Add(area);
+
+        public bool IsBlocked(Vector2 worldPosition)
+        {
+            foreach (Rect obstacle in _obstacles)
+            {
+                if (obstacle.Contains(worldPosition))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Un personnage de rayon <paramref name="radius"/> peut-il se tenir ici : ses 4 coins sur la terre
+        /// et hors des obstacles ?
+        /// </summary>
         public bool CanStandAt(Vector2 worldPosition, float radius)
         {
+            for (int corner = 0; corner < 4; corner++)
+            {
+                var offset = new Vector2(corner % 2 == 0 ? -radius : radius, corner < 2 ? -radius : radius);
+                if (IsBlocked(worldPosition + offset))
+                {
+                    return false;
+                }
+            }
+
             return IsLand(worldPosition + new Vector2(-radius, -radius))
                 && IsLand(worldPosition + new Vector2(radius, -radius))
                 && IsLand(worldPosition + new Vector2(-radius, radius))

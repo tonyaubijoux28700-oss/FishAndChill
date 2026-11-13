@@ -265,8 +265,41 @@ namespace FishAndChill.Editor
             so.FindProperty("_zone").objectReferenceValue = zone;
             so.ApplyModifiedPropertiesWithoutUndo();
 
-            // L'île de départ, la caméra qui suit et les branchements joueur / carte.
-            MapSetup.BuildIsland(player, controller);
+            // Progression du joueur : sac (3 places au départ), aquarium, pièces.
+            GameObject partie = GameObject.Find("Partie");
+            if (partie == null)
+            {
+                partie = new GameObject("Partie");
+            }
+
+            var progress = partie.GetComponent<PlayerProgress>();
+            if (progress == null)
+            {
+                progress = partie.AddComponent<PlayerProgress>();
+            }
+
+            so = new SerializedObject(controller);
+            so.FindProperty("_progress").objectReferenceValue = progress;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // Le pêcheur est trié par ses pieds (pivot) pour passer devant / derrière les cocotiers et l'aquarium.
+            renderer.spriteSortPoint = SpriteSortPoint.Pivot;
+
+            // L'île de départ, l'aquarium, la caméra qui suit et les branchements joueur / carte.
+            AquariumStation station = MapSetup.BuildIsland(player, controller, progress);
+
+            // Interface du sac et des pièces.
+            var hud = partie.GetComponent<UI.InventoryHud>();
+            if (hud == null)
+            {
+                hud = partie.AddComponent<UI.InventoryHud>();
+            }
+
+            var hudSo = new SerializedObject(hud);
+            hudSo.FindProperty("_progress").objectReferenceValue = progress;
+            hudSo.FindProperty("_fishing").objectReferenceValue = controller;
+            hudSo.FindProperty("_station").objectReferenceValue = station;
+            hudSo.ApplyModifiedPropertiesWithoutUndo();
             if (zone == null)
             {
                 Debug.LogError("[FishAndChill] Zone de test introuvable : la scène n'a pas de zone assignée.");
