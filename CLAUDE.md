@@ -48,6 +48,16 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Zone de départ : **Île Mahana** (fictive, tropicale) avec 8 vraies espèces indo-pacifiques.
   La zone « Lac d'Annecy » reste en données pour plus tard. Palmiers sur la Tilemap `Décor` (non bloquants).
 
+## Art provisoire (généré par code)
+
+- Tout le pixel art actuel est **provisoire** et **redessiné à chaque lancement du menu** du prototype
+  (`PixelArt.cs` pour l'écriture/import des PNG) :
+  - pêcheur 16×16, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator` ;
+  - poissons 48×24 de profil, un par espèce, d'après le vrai poisson (`FishArt.cs` → `Art/Fish/`),
+    assignés au champ `_sprite` de chaque `FishSpecies`.
+- Pour remplacer un dessin par un vrai, utiliser un autre nom de fichier, sinon il sera écrasé.
+- Carte de prise : `CatchCard` (dessin du poisson, nom, nom scientifique, taille, rareté en couleur).
+
 ## Conventions de code
 
 - C#, un fichier par classe, `PascalCase` pour les types et méthodes, `_camelCase` pour les champs privés.

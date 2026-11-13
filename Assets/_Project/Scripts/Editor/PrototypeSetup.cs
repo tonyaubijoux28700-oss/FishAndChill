@@ -171,6 +171,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_sizeRangeCm").vector2Value = data.SizeCm;
             so.FindProperty("_basePrice").intValue = data.Price;
             so.FindProperty("_placeholderColor").colorValue = data.Color;
+            so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(asset);
             return asset;
@@ -234,6 +235,28 @@ namespace FishAndChill.Editor
             movementSo.FindProperty("_fishing").objectReferenceValue = controller;
             movementSo.ApplyModifiedPropertiesWithoutUndo();
 
+            // Apparence : pêcheur en pixel art 16×16 (1 case), animé selon sa direction.
+            CharacterArt.Sprites sprites = CharacterArt.Generate();
+            player.transform.localScale = Vector3.one;
+            var renderer = player.GetComponent<SpriteRenderer>();
+            renderer.sprite = sprites.Down[0];
+            renderer.color = Color.white;
+            renderer.sortingOrder = 10;
+
+            var animator = player.GetComponent<Player.PlayerAnimator>();
+            if (animator == null)
+            {
+                animator = player.AddComponent<Player.PlayerAnimator>();
+            }
+
+            var animatorSo = new SerializedObject(animator);
+            animatorSo.FindProperty("_movement").objectReferenceValue = movement;
+            SetSprites(animatorSo.FindProperty("_down"), sprites.Down);
+            SetSprites(animatorSo.FindProperty("_up"), sprites.Up);
+            SetSprites(animatorSo.FindProperty("_left"), sprites.Left);
+            SetSprites(animatorSo.FindProperty("_right"), sprites.Right);
+            animatorSo.ApplyModifiedPropertiesWithoutUndo();
+
             var viewSo = new SerializedObject(view);
             viewSo.FindProperty("_player").objectReferenceValue = player.transform;
             viewSo.ApplyModifiedPropertiesWithoutUndo();
@@ -253,6 +276,15 @@ namespace FishAndChill.Editor
             EditorSceneManager.SaveScene(scene);
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
+        }
+
+        private static void SetSprites(SerializedProperty array, Sprite[] sprites)
+        {
+            array.arraySize = sprites.Length;
+            for (int i = 0; i < sprites.Length; i++)
+            {
+                array.GetArrayElementAtIndex(i).objectReferenceValue = sprites[i];
+            }
         }
 
         private static T LoadOrCreate<T>(string path) where T : ScriptableObject

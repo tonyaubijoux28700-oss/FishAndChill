@@ -24,4 +24,4 @@ MonoBehaviour:
   _sizeRangeCm: {x: 40, y: 100}
   _basePrice: 45
   _placeholderColor: {r: 0.4, g: 0.6, b: 0.85, a: 1}
-  _sprite: {fileID: 0}
+  _sprite: {fileID: 21300000, guid: 6b093038007ef17468911d538e92f420, type: 3}

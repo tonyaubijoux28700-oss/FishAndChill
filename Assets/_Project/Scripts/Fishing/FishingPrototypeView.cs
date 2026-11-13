@@ -12,7 +12,6 @@ namespace FishAndChill.Fishing
     [RequireComponent(typeof(FishingController))]
     public sealed class FishingPrototypeView : MonoBehaviour
     {
-        private static readonly Color MarkerColor = new Color(0.25f, 0.12f, 0.08f);
         private static readonly Color PlayerColor = new Color(0.93f, 0.42f, 0.30f);
         private static readonly Color BobberColor = new Color(0.95f, 0.20f, 0.20f);
         private static readonly Color ShadowColor = new Color(0f, 0f, 0f, 0.35f);
@@ -27,7 +26,7 @@ namespace FishAndChill.Fishing
 
         private FishingController _controller;
         private PlayerMovement _playerMovement;
-        private Transform _facingMarker;
+        private CatchCard _catchCard;
         private Sprite _square;
         private Sprite _circle;
 
@@ -83,7 +82,10 @@ namespace FishAndChill.Fishing
         {
             UpdateWorld();
             UpdateQte();
-            _message.text = _controller.Message;
+            _catchCard.Animate(Time.deltaTime);
+
+            // La carte de prise remplace le message texte.
+            _message.text = _catchCard.IsVisible ? string.Empty : _controller.Message;
         }
 
         // ---------- Monde ----------
@@ -103,7 +105,6 @@ namespace FishAndChill.Fishing
             }
 
             _playerMovement = _player.GetComponent<PlayerMovement>();
-            _facingMarker = CreateSprite("Regard", _square, MarkerColor, _player.position, new Vector2(0.18f, 0.18f), 11).transform;
 
             _line = CreateSprite("Fil", _square, LineColor, _player.position, new Vector2(0.04f, 1f), 8).transform;
             _shadow = CreateSprite("Ombre du poisson", _circle, ShadowColor, Vector2.zero, new Vector2(0.8f, 0.4f), 5);
@@ -112,10 +113,6 @@ namespace FishAndChill.Fishing
 
         private void UpdateWorld()
         {
-            // Petit repère sur le bord du pêcheur, du côté où il regarde (= où il lancera).
-            Vector2 facing = _playerMovement != null ? _playerMovement.Facing : Vector2.up;
-            _facingMarker.position = (Vector2)_player.position + facing * 0.32f;
-
             FishingState state = _controller.State;
             bool lineOut = state == FishingState.Waiting || state == FishingState.Bite || state == FishingState.Reeling;
             _bobber.gameObject.SetActive(lineOut);
@@ -154,7 +151,9 @@ namespace FishAndChill.Fishing
             _bobber.position = bobber;
             _shadow.transform.position = shadow;
             _shadow.transform.right = (Vector3)(_castPoint - shadow).normalized + Vector3.right * 0.001f;
-            PlaceLine(_player.position, bobber);
+            // Le fil part de la main du pêcheur, du côté où il regarde.
+            Vector2 facing = _playerMovement != null ? _playerMovement.Facing : Vector2.up;
+            PlaceLine((Vector2)_player.position + facing * 0.4f + Vector2.down * 0.05f, bobber);
         }
 
         private void PlaceLine(Vector2 from, Vector2 to)
@@ -203,6 +202,8 @@ namespace FishAndChill.Fishing
 
             _qteCounter = CreateText(panelRect, "Compteur", font, 30, TextAnchor.LowerCenter);
             Anchor(_qteCounter.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 8f), new Vector2(900f, 50f), new Vector2(0.5f, 0f));
+
+            _catchCard = new CatchCard(root, font);
         }
 
         private void UpdateQte()
@@ -254,6 +255,11 @@ namespace FishAndChill.Fishing
                 return;
             }
 
+            if (_controller.State != FishingState.Result)
+            {
+                _catchCard.Hide();
+            }
+
             if (_controller.State == FishingState.Waiting)
             {
                 _castPoint = _controller.CastPoint;
@@ -279,6 +285,7 @@ namespace FishAndChill.Fishing
         private void OnFishCaught(FishSpecies species, bool isNew)
         {
             RefreshHeader();
+            _catchCard.Show(species, _controller.HookedSizeCm, isNew);
         }
 
         // ---------- Utilitaires ----------

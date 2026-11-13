@@ -102698,6 +102698,7 @@ GameObject:
   - component: {fileID: 1141459285}
   - component: {fileID: 1141459284}
   - component: {fileID: 1141459283}
+  - component: {fileID: 1141459286}
   m_Layer: 0
   m_Name: Joueur
   m_TagString: Untagged
@@ -102774,9 +102775,9 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: dc2161114522dad439f0194206fa1431, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -102784,7 +102785,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
 --- !u!4 &1141459285
@@ -102797,11 +102798,41 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.5, y: -21.5, z: 0}
-  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1141459286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141459282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ec04d28ec19d764d951a4401979a5ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Player.PlayerAnimator
+  _movement: {fileID: 1141459283}
+  _down:
+  - {fileID: 21300000, guid: dc2161114522dad439f0194206fa1431, type: 3}
+  - {fileID: 21300000, guid: 5408a106badac1b4eb32afff07a28f7d, type: 3}
+  - {fileID: 21300000, guid: 459edf3da0bfaeb4fb3fb97f7522ce56, type: 3}
+  _up:
+  - {fileID: 21300000, guid: 9fca34a34acc7d84688bb98e55eb11a3, type: 3}
+  - {fileID: 21300000, guid: f8045fc311e2e3f4d8b829afa0a97bd6, type: 3}
+  - {fileID: 21300000, guid: 4d12d3de553f28a4b9fc84615150dc32, type: 3}
+  _left:
+  - {fileID: 21300000, guid: ad52499c2ebdf484aa2234722c93a88a, type: 3}
+  - {fileID: 21300000, guid: 8a211efdcfb5d7b41937d051899d8320, type: 3}
+  - {fileID: 21300000, guid: 395ecb0c37a275f47b620065c670171a, type: 3}
+  _right:
+  - {fileID: 21300000, guid: d2a0e9dcf2236f2409a11712a4467485, type: 3}
+  - {fileID: 21300000, guid: 324d67114a4bd9e4187a5ee3d53fb55e, type: 3}
+  - {fileID: 21300000, guid: d0f3a8f4691ab1549bcf695933d30932, type: 3}
+  _walkFramesPerSecond: 8
 --- !u!1 &1235020154
 GameObject:
   m_ObjectHideFlags: 0
@@ -102855,6 +102886,7 @@ MonoBehaviour:
   _maxWaitSeconds: 4
   _biteWindowSeconds: 1
   _resultSeconds: 2.5
+  _catchResultSeconds: 6
 --- !u!4 &1235020157
 Transform:
   m_ObjectHideFlags: 0

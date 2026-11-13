@@ -51,6 +51,9 @@ namespace FishAndChill.Fishing
 
         [SerializeField, Min(0.5f)] private float _resultSeconds = 2.5f;
 
+        [SerializeField, Min(0.5f), Tooltip("Durée d'affichage de la carte de prise (Espace pour passer).")]
+        private float _catchResultSeconds = 6f;
+
         private System.Random _random;
         private float _timer;
         private float _phaseDuration;
@@ -146,7 +149,7 @@ namespace FishAndChill.Fishing
 
                 case FishingState.Result:
                     // Permet de passer l'écran de résultat, sans effacer un appui fait par réflexe.
-                    if (PhaseProgress > 0.2f)
+                    if (_phaseDuration - _timer > 0.5f)
                     {
                         StartPhase(FishingState.Idle, 0f, IdleMessage);
                     }
@@ -220,7 +223,7 @@ namespace FishAndChill.Fishing
                 ? "Nouvelle espèce ! Direction l'aquarium."
                 : $"Déjà dans l'aquarium : se revendra {species.BasePrice} pièces.";
 
-            Finish($"{header}\n{detail}");
+            StartPhase(FishingState.Result, _catchResultSeconds, $"{header}\n{detail}");
             FishCaught?.Invoke(species, isNew);
         }
 

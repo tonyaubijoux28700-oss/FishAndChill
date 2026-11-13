@@ -28,7 +28,10 @@ namespace FishAndChill.Player
         public Rect WalkableArea => _walkableArea;
 
         /// <summary>Direction dans laquelle regarde le pêcheur (le lancer part par là).</summary>
-        public Vector2 Facing { get; private set; } = Vector2.up;
+        public Vector2 Facing { get; private set; } = Vector2.down;
+
+        /// <summary>Le joueur s'est-il déplacé à la dernière image ?</summary>
+        public bool IsMoving { get; private set; }
 
         public bool CanMove
         {
@@ -50,6 +53,10 @@ namespace FishAndChill.Player
             {
                 Move(MoveInput.Read(), Time.deltaTime);
             }
+            else
+            {
+                IsMoving = false;
+            }
         }
 
         /// <summary>Déplace le joueur. Public pour pouvoir le piloter hors clavier (tests).</summary>
@@ -62,6 +69,7 @@ namespace FishAndChill.Player
                 ? MovementMath.StepWithCollision(position, input, _speed, deltaTime, p => _map.CanStandAt(p, _radius))
                 : MovementMath.Step(position, input, _speed, deltaTime, _walkableArea);
 
+            IsMoving = (next - position).sqrMagnitude > 1e-8f;
             transform.position = new Vector3(next.x, next.y, transform.position.z);
         }
 
