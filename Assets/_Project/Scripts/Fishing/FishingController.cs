@@ -38,6 +38,9 @@ namespace FishAndChill.Fishing
         [SerializeField, Tooltip("Carte : le bouchon doit tomber dans l'eau.")]
         private WorldMap _map;
 
+        [SerializeField, Tooltip("Optionnel : impossible de pêcher à l'intérieur de la boutique.")]
+        private ShopBuilding _shop;
+
         [SerializeField, Tooltip("Distance du lancer (min, max).")]
         private Vector2 _castDistance = new Vector2(2.5f, 4.5f);
 
@@ -220,8 +223,17 @@ namespace FishAndChill.Fishing
             }
         }
 
+        /// <summary>Peut-on lancer d'ici ? Non à l'intérieur de la boutique.</summary>
+        public bool CanFishHere => _shop == null || !_shop.IsPlayerInside;
+
         private void Cast()
         {
+            // Dans la boutique, Espace ne fait rien : pas de lancer, pas de message.
+            if (!CanFishHere)
+            {
+                return;
+            }
+
             if (_zone == null)
             {
                 Finish("Aucune zone de pêche n'est assignée au FishingController.");

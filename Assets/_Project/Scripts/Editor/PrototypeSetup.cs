@@ -317,6 +317,11 @@ namespace FishAndChill.Editor
             var viewShopSo = new SerializedObject(view);
             viewShopSo.FindProperty("_shop").objectReferenceValue = shop;
             viewShopSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Pas de pêche dans la boutique.
+            var controllerShopSo = new SerializedObject(controller);
+            controllerShopSo.FindProperty("_shop").objectReferenceValue = shop;
+            controllerShopSo.ApplyModifiedPropertiesWithoutUndo();
             if (zone == null)
             {
                 Debug.LogError("[FishAndChill] Zone de test introuvable : la scène n'a pas de zone assignée.");

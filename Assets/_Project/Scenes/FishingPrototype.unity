@@ -161040,6 +161040,7 @@ MonoBehaviour:
   _progress: {fileID: 332295271}
   _angler: {fileID: 1141459283}
   _map: {fileID: 1254510490}
+  _shop: {fileID: 1249519180}
   _castDistance: {x: 2.5, y: 4.5}
   _castMaxDistance: 6
   _castSpread: 1.2
