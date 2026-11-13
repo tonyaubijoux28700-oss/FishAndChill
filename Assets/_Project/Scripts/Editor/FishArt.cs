@@ -103,6 +103,11 @@ namespace FishAndChill.Editor
                 return PixelArt.Save($"{Folder}/{speciesId}.png", PikeArt.Draw(), 16, new Vector2(0.5f, 0.5f));
             }
 
+            if (MahanaFishArt.TryGet(speciesId, out DetailedFish detailed))
+            {
+                return PixelArt.Save($"{Folder}/{speciesId}.png", detailed.Draw(), 16, new Vector2(0.5f, 0.5f));
+            }
+
             if (!Looks.TryGetValue(speciesId, out Look look))
             {
                 look = new Look

@@ -53,8 +53,12 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Tout le pixel art actuel est **provisoire** et **redessiné à chaque lancement du menu** du prototype
   (`PixelArt.cs` pour l'écriture/import des PNG) :
   - pêcheur 16×16, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator` ;
-  - poissons 48×24 de profil, un par espèce, d'après le vrai poisson (`FishArt.cs` → `Art/Fish/`),
-    assignés au champ `_sprite` de chaque `FishSpecies`.
+  - poissons de profil, tête à droite, un par espèce (`FishArt.cs` → `Art/Fish/`), assignés au champ
+    `_sprite` de chaque `FishSpecies`. Dessins **détaillés** (≈ 96 px de long) via le moteur paramétrable
+    `DetailedFish` (silhouette, dégradé, nageoires, queue, tête, motifs) : fiches des espèces de l'île dans
+    `MahanaFishArt.cs`, brochet dans `PikeArt.cs`. Les autres espèces gardent le dessin simple 48×24.
+  - Nouvelle espèce = ajouter une fiche `DetailedFish` d'après l'anatomie réelle du poisson (dessin original,
+    ne jamais recopier une illustration existante).
 - Pour remplacer un dessin par un vrai, utiliser un autre nom de fichier, sinon il sera écrasé.
 - Carte de prise : `CatchCard` (dessin du poisson, nom, nom scientifique, taille, rareté en couleur).
 
