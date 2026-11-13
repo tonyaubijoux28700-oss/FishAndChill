@@ -60,7 +60,23 @@ Les données doivent être faciles à ajouter en masse, par exemple par import d
 
 ## Zones
 
-- Zones inspirées de lieux réels (ex. un lac alpin, la côte bretonne, l'Amazonie, un récif tropical).
+- **Zone de départ : l'Île Mahana**, une île tropicale **fictive** (ambiance Polynésie) : lagon turquoise,
+  plages de sable blanc, cocotiers. Le lieu est inventé, mais les poissons sont de **vraies espèces**
+  de lagon et de récif de l'Indo-Pacifique :
+
+  | Espèce | Nom scientifique | Rareté |
+  |---|---|---|
+  | Sergent-major indo-pacifique | *Abudefduf vaigiensis* | Commun |
+  | Chirurgien bagnard | *Acanthurus triostegus* | Commun |
+  | Perroquet commun | *Scarus psittacus* | Peu commun |
+  | Mérou paon | *Cephalopholis argus* | Peu commun |
+  | Carangue à points bleus | *Caranx melampygus* | Rare |
+  | Banane de mer | *Albula glossodonta* | Rare |
+  | Grand barracuda | *Sphyraena barracuda* | Épique |
+  | Carangue géante | *Caranx ignobilis* | Légendaire |
+
+- Les autres zones sont inspirées de lieux réels (ex. le lac d'Annecy, déjà en données, la côte bretonne,
+  l'Amazonie, un récif de la mer Rouge).
 - Chaque zone a sa propre liste d'espèces et ses taux d'apparition.
 - Débloquées par la progression (argent, matériel minimum, ou les deux) **[À décider]**.
 - **[À décider]** : comment voyager (carte du monde, menu…).

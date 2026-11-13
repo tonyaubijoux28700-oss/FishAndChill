@@ -69,6 +69,30 @@ namespace FishAndChill.Editor
                 1.8f, 0.12f, 4, 1, new Vector2(25f, 70f), 90, new Color(0.85f, 0.45f, 0.30f), 5f),
         };
 
+        // Île Mahana (fictive, ambiance Polynésie) : vraies espèces de lagon et de récif de l'Indo-Pacifique,
+        // pêchables depuis le rivage.
+        private static readonly SpeciesData[] MahanaSpecies =
+        {
+            new SpeciesData("abudefduf-vaigiensis", "Sergent-major indo-pacifique", "Abudefduf vaigiensis", Rarity.Common,
+                0.8f, 0.30f, 2, 2, new Vector2(10f, 20f), 4, new Color(0.85f, 0.85f, 0.45f), 30f),
+            new SpeciesData("acanthurus-triostegus", "Chirurgien bagnard", "Acanthurus triostegus", Rarity.Common,
+                0.9f, 0.28f, 2, 2, new Vector2(12f, 27f), 6, new Color(0.80f, 0.85f, 0.75f), 25f),
+            new SpeciesData("scarus-psittacus", "Perroquet commun", "Scarus psittacus", Rarity.Uncommon,
+                1.1f, 0.24f, 3, 2, new Vector2(18f, 30f), 14, new Color(0.35f, 0.75f, 0.70f), 15f),
+            new SpeciesData("cephalopholis-argus", "Mérou paon", "Cephalopholis argus", Rarity.Uncommon,
+                1.2f, 0.22f, 3, 2, new Vector2(25f, 55f), 22, new Color(0.25f, 0.30f, 0.50f), 12f),
+            new SpeciesData("caranx-melampygus", "Carangue à points bleus", "Caranx melampygus", Rarity.Rare,
+                1.5f, 0.17f, 4, 2, new Vector2(40f, 100f), 45, new Color(0.40f, 0.60f, 0.85f), 8f),
+            new SpeciesData("albula-glossodonta", "Banane de mer", "Albula glossodonta", Rarity.Rare,
+                1.6f, 0.16f, 4, 2, new Vector2(40f, 90f), 50, new Color(0.85f, 0.88f, 0.92f), 5f),
+            new SpeciesData("sphyraena-barracuda", "Grand barracuda", "Sphyraena barracuda", Rarity.Epic,
+                1.9f, 0.13f, 4, 1, new Vector2(60f, 160f), 110, new Color(0.60f, 0.65f, 0.70f), 3f),
+            new SpeciesData("caranx-ignobilis", "Carangue géante", "Caranx ignobilis", Rarity.Legendary,
+                2.2f, 0.11f, 5, 1, new Vector2(60f, 170f), 250, new Color(0.30f, 0.32f, 0.38f), 2f),
+        };
+
+        private static readonly Color MahanaWater = new Color(0.20f, 0.68f, 0.75f);
+
         [MenuItem("FishAndChill/Prototype/Générer données et scène de pêche")]
         public static void GenerateAll()
         {
@@ -83,26 +107,39 @@ namespace FishAndChill.Editor
             AssetDatabase.SaveAssets();
             GenerateScene(zonePath);
             AssetDatabase.SaveAssets();
-            Debug.Log($"[FishAndChill] Prototype prêt : {ScenePath} ({AnnecySpecies.Length} espèces).");
+            Debug.Log($"[FishAndChill] Prototype prêt : {ScenePath} (Île Mahana, {MahanaSpecies.Length} espèces).");
         }
 
+        /// <summary>Crée les zones et leurs espèces ; renvoie le chemin de la zone de départ (Île Mahana).</summary>
         private static string GenerateData()
         {
             EnsureFolder(SpeciesFolder);
             EnsureFolder(ZonesFolder);
 
-            var species = new FishSpecies[AnnecySpecies.Length];
-            for (int i = 0; i < AnnecySpecies.Length; i++)
+            // Conservé pour plus tard : une zone d'eau douce réelle.
+            CreateOrUpdateZone(ZonesFolder + "/LacAnnecy.asset", "Lac d'Annecy",
+                "Lac alpin aux eaux claires, en Haute-Savoie.", new Color(0.16f, 0.48f, 0.58f), AnnecySpecies);
+
+            string startPath = ZonesFolder + "/IleMahana.asset";
+            CreateOrUpdateZone(startPath, "Île Mahana",
+                "Île tropicale fictive : lagon turquoise, plages de sable blanc et cocotiers. Point de départ de l'aventure.",
+                MahanaWater, MahanaSpecies);
+            return startPath;
+        }
+
+        private static void CreateOrUpdateZone(string path, string displayName, string description, Color water, SpeciesData[] speciesData)
+        {
+            var species = new FishSpecies[speciesData.Length];
+            for (int i = 0; i < speciesData.Length; i++)
             {
-                species[i] = CreateOrUpdateSpecies(AnnecySpecies[i]);
+                species[i] = CreateOrUpdateSpecies(speciesData[i]);
             }
 
-            string zonePath = ZonesFolder + "/LacAnnecy.asset";
-            var zone = LoadOrCreate<FishingZone>(zonePath);
+            var zone = LoadOrCreate<FishingZone>(path);
             var so = new SerializedObject(zone);
-            so.FindProperty("_displayName").stringValue = "Lac d'Annecy (zone de test)";
-            so.FindProperty("_description").stringValue = "Lac alpin aux eaux claires, en Haute-Savoie.";
-            so.FindProperty("_waterColor").colorValue = new Color(0.16f, 0.48f, 0.58f);
+            so.FindProperty("_displayName").stringValue = displayName;
+            so.FindProperty("_description").stringValue = description;
+            so.FindProperty("_waterColor").colorValue = water;
 
             SerializedProperty entries = so.FindProperty("_species");
             entries.arraySize = species.Length;
@@ -110,12 +147,11 @@ namespace FishAndChill.Editor
             {
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative("_species").objectReferenceValue = species[i];
-                entry.FindPropertyRelative("_weight").floatValue = AnnecySpecies[i].Weight;
+                entry.FindPropertyRelative("_weight").floatValue = speciesData[i].Weight;
             }
 
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(zone);
-            return zonePath;
         }
 
         private static FishSpecies CreateOrUpdateSpecies(SpeciesData data)

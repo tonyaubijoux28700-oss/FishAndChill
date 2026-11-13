@@ -26,7 +26,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Scène : `Assets/_Project/Scenes/FishingPrototype.unity` (Espace / clic / bouton A = action unique).
 - Déplacement : ZQSD (lu par position physique `Key.W/A/S/D`, donc ZQSD en AZERTY et WASD en QWERTY),
   flèches ou stick gauche ; bloqué tant que la ligne est à l'eau (`PlayerMovement`).
-- Données de test (5 espèces du lac d'Annecy) et scène régénérables via le menu
+- Données (zones et espèces) et scène régénérables via le menu
   **FishAndChill → Prototype → Générer données et scène de pêche** (`PrototypeSetup.cs`, relançable).
 - L'affichage (`FishingPrototypeView`) est provisoire et construit par le code ; la logique est dans
   `FishingController` (états) et `Fishing/Core` (QTE pur, testé).
@@ -43,7 +43,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - `WorldMap` : terre = case avec une tuile sur `Terre` ; tout le reste est de l'eau.
 - Le joueur ne marche que sur la terre ; le lancer part dans la direction du regard (`PlayerMovement.Facing`)
   et doit tomber dans l'eau (`CastTargeting`). `CameraFollow` sur la caméra, bloquée aux limites de la carte.
-- Tuiles pixel art provisoires (16×16, 16 px/unité, filtre Point) dans `Assets/_Project/Art/Tiles/`.
+- Tuiles pixel art provisoires (16×16, 16 px/unité, filtre Point) dans `Assets/_Project/Art/Tiles/`,
+  **redessinées à chaque génération** : pour garder un dessin fait main, le renommer.
+- Zone de départ : **Île Mahana** (fictive, tropicale) avec 8 vraies espèces indo-pacifiques.
+  La zone « Lac d'Annecy » reste en données pour plus tard. Palmiers sur la Tilemap `Décor` (non bloquants).
 
 ## Conventions de code
 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52d1726b683e3a34cb42cf076922ab57, type: 3}
   m_Name: LacAnnecy
   m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
-  _displayName: Lac d'Annecy (zone de test)
+  _displayName: Lac d'Annecy
   _description: Lac alpin aux eaux claires, en Haute-Savoie.
   _waterColor: {r: 0.16, g: 0.48, b: 0.58, a: 1}
   _species:

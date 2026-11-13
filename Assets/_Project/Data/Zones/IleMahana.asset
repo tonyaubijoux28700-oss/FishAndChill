@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d1726b683e3a34cb42cf076922ab57, type: 3}
+  m_Name: IleMahana
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
+  _displayName: "\xCEle Mahana"
+  _description: "\xCEle tropicale fictive : lagon turquoise, plages de sable blanc et cocotiers. Point de d\xE9part de l'aventure."
+  _waterColor: {r: 0.2, g: 0.68, b: 0.75, a: 1}
+  _species:
+  - _species: {fileID: 11400000, guid: 63e5b0a759afdf84a959767155eda352, type: 2}
+    _weight: 30
+  - _species: {fileID: 11400000, guid: f1f238c3333708a479730776b3aaa52a, type: 2}
+    _weight: 25
+  - _species: {fileID: 11400000, guid: 71fdcf9dbc1aa634b89c43f4c7a0e744, type: 2}
+    _weight: 15
+  - _species: {fileID: 11400000, guid: 0e029bc22d4ad1342951b76179de42f3, type: 2}
+    _weight: 12
+  - _species: {fileID: 11400000, guid: 56f5afe31233358458f997d50cc62ef5, type: 2}
+    _weight: 8
+  - _species: {fileID: 11400000, guid: f71c5c2b540b65143b49b49c2a26332b, type: 2}
+    _weight: 5
+  - _species: {fileID: 11400000, guid: 4bd1bc3d346f3614985bd5bcce87b3f4, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: f9e130c52fab5304da835ea89eda9b98, type: 2}
+    _weight: 2

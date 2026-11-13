@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: SphyraenaBarracuda
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: sphyraena-barracuda
+  _commonName: Grand barracuda
+  _scientificName: Sphyraena barracuda
+  _rarity: 3
+  _difficulty:
+    _cursorSpeed: 1.9
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _sizeRangeCm: {x: 60, y: 160}
+  _basePrice: 110
+  _placeholderColor: {r: 0.6, g: 0.65, b: 0.7, a: 1}
+  _sprite: {fileID: 0}
