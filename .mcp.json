@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "unity-editor": {
+      "type": "stdio",
+      "command": "unity",
+      "args": ["mcp", "--tool-groups", "--project-path", "."]
+    }
+  }
+}
