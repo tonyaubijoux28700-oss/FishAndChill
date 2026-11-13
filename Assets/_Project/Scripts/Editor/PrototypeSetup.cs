@@ -162,10 +162,39 @@ namespace FishAndChill.Editor
                 controller = root.AddComponent<FishingController>();
             }
 
-            if (root.GetComponent<FishingPrototypeView>() == null)
+            var view = root.GetComponent<FishingPrototypeView>();
+            if (view == null)
             {
-                root.AddComponent<FishingPrototypeView>();
+                view = root.AddComponent<FishingPrototypeView>();
             }
+
+            // Le pêcheur : un objet à part entière, déplaçable en ZQSD.
+            GameObject player = GameObject.Find("Joueur");
+            if (player == null)
+            {
+                player = new GameObject("Joueur");
+                player.transform.position = new Vector3(0f, -3f, 0f);
+                player.transform.localScale = new Vector3(0.6f, 0.6f, 1f);
+            }
+
+            if (player.GetComponent<SpriteRenderer>() == null)
+            {
+                player.AddComponent<SpriteRenderer>();
+            }
+
+            var movement = player.GetComponent<Player.PlayerMovement>();
+            if (movement == null)
+            {
+                movement = player.AddComponent<Player.PlayerMovement>();
+            }
+
+            var movementSo = new SerializedObject(movement);
+            movementSo.FindProperty("_fishing").objectReferenceValue = controller;
+            movementSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var viewSo = new SerializedObject(view);
+            viewSo.FindProperty("_player").objectReferenceValue = player.transform;
+            viewSo.ApplyModifiedPropertiesWithoutUndo();
 
             var so = new SerializedObject(controller);
             so.FindProperty("_zone").objectReferenceValue = zone;

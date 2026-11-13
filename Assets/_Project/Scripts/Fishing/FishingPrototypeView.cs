@@ -21,9 +21,17 @@ namespace FishAndChill.Fishing
         private static readonly Color HitFlash = new Color(0.30f, 0.85f, 0.40f, 0.9f);
         private static readonly Color MissFlash = new Color(0.90f, 0.25f, 0.25f, 0.9f);
 
-        [SerializeField] private Vector2 _playerPosition = new Vector2(0f, -3.1f);
-        [SerializeField] private Vector2 _castAreaMin = new Vector2(-4f, 0f);
-        [SerializeField] private Vector2 _castAreaMax = new Vector2(4f, 3f);
+        [SerializeField, Tooltip("Le pêcheur : le fil part de sa position.")]
+        private Transform _player;
+
+        [SerializeField, Tooltip("Distance du lancer devant le joueur (min, max).")]
+        private Vector2 _castDistance = new Vector2(2.5f, 4.5f);
+
+        [SerializeField, Tooltip("Écart latéral maximal du lancer.")]
+        private float _castSpread = 1.5f;
+
+        [SerializeField, Tooltip("Le bouchon reste dans cette zone d'eau (coordonnées du monde).")]
+        private Rect _waterArea = Rect.MinMaxRect(-8.5f, -1.1f, 8.5f, 4.5f);
 
         private FishingController _controller;
         private Sprite _square;
@@ -88,9 +96,21 @@ namespace FishAndChill.Fishing
 
         private void BuildWorld()
         {
-            CreateSprite("Berge", _square, SandColor, new Vector2(0f, -4.6f), new Vector2(40f, 2.6f), 0);
-            CreateSprite("Pêcheur", _square, PlayerColor, _playerPosition, new Vector2(0.6f, 0.6f), 10);
-            _line = CreateSprite("Fil", _square, LineColor, _playerPosition, new Vector2(0.04f, 1f), 8).transform;
+            CreateSprite("Berge", _square, SandColor, new Vector2(0f, -3.6f), new Vector2(40f, 4.2f), 0);
+
+            if (_player == null)
+            {
+                _player = CreateSprite("Pêcheur", _square, PlayerColor, new Vector2(0f, -3f), new Vector2(0.6f, 0.6f), 10).transform;
+            }
+            else if (_player.TryGetComponent(out SpriteRenderer playerRenderer) && playerRenderer.sprite == null)
+            {
+                // Le joueur de la scène n'a pas encore de sprite : on lui donne la forme provisoire.
+                playerRenderer.sprite = _square;
+                playerRenderer.color = PlayerColor;
+                playerRenderer.sortingOrder = 10;
+            }
+
+            _line = CreateSprite("Fil", _square, LineColor, _player.position, new Vector2(0.04f, 1f), 8).transform;
             _shadow = CreateSprite("Ombre du poisson", _circle, ShadowColor, Vector2.zero, new Vector2(0.8f, 0.4f), 5);
             _bobber = CreateSprite("Bouchon", _circle, BobberColor, Vector2.zero, Vector2.one * 0.3f, 9).transform;
         }
@@ -135,7 +155,7 @@ namespace FishAndChill.Fishing
             _bobber.position = bobber;
             _shadow.transform.position = shadow;
             _shadow.transform.right = (Vector3)(_castPoint - shadow).normalized + Vector3.right * 0.001f;
-            PlaceLine(_playerPosition, bobber);
+            PlaceLine(_player.position, bobber);
         }
 
         private void PlaceLine(Vector2 from, Vector2 to)
@@ -166,7 +186,7 @@ namespace FishAndChill.Fishing
             Anchor(_header.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -30f), new Vector2(900f, 120f), new Vector2(0f, 1f));
 
             _message = CreateText(root, "Message", font, 40, TextAnchor.MiddleCenter);
-            Anchor(_message.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 360f), new Vector2(1600f, 130f), new Vector2(0.5f, 0f));
+            Anchor(_message.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(1400f, 130f), new Vector2(0.5f, 1f));
 
             _qtePanel = new GameObject("QTE", typeof(RectTransform));
             var panelRect = _qtePanel.GetComponent<RectTransform>();
@@ -237,9 +257,14 @@ namespace FishAndChill.Fishing
 
             if (_controller.State == FishingState.Waiting)
             {
+                // Lancer droit devant le pêcheur, avec un peu d'imprécision, sans sortir de l'eau.
+                Vector2 origin = _player.position;
+                Vector2 cast = origin + new Vector2(
+                    Random.Range(-_castSpread, _castSpread),
+                    Random.Range(_castDistance.x, _castDistance.y));
                 _castPoint = new Vector2(
-                    Random.Range(_castAreaMin.x, _castAreaMax.x),
-                    Random.Range(_castAreaMin.y, _castAreaMax.y));
+                    Mathf.Clamp(cast.x, _waterArea.xMin, _waterArea.xMax),
+                    Mathf.Clamp(cast.y, _waterArea.yMin, _waterArea.yMax));
                 _shadowStart = _castPoint + Random.insideUnitCircle.normalized * 2.5f;
 
                 FishSpecies species = _controller.HookedSpecies;

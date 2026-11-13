@@ -24,6 +24,8 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 ## Prototype de pêche
 
 - Scène : `Assets/_Project/Scenes/FishingPrototype.unity` (Espace / clic / bouton A = action unique).
+- Déplacement : ZQSD (lu par position physique `Key.W/A/S/D`, donc ZQSD en AZERTY et WASD en QWERTY),
+  flèches ou stick gauche ; bloqué tant que la ligne est à l'eau (`PlayerMovement`).
 - Données de test (5 espèces du lac d'Annecy) et scène régénérables via le menu
   **FishAndChill → Prototype → Générer données et scène de pêche** (`PrototypeSetup.cs`, relançable).
 - L'affichage (`FishingPrototypeView`) est provisoire et construit par le code ; la logique est dans

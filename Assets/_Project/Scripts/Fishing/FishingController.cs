@@ -20,7 +20,7 @@ namespace FishAndChill.Fishing
     /// </summary>
     public sealed class FishingController : MonoBehaviour
     {
-        private const string IdleMessage = "Appuie sur Espace pour lancer ta ligne";
+        private const string IdleMessage = "ZQSD pour te déplacer — Espace pour lancer ta ligne";
 
         [SerializeField] private FishingZone _zone;
 
