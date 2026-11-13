@@ -99,6 +99,12 @@ namespace FishAndChill.Fishing
         private void Update()
         {
             Tick(Time.deltaTime);
+
+            // Menu ouvert (boutique…) : la pêche ne réagit pas aux touches.
+            if (_angler != null && _angler.Locked)
+            {
+                return;
+            }
             if (State == FishingState.BagFull)
             {
                 int slot = FishingInput.SlotPressedThisFrame();
@@ -288,8 +294,8 @@ namespace FishAndChill.Fishing
             }
 
             string detail = isNew
-                ? "Nouvelle espèce ! Rapporte-la à l'aquarium."
-                : $"Doublon : se vendra {species.BasePrice} pièces à l'aquarium.";
+                ? "Nouvelle espèce ! Garde-la pour l'aquarium."
+                : $"Doublon : le marchand te l'achètera {FishShop.PriceOf(fish)} pièces.";
 
             StartPhase(FishingState.Result, _catchResultSeconds, $"{header}\n{detail}");
             FishCaught?.Invoke(fish, isNew, false);

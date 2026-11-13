@@ -19,6 +19,13 @@ namespace FishAndChill.World
 
         private Camera _camera;
         private Vector3 _velocity;
+        private Rect? _boundsOverride;
+
+        /// <summary>Limites temporaires (ex. l'intérieur d'un bâtiment) ; null pour revenir à la carte.</summary>
+        public void SetBoundsOverride(Rect? bounds)
+        {
+            _boundsOverride = bounds;
+        }
 
         public Transform Target
         {
@@ -62,10 +69,11 @@ namespace FishAndChill.World
         private Vector3 DesiredPosition()
         {
             Vector2 center = _target.position;
-            if (_map != null && _camera != null && _camera.orthographic)
+            if (_camera != null && _camera.orthographic && (_boundsOverride.HasValue || _map != null))
             {
                 var halfExtents = new Vector2(_camera.orthographicSize * _camera.aspect, _camera.orthographicSize);
-                center = CameraMath.ClampToBounds(center, halfExtents, _map.WorldBounds);
+                Rect bounds = _boundsOverride ?? _map.WorldBounds;
+                center = CameraMath.ClampToBounds(center, halfExtents, bounds);
             }
 
             return new Vector3(center.x, center.y, transform.position.z);

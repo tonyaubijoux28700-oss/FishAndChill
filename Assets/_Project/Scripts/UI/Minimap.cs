@@ -40,10 +40,16 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Couleur de chaque tuile sur la carte.")]
         private List<TileColor> _palette = new List<TileColor>();
 
-        [SerializeField, Tooltip("Lieu à signaler sur la carte (l'aquarium).")]
+        [SerializeField, Tooltip("Lieu à signaler sur la carte (la boutique).")]
         private Transform _landmark;
 
+        [SerializeField, Tooltip("Icône du lieu signalé (sinon un losange orange).")]
+        private Sprite _landmarkIcon;
+
         [SerializeField] private Color _landmarkColor = new Color(1.00f, 0.60f, 0.15f);
+
+        [SerializeField, Tooltip("Quand le joueur est dans la boutique, son point s'affiche sur la boutique.")]
+        private ShopBuilding _shop;
 
         [SerializeField] private Color _waterColor = new Color(0.20f, 0.62f, 0.72f);
         [SerializeField] private Color _unknownLandColor = new Color(0.80f, 0.75f, 0.55f);
@@ -113,8 +119,19 @@ namespace FishAndChill.UI
         }
 
         /// <summary>Position actuelle du point sur la carte (0..1). Utile pour les tests.</summary>
-        public Vector2 PlayerNormalizedPosition =>
-            _player != null ? MinimapMath.WorldToNormalized(_player.position, _worldBounds) : new Vector2(0.5f, 0.5f);
+        public Vector2 PlayerNormalizedPosition
+        {
+            get
+            {
+                if (_player == null)
+                {
+                    return new Vector2(0.5f, 0.5f);
+                }
+
+                Vector2 position = _shop != null && _shop.IsPlayerInside ? (Vector2)_shop.transform.position : (Vector2)_player.position;
+                return MinimapMath.WorldToNormalized(position, _worldBounds);
+            }
+        }
 
         /// <summary>Reconstruit l'image de la carte (à rappeler si l'île est modifiée en jeu).</summary>
         public void Rebuild()
@@ -284,7 +301,7 @@ namespace FishAndChill.UI
             MapView view = CreateView(frame.gameObject, rect, 20f, new Vector2(0f, -10f));
 
             Text close = AddText(rect, "Fermer", font, 22, TextAnchor.MiddleCenter);
-            close.text = "Point rouge : toi  •  Losange orange : aquarium  •  M ou Échap pour fermer";
+            close.text = "Point rouge : toi  •  Icône : boutique  •  M ou Échap pour fermer";
             close.color = new Color(0.80f, 0.84f, 0.88f);
             close.rectTransform.anchoredPosition = new Vector2(0f, -256f);
             close.rectTransform.sizeDelta = new Vector2(600f, 34f);
@@ -298,12 +315,17 @@ namespace FishAndChill.UI
             var image = imageObject.GetComponent<RawImage>();
             image.rectTransform.anchoredPosition = imageOffset;
 
-            Image landmark = AddImage(image.rectTransform, "Aquarium", _landmarkColor);
-            landmark.rectTransform.sizeDelta = new Vector2(dotSize * 0.9f, dotSize * 0.9f);
-            landmark.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
-            var landmarkBorder = landmark.gameObject.AddComponent<Outline>();
-            landmarkBorder.effectColor = new Color(0.25f, 0.12f, 0.02f);
-            landmarkBorder.effectDistance = new Vector2(2f, -2f);
+            Image landmark = AddImage(image.rectTransform, "Boutique", _landmarkIcon != null ? Color.white : _landmarkColor);
+            if (_landmarkIcon != null)
+            {
+                landmark.sprite = _landmarkIcon;
+                landmark.rectTransform.sizeDelta = new Vector2(dotSize * 2.6f, dotSize * 2.6f);
+            }
+            else
+            {
+                landmark.rectTransform.sizeDelta = new Vector2(dotSize * 0.9f, dotSize * 0.9f);
+                landmark.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            }
 
             Image dot = AddImage(image.rectTransform, "Toi", _playerColor);
             dot.rectTransform.sizeDelta = new Vector2(dotSize, dotSize);

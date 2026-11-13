@@ -24,6 +24,15 @@ namespace FishAndChill.World
         /// </summary>
         public bool IsLand(Vector2 worldPosition)
         {
+            // Les intérieurs (boutique…) sont des sols praticables hors de l'île.
+            foreach (Rect area in _walkableAreas)
+            {
+                if (area.Contains(worldPosition))
+                {
+                    return true;
+                }
+            }
+
             if (_land == null)
             {
                 return false;
@@ -50,6 +59,10 @@ namespace FishAndChill.World
         }
 
         private readonly System.Collections.Generic.List<Rect> _obstacles = new System.Collections.Generic.List<Rect>();
+        private readonly System.Collections.Generic.List<Rect> _walkableAreas = new System.Collections.Generic.List<Rect>();
+
+        /// <summary>Ajoute un sol praticable hors de l'île (intérieur d'un bâtiment), en coordonnées du monde.</summary>
+        public void AddWalkableArea(Rect area) => _walkableAreas.Add(area);
 
         /// <summary>Ajoute une zone infranchissable (bâtiment…), en coordonnées du monde.</summary>
         public void AddObstacle(Rect area) => _obstacles.Add(area);

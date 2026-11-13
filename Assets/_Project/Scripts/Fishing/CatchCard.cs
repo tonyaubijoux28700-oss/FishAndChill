@@ -105,8 +105,8 @@ namespace FishAndChill.Fishing
             else
             {
                 _footer.text = isNew
-                    ? $"Rapporte-la à l'aquarium !{bag}"
-                    : $"Doublon : se vendra {species.BasePrice} pièces{bag}";
+                    ? $"Garde-la pour l'aquarium !{bag}"
+                    : $"Doublon : le marchand te l'achètera {FishShop.PriceOf(fish)} pièces{bag}";
                 _footer.color = isNew ? NewSpeciesColor : MutedText;
                 _hint.text = "Espace pour continuer";
                 _hint.color = MutedText;

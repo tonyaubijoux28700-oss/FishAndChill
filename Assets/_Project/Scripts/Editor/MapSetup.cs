@@ -53,7 +53,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Construit (ou reconstruit) l'île dans la scène ouverte et y branche joueur, pêche et caméra.</summary>
-        public static AquariumStation BuildIsland(GameObject player, FishingController controller, Collection.PlayerProgress progress)
+        public static ShopBuilding BuildIsland(GameObject player, FishingController controller)
         {
             TileSet tiles = CreateTiles();
             ConfigureDepthSorting();
@@ -120,8 +120,8 @@ namespace FishAndChill.Editor
             // Le joueur apparaît sur la plage sud, face à la mer.
             Vector2Int spawn = FindSouthSpawn(terrain);
 
-            // L'aquarium : sur la terre ferme, à quelques pas du point de départ.
-            Vector2Int aquariumCell = FindAquariumSite(terrain, spawn);
+            // La boutique : dans les terres, loin du rivage, pas trop loin du point de départ.
+            Vector2Int shopCell = FindShopSite(terrain, spawn);
 
             // Cocotiers sur l'herbe, espacés, jamais sur le point d'apparition ni sur l'aquarium.
             var palms = new List<Vector2Int>();
@@ -130,8 +130,8 @@ namespace FishAndChill.Editor
                 for (int x = 0; x < width; x++)
                 {
                     bool nearSpawn = Mathf.Abs(x - spawn.x) <= 3 && Mathf.Abs(y - spawn.y) <= 3;
-                    bool nearAquarium = Mathf.Abs(x - aquariumCell.x) <= 3 && y >= aquariumCell.y - 3 && y <= aquariumCell.y + 4;
-                    if (terrain[x, y] != TerrainType.Grass || nearSpawn || nearAquarium || IslandGenerator.CellHash(x, y, seed + 1) > 0.045f)
+                    bool nearShop = Mathf.Abs(x - shopCell.x) <= 5 && y >= shopCell.y - 4 && y <= shopCell.y + 5;
+                    if (terrain[x, y] != TerrainType.Grass || nearSpawn || nearShop || IslandGenerator.CellHash(x, y, seed + 1) > 0.045f)
                     {
                         continue;
                     }
@@ -162,17 +162,19 @@ namespace FishAndChill.Editor
             SetReference(controller, "_angler", player.GetComponent<PlayerMovement>());
             SetReference(controller, "_map", worldMap);
 
-            // Bâtiment de l'aquarium : pivot au sol, au milieu de la façade (bas de la case choisie).
-            var aquariumPosition = new Vector3(bounds.xMin + aquariumCell.x + 0.5f, bounds.yMin + aquariumCell.y, 0f);
-            AquariumStation station = BuildAquarium(aquariumPosition, worldMap, player.transform, controller, progress);
+            // L'ancien bâtiment « Aquarium » est remplacé par la boutique (l'aquarium aura son propre bâtiment).
+            GameObject oldAquarium = GameObject.Find("Aquarium");
+            if (oldAquarium != null)
+            {
+                Object.DestroyImmediate(oldAquarium);
+            }
 
-            BuildMinimap(worldMap, decorMap, player.transform, tiles, station.transform);
-
+            CameraFollow follow = null;
             Camera camera = Camera.main;
             if (camera != null)
             {
                 camera.orthographicSize = CameraSize;
-                var follow = camera.GetComponent<CameraFollow>();
+                follow = camera.GetComponent<CameraFollow>();
                 if (follow == null)
                 {
                     follow = camera.gameObject.AddComponent<CameraFollow>();
@@ -183,24 +185,30 @@ namespace FishAndChill.Editor
                 camera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, camera.transform.position.z);
             }
 
-            return station;
+            // Boutique : pivot au sol, au milieu de la façade (bas de la case choisie) ; intérieur hors de l'île.
+            var shopPosition = new Vector3(bounds.xMin + shopCell.x + 0.5f, bounds.yMin + shopCell.y, 0f);
+            var interiorOrigin = new Vector2(bounds.xMax + 20f, bounds.yMin);
+            ShopBuilding shop = BuildShop(shopPosition, interiorOrigin, worldMap, player.GetComponent<PlayerMovement>(), follow);
+
+            BuildMinimap(worldMap, decorMap, player.transform, tiles, shop);
+            return shop;
         }
 
         /// <summary>
-        /// Cherche, près du point de départ, une case où poser l'aquarium : 3 cases de large × 2 de profondeur
-        /// sur la terre, avec de la terre devant la porte, et pas sur le point de départ.
+        /// Cherche une case pour la façade de la boutique (5 cases de large, 3 de profondeur), entourée d'au moins
+        /// 5 cases de terre sur les côtés et 8 devant : bien à l'intérieur des terres, le plus près possible du départ.
         /// </summary>
-        private static Vector2Int FindAquariumSite(TerrainType[,] terrain, Vector2Int spawn)
+        private static Vector2Int FindShopSite(TerrainType[,] terrain, Vector2Int spawn)
         {
             bool Land(int x, int y) => !IslandGenerator.IsWater(terrain, x, y);
 
-            for (int radius = 3; radius <= 14; radius++)
+            for (int radius = 4; radius <= 30; radius++)
             {
                 for (int dx = -radius; dx <= radius; dx++)
                 {
-                    for (int dy = -2; dy <= radius; dy++)
+                    for (int dy = 0; dy <= radius; dy++)
                     {
-                        if (Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy)) != radius)
+                        if (Mathf.Max(Mathf.Abs(dx), dy) != radius)
                         {
                             continue;
                         }
@@ -208,15 +216,15 @@ namespace FishAndChill.Editor
                         int cx = spawn.x + dx;
                         int cy = spawn.y + dy;
                         bool fits = true;
-                        for (int x = cx - 2; x <= cx + 2 && fits; x++)
+                        for (int x = cx - 7; x <= cx + 7 && fits; x++)
                         {
-                            for (int y = cy - 2; y <= cy + 3 && fits; y++)
+                            for (int y = cy - 8; y <= cy + 8 && fits; y++)
                             {
                                 fits = Land(x, y);
                             }
                         }
 
-                        if (fits && !(Mathf.Abs(dx) <= 2 && Mathf.Abs(dy) <= 2))
+                        if (fits)
                         {
                             return new Vector2Int(cx, cy);
                         }
@@ -224,21 +232,72 @@ namespace FishAndChill.Editor
                 }
             }
 
-            Debug.LogWarning("[FishAndChill] Pas de place idéale pour l'aquarium : il est posé au point de départ.");
-            return spawn + Vector2Int.up * 3;
+            Debug.LogWarning("[FishAndChill] Pas de place idéale pour la boutique : elle est posée au nord du point de départ.");
+            return spawn + Vector2Int.up * 6;
         }
 
-        private static AquariumStation BuildAquarium(Vector3 position, WorldMap map, Transform player, FishingController fishing, Collection.PlayerProgress progress)
+        private static ShopBuilding BuildShop(Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow)
         {
-            Sprite sprite = PixelArt.Save("Assets/_Project/Art/Buildings/Aquarium.png", AquariumArt.Draw(), TileArt.Size, AquariumArt.Pivot);
+            const string folder = "Assets/_Project/Art/Buildings";
+            Sprite exterior = PixelArt.Save($"{folder}/Boutique.png", ShopArt.Exterior(), TileArt.Size, ShopArt.ExteriorPivot);
+            Sprite interior = PixelArt.Save($"{folder}/Boutique_Interieur.png", ShopArt.Interior(), TileArt.Size, Vector2.zero);
+            Sprite counter = PixelArt.Save($"{folder}/Boutique_Comptoir.png", ShopArt.Counter(), TileArt.Size, ShopArt.CounterPivot);
+            Sprite merchant = PixelArt.Save("Assets/_Project/Art/Characters/Marchand.png", ShopArt.Merchant(), TileArt.Size, CharacterArt.Pivot);
 
-            GameObject go = GameObject.Find("Aquarium");
-            if (go == null)
+            GameObject go = EnsureObject("Boutique", null);
+            go.transform.position = position;
+            SetSprite(go, exterior, 10);
+
+            var shop = go.GetComponent<ShopBuilding>();
+            if (shop == null)
             {
-                go = new GameObject("Aquarium");
+                shop = go.AddComponent<ShopBuilding>();
             }
 
-            go.transform.position = position;
+            var so = new SerializedObject(shop);
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_camera").objectReferenceValue = follow;
+            so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // Intérieur : sol et murs, comptoir, marchand (positions calculées par ShopBuilding).
+            GameObject room = EnsureObject("Boutique - Intérieur", null);
+            room.transform.position = interiorOrigin;
+            GameObject floor = EnsureObject("Sol et murs", room.transform);
+            floor.transform.localPosition = Vector3.zero;
+            SetSprite(floor, interior, -5).spriteSortPoint = SpriteSortPoint.Center;
+
+            GameObject counterObject = EnsureObject("Comptoir", room.transform);
+            counterObject.transform.position = shop.CounterSpot;
+            SetSprite(counterObject, counter, 10);
+
+            GameObject merchantObject = EnsureObject("Marchand", room.transform);
+            merchantObject.transform.position = shop.MerchantSpot;
+            SetSprite(merchantObject, merchant, 10);
+
+            return shop;
+        }
+
+        private static GameObject EnsureObject(string name, Transform parent)
+        {
+            Transform existing = parent != null ? parent.Find(name) : GameObject.Find(name)?.transform;
+            if (existing != null)
+            {
+                return existing.gameObject;
+            }
+
+            var go = new GameObject(name);
+            if (parent != null)
+            {
+                go.transform.SetParent(parent, false);
+            }
+
+            return go;
+        }
+
+        private static SpriteRenderer SetSprite(GameObject go, Sprite sprite, int sortingOrder)
+        {
             var renderer = go.GetComponent<SpriteRenderer>();
             if (renderer == null)
             {
@@ -246,20 +305,9 @@ namespace FishAndChill.Editor
             }
 
             renderer.sprite = sprite;
-            renderer.sortingOrder = 10;
+            renderer.sortingOrder = sortingOrder;
             renderer.spriteSortPoint = SpriteSortPoint.Pivot;
-
-            var station = go.GetComponent<AquariumStation>();
-            if (station == null)
-            {
-                station = go.AddComponent<AquariumStation>();
-            }
-
-            SetReference(station, "_map", map);
-            SetReference(station, "_player", player);
-            SetReference(station, "_fishing", fishing);
-            SetReference(station, "_progress", progress);
-            return station;
+            return renderer;
         }
 
         private static TileSet CreateTiles()
@@ -423,8 +471,10 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, Transform landmark)
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, ShopBuilding shop)
         {
+            Sprite icon = PixelArt.Save("Assets/_Project/Art/UI/IconeBoutique.png", ShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
+            Transform landmark = shop.transform;
             GameObject go = GameObject.Find("Minimap");
             if (go == null)
             {
@@ -449,6 +499,8 @@ namespace FishAndChill.Editor
             so.FindProperty("_player").objectReferenceValue = player;
             so.FindProperty("_decor").objectReferenceValue = decorMap;
             so.FindProperty("_landmark").objectReferenceValue = landmark;
+            so.FindProperty("_landmarkIcon").objectReferenceValue = icon;
+            so.FindProperty("_shop").objectReferenceValue = shop;
             so.FindProperty("_waterColor").colorValue = new Color(0.14f, 0.54f, 0.67f);
             so.FindProperty("_pixelsPerCell").intValue = 6;
 

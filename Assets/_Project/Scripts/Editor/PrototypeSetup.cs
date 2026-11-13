@@ -285,10 +285,10 @@ namespace FishAndChill.Editor
             // Le pêcheur est trié par ses pieds (pivot) pour passer devant / derrière les cocotiers et l'aquarium.
             renderer.spriteSortPoint = SpriteSortPoint.Pivot;
 
-            // L'île de départ, l'aquarium, la caméra qui suit et les branchements joueur / carte.
-            AquariumStation station = MapSetup.BuildIsland(player, controller, progress);
+            // L'île de départ, la boutique, la caméra qui suit et les branchements joueur / carte.
+            ShopBuilding shop = MapSetup.BuildIsland(player, controller);
 
-            // Interface du sac et des pièces.
+            // Interface du sac et des pièces (l'aquarium aura plus tard son propre bâtiment : pas de dépôt ici).
             var hud = partie.GetComponent<UI.InventoryHud>();
             if (hud == null)
             {
@@ -298,8 +298,25 @@ namespace FishAndChill.Editor
             var hudSo = new SerializedObject(hud);
             hudSo.FindProperty("_progress").objectReferenceValue = progress;
             hudSo.FindProperty("_fishing").objectReferenceValue = controller;
-            hudSo.FindProperty("_station").objectReferenceValue = station;
+            hudSo.FindProperty("_station").objectReferenceValue = null;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Le marchand de la boutique et son menu de vente.
+            var shopMenu = partie.GetComponent<UI.ShopMenu>();
+            if (shopMenu == null)
+            {
+                shopMenu = partie.AddComponent<UI.ShopMenu>();
+            }
+
+            var menuSo = new SerializedObject(shopMenu);
+            menuSo.FindProperty("_progress").objectReferenceValue = progress;
+            menuSo.FindProperty("_shop").objectReferenceValue = shop;
+            menuSo.FindProperty("_player").objectReferenceValue = movement;
+            menuSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var viewShopSo = new SerializedObject(view);
+            viewShopSo.FindProperty("_shop").objectReferenceValue = shop;
+            viewShopSo.ApplyModifiedPropertiesWithoutUndo();
             if (zone == null)
             {
                 Debug.LogError("[FishAndChill] Zone de test introuvable : la scène n'a pas de zone assignée.");

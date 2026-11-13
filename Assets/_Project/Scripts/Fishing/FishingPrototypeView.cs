@@ -23,6 +23,11 @@ namespace FishAndChill.Fishing
         [SerializeField, Tooltip("Le pêcheur : le fil part de sa position.")]
         private Transform _player;
 
+        [SerializeField, Tooltip("Optionnel : dans la boutique, l'aide de pêche est remplacée par celle de la boutique.")]
+        private World.ShopBuilding _shop;
+
+        private const string ShopHint = "Parle au marchand au comptoir (E) — redescends vers le paillasson pour sortir";
+
         private FishingController _controller;
         private PlayerMovement _playerMovement;
         private CatchCard _catchCard;
@@ -93,8 +98,20 @@ namespace FishAndChill.Fishing
             UpdateQte();
             _catchCard.Animate(Time.deltaTime);
 
-            // La carte de prise remplace le message texte.
-            _message.text = _catchCard.IsVisible ? string.Empty : _controller.Message;
+            // La carte de prise remplace le message texte ; dans la boutique, aide propre à la boutique
+            // (et rien quand le menu du marchand est ouvert).
+            if (_catchCard.IsVisible || (_playerMovement != null && _playerMovement.Locked))
+            {
+                _message.text = string.Empty;
+            }
+            else if (_shop != null && _shop.IsPlayerInside)
+            {
+                _message.text = ShopHint;
+            }
+            else
+            {
+                _message.text = _controller.Message;
+            }
         }
 
         // ---------- Monde ----------

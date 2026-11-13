@@ -33,10 +33,29 @@ namespace FishAndChill.Player
         /// <summary>Le joueur s'est-il déplacé à la dernière image ?</summary>
         public bool IsMoving { get; private set; }
 
+        /// <summary>Direction demandée à la dernière image (même si un mur bloque le déplacement).</summary>
+        public Vector2 LastInput { get; private set; }
+
+        /// <summary>Immobilise le joueur (menu ouvert…).</summary>
+        public bool Locked { get; set; }
+
+        /// <summary>Place le joueur ailleurs (entrée / sortie d'un bâtiment) en gardant sa direction.</summary>
+        public void Teleport(Vector2 position, Vector2 facing)
+        {
+            transform.position = new Vector3(position.x, position.y, transform.position.z);
+            Facing = facing.sqrMagnitude > 0f ? facing.normalized : Facing;
+            IsMoving = false;
+        }
+
         public bool CanMove
         {
             get
             {
+                if (Locked)
+                {
+                    return false;
+                }
+
                 if (_fishing == null)
                 {
                     return true;
@@ -56,12 +75,14 @@ namespace FishAndChill.Player
             else
             {
                 IsMoving = false;
+                LastInput = Vector2.zero;
             }
         }
 
         /// <summary>Déplace le joueur. Public pour pouvoir le piloter hors clavier (tests).</summary>
         public void Move(Vector2 input, float deltaTime)
         {
+            LastInput = input;
             Facing = MovementMath.UpdateFacing(Facing, input);
 
             Vector2 position = transform.position;
