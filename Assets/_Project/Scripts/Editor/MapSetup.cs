@@ -106,6 +106,8 @@ namespace FishAndChill.Editor
             SetReference(controller, "_angler", player.GetComponent<PlayerMovement>());
             SetReference(controller, "_map", worldMap);
 
+            BuildMinimap(worldMap, decorMap, player.transform, sand, grass, palm);
+
             Camera camera = Camera.main;
             if (camera != null)
             {
@@ -119,6 +121,46 @@ namespace FishAndChill.Editor
                 SetReference(follow, "_map", worldMap);
                 camera.transform.position = new Vector3(player.transform.position.x, player.transform.position.y, camera.transform.position.z);
             }
+        }
+
+        /// <summary>Carte de l'île consultable avec M : couleurs par tuile, point du joueur.</summary>
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, Tile sand, Tile grass, Tile palm)
+        {
+            GameObject go = GameObject.Find("Minimap");
+            if (go == null)
+            {
+                go = new GameObject("Minimap");
+            }
+
+            var minimap = go.GetComponent<UI.Minimap>();
+            if (minimap == null)
+            {
+                minimap = go.AddComponent<UI.Minimap>();
+            }
+
+            var so = new SerializedObject(minimap);
+            so.FindProperty("_map").objectReferenceValue = worldMap;
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_decor").objectReferenceValue = decorMap;
+            so.FindProperty("_waterColor").colorValue = new Color(0.20f, 0.66f, 0.74f);
+            so.FindProperty("_pixelsPerCell").intValue = 6;
+
+            SerializedProperty palette = so.FindProperty("_palette");
+            var entries = new (Tile tile, Color color)[]
+            {
+                (sand, new Color(0.96f, 0.89f, 0.68f)),
+                (grass, new Color(0.32f, 0.66f, 0.33f)),
+                (palm, new Color(0.12f, 0.42f, 0.18f)),
+            };
+            palette.arraySize = entries.Length;
+            for (int i = 0; i < entries.Length; i++)
+            {
+                SerializedProperty entry = palette.GetArrayElementAtIndex(i);
+                entry.FindPropertyRelative("Tile").objectReferenceValue = entries[i].tile;
+                entry.FindPropertyRelative("Color").colorValue = entries[i].color;
+            }
+
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static Vector2Int FindSouthSpawn(TerrainType[,] terrain)

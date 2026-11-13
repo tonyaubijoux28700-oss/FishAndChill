@@ -15,6 +15,9 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Tilemap de l'eau : sert à connaître les limites de la carte.")]
         private Tilemap _water;
 
+        public Tilemap Land => _land;
+        public Tilemap Water => _water;
+
         public bool IsLand(Vector2 worldPosition)
         {
             return _land != null && _land.HasTile(_land.WorldToCell(worldPosition));
