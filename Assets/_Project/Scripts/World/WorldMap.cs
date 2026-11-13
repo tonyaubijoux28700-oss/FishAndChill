@@ -18,10 +18,31 @@ namespace FishAndChill.World
         public Tilemap Land => _land;
         public Tilemap Water => _water;
 
+        /// <summary>
+        /// Terre ou eau selon la côte arrondie (champ lissé des 4 cases voisines), exactement comme elle est
+        /// dessinée par les tuiles de transition.
+        /// </summary>
         public bool IsLand(Vector2 worldPosition)
         {
-            return _land != null && _land.HasTile(_land.WorldToCell(worldPosition));
+            if (_land == null)
+            {
+                return false;
+            }
+
+            // Coordonnées où le centre de la case (i, j) est en (i, j).
+            Vector3 local = _land.WorldToLocal(worldPosition);
+            Vector3 cellSize = _land.layoutGrid != null ? _land.layoutGrid.cellSize : Vector3.one;
+            var cellSpace = new Vector2(local.x / cellSize.x - 0.5f, local.y / cellSize.y - 0.5f);
+            return SmoothTerrain.Sample(cellSpace, LandValue) >= SmoothTerrain.Threshold;
         }
+
+        /// <summary>La case contient-elle une tuile de terre (vue « carrée », pour la logique par case) ?</summary>
+        public bool IsLandCell(Vector3Int cell)
+        {
+            return _land != null && _land.HasTile(cell);
+        }
+
+        private float LandValue(int i, int j) => _land.HasTile(new Vector3Int(i, j, 0)) ? 1f : 0f;
 
         public bool IsWater(Vector2 worldPosition)
         {

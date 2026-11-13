@@ -36,11 +36,20 @@ namespace FishAndChill.Editor
 
         private sealed class TileSet
         {
+            // Tuiles « logiques » (une par case) : servent aux collisions et à la minimap.
             public Tile[] Deep;
             public Tile[] Shallow;
             public Tile[] Sand;
             public Tile[] Grass;
             public Tile Palm;
+
+            // Tuiles de rendu en double grille : [masque 0..15], plus des variantes pour le masque plein (15).
+            public Tile[] LagoonEdges;
+            public Tile[] SandEdges;
+            public Tile[] GrassEdges;
+            public Tile[] LagoonFull;
+            public Tile[] SandFull;
+            public Tile[] GrassFull;
         }
 
         /// <summary>Construit (ou reconstruit) l'île dans la scène ouverte et y branche joueur, pêche et caméra.</summary>
@@ -56,7 +65,12 @@ namespace FishAndChill.Editor
             }
 
             Tilemap waterMap = EnsureTilemap(mapObject.transform, "Eau", -20, TilemapRenderer.Mode.Chunk);
+            // Couche logique (collisions, minimap) : non affichée, le rendu passe par les transitions arrondies.
             Tilemap landMap = EnsureTilemap(mapObject.transform, "Terre", -10, TilemapRenderer.Mode.Chunk);
+            landMap.GetComponent<TilemapRenderer>().enabled = false;
+            Tilemap lagoonLayer = EnsureTilemap(mapObject.transform, "Rendu - Lagon", -18, TilemapRenderer.Mode.Chunk);
+            Tilemap sandLayer = EnsureTilemap(mapObject.transform, "Rendu - Sable", -15, TilemapRenderer.Mode.Chunk);
+            Tilemap grassLayer = EnsureTilemap(mapObject.transform, "Rendu - Herbe", -12, TilemapRenderer.Mode.Chunk);
             // Même ordre que le joueur, tri individuel : on passe derrière un cocotier quand on est au nord.
             Tilemap decorMap = EnsureTilemap(mapObject.transform, "Décor", 10, TilemapRenderer.Mode.Individual);
 
@@ -97,6 +111,11 @@ namespace FishAndChill.Editor
             decorMap.ClearAllTiles();
             waterMap.SetTilesBlock(bounds, waterTiles);
             landMap.SetTilesBlock(bounds, landTiles);
+
+            // Rendu arrondi en double grille : lagon (près des côtes, sous le sable), sable (toute la terre), herbe.
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance, tiles.LagoonEdges, tiles.LagoonFull, seed + 2);
+            FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3);
+            FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4);
 
             // Le joueur apparaît sur la plage sud, face à la mer.
             Vector2Int spawn = FindSouthSpawn(terrain);
@@ -170,7 +189,8 @@ namespace FishAndChill.Editor
             for (int i = 0; i < 2; i++)
             {
                 set.Deep[i] = SaveTile($"Eau_{i}", TileArt.DeepWater(i), Vector2.one * 0.5f, TileArt.Size);
-                set.Shallow[i] = SaveTile($"Lagon_{i}", TileArt.ShallowWater(i), Vector2.one * 0.5f, TileArt.Size);
+                // Le lagon est dessiné par les transitions : sa tuile logique a l'aspect du large en dessous.
+                set.Shallow[i] = SaveTile($"Lagon_{i}", TileArt.DeepWater(i), Vector2.one * 0.5f, TileArt.Size);
             }
 
             for (int i = 0; i < 3; i++)
@@ -180,7 +200,94 @@ namespace FishAndChill.Editor
             }
 
             set.Palm = SaveTile("Cocotier", TileArt.Palm(), TileArt.PalmPivot, TileArt.Size);
+
+            // Transitions arrondies.
+            var lagoon = new TransitionArt.Style
+            {
+                Fill = TileArt.ShallowWater(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.40f, 0.82f, 0.84f), InnerBlend = 0.6f,
+                OuterBand = 0.07f, OuterColor = new Color(0.24f, 0.66f, 0.74f), DitherOuter = true,
+            };
+            var sand = new TransitionArt.Style
+            {
+                Fill = TileArt.Sand(0),
+                InnerBand = 0.07f, InnerColor = new Color(0.84f, 0.74f, 0.54f), InnerBlend = 1f, // sable mouillé
+                OuterBand = 0.07f, OuterColor = new Color(0.95f, 0.99f, 0.99f), DitherOuter = false,  // écume
+            };
+            var grass = new TransitionArt.Style
+            {
+                Fill = TileArt.Grass(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.24f, 0.50f, 0.24f), InnerBlend = 1f,      // lisière
+                OuterBand = 0.06f, OuterColor = new Color(0.40f, 0.68f, 0.34f), DitherOuter = true,   // brins
+            };
+
+            set.LagoonEdges = SaveEdges("Lagon", lagoon);
+            set.SandEdges = SaveEdges("Sable", sand);
+            set.GrassEdges = SaveEdges("Herbe", grass);
+
+            set.LagoonFull = new[] { set.LagoonEdges[15], SaveTile("Bords/Lagon_15b", TileArt.ShallowWater(1), Vector2.one * 0.5f, TileArt.Size) };
+            set.SandFull = new[]
+            {
+                set.SandEdges[15],
+                SaveTile("Bords/Sable_15b", TileArt.Sand(1), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/Sable_15c", TileArt.Sand(2), Vector2.one * 0.5f, TileArt.Size),
+            };
+            set.GrassFull = new[]
+            {
+                set.GrassEdges[15],
+                SaveTile("Bords/Herbe_15b", TileArt.Grass(1), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/Herbe_15c", TileArt.Grass(2), Vector2.one * 0.5f, TileArt.Size),
+            };
             return set;
+        }
+
+        /// <summary>Les 16 tuiles de transition d'une matière (masque 0 = vide, pas de tuile).</summary>
+        private static Tile[] SaveEdges(string name, TransitionArt.Style style)
+        {
+            var tiles = new Tile[16];
+            for (int mask = 1; mask < 16; mask++)
+            {
+                tiles[mask] = SaveTile($"Bords/{name}_{mask:00}", TransitionArt.Build(mask, style), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            return tiles;
+        }
+
+        /// <summary>
+        /// Remplit une couche en double grille : la tuile (x, y) couvre les centres des cases (x, y) à (x+1, y+1).
+        /// La Tilemap est décalée d'une demi-case pour que ses coins tombent sur les centres des cases logiques.
+        /// </summary>
+        private static void FillDualLayer(Tilemap layer, BoundsInt bounds, int width, int height,
+            System.Func<int, int, bool> isSet, Tile[] edges, Tile[] fullVariants, int seed)
+        {
+            layer.ClearAllTiles();
+            layer.transform.localPosition = new Vector3(0.5f, 0.5f, 0f);
+
+            bool At(int x, int y) => x >= 0 && y >= 0 && x < width && y < height && isSet(x, y);
+
+            for (int x = -1; x < width; x++)
+            {
+                for (int y = -1; y < height; y++)
+                {
+                    int mask = SmoothTerrain.Mask(At(x, y), At(x + 1, y), At(x, y + 1), At(x + 1, y + 1));
+                    if (mask == 0)
+                    {
+                        continue;
+                    }
+
+                    Tile tile = edges[mask];
+                    if (mask == 15)
+                    {
+                        float hash = IslandGenerator.CellHash(x, y, seed);
+                        int variant = fullVariants.Length == 3
+                            ? (hash < 0.9f ? 0 : hash < 0.95f ? 1 : 2)
+                            : (hash < 0.5f ? 0 : 1);
+                        tile = fullVariants[variant];
+                    }
+
+                    layer.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tile);
+                }
+            }
         }
 
         /// <summary>Crée la tuile et (re)dessine son image (provisoire : régénérée à chaque lancement).</summary>

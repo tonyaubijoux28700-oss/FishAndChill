@@ -40,7 +40,14 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   96×72 cases, 1 case = 1 unité) via `MapSetup.cs`, appelé par le menu du prototype.
 - **Attention** : relancer le menu régénère l'île et **écrase les retouches faites à la main**
   dans la Tile Palette. Une fois l'île retouchée, ne plus relancer la génération de la carte.
-- `WorldMap` : terre = case avec une tuile sur `Terre` ; tout le reste est de l'eau.
+- `Terre` est une couche **logique** (renderer désactivé) : une tuile par case de terre.
+- **Côtes sans angles (double grille)** : le rendu passe par 3 couches décalées d'une demi-case
+  (`Rendu - Lagon`, `Rendu - Sable`, `Rendu - Herbe`) ; chaque tuile lit ses 4 coins (16 masques) et dessine une
+  frontière en biseau (`SmoothTerrain`, interpolation bilinéaire, seuil 0,5) avec écume, sable mouillé, lisière.
+  Tuiles dans `Art/Tiles/Bords/` (`TransitionArt.cs`).
+- `WorldMap.IsLand` utilise **le même champ lissé** : on marche et on vise exactement selon la côte dessinée.
+  Pour retoucher l'île à la main, peindre sur `Terre` puis relancer le remplissage des couches de rendu
+  (à faire : un menu dédié qui ne régénère que le rendu).
 - Le joueur ne marche que sur la terre ; le lancer part dans la direction du regard (`PlayerMovement.Facing`)
   et doit tomber dans l'eau (`CastTargeting`). `CameraFollow` sur la caméra, bloquée aux limites de la carte.
 - Tuiles pixel art provisoires (16×16, 16 px/unité, filtre Point) dans `Assets/_Project/Art/Tiles/`,
