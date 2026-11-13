@@ -36,7 +36,8 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 
 - Toujours commiter les `.meta` avec leurs assets.
 - Petits commits au message clair en français.
-- Commiter quand une étape compile et fonctionne ; **demander avant de pousser** sur GitHub.
+- Commiter quand une étape compile et fonctionne, et **pousser sur GitHub juste après chaque commit**
+  (sans redemander).
 - Dépôt public : aucune clé, aucun identifiant dans le projet.
 
 ## Collaboration
