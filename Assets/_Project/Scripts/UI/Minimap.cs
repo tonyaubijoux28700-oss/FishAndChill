@@ -8,8 +8,9 @@ using UnityEngine.UI;
 namespace FishAndChill.UI
 {
     /// <summary>
-    /// Carte de l'île, ouverte / fermée avec M. L'image est construite à partir des Tilemaps
-    /// (1 pixel = 1 case) et un point clignotant suit le joueur en direct ; le jeu continue pendant ce temps.
+    /// Carte de l'île : une petite carte toujours visible en bas à droite, et une grande carte au centre
+    /// ouverte / fermée avec M. Les deux partagent la même image (1 pixel = 1 case, construite depuis les
+    /// Tilemaps) et un point clignotant qui suit le joueur en direct ; le jeu continue pendant ce temps.
     /// </summary>
     public sealed class Minimap : MonoBehaviour
     {
@@ -18,6 +19,15 @@ namespace FishAndChill.UI
         {
             public TileBase Tile;
             public Color Color = Color.white;
+        }
+
+        /// <summary>Une vue de la carte : image + point du joueur.</summary>
+        private sealed class MapView
+        {
+            public GameObject Root;
+            public RawImage Image;
+            public RectTransform Dot;
+            public Image DotImage;
         }
 
         [SerializeField] private WorldMap _map;
@@ -33,19 +43,24 @@ namespace FishAndChill.UI
         [SerializeField] private Color _unknownLandColor = new Color(0.80f, 0.75f, 0.55f);
         [SerializeField] private Color _playerColor = new Color(0.95f, 0.20f, 0.20f);
 
-        [SerializeField, Min(1), Tooltip("Taille d'une case sur l'écran, en pixels de référence (1920×1080).")]
+        [SerializeField, Min(1), Tooltip("Grande carte : taille d'une case en pixels de référence (1920×1080).")]
         private int _pixelsPerCell = 6;
+
+        [SerializeField, Min(1), Tooltip("Petite carte (coin) : taille d'une case en pixels de référence.")]
+        private int _cornerPixelsPerCell = 3;
 
         [SerializeField] private string _title = "Île Mahana";
 
-        private GameObject _panel;
-        private RawImage _mapImage;
-        private RectTransform _dot;
-        private Image _dotImage;
+        private MapView _corner;
+        private MapView _large;
         private Texture2D _texture;
         private Rect _worldBounds;
 
-        public bool IsOpen => _panel != null && _panel.activeSelf;
+        /// <summary>La grande carte est-elle ouverte ?</summary>
+        public bool IsOpen => _large != null && _large.Root.activeSelf;
+
+        /// <summary>La petite carte du coin est-elle affichée ?</summary>
+        public bool IsCornerVisible => _corner != null && _corner.Root.activeSelf;
 
         private void Start()
         {
@@ -73,26 +88,22 @@ namespace FishAndChill.UI
                 SetOpen(false);
             }
 
-            if (IsOpen)
-            {
-                UpdateDot();
-            }
+            UpdateDot(IsOpen ? _large : _corner);
         }
 
         public void Toggle() => SetOpen(!IsOpen);
 
+        /// <summary>Ouvre la grande carte (la petite se masque) ou revient à la petite carte du coin.</summary>
         public void SetOpen(bool open)
         {
-            if (_panel == null)
+            if (_large == null)
             {
                 return;
             }
 
-            _panel.SetActive(open);
-            if (open)
-            {
-                UpdateDot();
-            }
+            _large.Root.SetActive(open);
+            _corner.Root.SetActive(!open);
+            UpdateDot(open ? _large : _corner);
         }
 
         /// <summary>Position actuelle du point sur la carte (0..1). Utile pour les tests.</summary>
@@ -156,19 +167,38 @@ namespace FishAndChill.UI
             }
 
             _texture.Apply();
-            _mapImage.texture = _texture;
-            _mapImage.rectTransform.sizeDelta = new Vector2(cells.size.x, cells.size.y) * _pixelsPerCell;
+            var cellCount = new Vector2(cells.size.x, cells.size.y);
+            ApplyTexture(_large, cellCount * _pixelsPerCell);
+            ApplyTexture(_corner, cellCount * _cornerPixelsPerCell);
         }
 
-        private void UpdateDot()
+        private void ApplyTexture(MapView view, Vector2 size)
         {
+            view.Image.texture = _texture;
+            view.Image.rectTransform.sizeDelta = size;
+
+            // La petite carte : son cadre s'ajuste à l'image.
+            if (view == _corner)
+            {
+                var frame = (RectTransform)view.Root.transform;
+                frame.sizeDelta = size + new Vector2(12f, 44f);
+            }
+        }
+
+        private void UpdateDot(MapView view)
+        {
+            if (view == null || !view.Root.activeSelf)
+            {
+                return;
+            }
+
             Vector2 normalized = PlayerNormalizedPosition;
-            Vector2 size = _mapImage.rectTransform.sizeDelta;
-            _dot.anchoredPosition = new Vector2((normalized.x - 0.5f) * size.x, (normalized.y - 0.5f) * size.y);
+            Vector2 size = view.Image.rectTransform.sizeDelta;
+            view.Dot.anchoredPosition = new Vector2((normalized.x - 0.5f) * size.x, (normalized.y - 0.5f) * size.y);
 
             Color color = _playerColor;
             color.a = MinimapMath.BlinkAlpha(Time.unscaledTime);
-            _dotImage.color = color;
+            view.DotImage.color = color;
         }
 
         // ---------- Interface ----------
@@ -187,53 +217,75 @@ namespace FishAndChill.UI
             var root = canvasObject.GetComponent<RectTransform>();
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-            // Rappel permanent en bas à droite.
-            Text hint = AddText(root, "Rappel", font, 26, TextAnchor.LowerRight);
-            hint.text = "M : carte";
-            hint.rectTransform.anchorMin = hint.rectTransform.anchorMax = new Vector2(1f, 0f);
-            hint.rectTransform.pivot = new Vector2(1f, 0f);
-            hint.rectTransform.anchoredPosition = new Vector2(-30f, 24f);
-            hint.rectTransform.sizeDelta = new Vector2(300f, 40f);
+            _corner = BuildCornerView(root, font);
+            _large = BuildLargeView(root, font);
+        }
 
-            _panel = new GameObject("Carte ouverte", typeof(RectTransform));
-            var panelRect = _panel.GetComponent<RectTransform>();
-            panelRect.SetParent(root, false);
-            panelRect.anchorMin = Vector2.zero;
-            panelRect.anchorMax = Vector2.one;
-            panelRect.offsetMin = Vector2.zero;
-            panelRect.offsetMax = Vector2.zero;
+        /// <summary>Petite carte permanente, ancrée en bas à droite de l'écran.</summary>
+        private MapView BuildCornerView(RectTransform root, Font font)
+        {
+            Image frame = AddImage(root, "Petite carte", new Color(0.07f, 0.10f, 0.14f, 0.85f));
+            RectTransform rect = frame.rectTransform;
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 0f);
+            rect.pivot = new Vector2(1f, 0f);
+            rect.anchoredPosition = new Vector2(-24f, 24f);
+            var border = frame.gameObject.AddComponent<Outline>();
+            border.effectColor = new Color(0.95f, 0.85f, 0.55f, 0.9f);
+            border.effectDistance = new Vector2(3f, -3f);
 
-            Image frame = AddImage(panelRect, "Cadre", new Color(0.07f, 0.10f, 0.14f, 0.92f));
-            frame.rectTransform.anchoredPosition = new Vector2(0f, -45f);
-            frame.rectTransform.sizeDelta = new Vector2(640f, 560f);
+            MapView view = CreateView(frame.gameObject, rect, 14f, new Vector2(0f, 16f));
+
+            Text hint = AddText(rect, "Agrandir", font, 22, TextAnchor.MiddleCenter);
+            hint.text = "M : agrandir";
+            hint.rectTransform.anchorMin = new Vector2(0f, 0f);
+            hint.rectTransform.anchorMax = new Vector2(1f, 0f);
+            hint.rectTransform.pivot = new Vector2(0.5f, 0f);
+            hint.rectTransform.anchoredPosition = new Vector2(0f, 4f);
+            hint.rectTransform.sizeDelta = new Vector2(0f, 28f);
+            return view;
+        }
+
+        /// <summary>Grande carte au centre, ouverte avec M.</summary>
+        private MapView BuildLargeView(RectTransform root, Font font)
+        {
+            Image frame = AddImage(root, "Grande carte", new Color(0.07f, 0.10f, 0.14f, 0.92f));
+            RectTransform rect = frame.rectTransform;
+            rect.anchoredPosition = new Vector2(0f, -45f);
+            rect.sizeDelta = new Vector2(640f, 560f);
             var border = frame.gameObject.AddComponent<Outline>();
             border.effectColor = new Color(0.95f, 0.85f, 0.55f);
             border.effectDistance = new Vector2(4f, -4f);
 
-            Text title = AddText(frame.rectTransform, "Titre", font, 38, TextAnchor.MiddleCenter);
+            Text title = AddText(rect, "Titre", font, 38, TextAnchor.MiddleCenter);
             title.text = _title;
             title.fontStyle = FontStyle.Bold;
             title.rectTransform.anchoredPosition = new Vector2(0f, 248f);
             title.rectTransform.sizeDelta = new Vector2(600f, 50f);
 
-            var imageObject = new GameObject("Île", typeof(RectTransform), typeof(RawImage));
-            imageObject.transform.SetParent(frame.rectTransform, false);
-            _mapImage = imageObject.GetComponent<RawImage>();
-            _mapImage.rectTransform.anchoredPosition = new Vector2(0f, -10f);
+            MapView view = CreateView(frame.gameObject, rect, 20f, new Vector2(0f, -10f));
 
-            Image dot = AddImage(_mapImage.rectTransform, "Toi", _playerColor);
-            _dot = dot.rectTransform;
-            _dot.sizeDelta = new Vector2(20f, 20f);
-            _dotImage = dot;
-            var dotBorder = dot.gameObject.AddComponent<Outline>();
-            dotBorder.effectColor = Color.white;
-            dotBorder.effectDistance = new Vector2(2f, -2f);
-
-            Text close = AddText(frame.rectTransform, "Fermer", font, 22, TextAnchor.MiddleCenter);
+            Text close = AddText(rect, "Fermer", font, 22, TextAnchor.MiddleCenter);
             close.text = "Le point rouge, c'est toi  •  M ou Échap pour fermer";
             close.color = new Color(0.80f, 0.84f, 0.88f);
             close.rectTransform.anchoredPosition = new Vector2(0f, -256f);
             close.rectTransform.sizeDelta = new Vector2(600f, 34f);
+            return view;
+        }
+
+        private MapView CreateView(GameObject rootObject, RectTransform parent, float dotSize, Vector2 imageOffset)
+        {
+            var imageObject = new GameObject("Île", typeof(RectTransform), typeof(RawImage));
+            imageObject.transform.SetParent(parent, false);
+            var image = imageObject.GetComponent<RawImage>();
+            image.rectTransform.anchoredPosition = imageOffset;
+
+            Image dot = AddImage(image.rectTransform, "Toi", _playerColor);
+            dot.rectTransform.sizeDelta = new Vector2(dotSize, dotSize);
+            var dotBorder = dot.gameObject.AddComponent<Outline>();
+            dotBorder.effectColor = Color.white;
+            dotBorder.effectDistance = new Vector2(2f, -2f);
+
+            return new MapView { Root = rootObject, Image = image, Dot = dot.rectTransform, DotImage = dot };
         }
 
         private static Image AddImage(RectTransform parent, string name, Color color)
