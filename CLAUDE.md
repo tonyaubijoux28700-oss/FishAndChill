@@ -21,6 +21,17 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Ne pas modifier à la main un fichier `.unity` / `.prefab` ouvert dans l'éditeur : passer par
   les commandes de l'éditeur, sinon Unity écrase les changements.
 
+## Prototype de pêche
+
+- Scène : `Assets/_Project/Scenes/FishingPrototype.unity` (Espace / clic / bouton A = action unique).
+- Données de test (5 espèces du lac d'Annecy) et scène régénérables via le menu
+  **FishAndChill → Prototype → Générer données et scène de pêche** (`PrototypeSetup.cs`, relançable).
+- L'affichage (`FishingPrototypeView`) est provisoire et construit par le code ; la logique est dans
+  `FishingController` (états) et `Fishing/Core` (QTE pur, testé).
+- `FishingController.PressAction()` et `Tick()` sont publics : on peut jouer le prototype par
+  `unity command script eval` pour le tester sans clavier.
+- Tests : `unity command test run --mode EditMode --filter FishAndChill --filter-type assembly --project-path .`
+
 ## Conventions de code
 
 - C#, un fichier par classe, `PascalCase` pour les types et méthodes, `_camelCase` pour les champs privés.
