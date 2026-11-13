@@ -61,7 +61,13 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 
 - Tout le pixel art actuel est **provisoire** et **redessiné à chaque lancement du menu** du prototype
   (`PixelArt.cs` pour l'écriture/import des PNG) :
-  - pêcheur 16×16, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator` ;
+  - **Échelle unique** : 16 px par case et caméra orthographique de taille 6 (`MapSetup.CameraSize`), pour qu'un
+    pixel du monde ait la même taille à l'écran qu'un pixel de poisson sur la carte de prise (≈ 5,6 px en 1080p).
+  - tuiles détaillées 16×16 (`TileArt.cs`) : eau du large et lagon clair près des côtes (`DistanceToLand`),
+    sable (coquillage, étoile de mer), herbe (hibiscus, frangipanier), variantes choisies par `CellHash` ;
+    cocotiers 32×40 sur la Tilemap `Décor` en tri individuel, même ordre que le joueur ;
+  - tri par profondeur : Renderer2D en *Custom Axis* (0, 1, 0) — plus au nord = dessiné derrière ;
+  - pêcheur 16×24, pivot **aux pieds**, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator` ;
   - poissons de profil, tête à droite, un par espèce (`FishArt.cs` → `Art/Fish/`), assignés au champ
     `_sprite` de chaque `FishSpecies`. Dessins **détaillés** (≈ 96 px de long) via le moteur paramétrable
     `DetailedFish` (silhouette, dégradé, nageoires, queue, tête, motifs) : fiches des espèces de l'île dans

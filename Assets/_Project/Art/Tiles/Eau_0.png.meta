@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9f61f846ea96ff04fb4aa256d5d17bfe
+guid: ede659143ac82e547819062a73ead182
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4936708512303133623
-    second: Eau_0
+      213: -4371613610712309513
+    second: Eau_0_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +49,7 @@ TextureImporter:
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
-  alignment: 0
+  alignment: 9
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
@@ -115,7 +115,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Eau_0
+      name: Eau_0_0
       rect:
         serializedVersion: 2
         x: 0
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 94c468c83c94d7bb0800000000000000
-      internalID: -4936708512303133623
+      spriteID: 7f0ea363598e453c0800000000000000
+      internalID: -4371613610712309513
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Eau_0: -4936708512303133623
+      Eau_0_0: -4371613610712309513
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

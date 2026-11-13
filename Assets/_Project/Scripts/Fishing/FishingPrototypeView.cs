@@ -13,7 +13,6 @@ namespace FishAndChill.Fishing
     public sealed class FishingPrototypeView : MonoBehaviour
     {
         private static readonly Color PlayerColor = new Color(0.93f, 0.42f, 0.30f);
-        private static readonly Color BobberColor = new Color(0.95f, 0.20f, 0.20f);
         private static readonly Color ShadowColor = new Color(0f, 0f, 0f, 0.35f);
         private static readonly Color LineColor = new Color(1f, 1f, 1f, 0.7f);
         private static readonly Color BarColor = new Color(0.08f, 0.10f, 0.14f, 0.9f);
@@ -28,7 +27,8 @@ namespace FishAndChill.Fishing
         private PlayerMovement _playerMovement;
         private CatchCard _catchCard;
         private Sprite _square;
-        private Sprite _circle;
+        private Sprite[] _shadowSprites;
+        private Sprite _bobberSprite;
 
         private Transform _bobber;
         private Transform _line;
@@ -49,7 +49,8 @@ namespace FishAndChill.Fishing
         {
             _controller = GetComponent<FishingController>();
             _square = CreateSquareSprite();
-            _circle = CreateCircleSprite(64);
+            _shadowSprites = new[] { CreatePixelEllipse(12, 5), CreatePixelEllipse(20, 8), CreatePixelEllipse(30, 11) };
+            _bobberSprite = CreateBobberSprite();
         }
 
         private void OnEnable()
@@ -107,8 +108,8 @@ namespace FishAndChill.Fishing
             _playerMovement = _player.GetComponent<PlayerMovement>();
 
             _line = CreateSprite("Fil", _square, LineColor, _player.position, new Vector2(0.04f, 1f), 8).transform;
-            _shadow = CreateSprite("Ombre du poisson", _circle, ShadowColor, Vector2.zero, new Vector2(0.8f, 0.4f), 5);
-            _bobber = CreateSprite("Bouchon", _circle, BobberColor, Vector2.zero, Vector2.one * 0.3f, 9).transform;
+            _shadow = CreateSprite("Ombre du poisson", _shadowSprites[1], ShadowColor, Vector2.zero, Vector2.one, 5);
+            _bobber = CreateSprite("Bouchon", _bobberSprite, Color.white, Vector2.zero, Vector2.one, 9).transform;
         }
 
         private void UpdateWorld()
@@ -153,7 +154,8 @@ namespace FishAndChill.Fishing
             _shadow.transform.right = (Vector3)(_castPoint - shadow).normalized + Vector3.right * 0.001f;
             // Le fil part de la main du pêcheur, du côté où il regarde.
             Vector2 facing = _playerMovement != null ? _playerMovement.Facing : Vector2.up;
-            PlaceLine((Vector2)_player.position + facing * 0.4f + Vector2.down * 0.05f, bobber);
+            // La position du joueur est à ses pieds : la main est un demi-mètre plus haut.
+            PlaceLine((Vector2)_player.position + Vector2.up * 0.55f + facing * 0.45f, bobber);
         }
 
         private void PlaceLine(Vector2 from, Vector2 to)
@@ -269,9 +271,9 @@ namespace FishAndChill.Fishing
                 Vector2 away = (_castPoint - (Vector2)_player.position).normalized;
                 _shadowStart = _castPoint + (away + Random.insideUnitCircle * 0.6f).normalized * 2.5f;
 
-                FishSpecies species = _controller.HookedSpecies;
-                float size = species != null ? Mathf.InverseLerp(5f, 120f, _controller.HookedSizeCm) : 0.3f;
-                _shadow.transform.localScale = new Vector3(Mathf.Lerp(0.5f, 2.2f, size), Mathf.Lerp(0.25f, 0.8f, size), 1f);
+                // Ombre en pixel art à taille fixe (pas d'étirement) : petite, moyenne ou grande selon le poisson.
+                float sizeCm = _controller.HookedSizeCm;
+                _shadow.sprite = _shadowSprites[sizeCm < 35f ? 0 : sizeCm < 80f ? 1 : 2];
             }
 
             RefreshHeader();
@@ -359,22 +361,65 @@ namespace FishAndChill.Fishing
             return Sprite.Create(texture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f), 4f);
         }
 
-        private static Sprite CreateCircleSprite(int resolution)
+        private const float WorldPixelsPerUnit = 16f;
+
+        /// <summary>Ellipse pleine en pixel art (ombre du poisson), à 16 pixels par unité comme le décor.</summary>
+        private static Sprite CreatePixelEllipse(int width, int height)
         {
-            var texture = new Texture2D(resolution, resolution) { filterMode = FilterMode.Bilinear };
-            float radius = resolution * 0.5f;
-            for (int y = 0; y < resolution; y++)
+            var texture = new Texture2D(width, height) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < resolution; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    float distance = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(radius, radius));
-                    float alpha = Mathf.Clamp01(radius - distance);
-                    texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+                    float dx = (x + 0.5f - width * 0.5f) / (width * 0.5f);
+                    float dy = (y + 0.5f - height * 0.5f) / (height * 0.5f);
+                    bool inside = dx * dx + dy * dy <= 1f;
+                    // Une queue en pointe à gauche pour suggérer la silhouette du poisson.
+                    bool tail = x < width * 0.18f && Mathf.Abs(dy) < 0.5f + (width * 0.18f - x) / width * 2f;
+                    texture.SetPixel(x, y, inside || tail ? Color.white : Color.clear);
                 }
             }
 
             texture.Apply();
-            return Sprite.Create(texture, new Rect(0, 0, resolution, resolution), new Vector2(0.5f, 0.5f), resolution);
+            return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), WorldPixelsPerUnit);
+        }
+
+        /// <summary>Bouchon en pixel art : antenne, dôme rouge avec reflet, bande blanche.</summary>
+        private static Sprite CreateBobberSprite()
+        {
+            string[] rows =
+            {
+                "..K..",
+                ".RRR.",
+                "RHRRR",
+                "RRRRR",
+                "WWWWW",
+                ".WWW.",
+            };
+
+            int height = rows.Length;
+            int width = rows[0].Length;
+            var texture = new Texture2D(width, height) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            for (int row = 0; row < height; row++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    Color c;
+                    switch (rows[row][x])
+                    {
+                        case 'K': c = new Color(0.15f, 0.12f, 0.10f); break;
+                        case 'R': c = new Color(0.90f, 0.18f, 0.16f); break;
+                        case 'H': c = new Color(1.00f, 0.60f, 0.55f); break;
+                        case 'W': c = new Color(0.97f, 0.97f, 0.95f); break;
+                        default: c = Color.clear; break;
+                    }
+
+                    texture.SetPixel(x, height - 1 - row, c);
+                }
+            }
+
+            texture.Apply();
+            return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.3f), WorldPixelsPerUnit);
         }
     }
 }

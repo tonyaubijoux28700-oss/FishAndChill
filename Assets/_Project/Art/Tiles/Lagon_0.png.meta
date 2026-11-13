@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0e68ac065f097b143ae9222d087afc32
+guid: 3b3d56a69437dcb49917325277658d2c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2733384925673408681
-    second: Herbe_0
+      213: -6696553950605186119
+    second: Lagon_0_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +49,7 @@ TextureImporter:
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
-  alignment: 0
+  alignment: 9
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
@@ -115,7 +115,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Herbe_0
+      name: Lagon_0_0
       rect:
         serializedVersion: 2
         x: 0
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9a8cb299b1feee520800000000000000
-      internalID: 2733384925673408681
+      spriteID: 9bb60fa69af0113a0800000000000000
+      internalID: -6696553950605186119
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Herbe_0: 2733384925673408681
+      Lagon_0_0: -6696553950605186119
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

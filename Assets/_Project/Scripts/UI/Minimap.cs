@@ -150,6 +150,12 @@ namespace FishAndChill.UI
                     var cell = new Vector3Int(cells.xMin + x, cells.yMin + y, 0);
                     Color color = _waterColor;
 
+                    TileBase water = _map.Water != null ? _map.Water.GetTile(cell) : null;
+                    if (water != null && lookup.TryGetValue(water, out Color waterColor))
+                    {
+                        color = waterColor;
+                    }
+
                     TileBase land = _map.Land.GetTile(cell);
                     if (land != null)
                     {

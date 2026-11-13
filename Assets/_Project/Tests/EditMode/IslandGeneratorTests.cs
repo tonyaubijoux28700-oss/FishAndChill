@@ -71,6 +71,31 @@ namespace FishAndChill.Tests
         }
 
         [Test]
+        public void DistanceToLand_CountsCellsFromTheShore()
+        {
+            var map = new TerrainType[7, 3];
+            map[0, 1] = TerrainType.Sand;
+
+            int[,] distance = IslandGenerator.DistanceToLand(map, 4);
+
+            Assert.That(distance[0, 1], Is.EqualTo(0));
+            Assert.That(distance[1, 1], Is.EqualTo(1));
+            Assert.That(distance[2, 0], Is.EqualTo(2));
+            Assert.That(distance[3, 1], Is.EqualTo(3));
+            Assert.That(distance[6, 1], Is.EqualTo(4), "plafonné à la distance maximale");
+        }
+
+        [Test]
+        public void CellHash_IsStableAndInRange()
+        {
+            float a = IslandGenerator.CellHash(12, -7, 3);
+
+            Assert.That(IslandGenerator.CellHash(12, -7, 3), Is.EqualTo(a));
+            Assert.That(a, Is.InRange(0f, 1f));
+            Assert.That(IslandGenerator.CellHash(13, -7, 3), Is.Not.EqualTo(a));
+        }
+
+        [Test]
         public void Island_HasAllThreeTerrains()
         {
             var map = Generate();

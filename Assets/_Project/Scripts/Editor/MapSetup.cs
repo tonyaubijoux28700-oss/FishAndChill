@@ -1,4 +1,4 @@
-using System.IO;
+using System.Collections.Generic;
 using FishAndChill.Fishing;
 using FishAndChill.Player;
 using FishAndChill.World;
@@ -9,13 +9,23 @@ using UnityEngine.Tilemaps;
 namespace FishAndChill.Editor
 {
     /// <summary>
-    /// Construit l'île de départ : tuiles pixel art provisoires, Tilemaps eau + terre, point d'apparition,
-    /// caméra qui suit le joueur. Une fois générée, l'île peut être retouchée à la main (Tile Palette).
+    /// Construit l'île de départ : tuiles pixel art détaillées (même taille de pixel que les poissons des
+    /// cartes), lagon peu profond, variantes, cocotiers, point d'apparition, caméra et minimap.
+    /// Une fois générée, l'île peut être retouchée à la main (Tile Palette).
     /// </summary>
     public static class MapSetup
     {
         private const string TilesFolder = "Assets/_Project/Art/Tiles";
-        private const int TileSize = 16;
+        private const string Renderer2DPath = "Assets/Settings/Renderer2D.asset";
+
+        /// <summary>
+        /// Taille de caméra pour qu'un pixel du monde ait la même taille à l'écran qu'un pixel de poisson
+        /// sur la carte de prise : 1080 / (2 × 6 × 16) ≈ 5,6 pixels d'écran, comme 540 / 96 sur la carte.
+        /// </summary>
+        public const float CameraSize = 6f;
+
+        /// <summary>Le lagon clair s'étend jusqu'à cette distance de la côte (en cases).</summary>
+        private const int ShallowDistance = 3;
 
         private static readonly IslandGenerator.Settings IslandSettings = new IslandGenerator.Settings
         {
@@ -24,14 +34,20 @@ namespace FishAndChill.Editor
             Seed = 1234,
         };
 
+        private sealed class TileSet
+        {
+            public Tile[] Deep;
+            public Tile[] Shallow;
+            public Tile[] Sand;
+            public Tile[] Grass;
+            public Tile Palm;
+        }
+
         /// <summary>Construit (ou reconstruit) l'île dans la scène ouverte et y branche joueur, pêche et caméra.</summary>
         public static void BuildIsland(GameObject player, FishingController controller)
         {
-            // Palette tropicale : lagon turquoise, sable blanc, herbe luxuriante.
-            Tile water = EnsureTile("Eau", NoisePainter(new Color(0.20f, 0.68f, 0.75f), new Color(0.45f, 0.85f, 0.88f), new Color(0.15f, 0.58f, 0.68f), 11, waves: true));
-            Tile sand = EnsureTile("Sable", NoisePainter(new Color(0.95f, 0.89f, 0.70f), new Color(0.99f, 0.96f, 0.84f), new Color(0.88f, 0.80f, 0.60f), 22, waves: false));
-            Tile grass = EnsureTile("Herbe", NoisePainter(new Color(0.30f, 0.66f, 0.32f), new Color(0.42f, 0.77f, 0.40f), new Color(0.22f, 0.55f, 0.26f), 33, waves: false));
-            Tile palm = EnsureTile("Palmier", PalmPainter());
+            TileSet tiles = CreateTiles();
+            ConfigureDepthSorting();
 
             GameObject mapObject = GameObject.Find("Carte");
             if (mapObject == null)
@@ -39,14 +55,17 @@ namespace FishAndChill.Editor
                 mapObject = new GameObject("Carte", typeof(Grid));
             }
 
-            Tilemap waterMap = EnsureTilemap(mapObject.transform, "Eau", -20);
-            Tilemap landMap = EnsureTilemap(mapObject.transform, "Terre", -10);
-            Tilemap decorMap = EnsureTilemap(mapObject.transform, "Décor", -5);
+            Tilemap waterMap = EnsureTilemap(mapObject.transform, "Eau", -20, TilemapRenderer.Mode.Chunk);
+            Tilemap landMap = EnsureTilemap(mapObject.transform, "Terre", -10, TilemapRenderer.Mode.Chunk);
+            // Même ordre que le joueur, tri individuel : on passe derrière un cocotier quand on est au nord.
+            Tilemap decorMap = EnsureTilemap(mapObject.transform, "Décor", 10, TilemapRenderer.Mode.Individual);
 
             TerrainType[,] terrain = IslandGenerator.Generate(IslandSettings);
+            int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
             int width = terrain.GetLength(0);
             int height = terrain.GetLength(1);
             var bounds = new BoundsInt(-width / 2, -height / 2, 0, width, height, 1);
+            int seed = IslandSettings.Seed;
 
             var waterTiles = new TileBase[width * height];
             var landTiles = new TileBase[width * height];
@@ -55,14 +74,19 @@ namespace FishAndChill.Editor
                 for (int x = 0; x < width; x++)
                 {
                     int index = x + y * width;
-                    waterTiles[index] = water;
+                    float hash = IslandGenerator.CellHash(x, y, seed);
+                    Tile[] water = distance[x, y] <= ShallowDistance ? tiles.Shallow : tiles.Deep;
+                    waterTiles[index] = water[hash < 0.5f ? 0 : 1];
+
                     switch (terrain[x, y])
                     {
                         case TerrainType.Sand:
-                            landTiles[index] = sand;
+                            // Surtout du sable uni, parfois un coquillage ou une étoile de mer.
+                            landTiles[index] = tiles.Sand[hash < 0.88f ? 0 : hash < 0.95f ? 1 : 2];
                             break;
                         case TerrainType.Grass:
-                            landTiles[index] = grass;
+                            // Herbe surtout unie, quelques fleurs isolées.
+                            landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
                             break;
                     }
                 }
@@ -77,17 +101,25 @@ namespace FishAndChill.Editor
             // Le joueur apparaît sur la plage sud, face à la mer.
             Vector2Int spawn = FindSouthSpawn(terrain);
 
-            // Quelques palmiers sur l'herbe (décor, on passe dessous), jamais sur le point d'apparition.
-            var random = new System.Random(IslandSettings.Seed + 1);
+            // Cocotiers sur l'herbe, espacés, jamais sur le point d'apparition.
+            var palms = new List<Vector2Int>();
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    bool nearSpawn = Mathf.Abs(x - spawn.x) <= 2 && Mathf.Abs(y - spawn.y) <= 2;
-                    if (terrain[x, y] == TerrainType.Grass && !nearSpawn && random.NextDouble() < 0.05)
+                    bool nearSpawn = Mathf.Abs(x - spawn.x) <= 3 && Mathf.Abs(y - spawn.y) <= 3;
+                    if (terrain[x, y] != TerrainType.Grass || nearSpawn || IslandGenerator.CellHash(x, y, seed + 1) > 0.045f)
                     {
-                        decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), palm);
+                        continue;
                     }
+
+                    if (palms.Exists(other => Mathf.Abs(other.x - x) < 3 && Mathf.Abs(other.y - y) < 3))
+                    {
+                        continue;
+                    }
+
+                    palms.Add(new Vector2Int(x, y));
+                    decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tiles.Palm);
                 }
             }
 
@@ -100,17 +132,19 @@ namespace FishAndChill.Editor
             SetReference(worldMap, "_land", landMap);
             SetReference(worldMap, "_water", waterMap);
 
+            // Position du joueur = ses pieds, au centre de la case.
             player.transform.position = new Vector3(bounds.xMin + spawn.x + 0.5f, bounds.yMin + spawn.y + 0.5f, 0f);
 
             SetReference(player.GetComponent<PlayerMovement>(), "_map", worldMap);
             SetReference(controller, "_angler", player.GetComponent<PlayerMovement>());
             SetReference(controller, "_map", worldMap);
 
-            BuildMinimap(worldMap, decorMap, player.transform, sand, grass, palm);
+            BuildMinimap(worldMap, decorMap, player.transform, tiles);
 
             Camera camera = Camera.main;
             if (camera != null)
             {
+                camera.orthographicSize = CameraSize;
                 var follow = camera.GetComponent<CameraFollow>();
                 if (follow == null)
                 {
@@ -123,8 +157,80 @@ namespace FishAndChill.Editor
             }
         }
 
-        /// <summary>Carte de l'île consultable avec M : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, Tile sand, Tile grass, Tile palm)
+        private static TileSet CreateTiles()
+        {
+            var set = new TileSet
+            {
+                Deep = new Tile[2],
+                Shallow = new Tile[2],
+                Sand = new Tile[3],
+                Grass = new Tile[3],
+            };
+
+            for (int i = 0; i < 2; i++)
+            {
+                set.Deep[i] = SaveTile($"Eau_{i}", TileArt.DeepWater(i), Vector2.one * 0.5f, TileArt.Size);
+                set.Shallow[i] = SaveTile($"Lagon_{i}", TileArt.ShallowWater(i), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                set.Sand[i] = SaveTile($"Sable_{i}", TileArt.Sand(i), Vector2.one * 0.5f, TileArt.Size);
+                set.Grass[i] = SaveTile($"Herbe_{i}", TileArt.Grass(i), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            set.Palm = SaveTile("Cocotier", TileArt.Palm(), TileArt.PalmPivot, TileArt.Size);
+            return set;
+        }
+
+        /// <summary>Crée la tuile et (re)dessine son image (provisoire : régénérée à chaque lancement).</summary>
+        private static Tile SaveTile(string tileName, Color[,] pixels, Vector2 pivot, int pixelsPerUnit)
+        {
+            Sprite sprite = PixelArt.Save($"{TilesFolder}/{tileName}.png", pixels, pixelsPerUnit, pivot);
+            string tilePath = $"{TilesFolder}/{tileName}.asset";
+            var tile = AssetDatabase.LoadAssetAtPath<Tile>(tilePath);
+            if (tile == null)
+            {
+                tile = ScriptableObject.CreateInstance<Tile>();
+                AssetDatabase.CreateAsset(tile, tilePath);
+            }
+
+            tile.sprite = sprite;
+            tile.colliderType = Tile.ColliderType.None;
+            EditorUtility.SetDirty(tile);
+            return tile;
+        }
+
+        /// <summary>
+        /// Tri par profondeur en vue de dessus : ce qui est plus au nord (y plus grand) est dessiné derrière.
+        /// Réglé sur le Renderer 2D de l'URP (Transparency Sort Mode = Custom Axis (0, 1, 0)).
+        /// </summary>
+        private static void ConfigureDepthSorting()
+        {
+            var renderer = AssetDatabase.LoadMainAssetAtPath(Renderer2DPath);
+            if (renderer == null)
+            {
+                Debug.LogWarning($"[FishAndChill] {Renderer2DPath} introuvable : tri par profondeur non réglé.");
+                return;
+            }
+
+            var so = new SerializedObject(renderer);
+            SerializedProperty mode = so.FindProperty("m_TransparencySortMode");
+            SerializedProperty axis = so.FindProperty("m_TransparencySortAxis");
+            if (mode == null || axis == null)
+            {
+                Debug.LogWarning("[FishAndChill] Réglages de tri introuvables sur le Renderer 2D.");
+                return;
+            }
+
+            mode.intValue = (int)TransparencySortMode.CustomAxis;
+            axis.vector3Value = new Vector3(0f, 1f, 0f);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(renderer);
+        }
+
+        /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles)
         {
             GameObject go = GameObject.Find("Minimap");
             if (go == null)
@@ -138,22 +244,23 @@ namespace FishAndChill.Editor
                 minimap = go.AddComponent<UI.Minimap>();
             }
 
+            var entries = new List<(Tile tile, Color color)>();
+            foreach (Tile t in tiles.Deep) entries.Add((t, new Color(0.14f, 0.54f, 0.67f)));
+            foreach (Tile t in tiles.Shallow) entries.Add((t, new Color(0.36f, 0.80f, 0.82f)));
+            foreach (Tile t in tiles.Sand) entries.Add((t, new Color(0.96f, 0.88f, 0.67f)));
+            foreach (Tile t in tiles.Grass) entries.Add((t, new Color(0.33f, 0.65f, 0.32f)));
+            entries.Add((tiles.Palm, new Color(0.12f, 0.42f, 0.18f)));
+
             var so = new SerializedObject(minimap);
             so.FindProperty("_map").objectReferenceValue = worldMap;
             so.FindProperty("_player").objectReferenceValue = player;
             so.FindProperty("_decor").objectReferenceValue = decorMap;
-            so.FindProperty("_waterColor").colorValue = new Color(0.20f, 0.66f, 0.74f);
+            so.FindProperty("_waterColor").colorValue = new Color(0.14f, 0.54f, 0.67f);
             so.FindProperty("_pixelsPerCell").intValue = 6;
 
             SerializedProperty palette = so.FindProperty("_palette");
-            var entries = new (Tile tile, Color color)[]
-            {
-                (sand, new Color(0.96f, 0.89f, 0.68f)),
-                (grass, new Color(0.32f, 0.66f, 0.33f)),
-                (palm, new Color(0.12f, 0.42f, 0.18f)),
-            };
-            palette.arraySize = entries.Length;
-            for (int i = 0; i < entries.Length; i++)
+            palette.arraySize = entries.Count;
+            for (int i = 0; i < entries.Count; i++)
             {
                 SerializedProperty entry = palette.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative("Tile").objectReferenceValue = entries[i].tile;
@@ -178,7 +285,7 @@ namespace FishAndChill.Editor
             return new Vector2Int(x, Mathf.Min(y + 2, height / 2));
         }
 
-        private static Tilemap EnsureTilemap(Transform parent, string objectName, int sortingOrder)
+        private static Tilemap EnsureTilemap(Transform parent, string objectName, int sortingOrder, TilemapRenderer.Mode mode)
         {
             Transform child = parent.Find(objectName);
             if (child == null)
@@ -188,7 +295,9 @@ namespace FishAndChill.Editor
                 child = go.transform;
             }
 
-            child.GetComponent<TilemapRenderer>().sortingOrder = sortingOrder;
+            var renderer = child.GetComponent<TilemapRenderer>();
+            renderer.sortingOrder = sortingOrder;
+            renderer.mode = mode;
             return child.GetComponent<Tilemap>();
         }
 
@@ -197,142 +306,6 @@ namespace FishAndChill.Editor
             var so = new SerializedObject(target);
             so.FindProperty(property).objectReferenceValue = value;
             so.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        // ---------- Tuiles pixel art provisoires ----------
-
-        /// <summary>
-        /// Crée la tuile et (re)dessine son image. Les images sont provisoires et régénérées à chaque
-        /// lancement : pour garder un dessin fait à la main, changer le nom de la tuile ici.
-        /// </summary>
-        private static Tile EnsureTile(string tileName, System.Func<int, int, Color> painter)
-        {
-            EnsureFolder(TilesFolder);
-            string pngPath = $"{TilesFolder}/{tileName}.png";
-            string tilePath = $"{TilesFolder}/{tileName}.asset";
-
-            WriteTexture(pngPath, painter);
-
-            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(pngPath);
-            var tile = AssetDatabase.LoadAssetAtPath<Tile>(tilePath);
-            if (tile == null)
-            {
-                tile = ScriptableObject.CreateInstance<Tile>();
-                AssetDatabase.CreateAsset(tile, tilePath);
-            }
-
-            tile.sprite = sprite;
-            tile.colliderType = Tile.ColliderType.None;
-            EditorUtility.SetDirty(tile);
-            return tile;
-        }
-
-        /// <summary>Texture de sol : couleur de base parsemée de pixels clairs et sombres.</summary>
-        private static System.Func<int, int, Color> NoisePainter(Color baseColor, Color light, Color dark, int seed, bool waves)
-        {
-            var pixels = new Color[TileSize, TileSize];
-            var random = new System.Random(seed);
-            for (int y = 0; y < TileSize; y++)
-            {
-                for (int x = 0; x < TileSize; x++)
-                {
-                    double roll = random.NextDouble();
-                    pixels[x, y] = roll < 0.10 ? light : roll < 0.22 ? dark : baseColor;
-                }
-            }
-
-            if (waves)
-            {
-                // Deux petites vaguelettes claires.
-                for (int i = 0; i < 4; i++)
-                {
-                    pixels[3 + i, 11] = light;
-                    pixels[9 + i, 4] = light;
-                }
-            }
-
-            return (x, y) => pixels[x, y];
-        }
-
-        /// <summary>Palmier vu de dessus : étoile de palmes vertes autour d'un cœur brun, fond transparent.</summary>
-        private static System.Func<int, int, Color> PalmPainter()
-        {
-            var leaf = new Color(0.16f, 0.50f, 0.22f);
-            var leafLight = new Color(0.30f, 0.66f, 0.30f);
-            var trunk = new Color(0.45f, 0.30f, 0.16f);
-            var pixels = new Color[TileSize, TileSize];
-            var center = new Vector2(7.5f, 7.5f);
-
-            for (int angle = 0; angle < 360; angle += 60)
-            {
-                Vector2 direction = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-                var side = new Vector2(-direction.y, direction.x);
-                for (float t = 1f; t < 7.5f; t += 0.5f)
-                {
-                    float width = t < 5f ? 1.2f : 0.6f;
-                    for (float w = -width; w <= width; w += 0.5f)
-                    {
-                        Vector2 p = center + direction * t + side * w;
-                        int px = Mathf.RoundToInt(p.x);
-                        int py = Mathf.RoundToInt(p.y);
-                        if (px >= 0 && py >= 0 && px < TileSize && py < TileSize)
-                        {
-                            pixels[px, py] = Mathf.Abs(w) < 0.3f ? leafLight : leaf;
-                        }
-                    }
-                }
-            }
-
-            for (int x = 6; x <= 9; x++)
-            {
-                for (int y = 6; y <= 9; y++)
-                {
-                    pixels[x, y] = trunk;
-                }
-            }
-
-            return (x, y) => pixels[x, y];
-        }
-
-        private static void WriteTexture(string assetPath, System.Func<int, int, Color> painter)
-        {
-            var texture = new Texture2D(TileSize, TileSize, TextureFormat.RGBA32, false);
-            for (int y = 0; y < TileSize; y++)
-            {
-                for (int x = 0; x < TileSize; x++)
-                {
-                    texture.SetPixel(x, y, painter(x, y));
-                }
-            }
-
-            texture.Apply();
-            string fullPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, assetPath);
-            File.WriteAllBytes(fullPath, texture.EncodeToPNG());
-            Object.DestroyImmediate(texture);
-
-            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
-            var importer = (TextureImporter)AssetImporter.GetAtPath(assetPath);
-            importer.textureType = TextureImporterType.Sprite;
-            importer.spriteImportMode = SpriteImportMode.Single;
-            importer.spritePixelsPerUnit = TileSize;
-            importer.filterMode = FilterMode.Point;
-            importer.mipmapEnabled = false;
-            importer.wrapMode = TextureWrapMode.Clamp;
-            importer.textureCompression = TextureImporterCompression.Uncompressed;
-            importer.SaveAndReimport();
-        }
-
-        private static void EnsureFolder(string path)
-        {
-            if (AssetDatabase.IsValidFolder(path))
-            {
-                return;
-            }
-
-            int slash = path.LastIndexOf('/');
-            string parent = path.Substring(0, slash);
-            EnsureFolder(parent);
-            AssetDatabase.CreateFolder(parent, path.Substring(slash + 1));
         }
     }
 }

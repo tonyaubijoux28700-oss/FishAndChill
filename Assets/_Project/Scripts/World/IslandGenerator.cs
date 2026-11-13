@@ -76,6 +76,74 @@ namespace FishAndChill.World
             return map;
         }
 
+        /// <summary>
+        /// Distance (en cases, déplacements en 8 directions) de chaque case d'eau à la terre la plus proche,
+        /// plafonnée à <paramref name="maxDistance"/>. Les cases de terre valent 0. Sert au lagon peu profond.
+        /// </summary>
+        public static int[,] DistanceToLand(TerrainType[,] map, int maxDistance)
+        {
+            int width = map.GetLength(0);
+            int height = map.GetLength(1);
+            var distance = new int[width, height];
+            var queue = new System.Collections.Generic.Queue<Vector2Int>();
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (map[x, y] == TerrainType.Water)
+                    {
+                        distance[x, y] = maxDistance;
+                    }
+                    else
+                    {
+                        distance[x, y] = 0;
+                        queue.Enqueue(new Vector2Int(x, y));
+                    }
+                }
+            }
+
+            while (queue.Count > 0)
+            {
+                Vector2Int cell = queue.Dequeue();
+                int next = distance[cell.x, cell.y] + 1;
+                if (next >= maxDistance)
+                {
+                    continue;
+                }
+
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        int nx = cell.x + dx;
+                        int ny = cell.y + dy;
+                        if (nx < 0 || ny < 0 || nx >= width || ny >= height || distance[nx, ny] <= next)
+                        {
+                            continue;
+                        }
+
+                        distance[nx, ny] = next;
+                        queue.Enqueue(new Vector2Int(nx, ny));
+                    }
+                }
+            }
+
+            return distance;
+        }
+
+        /// <summary>Nombre pseudo-aléatoire stable dans [0, 1) pour une case (choix des variantes de tuiles).</summary>
+        public static float CellHash(int x, int y, int seed)
+        {
+            unchecked
+            {
+                uint h = (uint)(x * 374761393 + y * 668265263 + seed * 2147483647);
+                h = (h ^ (h >> 13)) * 1274126177u;
+                h ^= h >> 16;
+                return (h & 0xFFFFFF) / (float)0x1000000;
+            }
+        }
+
         /// <summary>Indique si une case est de l'eau (hors grille = eau).</summary>
         public static bool IsWater(TerrainType[,] map, int x, int y)
         {
