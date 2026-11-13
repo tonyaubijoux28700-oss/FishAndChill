@@ -72,6 +72,12 @@ namespace FishAndChill.Editor
         [MenuItem("FishAndChill/Prototype/Générer données et scène de pêche")]
         public static void GenerateAll()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                Debug.LogError("[FishAndChill] Quitte le Play mode avant de régénérer le prototype.");
+                return;
+            }
+
             string zonePath = GenerateData();
 
             AssetDatabase.SaveAssets();
@@ -199,6 +205,9 @@ namespace FishAndChill.Editor
             var so = new SerializedObject(controller);
             so.FindProperty("_zone").objectReferenceValue = zone;
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            // L'île de départ, la caméra qui suit et les branchements joueur / carte.
+            MapSetup.BuildIsland(player, controller);
             if (zone == null)
             {
                 Debug.LogError("[FishAndChill] Zone de test introuvable : la scène n'a pas de zone assignée.");

@@ -1,5 +1,6 @@
 using System;
 using FishAndChill.Collection;
+using FishAndChill.Player;
 using FishAndChill.World;
 using UnityEngine;
 
@@ -20,9 +21,25 @@ namespace FishAndChill.Fishing
     /// </summary>
     public sealed class FishingController : MonoBehaviour
     {
-        private const string IdleMessage = "ZQSD pour te déplacer — Espace pour lancer ta ligne";
+        private const string IdleMessage = "ZQSD pour te déplacer — Espace pour lancer, face à l'eau";
 
         [SerializeField] private FishingZone _zone;
+
+        [Header("Lancer")]
+        [SerializeField, Tooltip("Le pêcheur : le lancer part de sa position, dans la direction où il regarde.")]
+        private PlayerMovement _angler;
+
+        [SerializeField, Tooltip("Carte : le bouchon doit tomber dans l'eau.")]
+        private WorldMap _map;
+
+        [SerializeField, Tooltip("Distance du lancer (min, max).")]
+        private Vector2 _castDistance = new Vector2(2.5f, 4.5f);
+
+        [SerializeField, Tooltip("Si le point visé est sur la terre, on cherche de l'eau jusqu'à cette distance.")]
+        private float _castMaxDistance = 6f;
+
+        [SerializeField, Min(0f), Tooltip("Imprécision latérale maximale du lancer.")]
+        private float _castSpread = 1.2f;
 
         [Header("Attente de la touche (secondes)")]
         [SerializeField, Min(0f)] private float _minWaitSeconds = 1.5f;
@@ -44,6 +61,9 @@ namespace FishAndChill.Fishing
 
         public FishingState State { get; private set; } = FishingState.Idle;
         public FishingZone Zone => _zone;
+
+        /// <summary>Point où le bouchon est tombé (valide pendant la pêche).</summary>
+        public Vector2 CastPoint { get; private set; }
         public FishSpecies HookedSpecies { get; private set; }
         public float HookedSizeCm { get; private set; }
         public QteChallenge Challenge { get; private set; }
@@ -143,6 +163,13 @@ namespace FishAndChill.Fishing
                 return;
             }
 
+            if (!TryFindCastPoint(out Vector2 castPoint))
+            {
+                StartPhase(FishingState.Idle, 0f, "Pas d'eau devant toi : tourne-toi vers le rivage (ZQSD) puis relance.");
+                return;
+            }
+
+            CastPoint = castPoint;
             HookedSpecies = _zone.PickSpecies(_random);
             if (HookedSpecies == null)
             {
@@ -154,6 +181,19 @@ namespace FishAndChill.Fishing
             HookedSizeCm = Mathf.Lerp(range.x, range.y, (float)_random.NextDouble());
             float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble());
             StartPhase(FishingState.Waiting, wait, "Patience… attends que ça morde.");
+        }
+
+        private bool TryFindCastPoint(out Vector2 castPoint)
+        {
+            Vector2 origin = _angler != null ? (Vector2)_angler.transform.position : (Vector2)transform.position;
+            Vector2 facing = _angler != null ? _angler.Facing : Vector2.up;
+            float desired = Mathf.Lerp(_castDistance.x, _castDistance.y, (float)_random.NextDouble());
+            float side = Mathf.Lerp(-_castSpread, _castSpread, (float)_random.NextDouble());
+            Func<Vector2, bool> isWater = _map != null ? _map.IsWater : (Func<Vector2, bool>)(_ => true);
+
+            Vector2? point = CastTargeting.FindCastPoint(origin, facing, desired, Mathf.Max(desired, _castMaxDistance), side, isWater);
+            castPoint = point ?? origin;
+            return point.HasValue;
         }
 
         private void ResolveQtePress()

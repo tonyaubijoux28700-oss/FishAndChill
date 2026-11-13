@@ -34,6 +34,17 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   `unity command script eval` pour le tester sans clavier.
 - Tests : `unity command test run --mode EditMode --filter FishAndChill --filter-type assembly --project-path .`
 
+## Carte
+
+- Île de départ sur Tilemaps (`Carte` → `Eau` + `Terre`), générée par `IslandGenerator` (graine fixe,
+  96×72 cases, 1 case = 1 unité) via `MapSetup.cs`, appelé par le menu du prototype.
+- **Attention** : relancer le menu régénère l'île et **écrase les retouches faites à la main**
+  dans la Tile Palette. Une fois l'île retouchée, ne plus relancer la génération de la carte.
+- `WorldMap` : terre = case avec une tuile sur `Terre` ; tout le reste est de l'eau.
+- Le joueur ne marche que sur la terre ; le lancer part dans la direction du regard (`PlayerMovement.Facing`)
+  et doit tomber dans l'eau (`CastTargeting`). `CameraFollow` sur la caméra, bloquée aux limites de la carte.
+- Tuiles pixel art provisoires (16×16, 16 px/unité, filtre Point) dans `Assets/_Project/Art/Tiles/`.
+
 ## Conventions de code
 
 - C#, un fichier par classe, `PascalCase` pour les types et méthodes, `_camelCase` pour les champs privés.

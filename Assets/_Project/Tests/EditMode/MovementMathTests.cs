@@ -34,6 +34,45 @@ namespace FishAndChill.Tests
             Assert.That(next.y, Is.EqualTo(-3f));
         }
 
+        // Monde de test : on ne peut se tenir que sous y = 0.
+        private static bool BelowZero(Vector2 point) => point.y < 0f;
+
+        [Test]
+        public void StepWithCollision_MovesFreelyOnLand()
+        {
+            Vector2 next = MovementMath.StepWithCollision(new Vector2(0f, -2f), Vector2.right, 2f, 1f, BelowZero);
+
+            Assert.That(next, Is.EqualTo(new Vector2(2f, -2f)));
+        }
+
+        [Test]
+        public void StepWithCollision_StopsAtWater()
+        {
+            Vector2 start = new Vector2(0f, -0.5f);
+
+            Vector2 next = MovementMath.StepWithCollision(start, Vector2.up, 2f, 1f, BelowZero);
+
+            Assert.That(next, Is.EqualTo(start));
+        }
+
+        [Test]
+        public void StepWithCollision_SlidesAlongTheShore()
+        {
+            Vector2 next = MovementMath.StepWithCollision(new Vector2(0f, -0.5f), new Vector2(1f, 1f), 1f, 1f, BelowZero);
+
+            Assert.That(next.y, Is.EqualTo(-0.5f));
+            Assert.That(next.x, Is.GreaterThan(0f));
+        }
+
+        [Test]
+        public void UpdateFacing_KeepsLastDirectionWhenIdle()
+        {
+            Vector2 facing = MovementMath.UpdateFacing(Vector2.left, Vector2.zero);
+
+            Assert.That(facing, Is.EqualTo(Vector2.left));
+            Assert.That(MovementMath.UpdateFacing(facing, new Vector2(0f, 3f)), Is.EqualTo(Vector2.up));
+        }
+
         [Test]
         public void Step_NoInputMeansNoMovement()
         {

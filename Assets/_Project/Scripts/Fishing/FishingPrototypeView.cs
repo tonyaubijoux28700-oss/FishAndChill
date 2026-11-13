@@ -1,4 +1,5 @@
 using FishAndChill.Collection;
+using FishAndChill.Player;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,7 +12,7 @@ namespace FishAndChill.Fishing
     [RequireComponent(typeof(FishingController))]
     public sealed class FishingPrototypeView : MonoBehaviour
     {
-        private static readonly Color SandColor = new Color(0.86f, 0.76f, 0.52f);
+        private static readonly Color MarkerColor = new Color(0.25f, 0.12f, 0.08f);
         private static readonly Color PlayerColor = new Color(0.93f, 0.42f, 0.30f);
         private static readonly Color BobberColor = new Color(0.95f, 0.20f, 0.20f);
         private static readonly Color ShadowColor = new Color(0f, 0f, 0f, 0.35f);
@@ -24,16 +25,9 @@ namespace FishAndChill.Fishing
         [SerializeField, Tooltip("Le pêcheur : le fil part de sa position.")]
         private Transform _player;
 
-        [SerializeField, Tooltip("Distance du lancer devant le joueur (min, max).")]
-        private Vector2 _castDistance = new Vector2(2.5f, 4.5f);
-
-        [SerializeField, Tooltip("Écart latéral maximal du lancer.")]
-        private float _castSpread = 1.5f;
-
-        [SerializeField, Tooltip("Le bouchon reste dans cette zone d'eau (coordonnées du monde).")]
-        private Rect _waterArea = Rect.MinMaxRect(-8.5f, -1.1f, 8.5f, 4.5f);
-
         private FishingController _controller;
+        private PlayerMovement _playerMovement;
+        private Transform _facingMarker;
         private Sprite _square;
         private Sprite _circle;
 
@@ -96,8 +90,6 @@ namespace FishAndChill.Fishing
 
         private void BuildWorld()
         {
-            CreateSprite("Berge", _square, SandColor, new Vector2(0f, -3.6f), new Vector2(40f, 4.2f), 0);
-
             if (_player == null)
             {
                 _player = CreateSprite("Pêcheur", _square, PlayerColor, new Vector2(0f, -3f), new Vector2(0.6f, 0.6f), 10).transform;
@@ -110,6 +102,9 @@ namespace FishAndChill.Fishing
                 playerRenderer.sortingOrder = 10;
             }
 
+            _playerMovement = _player.GetComponent<PlayerMovement>();
+            _facingMarker = CreateSprite("Regard", _square, MarkerColor, _player.position, new Vector2(0.18f, 0.18f), 11).transform;
+
             _line = CreateSprite("Fil", _square, LineColor, _player.position, new Vector2(0.04f, 1f), 8).transform;
             _shadow = CreateSprite("Ombre du poisson", _circle, ShadowColor, Vector2.zero, new Vector2(0.8f, 0.4f), 5);
             _bobber = CreateSprite("Bouchon", _circle, BobberColor, Vector2.zero, Vector2.one * 0.3f, 9).transform;
@@ -117,6 +112,10 @@ namespace FishAndChill.Fishing
 
         private void UpdateWorld()
         {
+            // Petit repère sur le bord du pêcheur, du côté où il regarde (= où il lancera).
+            Vector2 facing = _playerMovement != null ? _playerMovement.Facing : Vector2.up;
+            _facingMarker.position = (Vector2)_player.position + facing * 0.32f;
+
             FishingState state = _controller.State;
             bool lineOut = state == FishingState.Waiting || state == FishingState.Bite || state == FishingState.Reeling;
             _bobber.gameObject.SetActive(lineOut);
@@ -257,15 +256,11 @@ namespace FishAndChill.Fishing
 
             if (_controller.State == FishingState.Waiting)
             {
-                // Lancer droit devant le pêcheur, avec un peu d'imprécision, sans sortir de l'eau.
-                Vector2 origin = _player.position;
-                Vector2 cast = origin + new Vector2(
-                    Random.Range(-_castSpread, _castSpread),
-                    Random.Range(_castDistance.x, _castDistance.y));
-                _castPoint = new Vector2(
-                    Mathf.Clamp(cast.x, _waterArea.xMin, _waterArea.xMax),
-                    Mathf.Clamp(cast.y, _waterArea.yMin, _waterArea.yMax));
-                _shadowStart = _castPoint + Random.insideUnitCircle.normalized * 2.5f;
+                _castPoint = _controller.CastPoint;
+
+                // Le poisson arrive du large : de l'autre côté du bouchon par rapport au pêcheur.
+                Vector2 away = (_castPoint - (Vector2)_player.position).normalized;
+                _shadowStart = _castPoint + (away + Random.insideUnitCircle * 0.6f).normalized * 2.5f;
 
                 FishSpecies species = _controller.HookedSpecies;
                 float size = species != null ? Mathf.InverseLerp(5f, 120f, _controller.HookedSizeCm) : 0.3f;
