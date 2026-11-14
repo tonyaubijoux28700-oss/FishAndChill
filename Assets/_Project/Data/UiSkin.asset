@@ -18,3 +18,4 @@ MonoBehaviour:
   _waterBackdrop: {fileID: 21300000, guid: 0658237f026ab2a4baee2351883e5514, type: 3}
   _gem: {fileID: 21300000, guid: f7c7f4e2cdafee2408dc3a035afc71b9, type: 3}
   _glow: {fileID: 21300000, guid: 52efdb529fad7424f80ee302377d0b96, type: 3}
+  _font: {fileID: 12800000, guid: 6839a06140226e841bb8726307a6b457, type: 3}

@@ -9,6 +9,9 @@ namespace FishAndChill.Tests
         public static FishSpecies Species(string id, int price, float minCm = 10f, float maxCm = 30f)
         {
             var species = ScriptableObject.CreateInstance<FishSpecies>();
+            // Les espèces sont gardées en champs statiques par les tests : sans ce drapeau, Unity peut les
+            // décharger (changement de scène, Play mode) et elles deviennent « null » au test suivant.
+            species.hideFlags = HideFlags.HideAndDontSave;
             string json = $"{{\"_id\":\"{id}\",\"_commonName\":\"{id}\",\"_basePrice\":{price}," +
                           $"\"_sizeRangeCm\":{{\"x\":{minCm.ToString(System.Globalization.CultureInfo.InvariantCulture)},\"y\":{maxCm.ToString(System.Globalization.CultureInfo.InvariantCulture)}}}}}";
             JsonUtility.FromJsonOverwrite(json, species);

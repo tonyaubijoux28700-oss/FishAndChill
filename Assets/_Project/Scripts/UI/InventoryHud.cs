@@ -304,6 +304,7 @@ namespace FishAndChill.UI
 
         private void BuildUi()
         {
+            UiFactory.UseSkin(_skin);
             var canvasObject = new GameObject("Interface du sac", typeof(Canvas), typeof(CanvasScaler));
             canvasObject.transform.SetParent(transform, false);
             var canvas = canvasObject.GetComponent<Canvas>();
@@ -329,7 +330,7 @@ namespace FishAndChill.UI
 
             Text key = UiFactory.Label(_iconRect, "Touche", 24, TextAnchor.UpperLeft, Gold);
             key.text = "E";
-            key.fontStyle = FontStyle.Bold;
+            UiFactory.Bold(key);
             UiFactory.Place(key.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(10f, -6f), new Vector2(30f, 28f));
 
             // Fenêtre d'inventaire, juste au-dessus de l'icône (sans recouvrir le centre de l'écran).
@@ -350,7 +351,7 @@ namespace FishAndChill.UI
 
             // Invite de dépôt (futur aquarium).
             _prompt = UiFactory.Label(root, "Invite", 32, TextAnchor.MiddleCenter, Color.white);
-            _prompt.fontStyle = FontStyle.Bold;
+            UiFactory.Bold(_prompt);
             UiFactory.Place(_prompt.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 150f), new Vector2(900f, 50f));
             _prompt.gameObject.SetActive(false);
 
@@ -386,7 +387,7 @@ namespace FishAndChill.UI
                 UiFactory.Center(fish.rectTransform, Vector2.zero, new Vector2(SlotWidth - 34f, 74f));
 
                 Text name = UiFactory.Label(frame.rectTransform, "Nom", 20, TextAnchor.MiddleCenter, Color.white);
-                name.fontStyle = FontStyle.Bold;
+                UiFactory.Bold(name);
                 name.horizontalOverflow = HorizontalWrapMode.Wrap;
                 UiFactory.Place(name.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 52f), new Vector2(SlotWidth - 16f, 50f));
 
@@ -401,7 +402,7 @@ namespace FishAndChill.UI
                 // Numéro de la place sur une petite plaque dorée.
                 Text number = UiFactory.TitlePlaque(frame.rectTransform, _skin, (i + 1).ToString(), 22, Vector2.zero, new Vector2(38f, 34f), out RectTransform plaque);
                 UiFactory.Place(plaque, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0.5f, 0.5f), new Vector2(10f, -8f), new Vector2(38f, 34f));
-                number.fontSize = 22;
+                number.fontSize = UiFactory.Size(22);
 
                 _slots.Add(new SlotView
                 {

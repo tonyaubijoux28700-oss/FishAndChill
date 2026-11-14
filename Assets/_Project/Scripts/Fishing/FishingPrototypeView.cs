@@ -208,7 +208,8 @@ namespace FishAndChill.Fishing
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
 
-            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            UI.UiFactory.UseSkin(_skin);
+            Font font = UI.UiFactory.Font;
             RectTransform root = canvasObject.GetComponent<RectTransform>();
 
             _header = CreateText(root, "En-tête", font, 34, TextAnchor.UpperLeft);
@@ -366,7 +367,7 @@ namespace FishAndChill.Fishing
             go.transform.SetParent(parent, false);
             var text = go.GetComponent<Text>();
             text.font = font;
-            text.fontSize = size;
+            text.fontSize = UI.UiFactory.Size(size);
             text.alignment = alignment;
             text.color = Color.white;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;

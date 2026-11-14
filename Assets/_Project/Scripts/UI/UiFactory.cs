@@ -8,7 +8,36 @@ namespace FishAndChill.UI
     {
         private static Font _font;
 
+        /// <summary>Police de l'interface : celle de la charte si elle en a une, sinon la police par défaut de Unity.</summary>
         public static Font Font => _font != null ? _font : (_font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
+
+        private static float _fontScale = 1f;
+
+        /// <summary>Taille de texte corrigée selon la police de la charte.</summary>
+        public static int Size(int size) => Mathf.Max(1, Mathf.RoundToInt(size * _fontScale));
+
+        /// <summary>Vrai quand la police de la charte (pixel art) est utilisée.</summary>
+        public static bool UsesSkinFont { get; private set; }
+
+        /// <summary>
+        /// Met un texte en gras… sauf avec la police pixel art : le gras artificiel de Unity l'empâte
+        /// (un « 2 » devient un « 8 »). La police pixel art est déjà épaisse et lisible.
+        /// </summary>
+        public static void Bold(Text text)
+        {
+            text.fontStyle = UsesSkinFont ? FontStyle.Normal : FontStyle.Bold;
+        }
+
+        /// <summary>Adopte la police de la charte (à appeler avant de construire une interface).</summary>
+        public static void UseSkin(UiSkin skin)
+        {
+            if (skin != null && skin.Font != null)
+            {
+                _font = skin.Font;
+                UsesSkinFont = true;
+                _fontScale = skin.FontScale;
+            }
+        }
 
         /// <summary>Image étirable en 9 parties (coins nets) ; sans sprite, simple rectangle de la couleur donnée.</summary>
         public static Image Sliced(RectTransform parent, string name, Sprite sprite, Color color)
@@ -41,7 +70,7 @@ namespace FishAndChill.UI
             go.transform.SetParent(parent, false);
             var text = go.GetComponent<Text>();
             text.font = Font;
-            text.fontSize = size;
+            text.fontSize = Size(size);
             text.alignment = alignment;
             text.color = color;
             text.supportRichText = true;
@@ -88,7 +117,7 @@ namespace FishAndChill.UI
             plaque = image.rectTransform;
             Center(plaque, position, boxSize);
             Text label = Label(plaque, "Titre", size, TextAnchor.MiddleCenter, UiSkin.PlaqueText, shadow: false);
-            label.fontStyle = FontStyle.Bold;
+            UiFactory.Bold(label);
             label.text = text;
             Stretch(label.rectTransform);
             return label;

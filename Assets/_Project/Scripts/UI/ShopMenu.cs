@@ -206,7 +206,7 @@ namespace FishAndChill.UI
                 row.Label.color = Color.white;
 
                 bool sellable = FishShop.IsSellable(bag.Fish, i, _progress.Aquarium);
-                row.Price.text = sellable ? $"{FishShop.PriceOf(fish)} pièces" : "à garder pour l'aquarium";
+                row.Price.text = sellable ? $"{FishShop.PriceOf(fish)} pièces" : "Pour l'aquarium";
                 row.Price.color = sellable ? Gold : Muted;
             }
 
@@ -229,6 +229,7 @@ namespace FishAndChill.UI
 
         private void BuildUi()
         {
+            UiFactory.UseSkin(_skin);
             var canvasObject = new GameObject("Interface de la boutique", typeof(Canvas), typeof(CanvasScaler));
             canvasObject.transform.SetParent(transform, false);
             var canvas = canvasObject.GetComponent<Canvas>();
@@ -242,7 +243,7 @@ namespace FishAndChill.UI
 
             _prompt = AddText(root, "Invite", 32, TextAnchor.MiddleCenter);
             _prompt.text = "E : parler au marchand";
-            _prompt.fontStyle = FontStyle.Bold;
+            UiFactory.Bold(_prompt);
             _prompt.rectTransform.anchorMin = _prompt.rectTransform.anchorMax = new Vector2(0.5f, 0f);
             _prompt.rectTransform.anchoredPosition = new Vector2(0f, 200f);
             _prompt.rectTransform.sizeDelta = new Vector2(900f, 50f);
@@ -298,10 +299,10 @@ namespace FishAndChill.UI
                 fish.preserveAspect = true;
                 Place(fish.rectTransform, Vector2.zero, new Vector2(118f, 52f));
 
-                Text label = AddText(background.rectTransform, "Nom", 28, TextAnchor.MiddleLeft);
+                Text label = AddText(background.rectTransform, "Nom", 24, TextAnchor.MiddleLeft);
                 Place(label.rectTransform, new Vector2(-20f, 0f), new Vector2(520f, 60f));
 
-                Text price = AddText(background.rectTransform, "Prix", 26, TextAnchor.MiddleRight);
+                Text price = AddText(background.rectTransform, "Prix", 22, TextAnchor.MiddleRight);
                 Place(price.rectTransform, new Vector2(282f, 0f), new Vector2(260f, 60f));
 
                 _rows.Add(new RowView { Background = background, Fish = fish, Label = label, Price = price });

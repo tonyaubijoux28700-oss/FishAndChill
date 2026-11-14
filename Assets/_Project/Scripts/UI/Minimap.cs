@@ -63,6 +63,9 @@ namespace FishAndChill.UI
 
         [SerializeField] private string _title = "Île Mahana";
 
+        [SerializeField, Tooltip("Charte de l'interface (police).")]
+        private UiSkin _skin;
+
         private MapView _corner;
         private MapView _large;
         private Texture2D _texture;
@@ -251,7 +254,8 @@ namespace FishAndChill.UI
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
             var root = canvasObject.GetComponent<RectTransform>();
-            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            UiFactory.UseSkin(_skin);
+            Font font = UiFactory.Font;
 
             _corner = BuildCornerView(root, font);
             _large = BuildLargeView(root, font);
@@ -294,7 +298,7 @@ namespace FishAndChill.UI
 
             Text title = AddText(rect, "Titre", font, 38, TextAnchor.MiddleCenter);
             title.text = _title;
-            title.fontStyle = FontStyle.Bold;
+            UiFactory.Bold(title);
             title.rectTransform.anchoredPosition = new Vector2(0f, 248f);
             title.rectTransform.sizeDelta = new Vector2(600f, 50f);
 
@@ -351,10 +355,12 @@ namespace FishAndChill.UI
             go.transform.SetParent(parent, false);
             var text = go.GetComponent<Text>();
             text.font = font;
-            text.fontSize = size;
+            text.fontSize = UiFactory.Size(size);
             text.alignment = alignment;
             text.color = Color.white;
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            // Sans ça, un texte plus haut que sa zone (police agrandie) est entièrement masqué.
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             go.GetComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.6f);
             return text;
         }

@@ -327,6 +327,13 @@ namespace FishAndChill.Editor
             var skinViewSo = new SerializedObject(view);
             skinViewSo.FindProperty("_skin").objectReferenceValue = skin;
             skinViewSo.ApplyModifiedPropertiesWithoutUndo();
+            var minimap = Object.FindAnyObjectByType<UI.Minimap>();
+            if (minimap != null)
+            {
+                var skinMapSo = new SerializedObject(minimap);
+                skinMapSo.FindProperty("_skin").objectReferenceValue = skin;
+                skinMapSo.ApplyModifiedPropertiesWithoutUndo();
+            }
             hudSo.FindProperty("_station").objectReferenceValue = null;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
 

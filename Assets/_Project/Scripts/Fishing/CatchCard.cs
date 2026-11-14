@@ -66,7 +66,7 @@ namespace FishAndChill.Fishing
             _title = UiFactory.TitlePlaque(_panel, skin, string.Empty, 36, new Vector2(0f, 318f), new Vector2(460f, 72f), out _);
 
             _name = UiFactory.Label(_panel, "Nom", 42, TextAnchor.MiddleCenter, Color.white);
-            _name.fontStyle = FontStyle.Bold;
+            UiFactory.Bold(_name);
             UiFactory.Center(_name.rectTransform, new Vector2(0f, -38f), new Vector2(660f, 54f));
 
             _scientificName = UiFactory.Label(_panel, "Nom scientifique", 25, TextAnchor.MiddleCenter, Muted);
@@ -83,7 +83,7 @@ namespace FishAndChill.Fishing
             _valueCaption = valueChip.Find("Légende").GetComponent<Text>();
 
             _footer = UiFactory.Label(_panel, "Pied", 27, TextAnchor.MiddleCenter, Gold);
-            _footer.fontStyle = FontStyle.Bold;
+            UiFactory.Bold(_footer);
             _footer.horizontalOverflow = HorizontalWrapMode.Wrap;
             UiFactory.Center(_footer.rectTransform, new Vector2(0f, -224f), new Vector2(640f, 40f));
 
@@ -137,7 +137,7 @@ namespace FishAndChill.Fishing
             string bag = bagCount >= 0 ? $"  (sac {bagCount}/{bagCapacity})" : string.Empty;
             if (bagFull)
             {
-                _footer.text = "Sac plein ! Relâche un poisson pour garder celui-ci";
+                _footer.text = "Sac plein ! Relâche un poisson pour le garder";
                 _footer.color = Gold;
                 _hint.text = "1, 2, 3 : relâcher ce poisson du sac   •   Espace : relâcher le nouveau";
                 _hint.color = Color.white;
@@ -207,7 +207,7 @@ namespace FishAndChill.Fishing
             UiFactory.Place(legend.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -6f), new Vector2(0f, 22f));
 
             Text value = UiFactory.Label(chip, "Valeur", 26, TextAnchor.MiddleCenter, Color.white);
-            value.fontStyle = FontStyle.Bold;
+            UiFactory.Bold(value);
             UiFactory.Place(value.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 8f), new Vector2(0f, 36f));
             return value;
         }

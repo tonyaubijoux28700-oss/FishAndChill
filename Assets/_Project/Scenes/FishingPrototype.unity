@@ -129119,6 +129119,7 @@ MonoBehaviour:
   _pixelsPerCell: 6
   _cornerPixelsPerCell: 3
   _title: "\xCEle Mahana"
+  _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
 --- !u!4 &998234000
 Transform:
   m_ObjectHideFlags: 0

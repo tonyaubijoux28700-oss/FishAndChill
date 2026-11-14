@@ -113,6 +113,11 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   étirables en 9 parties, 25 px/unité (1 pixel = 4 unités d'interface). Construire l'interface avec `UiFactory`
   (`Sliced`, `Label` avec ombre portée, `TitlePlaque`) ; ne plus utiliser de rectangles plats + `Outline`.
   Utilisée par la carte de prise, l'inventaire et le menu du marchand.
+- **Police** : Jersey 10 (`Art/Fonts/Jersey10-Regular.ttf`, licence SIL OFL dans `Jersey10-OFL.txt`, à garder),
+  champ `_font` de `UiSkin`, rendu *Smooth*. Les tailles passent par `UiFactory.Size` (échelle `_fontScale` = 1,35) ;
+  mettre le gras avec `UiFactory.Bold` (pas de faux gras sur une police pixel, il rend les chiffres illisibles).
+  Pixelify Sans a été essayée et rejetée (illisible).
+- Tests : les espèces de test (`TestFish`) sont en `HideAndDontSave`, sinon Unity les décharge entre deux lancements.
 
 ## Conventions de code
 
