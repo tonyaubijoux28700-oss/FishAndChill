@@ -64,7 +64,6 @@ namespace FishAndChill.Editor
         public float FlankStart = 0.35f;
         public float BellyStart = 0.68f;
         public bool ScaleTexture = true;
-        public bool BackShine = true;
 
         public Tail Caudal;
         public List<Fin> Fins = new List<Fin>();
@@ -121,9 +120,22 @@ namespace FishAndChill.Editor
             return Mathf.InverseLerp(top, bottom, y);
         }
 
+        // ---------- Rendu ----------
+        //
+        // Ordre : queue et nageoires (derrière), couleurs du corps (dégradé, motifs, écailles, tête, détails),
+        // puis l'éclairage du corps comme s'il était rond (ombres froides, lumières chaudes, reflet),
+        // nageoires pectorales translucides par-dessus, œil, et enfin un contour sélectif (teinté, plus clair en haut).
+
+        /// <summary>Direction de la lumière : d'en haut, un peu de face et vers la tête.</summary>
+        private static readonly Vector3 LightDirection = new Vector3(0.35f, 0.65f, 0.68f).normalized;
+
+        private float[,] _light;
+
         public Color[,] Draw()
         {
             var p = new Color[Width, Height];
+            _light = new float[Width, Height];
+
             if (Caudal != null)
             {
                 DrawTail(p);
@@ -137,19 +149,35 @@ namespace FishAndChill.Editor
             DrawBody(p);
             DrawHead(p);
 
-            foreach (Pectoral pectoral in PectoralFins)
-            {
-                DrawPectoral(p, pectoral);
-            }
-
             foreach (var detail in Details)
             {
                 detail(this, p);
             }
 
+            LightBody(p);
+
+            foreach (Pectoral pectoral in PectoralFins)
+            {
+                DrawPectoral(p, pectoral);
+            }
+
             DrawEye(p);
-            PixelArt.Outline(p, OutlineColor);
+            SelectiveOutline(p);
             return p;
+        }
+
+        /// <summary>Couleur éclairée : en dessous de 1, vers une ombre froide ; au-dessus, vers une lumière chaude.</summary>
+        public static Color Shade(Color c, float light)
+        {
+            if (light < 1f)
+            {
+                var shadow = new Color(c.r * 0.36f, c.g * 0.40f, c.b * 0.55f + 0.05f, c.a);
+                return Color.Lerp(shadow, c, Mathf.InverseLerp(0.40f, 1f, light));
+            }
+
+            // Lumière proportionnelle à la couleur (un poisson sombre reste sombre), légèrement chaude.
+            var warm = new Color(Mathf.Min(1f, c.r * 1.32f + 0.07f), Mathf.Min(1f, c.g * 1.28f + 0.06f), Mathf.Min(1f, c.b * 1.12f + 0.03f), c.a);
+            return Color.Lerp(c, warm, Mathf.Clamp01((light - 1f) / 0.25f));
         }
 
         private void DrawBody(Color[,] p)
@@ -168,14 +196,9 @@ namespace FishAndChill.Editor
                         ? Color.Lerp(Back, Flank, t / FlankStart)
                         : t < BellyStart ? Flank : Color.Lerp(Flank, Belly, (t - BellyStart) / (1f - BellyStart));
 
-                    if (ScaleTexture && t < 0.8f && (x + 2 * y) % 4 == 0)
+                    if (ScaleTexture)
                     {
-                        c = Color.Lerp(c, Color.black, 0.09f);
-                    }
-
-                    if (BackShine && t > 0.08f && t < 0.2f && (x % 7) != 0)
-                    {
-                        c = Color.Lerp(c, Color.white, 0.07f);
+                        c = ApplyScales(c, x, y, t);
                     }
 
                     foreach (var pattern in BodyPatterns)
@@ -184,6 +207,78 @@ namespace FishAndChill.Editor
                     }
 
                     p[x, y] = c;
+                    _light[x, y] = BodyLight(x, t);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Écailles imbriquées : petits arcs « ( » (le bord libre de l'écaille regarde la queue), rangées décalées,
+        /// qui s'effacent vers le ventre et sur la tête.
+        /// </summary>
+        private Color ApplyScales(Color c, int x, int y, float t)
+        {
+            if (GillX > 0 && x >= GillX - 1)
+            {
+                return c;
+            }
+
+            float strength = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.55f, 0.9f, t));
+            if (strength <= 0f)
+            {
+                return c;
+            }
+
+            int row = Mathf.FloorToInt(y / 3f);
+            int sx = ((x + (row % 2) * 2) % 4 + 4) % 4;
+            int sy = ((y % 3) + 3) % 3;
+            if ((sx == 0 && sy == 1) || (sx == 1 && sy != 1))
+            {
+                return Color.Lerp(c, Color.Lerp(c, Color.black, 0.5f), 0.22f * strength);
+            }
+
+            if (sx == 2 && sy == 2)
+            {
+                return Color.Lerp(c, Color.white, 0.10f * strength);
+            }
+
+            return c;
+        }
+
+        /// <summary>Éclairage d'un point du corps vu comme une section ronde qui s'affine vers la tête et la queue.</summary>
+        private float BodyLight(int x, float t)
+        {
+            float s = Mathf.Clamp(t * 2f - 1f, -0.98f, 0.98f);   // -1 = dos, 1 = ventre
+            float depth = Mathf.Sqrt(1f - s * s);
+            float half = (UpperAt(x + 1) + LowerAt(x + 1) - UpperAt(x - 1) - LowerAt(x - 1)) * 0.25f;
+            float nx = Mathf.Clamp(-half * 1.3f, -0.8f, 0.8f) * depth;
+            Vector3 normal = new Vector3(nx, -s, depth).normalized;
+
+            float diffuse = Mathf.Max(0f, Vector3.Dot(normal, LightDirection));
+            float light = 0.40f + 0.85f * diffuse;
+
+            // Reflet brillant le long du haut du flanc.
+            Vector3 half3 = (LightDirection + Vector3.forward).normalized;
+            float specular = Mathf.Pow(Mathf.Max(0f, Vector3.Dot(normal, half3)), 28f);
+            light += specular > 0.6f ? 0.2f : specular > 0.35f ? 0.08f : 0f;
+
+            // Paliers nets, comme un dessin pixel art (pas de dégradé continu).
+            return Mathf.Round(light * 7f) / 7f;
+        }
+
+        private void LightBody(Color[,] p)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    if (_light[x, y] > 0f && p[x, y].a > 0.01f)
+                    {
+                        // Les motifs très sombres (bandes noires) gardent leur netteté : le reflet ne les « troue » pas.
+                        Color c = p[x, y];
+                        float light = c.maxColorComponent < 0.2f ? Mathf.Min(_light[x, y], 1.05f) : _light[x, y];
+                        p[x, y] = Shade(c, light);
+                    }
                 }
             }
         }
@@ -194,13 +289,27 @@ namespace FishAndChill.Editor
             {
                 float up = UpperAt(GillX);
                 float down = LowerAt(GillX);
-                for (int y = Mathf.RoundToInt(CenterY - down * 0.85f); y <= Mathf.RoundToInt(CenterY + up * 0.7f); y++)
+                int yMin = Mathf.RoundToInt(CenterY - down * 0.85f);
+                int yMax = Mathf.RoundToInt(CenterY + up * 0.7f);
+                for (int y = yMin; y <= yMax; y++)
                 {
                     float dy = y - CenterY;
                     int x = Mathf.RoundToInt(GillX + dy * dy * 0.05f);
-                    if (InBody(x, y))
+                    if (!InBody(x, y))
                     {
-                        p[x, y] = Color.Lerp(p[x, y], Color.black, GillStrength);
+                        continue;
+                    }
+
+                    // Bord de l'opercule, ombre portée juste derrière, liseré clair devant.
+                    p[x, y] = Color.Lerp(p[x, y], Color.black, GillStrength + 0.1f);
+                    if (InBody(x - 1, y))
+                    {
+                        p[x - 1, y] = Color.Lerp(p[x - 1, y], Color.black, 0.16f);
+                    }
+
+                    if (InBody(x + 1, y))
+                    {
+                        p[x + 1, y] = Color.Lerp(p[x + 1, y], Color.white, 0.18f);
                     }
 
                     if (GillTint.HasValue)
@@ -221,10 +330,24 @@ namespace FishAndChill.Editor
                 for (int x = MouthXStart; x <= MouthXEnd; x++)
                 {
                     int y = Mathf.RoundToInt(CenterY + MouthYOffset - (x - MouthXStart) * MouthSlope);
-                    if (InBody(x, y))
+                    if (!InBody(x, y))
                     {
-                        p[x, y] = MouthColor;
+                        continue;
                     }
+
+                    p[x, y] = MouthColor;
+                    // Lèvre : un pixel clair juste au-dessus de la fente.
+                    if (InBody(x, y + 1) && x > MouthXStart)
+                    {
+                        p[x, y + 1] = Color.Lerp(p[x, y + 1], Color.white, 0.22f);
+                    }
+                }
+
+                // Coin de la bouche marqué.
+                int cy = Mathf.RoundToInt(CenterY + MouthYOffset);
+                if (InBody(MouthXStart - 1, cy))
+                {
+                    p[MouthXStart - 1, cy] = Color.Lerp(p[MouthXStart - 1, cy], MouthColor, 0.5f);
                 }
             }
         }
@@ -233,16 +356,42 @@ namespace FishAndChill.Editor
         {
             int ey = Mathf.RoundToInt(CenterY + EyeYOffset);
             int r = EyeRadius;
+
+            // Orbite : un anneau sombre autour de l'œil, pris sur la couleur du corps.
+            for (int x = EyeX - r - 1; x <= EyeX + r + 1; x++)
+            {
+                for (int y = ey - r - 1; y <= ey + r + 1; y++)
+                {
+                    float d = Mathf.Sqrt((x - EyeX) * (x - EyeX) + (y - ey) * (y - ey));
+                    if (d > r + 0.5f && d <= r + 1.3f && InBody(x, y))
+                    {
+                        p[x, y] = Color.Lerp(p[x, y], Color.black, 0.32f);
+                    }
+                }
+            }
+
+            // Iris arrondi, plus sombre en haut (ombre de la paupière).
             for (int x = EyeX - r; x <= EyeX + r; x++)
             {
                 for (int y = ey - r; y <= ey + r; y++)
                 {
-                    if (r >= 2 && Mathf.Abs(x - EyeX) == r && Mathf.Abs(y - ey) == r)
+                    bool corner = Mathf.Abs(x - EyeX) == r && Mathf.Abs(y - ey) == r;
+                    float k = r == 0 ? 0.5f : Mathf.InverseLerp(ey + r, ey - r, y);
+                    Color iris = Color.Lerp(Iris * 0.6f, Color.Lerp(Iris, Color.white, 0.15f), k);
+                    iris.a = 1f;
+                    if (corner)
                     {
+                        if (r >= 2)
+                        {
+                            continue;
+                        }
+
+                        // Œil de 3 pixels : coins à moitié fondus pour l'arrondir.
+                        PixelArt.Set(p, x, y, p[x, y].a > 0.01f ? Color.Lerp(p[x, y], iris, 0.45f) : iris);
                         continue;
                     }
 
-                    PixelArt.Set(p, x, y, Iris);
+                    PixelArt.Set(p, x, y, iris);
                 }
             }
 
@@ -252,17 +401,22 @@ namespace FishAndChill.Editor
                 PixelArt.Set(p, EyeX + 1, ey, Pupil);
                 PixelArt.Set(p, EyeX, ey - 1, Pupil);
                 PixelArt.Set(p, EyeX + 1, ey - 1, Pupil);
+                PixelArt.Set(p, EyeX + 1, ey, Color.white);                 // reflet principal
+                PixelArt.Set(p, EyeX - 1, ey - 1, Color.Lerp(Iris, Color.white, 0.6f));
             }
             else
             {
-                PixelArt.Set(p, EyeX + 1, ey, Pupil);
+                PixelArt.Set(p, EyeX + 1, ey + 1, Color.white);
             }
-
-            PixelArt.Set(p, EyeX - r + (r >= 2 ? 1 : 0), ey + r - (r >= 2 ? 1 : 0), Color.white);
         }
 
         private void DrawFin(Color[,] p, Fin fin)
         {
+            const int raySpacing = 3;
+            const float raySlant = 0.55f;   // les rayons penchent vers la queue en s'éloignant du corps
+            int direction = fin.Side == FinSide.Up ? 1 : -1;
+            float sideLight = fin.Side == FinSide.Up ? 1.05f : 0.82f;
+
             for (int x = fin.XRear; x <= fin.XFront; x++)
             {
                 float t = Mathf.InverseLerp(fin.XRear, fin.XFront, x);
@@ -273,27 +427,46 @@ namespace FishAndChill.Editor
                         height = Mathf.Lerp(fin.HeightRear, fin.HeightFront, t * t * t);
                         break;
                     case FinShape.Rounded:
-                        height = Mathf.Lerp(fin.HeightRear, fin.HeightFront, t) + Mathf.Sin(t * Mathf.PI) * 1.5f;
+                        height = Mathf.Lerp(fin.HeightRear, fin.HeightFront, Mathf.SmoothStep(0f, 1f, t)) + Mathf.Sin(t * Mathf.PI) * 1.5f;
                         break;
                     default:
-                        height = Mathf.Lerp(fin.HeightRear, fin.HeightFront, t);
+                        height = Mathf.Lerp(fin.HeightRear, fin.HeightFront, Mathf.SmoothStep(0f, 1f, t));
                         break;
                 }
 
-                // Fondu à l'avant et à l'arrière pour que la nageoire sorte du corps.
-                height *= Mathf.Clamp01((x - fin.XRear + 0.5f) / 1.5f);
-                if (fin.Spiny && x % 3 == 0)
-                {
-                    height -= 1f;
-                }
+                // Bouts arrondis : la nageoire sort du corps et y rentre en douceur.
+                height *= Mathf.Sqrt(Mathf.Clamp01((x - fin.XRear + 0.5f) / 2.5f));
+                height *= Mathf.Sqrt(Mathf.Clamp01((fin.XFront - x + 0.8f) / 1.5f));
 
-                int h = Mathf.RoundToInt(height);
                 float baseY = fin.Side == FinSide.Up ? CenterY + UpperAt(x) - 0.5f : CenterY - LowerAt(x) + 0.5f;
-                int direction = fin.Side == FinSide.Up ? 1 : -1;
+                int h = Mathf.RoundToInt(height);
                 for (int k = 0; k <= h; k++)
                 {
-                    Color c = k == h ? fin.Edge : (x % 2 == 0 ? fin.Ray : fin.Base);
-                    PixelArt.Set(p, x, Mathf.RoundToInt(baseY + k * direction), c);
+                    bool ray = Mathf.RoundToInt(x + k * raySlant) % raySpacing == 0;
+
+                    // Nageoire épineuse : la membrane se creuse entre les épines, seules les épines touchent le bord.
+                    if (fin.Spiny && k == h && !ray && h >= 2)
+                    {
+                        continue;
+                    }
+
+                    float u = h == 0 ? 1f : k / (float)h;
+                    Color c = Color.Lerp(Color.Lerp(fin.Base, Color.black, 0.18f), fin.Base, Mathf.Clamp01(u * 2f));
+                    if (ray)
+                    {
+                        c = Color.Lerp(c, fin.Ray, 0.8f);
+                    }
+
+                    if (k == h || (k == h - 1 && fin.Spiny && !ray))
+                    {
+                        c = fin.Edge;
+                    }
+                    else if (u > 0.7f)
+                    {
+                        c = Color.Lerp(c, fin.Edge, 0.35f);
+                    }
+
+                    PixelArt.Set(p, x, Mathf.RoundToInt(baseY + k * direction), Shade(c, sideLight));
                 }
             }
         }
@@ -301,16 +474,52 @@ namespace FishAndChill.Editor
         private void DrawPectoral(Color[,] p, Pectoral fin)
         {
             float baseY = CenterY + fin.BaseYOffset;
+            var pixels = new Dictionary<Vector2Int, Color>();
+
             for (int k = 0; k <= fin.Length; k++)
             {
-                float half = fin.Width * (1f - k / (float)(fin.Length + 1));
+                float u = k / (float)Mathf.Max(1, fin.Length);
+                // Éventail : étroit à l'attache, large au milieu, pointe arrondie.
+                float half = fin.Width * (0.65f + 0.5f * Mathf.Sin(Mathf.PI * u)) * (1f - u * u * u);
                 int x = fin.BaseX - k;
                 float cy = baseY - k * fin.Slope;
-                for (int y = Mathf.RoundToInt(cy - half); y <= Mathf.RoundToInt(cy + half); y++)
+                int yMin = Mathf.RoundToInt(cy - half);
+                int yMax = Mathf.RoundToInt(cy + half);
+                for (int y = yMin; y <= yMax; y++)
                 {
-                    bool edge = k == fin.Length || y == Mathf.RoundToInt(cy - half);
-                    PixelArt.Set(p, x, y, edge ? fin.Edge : (y % 2 == 0 ? fin.Ray : fin.Base));
+                    bool edge = k == fin.Length || y == yMin || (y == yMax && k > fin.Length / 2);
+                    bool ray = Mathf.RoundToInt(y - cy + 100f) % 2 == 0;
+                    Color c = edge ? fin.Edge : ray ? fin.Ray : fin.Base;
+                    if (k == 0)
+                    {
+                        c = Color.Lerp(fin.Ray, Color.black, 0.3f);   // attache de la nageoire
+                    }
+
+                    pixels[new Vector2Int(x, y)] = c;
                 }
+            }
+
+            // Petite ombre portée sur le corps, sous la nageoire.
+            foreach (var pixel in pixels)
+            {
+                var below = new Vector2Int(pixel.Key.x, pixel.Key.y - 1);
+                if (!pixels.ContainsKey(below) && PixelArt.IsFilled(p, below.x, below.y))
+                {
+                    p[below.x, below.y] = Color.Lerp(p[below.x, below.y], Color.black, 0.22f);
+                }
+            }
+
+            // Nageoire translucide : on devine le corps à travers.
+            foreach (var pixel in pixels)
+            {
+                Vector2Int at = pixel.Key;
+                if (at.x < 0 || at.y < 0 || at.x >= Width || at.y >= Height)
+                {
+                    continue;
+                }
+
+                Color under = p[at.x, at.y];
+                p[at.x, at.y] = under.a > 0.01f ? Color.Lerp(under, pixel.Value, 0.72f) : pixel.Value;
             }
         }
 
@@ -320,7 +529,7 @@ namespace FishAndChill.Editor
             for (int x = tail.XTip; x <= tail.XBase; x++)
             {
                 float t = Mathf.InverseLerp(tail.XBase, tail.XTip, x);
-                float span = 1.5f + t * tail.Span;
+                float span = 1.5f + Mathf.Pow(t, 0.85f) * tail.Span;
                 for (int y = 0; y < Height; y++)
                 {
                     float dy = y - CenterY;
@@ -344,16 +553,17 @@ namespace FishAndChill.Editor
                         continue;
                     }
 
-                    Color c = tail.Base;
+                    // Plus sombre au pédoncule, plus clair et translucide vers les pointes.
+                    Color c = Color.Lerp(Color.Lerp(tail.Base, Color.black, 0.2f), tail.Base, Mathf.Clamp01(t * 2.5f));
                     if (tail.BaseTint.HasValue && t < 0.35f)
                     {
-                        c = Color.Lerp(tail.BaseTint.Value, tail.Base, t / 0.35f);
+                        c = Color.Lerp(tail.BaseTint.Value, c, t / 0.35f);
                     }
 
                     float angle = Mathf.Atan2(dy, tail.XBase - x + 0.5f);
-                    if (Mathf.Abs(Mathf.Sin(angle * 9f)) < 0.22f && t > 0.15f)
+                    if (Mathf.Abs(Mathf.Sin(angle * 9f)) < 0.24f && t > 0.15f)
                     {
-                        c = tail.Ray;
+                        c = Color.Lerp(c, tail.Ray, 0.85f);
                     }
 
                     if (ady > span - 1.2f && t > 0.3f)
@@ -361,27 +571,100 @@ namespace FishAndChill.Editor
                         c = tail.Edge;
                     }
 
-                    p[x, y] = c;
+                    // Lobe du haut éclairé, lobe du bas dans l'ombre.
+                    float light = 0.95f + 0.18f * Mathf.Clamp(dy / Mathf.Max(1f, span), -1f, 1f);
+                    p[x, y] = Shade(c, light);
                 }
             }
         }
 
+        /// <summary>
+        /// Contour sélectif : chaque pixel du contour prend une version sombre et froide de la couleur voisine,
+        /// plus claire sur le haut (côté lumière) : la forme reste lisible sans le trait noir « découpé ».
+        /// </summary>
+        private void SelectiveOutline(Color[,] p)
+        {
+            var outline = new Color[Width, Height];
+            var has = new bool[Width, Height];
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    if (PixelArt.IsFilled(p, x, y))
+                    {
+                        continue;
+                    }
+
+                    Color sum = Color.clear;
+                    int count = 0;
+                    AddNeighbour(p, x + 1, y, ref sum, ref count);
+                    AddNeighbour(p, x - 1, y, ref sum, ref count);
+                    AddNeighbour(p, x, y + 1, ref sum, ref count);
+                    AddNeighbour(p, x, y - 1, ref sum, ref count);
+                    if (count == 0)
+                    {
+                        continue;
+                    }
+
+                    Color n = sum / count;
+                    bool litSide = PixelArt.IsFilled(p, x, y - 1) && !PixelArt.IsFilled(p, x, y + 1);
+                    Color dark = litSide
+                        ? new Color(n.r * 0.50f, n.g * 0.52f, n.b * 0.60f)
+                        : new Color(n.r * 0.28f, n.g * 0.30f, n.b * 0.40f);
+                    Color o = Color.Lerp(dark, OutlineColor, litSide ? 0.2f : 0.45f);
+                    o.a = 1f;
+                    outline[x, y] = o;
+                    has[x, y] = true;
+                }
+            }
+
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    if (has[x, y])
+                    {
+                        p[x, y] = outline[x, y];
+                    }
+                }
+            }
+        }
+
+        private void AddNeighbour(Color[,] p, int x, int y, ref Color sum, ref int count)
+        {
+            if (PixelArt.IsFilled(p, x, y))
+            {
+                sum += p[x, y];
+                count++;
+            }
+        }
+
+        /// <summary>Profil lissé (Catmull-Rom) : des courbes douces entre les points de la fiche, pas des segments droits.</summary>
         private static float Sample(Vector2[] points, float x)
         {
-            if (points == null || x < points[0].x || x > points[points.Length - 1].x)
+            if (points == null || points.Length == 0 || x < points[0].x || x > points[points.Length - 1].x)
             {
                 return 0f;
             }
 
-            for (int i = 0; i < points.Length - 1; i++)
+            int last = points.Length - 1;
+            for (int i = 0; i < last; i++)
             {
-                if (x <= points[i + 1].x)
+                if (x > points[i + 1].x)
                 {
-                    return Mathf.Lerp(points[i].y, points[i + 1].y, Mathf.InverseLerp(points[i].x, points[i + 1].x, x));
+                    continue;
                 }
+
+                float u = Mathf.InverseLerp(points[i].x, points[i + 1].x, x);
+                float p0 = points[Mathf.Max(i - 1, 0)].y;
+                float p1 = points[i].y;
+                float p2 = points[i + 1].y;
+                float p3 = points[Mathf.Min(i + 2, last)].y;
+                float v = 0.5f * (2f * p1 + (-p0 + p2) * u + (2f * p0 - 5f * p1 + 4f * p2 - p3) * u * u + (-p0 + 3f * p1 - 3f * p2 + p3) * u * u * u);
+                return Mathf.Max(0f, v);
             }
 
-            return points[points.Length - 1].y;
+            return points[last].y;
         }
 
         // ---------- Motifs réutilisables ----------

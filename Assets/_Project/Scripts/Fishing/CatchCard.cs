@@ -78,7 +78,7 @@ namespace FishAndChill.Fishing
             _rarity = Chip(_panel, skin, new Vector2(0f, -150f), "RARETÉ", out RectTransform rarityChip);
             _gem = UiFactory.Plain(rarityChip, "Pierre", Color.white);
             _gem.sprite = skin != null ? skin.Gem : null;
-            UiFactory.Place(_gem.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(14f, -10f), new Vector2(32f, 32f));
+            UiFactory.Place(_gem.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(8f, -10f), new Vector2(26f, 26f));
             _value = Chip(_panel, skin, new Vector2(212f, -150f), "VALEUR", out RectTransform valueChip);
             _valueCaption = valueChip.Find("Légende").GetComponent<Text>();
 
@@ -117,7 +117,8 @@ namespace FishAndChill.Fishing
             _name.text = species.CommonName;
             _scientificName.text = species.ScientificName;
             _size.text = $"{fish.SizeCm:0} cm";
-            _rarity.text = $"   {species.Rarity.DisplayName()}";
+            // Espaces : laissent la place à la pierre de rareté, à gauche dans la pastille.
+            _rarity.text = $"     {species.Rarity.DisplayName()}";
             _rarity.color = rarityColor;
             _gem.color = rarityColor;
 
