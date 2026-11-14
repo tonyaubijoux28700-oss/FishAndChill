@@ -1,70 +1,94 @@
 using FishAndChill.Collection;
+using FishAndChill.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace FishAndChill.Fishing
 {
     /// <summary>
-    /// Carte affichée à chaque prise : dessin du poisson, nom, taille, rareté, nouvelle espèce ou doublon.
-    /// Interface provisoire construite par le code (comme le reste du prototype).
+    /// Carte affichée à chaque prise, habillée avec la charte pixel art : halo de la couleur de la rareté,
+    /// bandeau doré, poisson sur fond d'eau, pastilles taille / rareté / valeur, consigne.
     /// </summary>
     public sealed class CatchCard
     {
-        private static readonly Color PanelColor = new Color(0.07f, 0.10f, 0.14f, 0.94f);
-        private static readonly Color FishBackdrop = new Color(0.20f, 0.55f, 0.65f, 0.55f);
-        private static readonly Color MutedText = new Color(0.75f, 0.80f, 0.85f);
-        private static readonly Color NewSpeciesColor = new Color(1.00f, 0.85f, 0.30f);
+        private static readonly Color Muted = new Color(0.70f, 0.76f, 0.82f);
+        private static readonly Color Gold = new Color(1.00f, 0.85f, 0.32f);
 
         private const float PopDuration = 0.35f;
+        private static readonly Vector2 PanelSize = new Vector2(720f, 660f);
 
         private readonly GameObject _root;
         private readonly RectTransform _panel;
-        private readonly Outline _border;
+        private readonly Image _glow;
         private readonly Text _title;
         private readonly Image _fish;
         private readonly RectTransform _fishRect;
         private readonly Text _name;
         private readonly Text _scientificName;
-        private readonly Text _details;
+        private readonly Text _size;
+        private readonly Image _gem;
+        private readonly Text _rarity;
+        private readonly Text _valueCaption;
+        private readonly Text _value;
         private readonly Text _footer;
         private readonly Text _hint;
+        private Color _glowColor;
         private float _age;
 
-        public CatchCard(RectTransform canvas, Font font)
+        public CatchCard(RectTransform canvas, UiSkin skin)
         {
             _root = new GameObject("Carte de prise", typeof(RectTransform));
             var rootRect = _root.GetComponent<RectTransform>();
             rootRect.SetParent(canvas, false);
-            Stretch(rootRect);
+            UiFactory.Stretch(rootRect);
 
-            Image dim = AddImage(rootRect, "Voile", new Color(0f, 0f, 0f, 0.35f));
-            Stretch(dim.rectTransform);
+            Image dim = UiFactory.Plain(rootRect, "Voile", new Color(0f, 0f, 0f, 0.45f));
+            UiFactory.Stretch(dim.rectTransform);
 
-            Image panel = AddImage(rootRect, "Cadre", PanelColor);
+            // Halo de rareté derrière la carte.
+            _glow = UiFactory.Plain(rootRect, "Halo", Color.white);
+            _glow.sprite = skin != null ? skin.Glow : null;
+            UiFactory.Center(_glow.rectTransform, Vector2.zero, PanelSize * 1.55f);
+
+            Image panel = UiFactory.Sliced(rootRect, "Cadre", skin != null ? skin.Panel : null, skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
             _panel = panel.rectTransform;
-            _panel.sizeDelta = new Vector2(720f, 600f);
-            _border = panel.gameObject.AddComponent<Outline>();
-            _border.effectDistance = new Vector2(6f, -6f);
+            UiFactory.Center(_panel, Vector2.zero, PanelSize);
 
-            _title = AddText(_panel, "Titre", font, 46, FontStyle.Bold, new Vector2(0f, 245f), new Vector2(680f, 70f));
-
-            Image backdrop = AddImage(_panel, "Fond du poisson", FishBackdrop);
-            backdrop.rectTransform.anchoredPosition = new Vector2(0f, 75f);
-            backdrop.rectTransform.sizeDelta = new Vector2(600f, 250f);
-
-            _fish = AddImage(backdrop.rectTransform, "Poisson", Color.white);
+            // Fond d'eau et poisson.
+            Image backdrop = UiFactory.Sliced(_panel, "Fond d'eau", skin != null ? skin.WaterBackdrop : null, skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
+            UiFactory.Center(backdrop.rectTransform, new Vector2(0f, 128f), new Vector2(620f, 262f));
+            _fish = UiFactory.Plain(backdrop.rectTransform, "Poisson", Color.white);
             _fish.preserveAspect = true;
             _fishRect = _fish.rectTransform;
-            _fishRect.sizeDelta = new Vector2(540f, 230f);
+            UiFactory.Center(_fishRect, Vector2.zero, new Vector2(560f, 210f));
 
-            _name = AddText(_panel, "Nom", font, 42, FontStyle.Bold, new Vector2(0f, -95f), new Vector2(680f, 56f));
-            _scientificName = AddText(_panel, "Nom scientifique", font, 28, FontStyle.Italic, new Vector2(0f, -140f), new Vector2(680f, 40f));
-            _scientificName.color = MutedText;
-            _details = AddText(_panel, "Détails", font, 30, FontStyle.Normal, new Vector2(0f, -185f), new Vector2(680f, 44f));
-            _footer = AddText(_panel, "Pied", font, 30, FontStyle.Bold, new Vector2(0f, -228f), new Vector2(680f, 44f));
+            // Bandeau du titre, à cheval sur le haut du cadre.
+            _title = UiFactory.TitlePlaque(_panel, skin, string.Empty, 36, new Vector2(0f, 318f), new Vector2(460f, 72f), out _);
 
-            _hint = AddText(_panel, "Aide", font, 22, FontStyle.Normal, new Vector2(0f, -272f), new Vector2(680f, 34f));
-            _hint.color = MutedText;
+            _name = UiFactory.Label(_panel, "Nom", 42, TextAnchor.MiddleCenter, Color.white);
+            _name.fontStyle = FontStyle.Bold;
+            UiFactory.Center(_name.rectTransform, new Vector2(0f, -38f), new Vector2(660f, 54f));
+
+            _scientificName = UiFactory.Label(_panel, "Nom scientifique", 25, TextAnchor.MiddleCenter, Muted);
+            _scientificName.fontStyle = FontStyle.Italic;
+            UiFactory.Center(_scientificName.rectTransform, new Vector2(0f, -80f), new Vector2(660f, 34f));
+
+            // Trois pastilles : taille, rareté, valeur.
+            _size = Chip(_panel, skin, new Vector2(-212f, -150f), "TAILLE", out _);
+            _rarity = Chip(_panel, skin, new Vector2(0f, -150f), "RARETÉ", out RectTransform rarityChip);
+            _gem = UiFactory.Plain(rarityChip, "Pierre", Color.white);
+            _gem.sprite = skin != null ? skin.Gem : null;
+            UiFactory.Place(_gem.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(14f, -10f), new Vector2(32f, 32f));
+            _value = Chip(_panel, skin, new Vector2(212f, -150f), "VALEUR", out RectTransform valueChip);
+            _valueCaption = valueChip.Find("Légende").GetComponent<Text>();
+
+            _footer = UiFactory.Label(_panel, "Pied", 27, TextAnchor.MiddleCenter, Gold);
+            _footer.fontStyle = FontStyle.Bold;
+            _footer.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiFactory.Center(_footer.rectTransform, new Vector2(0f, -224f), new Vector2(640f, 40f));
+
+            _hint = UiFactory.Label(_panel, "Aide", 21, TextAnchor.MiddleCenter, Muted);
+            UiFactory.Center(_hint.rectTransform, new Vector2(0f, -272f), new Vector2(640f, 30f));
 
             Hide();
         }
@@ -81,35 +105,49 @@ namespace FishAndChill.Fishing
         public void Show(CaughtFish fish, bool isNew, bool bagFull, int bagCount, int bagCapacity)
         {
             FishSpecies species = fish.Species;
-            float sizeCm = fish.SizeCm;
             Color rarityColor = species.Rarity.DisplayColor();
 
             _title.text = isNew ? "Nouvelle espèce !" : "Belle prise !";
-            _title.color = isNew ? NewSpeciesColor : Color.white;
-            _border.effectColor = rarityColor;
+            _glowColor = rarityColor;
+            _glowColor.a = GlowStrength(species.Rarity);
 
             _fish.sprite = species.Sprite;
             _fish.color = species.Sprite != null ? Color.white : species.PlaceholderColor;
 
             _name.text = species.CommonName;
             _scientificName.text = species.ScientificName;
-            _details.text = $"{sizeCm:0} cm   •   <color=#{ColorUtility.ToHtmlStringRGB(rarityColor)}>{species.Rarity.DisplayName()}</color>";
-            string bag = bagCount >= 0 ? $" (sac {bagCount}/{bagCapacity})" : string.Empty;
+            _size.text = $"{fish.SizeCm:0} cm";
+            _rarity.text = $"   {species.Rarity.DisplayName()}";
+            _rarity.color = rarityColor;
+            _gem.color = rarityColor;
+
+            if (isNew)
+            {
+                _valueCaption.text = "DESTINATION";
+                _value.text = "Aquarium";
+                _value.color = Gold;
+            }
+            else
+            {
+                _valueCaption.text = "VALEUR";
+                _value.text = $"{FishShop.PriceOf(fish)} pièces";
+                _value.color = Gold;
+            }
+
+            string bag = bagCount >= 0 ? $"  (sac {bagCount}/{bagCapacity})" : string.Empty;
             if (bagFull)
             {
                 _footer.text = "Sac plein ! Relâche un poisson pour garder celui-ci";
-                _footer.color = NewSpeciesColor;
+                _footer.color = Gold;
                 _hint.text = "1, 2, 3 : relâcher ce poisson du sac   •   Espace : relâcher le nouveau";
                 _hint.color = Color.white;
             }
             else
             {
-                _footer.text = isNew
-                    ? $"Garde-la pour l'aquarium !{bag}"
-                    : $"Doublon : le marchand te l'achètera {FishShop.PriceOf(fish)} pièces{bag}";
-                _footer.color = isNew ? NewSpeciesColor : MutedText;
+                _footer.text = isNew ? $"Garde-la pour l'aquarium !{bag}" : $"Doublon : le marchand te l'achètera{bag}";
+                _footer.color = isNew ? Gold : Muted;
                 _hint.text = "Espace pour continuer";
-                _hint.color = MutedText;
+                _hint.color = Muted;
             }
 
             _age = 0f;
@@ -122,7 +160,7 @@ namespace FishAndChill.Fishing
             _root.SetActive(false);
         }
 
-        /// <summary>Petite animation : la carte « saute » à l'apparition, le poisson frétille.</summary>
+        /// <summary>Animation : la carte « saute » à l'apparition, le poisson nage sur place, le halo respire.</summary>
         public void Animate(float deltaTime)
         {
             if (!IsVisible)
@@ -132,45 +170,46 @@ namespace FishAndChill.Fishing
 
             _age += deltaTime;
             float t = Mathf.Clamp01(_age / PopDuration);
-            float overshoot = 1f + Mathf.Sin(t * Mathf.PI) * 0.12f;
+            float overshoot = 1f + Mathf.Sin(t * Mathf.PI) * 0.10f;
             _panel.localScale = Vector3.one * Mathf.Lerp(0.6f, 1f, t) * overshoot;
 
-            _fishRect.anchoredPosition = new Vector2(0f, Mathf.Sin(_age * 3f) * 6f);
-            _fishRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_age * 5f) * 3f);
+            _fishRect.anchoredPosition = new Vector2(Mathf.Sin(_age * 1.3f) * 8f, Mathf.Sin(_age * 3f) * 6f);
+            _fishRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_age * 5f) * 2.5f);
+
+            Color glow = _glowColor;
+            glow.a *= 0.75f + 0.25f * Mathf.Sin(_age * 2.5f);
+            _glow.color = glow;
+            _glow.rectTransform.localScale = Vector3.one * (Mathf.Lerp(0.6f, 1f, t) + 0.03f * Mathf.Sin(_age * 2.5f));
         }
 
-        private static Image AddImage(RectTransform parent, string name, Color color)
+        private static float GlowStrength(Rarity rarity)
         {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(parent, false);
-            var image = go.GetComponent<Image>();
-            image.color = color;
-            return image;
+            switch (rarity)
+            {
+                case Rarity.Uncommon: return 0.35f;
+                case Rarity.Rare: return 0.45f;
+                case Rarity.Epic: return 0.55f;
+                case Rarity.Legendary: return 0.70f;
+                default: return 0.20f;
+            }
         }
 
-        private static Text AddText(RectTransform parent, string name, Font font, int size, FontStyle style, Vector2 position, Vector2 boxSize)
+        /// <summary>Pastille creusée avec une petite légende en capitales et une valeur.</summary>
+        private static Text Chip(RectTransform parent, UiSkin skin, Vector2 position, string caption, out RectTransform chip)
         {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Text));
-            go.transform.SetParent(parent, false);
-            var text = go.GetComponent<Text>();
-            text.font = font;
-            text.fontSize = size;
-            text.fontStyle = style;
-            text.alignment = TextAnchor.MiddleCenter;
-            text.color = Color.white;
-            text.supportRichText = true;
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
-            text.rectTransform.anchoredPosition = position;
-            text.rectTransform.sizeDelta = boxSize;
-            return text;
-        }
+            Image frame = UiFactory.Sliced(parent, $"Pastille {caption}", skin != null ? skin.Slot : null, skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+            chip = frame.rectTransform;
+            UiFactory.Center(chip, position, new Vector2(200f, 76f));
 
-        private static void Stretch(RectTransform rect)
-        {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            Text legend = UiFactory.Label(chip, "Légende", 16, TextAnchor.MiddleCenter, Muted, shadow: false);
+            legend.name = "Légende";
+            legend.text = caption;
+            UiFactory.Place(legend.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -6f), new Vector2(0f, 22f));
+
+            Text value = UiFactory.Label(chip, "Valeur", 26, TextAnchor.MiddleCenter, Color.white);
+            value.fontStyle = FontStyle.Bold;
+            UiFactory.Place(value.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 8f), new Vector2(0f, 36f));
+            return value;
         }
     }
 }

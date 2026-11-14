@@ -317,6 +317,16 @@ namespace FishAndChill.Editor
             hudSo.FindProperty("_player").objectReferenceValue = movement;
             hudSo.FindProperty("_shopMenu").objectReferenceValue = shopMenu;
             hudSo.FindProperty("_bagIcon").objectReferenceValue = bagIcon;
+
+            // Charte pixel art de l'interface (cadres, bandeaux, fonds d'eau), partagée par sac, carte et boutique.
+            UI.UiSkin skin = UiSkinSetup.CreateOrUpdate();
+            hudSo.FindProperty("_skin").objectReferenceValue = skin;
+            var skinMenuSo = new SerializedObject(shopMenu);
+            skinMenuSo.FindProperty("_skin").objectReferenceValue = skin;
+            skinMenuSo.ApplyModifiedPropertiesWithoutUndo();
+            var skinViewSo = new SerializedObject(view);
+            skinViewSo.FindProperty("_skin").objectReferenceValue = skin;
+            skinViewSo.ApplyModifiedPropertiesWithoutUndo();
             hudSo.FindProperty("_station").objectReferenceValue = null;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
 

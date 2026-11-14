@@ -15,6 +15,15 @@ namespace FishAndChill.Editor
         /// <summary>Écrit l'image, l'importe en sprite pixel art (filtre Point, sans compression) et renvoie le sprite.</summary>
         public static Sprite Save(string assetPath, Color[,] pixels, int pixelsPerUnit, Vector2 pivot)
         {
+            return Save(assetPath, pixels, pixelsPerUnit, pivot, Vector4.zero, FilterMode.Point);
+        }
+
+        /// <summary>
+        /// Variante pour l'interface : <paramref name="border"/> (gauche, bas, droite, haut, en pixels) rend le sprite
+        /// étirable en 9 parties (coins nets à toute taille).
+        /// </summary>
+        public static Sprite Save(string assetPath, Color[,] pixels, int pixelsPerUnit, Vector2 pivot, Vector4 border, FilterMode filter)
+        {
             EnsureFolder(Path.GetDirectoryName(assetPath).Replace('\\', '/'));
 
             int width = pixels.GetLength(0);
@@ -38,8 +47,9 @@ namespace FishAndChill.Editor
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
             importer.spritePixelsPerUnit = pixelsPerUnit;
-            importer.filterMode = FilterMode.Point;
+            importer.filterMode = filter;
             importer.mipmapEnabled = false;
+            importer.spriteBorder = border;
             importer.wrapMode = TextureWrapMode.Clamp;
             importer.alphaIsTransparency = true;
             importer.textureCompression = TextureImporterCompression.Uncompressed;

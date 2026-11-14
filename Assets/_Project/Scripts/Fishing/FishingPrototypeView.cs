@@ -26,6 +26,9 @@ namespace FishAndChill.Fishing
         [SerializeField, Tooltip("Optionnel : dans la boutique, l'aide de pêche est remplacée par celle de la boutique.")]
         private World.ShopBuilding _shop;
 
+        [SerializeField, Tooltip("Charte pixel art de l'interface (carte de prise).")]
+        private UI.UiSkin _skin;
+
         private const string ShopHint = "Parle au marchand au comptoir (E) — redescends vers le paillasson pour sortir";
 
         private FishingController _controller;
@@ -231,7 +234,7 @@ namespace FishAndChill.Fishing
             _qteCounter = CreateText(panelRect, "Compteur", font, 30, TextAnchor.LowerCenter);
             Anchor(_qteCounter.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 8f), new Vector2(900f, 50f), new Vector2(0.5f, 0f));
 
-            _catchCard = new CatchCard(root, font);
+            _catchCard = new CatchCard(root, _skin);
         }
 
         private void UpdateQte()

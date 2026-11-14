@@ -31,6 +31,9 @@ namespace FishAndChill.UI
         [SerializeField, Min(0.5f), Tooltip("Distance au comptoir pour parler au marchand.")]
         private float _talkRadius = 1.3f;
 
+        [SerializeField, Tooltip("Charte pixel art de l'interface.")]
+        private UiSkin _skin;
+
         private sealed class RowView
         {
             public Image Background;
@@ -40,7 +43,6 @@ namespace FishAndChill.UI
         }
 
         private readonly List<RowView> _rows = new List<RowView>();
-        private Font _font;
         private GameObject _panel;
         private RectTransform _rowsRoot;
         private Text _prompt;
@@ -237,7 +239,6 @@ namespace FishAndChill.UI
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
             var root = canvasObject.GetComponent<RectTransform>();
-            _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
             _prompt = AddText(root, "Invite", 32, TextAnchor.MiddleCenter);
             _prompt.text = "E : parler au marchand";
@@ -247,38 +248,27 @@ namespace FishAndChill.UI
             _prompt.rectTransform.sizeDelta = new Vector2(900f, 50f);
             _prompt.gameObject.SetActive(false);
 
-            Image panel = AddImage(root, "Menu de vente", PanelColor);
+            Image panel = UiFactory.Sliced(root, "Menu de vente", _skin != null ? _skin.Panel : null, _skin != null ? Color.white : PanelColor);
             _panel = panel.gameObject;
-            panel.rectTransform.anchoredPosition = new Vector2(0f, 40f);
-            panel.rectTransform.sizeDelta = new Vector2(980f, 620f);
-            Outline border = _panel.AddComponent<Outline>();
-            border.effectColor = Gold;
-            border.effectDistance = new Vector2(4f, -4f);
+            UiFactory.Center(panel.rectTransform, new Vector2(0f, 30f), new Vector2(980f, 640f));
 
-            Text title = AddText(panel.rectTransform, "Titre", 44, TextAnchor.MiddleCenter);
-            title.text = "Boutique de Mahana";
-            title.fontStyle = FontStyle.Bold;
-            title.color = Gold;
-            Place(title.rectTransform, new Vector2(0f, 262f), new Vector2(900f, 60f));
+            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Boutique de Mahana", 36, new Vector2(0f, 312f), new Vector2(520f, 76f), out _);
 
             _feedback = AddText(panel.rectTransform, "Marchand", 26, TextAnchor.MiddleCenter);
             _feedback.horizontalOverflow = HorizontalWrapMode.Wrap;
-            Place(_feedback.rectTransform, new Vector2(0f, 190f), new Vector2(900f, 80f));
+            Place(_feedback.rectTransform, new Vector2(0f, 205f), new Vector2(880f, 80f));
 
             var rows = new GameObject("Poissons", typeof(RectTransform));
             _rowsRoot = rows.GetComponent<RectTransform>();
             _rowsRoot.SetParent(panel.rectTransform, false);
             Place(_rowsRoot, new Vector2(0f, 0f), new Vector2(900f, 300f));
 
-            _coins = AddText(panel.rectTransform, "Pièces", 30, TextAnchor.MiddleCenter);
-            _coins.fontStyle = FontStyle.Bold;
-            _coins.color = Gold;
-            Place(_coins.rectTransform, new Vector2(0f, -205f), new Vector2(900f, 44f));
+            _coins = UiFactory.TitlePlaque(panel.rectTransform, _skin, "Tes pièces : 0", 26, new Vector2(0f, -212f), new Vector2(300f, 52f), out _);
 
-            Text help = AddText(panel.rectTransform, "Aide", 24, TextAnchor.MiddleCenter);
+            Text help = AddText(panel.rectTransform, "Aide", 22, TextAnchor.MiddleCenter);
             help.text = "1, 2, 3 : vendre ce poisson   •   V : tout vendre   •   Échap : sortir";
             help.color = Muted;
-            Place(help.rectTransform, new Vector2(0f, -262f), new Vector2(900f, 40f));
+            Place(help.rectTransform, new Vector2(0f, -270f), new Vector2(900f, 36f));
         }
 
         private void EnsureRows(int count)
@@ -298,18 +288,21 @@ namespace FishAndChill.UI
             float top = (count - 1) * rowHeight * 0.5f;
             for (int i = 0; i < count; i++)
             {
-                Image background = AddImage(_rowsRoot, $"Place {i + 1}", RowColor);
-                Place(background.rectTransform, new Vector2(0f, top - i * rowHeight), new Vector2(880f, rowHeight - 10f));
+                Image background = UiFactory.Sliced(_rowsRoot, $"Place {i + 1}", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : RowColor);
+                Place(background.rectTransform, new Vector2(0f, top - i * rowHeight), new Vector2(880f, rowHeight - 8f));
 
-                Image fish = AddImage(background.rectTransform, "Poisson", Color.white);
+                // Le poisson sur un petit fond d'eau.
+                Image backdrop = UiFactory.Sliced(background.rectTransform, "Fond d'eau", _skin != null ? _skin.WaterBackdrop : null, _skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
+                Place(backdrop.rectTransform, new Vector2(-362f, 0f), new Vector2(136f, 64f));
+                Image fish = AddImage(backdrop.rectTransform, "Poisson", Color.white);
                 fish.preserveAspect = true;
-                Place(fish.rectTransform, new Vector2(-370f, 0f), new Vector2(120f, 64f));
+                Place(fish.rectTransform, Vector2.zero, new Vector2(118f, 52f));
 
                 Text label = AddText(background.rectTransform, "Nom", 28, TextAnchor.MiddleLeft);
-                Place(label.rectTransform, new Vector2(-40f, 0f), new Vector2(520f, 60f));
+                Place(label.rectTransform, new Vector2(-20f, 0f), new Vector2(520f, 60f));
 
                 Text price = AddText(background.rectTransform, "Prix", 26, TextAnchor.MiddleRight);
-                Place(price.rectTransform, new Vector2(300f, 0f), new Vector2(260f, 60f));
+                Place(price.rectTransform, new Vector2(282f, 0f), new Vector2(260f, 60f));
 
                 _rows.Add(new RowView { Background = background, Fish = fish, Label = label, Price = price });
             }
@@ -332,17 +325,7 @@ namespace FishAndChill.UI
 
         private Text AddText(RectTransform parent, string name, int size, TextAnchor alignment)
         {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Text), typeof(Outline));
-            go.transform.SetParent(parent, false);
-            var text = go.GetComponent<Text>();
-            text.font = _font;
-            text.fontSize = size;
-            text.alignment = alignment;
-            text.color = Color.white;
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
-            go.GetComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.6f);
-            return text;
+            return UiFactory.Label(parent, name, size, alignment, Color.white);
         }
     }
 }

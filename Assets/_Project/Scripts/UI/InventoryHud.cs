@@ -12,23 +12,21 @@ namespace FishAndChill.UI
 {
     /// <summary>
     /// Le sac : une icône en bas à gauche (avec le compteur « 2/3 »), et une fenêtre d'inventaire ouverte avec E
-    /// (une case par place : dessin, nom, taille, rareté). Devant le comptoir, E parle au marchand à la place.
-    /// Quand le sac est plein après une prise, la fenêtre s'ouvre seule pour montrer les places 1, 2, 3.
-    /// Affiche aussi les pièces en haut à droite.
+    /// (une case par place : dessin, nom, taille, rareté), habillées avec la charte pixel art.
+    /// Devant le comptoir, E parle au marchand à la place. Quand le sac est plein après une prise, la fenêtre
+    /// s'ouvre seule pour montrer les places 1, 2, 3. Affiche aussi les pièces en haut à droite.
     /// </summary>
     public sealed class InventoryHud : MonoBehaviour
     {
-        // Opaques : avec une bordure (Outline), un fond translucide laisse transparaître la couleur du bord.
-        private static readonly Color PanelColor = new Color(0.07f, 0.10f, 0.14f, 1f);
-        private static readonly Color SlotColor = new Color(0.14f, 0.26f, 0.33f, 1f);
-        private static readonly Color EmptySlotColor = new Color(0.10f, 0.16f, 0.21f, 1f);
         private static readonly Color Gold = new Color(1.00f, 0.84f, 0.30f);
-        private static readonly Color Muted = new Color(0.62f, 0.68f, 0.74f);
+        private static readonly Color Muted = new Color(0.66f, 0.72f, 0.78f);
+        private static readonly Color EmptyTint = new Color(0.62f, 0.66f, 0.72f);
 
-        private const float SlotWidth = 172f;
-        private const float SlotHeight = 196f;
+        private const float SlotWidth = 168f;
+        private const float SlotHeight = 214f;
         private const float SlotGap = 12f;
-        private const float IconSize = 96f;
+        private const float WindowPadding = 22f;
+        private const float IconSize = 112f;
 
         [SerializeField] private PlayerProgress _progress;
         [SerializeField] private FishingController _fishing;
@@ -40,6 +38,9 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Icône du sac (pixel art).")]
         private Sprite _bagIcon;
 
+        [SerializeField, Tooltip("Charte pixel art de l'interface.")]
+        private UiSkin _skin;
+
         [SerializeField, Tooltip("Optionnel : bâtiment de dépôt (futur aquarium).")]
         private AquariumStation _station;
 
@@ -48,15 +49,15 @@ namespace FishAndChill.UI
         private sealed class SlotView
         {
             public Image Frame;
-            public Outline Border;
+            public Image Backdrop;
             public Image Fish;
+            public Image RarityStrip;
+            public Image NumberPlaque;
             public Text Name;
             public Text Details;
-            public Text Number;
         }
 
         private readonly List<SlotView> _slots = new List<SlotView>();
-        private Font _font;
         private RectTransform _iconRect;
         private Text _badge;
         private GameObject _window;
@@ -186,22 +187,26 @@ namespace FishAndChill.UI
                 _openedForChoice = false;
             }
 
-            _windowTitle.text = Choosing ? "Sac plein : quel poisson relâcher ?" : $"Mon sac  {_progress.Bag.Count}/{_progress.Bag.Capacity}";
+            _windowTitle.text = Choosing ? "Quel poisson relâcher ?" : $"Mon sac  {_progress.Bag.Count}/{_progress.Bag.Capacity}";
             _windowHelp.text = Choosing ? "1, 2, 3 : relâcher   •   Espace : relâcher le nouveau" : "E ou Échap : fermer";
             _windowHelp.color = Choosing ? Gold : Muted;
         }
 
         private void AnimateSlots()
         {
-            float pulse = 0.6f + 0.4f * Mathf.Sin(Time.unscaledTime * 6f);
-            foreach (SlotView slot in _slots)
+            float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 6f);
+            Inventory bag = _progress.Bag;
+            for (int i = 0; i < _slots.Count; i++)
             {
-                slot.Border.effectColor = Choosing ? new Color(Gold.r, Gold.g, Gold.b, pulse) : new Color(1f, 1f, 1f, 0.2f);
-                slot.Number.color = Choosing ? Gold : Muted;
+                SlotView slot = _slots[i];
+                Color baseTint = i < bag.Count ? Color.white : EmptyTint;
+                // En mode choix, les cases pleines « clignotent » en doré pour attirer l'œil sur leur numéro.
+                slot.Frame.color = Choosing && i < bag.Count ? Color.Lerp(Color.white, Gold, pulse * 0.8f) : baseTint;
+                slot.NumberPlaque.rectTransform.localScale = Vector3.one * (Choosing ? 1f + 0.12f * pulse : 1f);
             }
 
             // Petit rebond de l'icône quand le sac est plein.
-            float scale = _progress.Bag.IsFull ? 1f + 0.05f * Mathf.Sin(Time.unscaledTime * 4f) : 1f;
+            float scale = bag.IsFull ? 1f + 0.05f * Mathf.Sin(Time.unscaledTime * 4f) : 1f;
             _iconRect.localScale = Vector3.one * scale;
         }
 
@@ -238,17 +243,16 @@ namespace FishAndChill.UI
             }
 
             _badge.text = $"{bag.Count}/{bag.Capacity}";
-            _badge.color = bag.IsFull ? Gold : Color.white;
 
             for (int i = 0; i < _slots.Count; i++)
             {
                 SlotView slot = _slots[i];
                 bool filled = i < bag.Count;
-                slot.Frame.color = filled ? SlotColor : EmptySlotColor;
-                slot.Fish.gameObject.SetActive(filled);
+                slot.Backdrop.gameObject.SetActive(filled);
+                slot.RarityStrip.gameObject.SetActive(filled);
                 if (!filled)
                 {
-                    slot.Name.text = "(vide)";
+                    slot.Name.text = "Place libre";
                     slot.Name.color = Muted;
                     slot.Details.text = string.Empty;
                     continue;
@@ -260,10 +264,11 @@ namespace FishAndChill.UI
                 slot.Name.text = fish.Species.CommonName;
                 slot.Name.color = Color.white;
                 Color rarity = fish.Species.Rarity.DisplayColor();
-                slot.Details.text = $"{fish.SizeCm:0} cm\n<color=#{ColorUtility.ToHtmlStringRGB(rarity)}>{fish.Species.Rarity.DisplayName()}</color>";
+                slot.RarityStrip.color = rarity;
+                slot.Details.text = $"{fish.SizeCm:0} cm  •  <color=#{ColorUtility.ToHtmlStringRGB(rarity)}>{fish.Species.Rarity.DisplayName()}</color>";
             }
 
-            _coins.text = $"Pièces : {_progress.Wallet.Coins}";
+            _coins.text = $"{_progress.Wallet.Coins} pièces";
         }
 
         private void OnDeposited(DepositResult result)
@@ -295,6 +300,8 @@ namespace FishAndChill.UI
 
         // ---------- Construction ----------
 
+        private Sprite SkinSprite(System.Func<UiSkin, Sprite> pick) => _skin != null ? pick(_skin) : null;
+
         private void BuildUi()
         {
             var canvasObject = new GameObject("Interface du sac", typeof(Canvas), typeof(CanvasScaler));
@@ -307,75 +314,51 @@ namespace FishAndChill.UI
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
             var root = canvasObject.GetComponent<RectTransform>();
-            _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-            // Icône du sac en bas à gauche, avec le compteur et la touche.
-            Image icon = AddImage(root, "Icône du sac", Color.white);
+            // Icône du sac posée sur une case creusée, compteur sur une plaque dorée, touche E.
+            Image iconBase = UiFactory.Sliced(root, "Sac", SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+            _iconRect = iconBase.rectTransform;
+            UiFactory.Place(_iconRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(24f + IconSize * 0.5f, 24f + IconSize * 0.5f), new Vector2(IconSize, IconSize));
+
+            Image icon = UiFactory.Plain(_iconRect, "Icône", Color.white);
             icon.sprite = _bagIcon;
             icon.preserveAspect = true;
-            _iconRect = icon.rectTransform;
-            _iconRect.anchorMin = _iconRect.anchorMax = Vector2.zero;
-            _iconRect.pivot = new Vector2(0.5f, 0.5f);
-            _iconRect.anchoredPosition = new Vector2(24f + IconSize * 0.5f, 24f + IconSize * 0.5f);
-            _iconRect.sizeDelta = new Vector2(IconSize, IconSize);
-            if (_bagIcon == null)
-            {
-                icon.color = new Color(0.62f, 0.40f, 0.22f);
-            }
+            UiFactory.Center(icon.rectTransform, new Vector2(0f, 6f), new Vector2(IconSize - 26f, IconSize - 26f));
 
-            // Compteur dans le coin bas-droit de l'icône, touche E dans le coin haut-gauche.
-            _badge = AddText(_iconRect, "Compteur", 24, TextAnchor.LowerRight);
-            _badge.fontStyle = FontStyle.Bold;
-            Place(_badge.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-2f, 0f), new Vector2(80f, 30f), new Vector2(1f, 0f));
+            _badge = UiFactory.TitlePlaque(_iconRect, _skin, "0/3", 22, new Vector2(30f, -46f), new Vector2(64f, 34f), out _);
 
-            Text key = AddText(_iconRect, "Touche", 22, TextAnchor.UpperLeft);
+            Text key = UiFactory.Label(_iconRect, "Touche", 24, TextAnchor.UpperLeft, Gold);
             key.text = "E";
             key.fontStyle = FontStyle.Bold;
-            key.color = Gold;
-            Place(key.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(4f, -2f), new Vector2(30f, 26f), new Vector2(0f, 1f));
+            UiFactory.Place(key.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(10f, -6f), new Vector2(30f, 28f));
 
             // Fenêtre d'inventaire, juste au-dessus de l'icône (sans recouvrir le centre de l'écran).
-            Image window = AddImage(root, "Fenêtre du sac", PanelColor);
+            Image window = UiFactory.Sliced(root, "Fenêtre du sac", SkinSprite(s => s.Panel), _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
             _window = window.gameObject;
             _windowRect = window.rectTransform;
-            _windowRect.anchorMin = _windowRect.anchorMax = Vector2.zero;
-            _windowRect.pivot = Vector2.zero;
-            _windowRect.anchoredPosition = new Vector2(24f, 24f + IconSize + 14f);
-            Outline windowBorder = _window.AddComponent<Outline>();
-            windowBorder.effectColor = Gold;
-            windowBorder.effectDistance = new Vector2(3f, -3f);
+            UiFactory.Place(_windowRect, Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(24f, 24f + IconSize + 30f), Vector2.one * 100f);
 
-            _windowTitle = AddText(_windowRect, "Titre", 30, TextAnchor.UpperLeft);
-            _windowTitle.fontStyle = FontStyle.Bold;
-            _windowTitle.color = Gold;
-            Place(_windowTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -10f), new Vector2(-32f, 40f), new Vector2(0.5f, 1f));
+            _windowTitle = UiFactory.TitlePlaque(_windowRect, _skin, string.Empty, 26, Vector2.zero, new Vector2(360f, 54f), out RectTransform titlePlaque);
+            UiFactory.Place(titlePlaque, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(360f, 54f));
 
-            _windowHelp = AddText(_windowRect, "Aide", 20, TextAnchor.LowerCenter);
-            Place(_windowHelp.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 8f), new Vector2(-24f, 28f), new Vector2(0.5f, 0f));
+            _windowHelp = UiFactory.Label(_windowRect, "Aide", 20, TextAnchor.MiddleCenter, Muted);
+            UiFactory.Place(_windowHelp.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(-30f, 28f));
 
-            // Pièces : en haut à droite.
-            _coins = AddText(root, "Pièces", 32, TextAnchor.UpperRight);
-            _coins.fontStyle = FontStyle.Bold;
-            _coins.color = Gold;
-            Place(_coins.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-32f, -28f), new Vector2(400f, 44f), new Vector2(1f, 1f));
+            // Pièces : en haut à droite, sur une plaque.
+            _coins = UiFactory.TitlePlaque(root, _skin, "0 pièces", 26, Vector2.zero, new Vector2(220f, 52f), out RectTransform coinsPlaque);
+            UiFactory.Place(coinsPlaque, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-28f, -24f), new Vector2(220f, 52f));
 
             // Invite de dépôt (futur aquarium).
-            _prompt = AddText(root, "Invite", 32, TextAnchor.MiddleCenter);
+            _prompt = UiFactory.Label(root, "Invite", 32, TextAnchor.MiddleCenter, Color.white);
             _prompt.fontStyle = FontStyle.Bold;
-            Place(_prompt.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 150f), new Vector2(900f, 50f));
+            UiFactory.Place(_prompt.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 150f), new Vector2(900f, 50f));
             _prompt.gameObject.SetActive(false);
 
-            Image toast = AddImage(root, "Résumé", PanelColor);
+            Image toast = UiFactory.Sliced(root, "Résumé", SkinSprite(s => s.Panel), _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
             _toast = toast.gameObject;
-            Place(toast.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -280f), new Vector2(820f, 170f), new Vector2(0.5f, 1f));
-            Outline toastBorder = _toast.AddComponent<Outline>();
-            toastBorder.effectColor = Gold;
-            toastBorder.effectDistance = new Vector2(3f, -3f);
-            _toastText = AddText(toast.rectTransform, "Texte", 28, TextAnchor.MiddleCenter);
-            _toastText.rectTransform.anchorMin = Vector2.zero;
-            _toastText.rectTransform.anchorMax = Vector2.one;
-            _toastText.rectTransform.offsetMin = new Vector2(16f, 8f);
-            _toastText.rectTransform.offsetMax = new Vector2(-16f, -8f);
+            UiFactory.Place(toast.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -280f), new Vector2(820f, 180f));
+            _toastText = UiFactory.Label(toast.rectTransform, "Texte", 28, TextAnchor.MiddleCenter, Color.white);
+            UiFactory.Stretch(_toastText.rectTransform, 24f);
             _toast.SetActive(false);
         }
 
@@ -388,76 +371,49 @@ namespace FishAndChill.UI
 
             _slots.Clear();
             _builtCapacity = capacity;
-            _windowRect.sizeDelta = new Vector2(SlotGap + capacity * (SlotWidth + SlotGap), SlotHeight + 100f);
+            _windowRect.sizeDelta = new Vector2(WindowPadding * 2f + capacity * SlotWidth + (capacity - 1) * SlotGap, SlotHeight + 110f);
 
             for (int i = 0; i < capacity; i++)
             {
-                Image frame = AddImage(_windowRect, $"Place {i + 1}", SlotColor);
-                Place(frame.rectTransform, Vector2.zero, Vector2.zero, new Vector2(SlotGap + i * (SlotWidth + SlotGap), 42f), new Vector2(SlotWidth, SlotHeight), Vector2.zero);
-                Outline border = frame.gameObject.AddComponent<Outline>();
-                border.effectDistance = new Vector2(2f, -2f);
+                Image frame = UiFactory.Sliced(_windowRect, $"Place {i + 1}", SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+                UiFactory.Place(frame.rectTransform, Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(WindowPadding + i * (SlotWidth + SlotGap), 52f), new Vector2(SlotWidth, SlotHeight));
 
-                Image fish = AddImage(frame.rectTransform, "Poisson", Color.white);
+                // Fond d'eau avec le poisson.
+                Image backdrop = UiFactory.Sliced(frame.rectTransform, "Fond d'eau", SkinSprite(s => s.WaterBackdrop), _skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
+                UiFactory.Place(backdrop.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -12f), new Vector2(SlotWidth - 20f, 96f));
+                Image fish = UiFactory.Plain(backdrop.rectTransform, "Poisson", Color.white);
                 fish.preserveAspect = true;
-                Place(fish.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -30f), new Vector2(SlotWidth - 20f, 86f), new Vector2(0.5f, 1f));
+                UiFactory.Center(fish.rectTransform, Vector2.zero, new Vector2(SlotWidth - 34f, 74f));
 
-                Text name = AddText(frame.rectTransform, "Nom", 20, TextAnchor.MiddleCenter);
+                Text name = UiFactory.Label(frame.rectTransform, "Nom", 20, TextAnchor.MiddleCenter, Color.white);
                 name.fontStyle = FontStyle.Bold;
                 name.horizontalOverflow = HorizontalWrapMode.Wrap;
-                Place(name.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 50f), new Vector2(SlotWidth - 12f, 48f), new Vector2(0.5f, 0f));
+                UiFactory.Place(name.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 52f), new Vector2(SlotWidth - 16f, 50f));
 
-                // Taille et rareté sur deux lignes : rien ne déborde sur la case voisine.
-                Text details = AddText(frame.rectTransform, "Détails", 18, TextAnchor.MiddleCenter);
-                details.supportRichText = true;
-                details.horizontalOverflow = HorizontalWrapMode.Wrap;
-                details.lineSpacing = 0.9f;
-                Place(details.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 6f), new Vector2(SlotWidth - 8f, 44f), new Vector2(0.5f, 0f));
+                Text details = UiFactory.Label(frame.rectTransform, "Détails", 15, TextAnchor.MiddleCenter, Color.white);
+                details.horizontalOverflow = HorizontalWrapMode.Overflow;
+                UiFactory.Place(details.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 22f), new Vector2(SlotWidth - 10f, 28f));
 
-                Text number = AddText(frame.rectTransform, "Numéro", 24, TextAnchor.UpperLeft);
-                number.text = (i + 1).ToString();
-                number.fontStyle = FontStyle.Bold;
-                Place(number.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(8f, -4f), new Vector2(30f, 28f), new Vector2(0f, 1f));
+                // Liseré de rareté en bas de la case.
+                Image strip = UiFactory.Plain(frame.rectTransform, "Rareté", Color.white);
+                UiFactory.Place(strip.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 10f), new Vector2(-24f, 6f));
 
-                _slots.Add(new SlotView { Frame = frame, Border = border, Fish = fish, Name = name, Details = details, Number = number });
+                // Numéro de la place sur une petite plaque dorée.
+                Text number = UiFactory.TitlePlaque(frame.rectTransform, _skin, (i + 1).ToString(), 22, Vector2.zero, new Vector2(38f, 34f), out RectTransform plaque);
+                UiFactory.Place(plaque, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0.5f, 0.5f), new Vector2(10f, -8f), new Vector2(38f, 34f));
+                number.fontSize = 22;
+
+                _slots.Add(new SlotView
+                {
+                    Frame = frame,
+                    Backdrop = backdrop,
+                    Fish = fish,
+                    RarityStrip = strip,
+                    NumberPlaque = plaque.GetComponent<Image>(),
+                    Name = name,
+                    Details = details,
+                });
             }
-        }
-
-        private static void Place(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 position, Vector2 size, Vector2? pivot = null)
-        {
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            if (pivot.HasValue)
-            {
-                rect.pivot = pivot.Value;
-            }
-
-            rect.anchoredPosition = position;
-            rect.sizeDelta = size;
-        }
-
-        private static Image AddImage(RectTransform parent, string name, Color color)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(parent, false);
-            var image = go.GetComponent<Image>();
-            image.color = color;
-            return image;
-        }
-
-        private Text AddText(RectTransform parent, string name, int size, TextAnchor alignment)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Text), typeof(Outline));
-            go.transform.SetParent(parent, false);
-            var text = go.GetComponent<Text>();
-            text.font = _font;
-            text.fontSize = size;
-            text.alignment = alignment;
-            text.color = Color.white;
-            text.supportRichText = true;
-            text.horizontalOverflow = HorizontalWrapMode.Overflow;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
-            go.GetComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.6f);
-            return text;
         }
     }
 }

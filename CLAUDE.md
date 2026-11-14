@@ -108,6 +108,11 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
     ne jamais recopier une illustration existante).
 - Pour remplacer un dessin par un vrai, utiliser un autre nom de fichier, sinon il sera écrasé.
 - Carte de prise : `CatchCard` (dessin du poisson, nom, nom scientifique, taille, rareté en couleur).
+- **Charte d'interface** (`UiSkin`, asset `Data/UiSkin.asset`, sprites de `UiSkinArt.cs` générés par `UiSkinSetup`) :
+  cadre doré à coins arrondis, case creusée, bandeau de titre, fond d'eau, pierre de rareté, halo. Sprites
+  étirables en 9 parties, 25 px/unité (1 pixel = 4 unités d'interface). Construire l'interface avec `UiFactory`
+  (`Sliced`, `Label` avec ombre portée, `TitlePlaque`) ; ne plus utiliser de rectangles plats + `Outline`.
+  Utilisée par la carte de prise, l'inventaire et le menu du marchand.
 
 ## Conventions de code
 

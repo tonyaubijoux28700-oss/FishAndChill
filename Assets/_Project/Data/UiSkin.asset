@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d365a86f5650284c93fac8d82a2f61e, type: 3}
+  m_Name: UiSkin
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.UI.UiSkin
+  _panel: {fileID: 21300000, guid: 2b0a88ec9ba61464092336b94f7ae43e, type: 3}
+  _slot: {fileID: 21300000, guid: 7d4596309be995c459906ff3f318a1e5, type: 3}
+  _plaque: {fileID: 21300000, guid: 0aa4f4b1f59a2f340ae98dee5e06cf99, type: 3}
+  _waterBackdrop: {fileID: 21300000, guid: 0658237f026ab2a4baee2351883e5514, type: 3}
+  _gem: {fileID: 21300000, guid: f7c7f4e2cdafee2408dc3a035afc71b9, type: 3}
+  _glow: {fileID: 21300000, guid: 52efdb529fad7424f80ee302377d0b96, type: 3}
