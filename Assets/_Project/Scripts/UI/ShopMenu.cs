@@ -83,7 +83,8 @@ namespace FishAndChill.UI
             if (!IsOpen)
             {
                 _prompt.gameObject.SetActive(PlayerAtCounter);
-                if (PlayerAtCounter && InteractInput.PressedThisFrame())
+                // Pas d'ouverture si une autre fenêtre (index, sac) bloque déjà le joueur.
+                if (PlayerAtCounter && !_player.Locked && InteractInput.PressedThisFrame())
                 {
                     Open();
                 }

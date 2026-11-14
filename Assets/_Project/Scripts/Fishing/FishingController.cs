@@ -292,7 +292,7 @@ namespace FishAndChill.Fishing
         {
             FishSpecies species = HookedSpecies;
             var fish = new CaughtFish(species, HookedSizeCm);
-            CatchLog.Register(species.Id);
+            CatchLog.Register(species.Id, HookedSizeCm);
             bool isNew = IsNewForCollection(species.Id);
             string header = $"{species.CommonName} ({species.Rarity.DisplayName()}) — {HookedSizeCm:0} cm";
 

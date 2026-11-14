@@ -75,6 +75,12 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   d'inventaire (joueur `Locked`, E/Échap ferme) ; devant le comptoir, E parle au marchand à la place. Quand le sac
   est plein après une prise, la fenêtre s'ouvre seule (places 1/2/3 qui clignotent). Pièces en haut à droite.
   Icône de boutique sur la minimap.
+- **Index des poissons** (`UI/FishIndex`, objet « Partie ») : icône de livre à droite du sac (compteur « 2/8 »,
+  `UiArt.BookIcon`), **Tab** (ou Y manette, `IndexInput`) ouvre le livre (joueur `Locked`), Tab/Échap ferme.
+  Grille 4×2 par page de toutes les espèces des zones du champ `_zones` (Mahana seule pour l'instant) : espèces
+  découvertes dessinées, les autres en silhouette « ??? ». Flèches/ZQSD choisissent, fiche en bas (rareté, prises,
+  record, taille). « Découverte » = déjà pêchée une fois (`CatchLog`, qui garde aussi le record de taille).
+  Logique dans `SpeciesIndex` (testée).
 - Le bouton Play lance toujours `FishingPrototype` (`PlayModeStartScene`), même si une autre scène est ouverte.
 - **Ne pas lancer les tests pendant que l'éditeur entre ou sort du Play mode** : le lanceur de tests plante et
   laisse une scène vide ouverte.

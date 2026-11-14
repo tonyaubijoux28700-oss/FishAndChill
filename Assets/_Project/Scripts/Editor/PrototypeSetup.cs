@@ -334,6 +334,24 @@ namespace FishAndChill.Editor
                 skinMapSo.FindProperty("_skin").objectReferenceValue = skin;
                 skinMapSo.ApplyModifiedPropertiesWithoutUndo();
             }
+            // L'index des poissons : icône de livre à côté du sac, livre ouvert avec Tab.
+            var fishIndex = partie.GetComponent<UI.FishIndex>();
+            if (fishIndex == null)
+            {
+                fishIndex = partie.AddComponent<UI.FishIndex>();
+            }
+
+            Sprite bookIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeIndex.png", UiArt.BookIcon(), 16, new Vector2(0.5f, 0.5f));
+            var indexSo = new SerializedObject(fishIndex);
+            SerializedProperty zones = indexSo.FindProperty("_zones");
+            zones.arraySize = 1;
+            zones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
+            indexSo.FindProperty("_fishing").objectReferenceValue = controller;
+            indexSo.FindProperty("_player").objectReferenceValue = movement;
+            indexSo.FindProperty("_bookIcon").objectReferenceValue = bookIcon;
+            indexSo.FindProperty("_skin").objectReferenceValue = skin;
+            indexSo.ApplyModifiedPropertiesWithoutUndo();
+
             hudSo.FindProperty("_station").objectReferenceValue = null;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
 
