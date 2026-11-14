@@ -295,11 +295,6 @@ namespace FishAndChill.Editor
                 hud = partie.AddComponent<UI.InventoryHud>();
             }
 
-            var hudSo = new SerializedObject(hud);
-            hudSo.FindProperty("_progress").objectReferenceValue = progress;
-            hudSo.FindProperty("_fishing").objectReferenceValue = controller;
-            hudSo.FindProperty("_station").objectReferenceValue = null;
-            hudSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Le marchand de la boutique et son menu de vente.
             var shopMenu = partie.GetComponent<UI.ShopMenu>();
@@ -313,6 +308,17 @@ namespace FishAndChill.Editor
             menuSo.FindProperty("_shop").objectReferenceValue = shop;
             menuSo.FindProperty("_player").objectReferenceValue = movement;
             menuSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Le sac : icône en bas à gauche, fenêtre ouverte avec E (sauf devant le comptoir du marchand).
+            Sprite bagIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeSac.png", UiArt.BagIcon(), 16, new Vector2(0.5f, 0.5f));
+            var hudSo = new SerializedObject(hud);
+            hudSo.FindProperty("_progress").objectReferenceValue = progress;
+            hudSo.FindProperty("_fishing").objectReferenceValue = controller;
+            hudSo.FindProperty("_player").objectReferenceValue = movement;
+            hudSo.FindProperty("_shopMenu").objectReferenceValue = shopMenu;
+            hudSo.FindProperty("_bagIcon").objectReferenceValue = bagIcon;
+            hudSo.FindProperty("_station").objectReferenceValue = null;
+            hudSo.ApplyModifiedPropertiesWithoutUndo();
 
             var viewShopSo = new SerializedObject(view);
             viewShopSo.FindProperty("_shop").objectReferenceValue = shop;

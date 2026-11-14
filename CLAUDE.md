@@ -71,7 +71,13 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   l'aquarium, ou exemplaires en trop : il laisse le plus gros), prix de 80 % à 130 % du `BasePrice` selon la taille.
 - **L'aquarium aura son propre bâtiment** (à faire) : `AquariumStation`, `AquariumCollection.Deposit` et
   `AquariumArt` sont prêts mais ne sont plus placés sur l'île. En attendant, l'aquarium reste vide.
-- `UI/InventoryHud` : sac en bas à gauche, pièces en haut à droite. Icône de boutique sur la minimap.
+- `UI/InventoryHud` : **icône de sac** en bas à gauche (compteur « 2/3 », `UiArt.BagIcon`), **E** ouvre la fenêtre
+  d'inventaire (joueur `Locked`, E/Échap ferme) ; devant le comptoir, E parle au marchand à la place. Quand le sac
+  est plein après une prise, la fenêtre s'ouvre seule (places 1/2/3 qui clignotent). Pièces en haut à droite.
+  Icône de boutique sur la minimap.
+- Le bouton Play lance toujours `FishingPrototype` (`PlayModeStartScene`), même si une autre scène est ouverte.
+- **Ne pas lancer les tests pendant que l'éditeur entre ou sort du Play mode** : le lanceur de tests plante et
+  laisse une scène vide ouverte.
 - Pas encore de sauvegarde : tout repart de zéro à chaque lancement.
 
 ## Minimap

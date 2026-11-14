@@ -165,6 +165,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: FishAndChill::FishAndChill.UI.InventoryHud
   _progress: {fileID: 332295271}
   _fishing: {fileID: 1235020156}
+  _player: {fileID: 1141459283}
+  _shopMenu: {fileID: 332295274}
+  _bagIcon: {fileID: 21300000, guid: c8113cdd621eb0444a952aef6182986e, type: 3}
   _station: {fileID: 0}
   _toastSeconds: 5
 --- !u!4 &332295273
