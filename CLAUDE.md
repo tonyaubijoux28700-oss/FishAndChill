@@ -53,12 +53,14 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Tuiles pixel art provisoires (16×16, 16 px/unité, filtre Point) dans `Assets/_Project/Art/Tiles/`,
   **redessinées à chaque génération** : pour garder un dessin fait main, le renommer.
 - Zone de départ : **Île Mahana** (fictive, tropicale) avec 8 vraies espèces indo-pacifiques.
-  La zone « Lac d'Annecy » reste en données pour plus tard. Palmiers sur la Tilemap `Décor` (non bloquants).
+  La zone « Lac d'Annecy » reste en données pour plus tard. Palmiers sur la Tilemap `Décor` (tronc bloquant).
 - **Aménagement** (`TownLayout`, appelé par `MapSetup`) : l'aquarium est au **milieu de l'île** (`LandCentroid`),
   la boutique près du départ. Parvis pavés devant les portes et chemins pavés (plage → boutique → aquarium, chemin le
   moins coûteux qui préfère l'herbe) sur la couche `Rendu - Pavés` (double grille, bords arrondis). Décor sur `Décor`
-  (`DecorArt`, `Art/Tiles/Decor/`, non bloquant) : haies au pied des façades, massifs, lampadaires, tonneaux et
+  (`DecorArt`, `Art/Tiles/Decor/`) : haies au pied des façades, massifs, lampadaires, tonneaux et
   caisses de la boutique, panneau indicateur, buissons et rochers. Les cocotiers évitent tout ça (`Result.Reserved`).
+  **Décor et troncs de cocotiers sont solides** : leur pied (`TownLayout.Footprint` / `PalmFootprint`) est enregistré
+  dans `WorldMap._staticObstacles` à la génération ; `CanStandAt` teste la boîte du joueur contre chaque obstacle.
 
 ## Sac, aquarium et pièces
 

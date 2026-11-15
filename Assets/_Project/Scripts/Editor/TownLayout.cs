@@ -40,6 +40,34 @@ namespace FishAndChill.Editor
             public bool AquariumToTheRightOfSign;
         }
 
+        /// <summary>
+        /// Zone infranchissable d'un élément de décor : seulement son pied (on passe derrière un lampadaire, pas à
+        /// travers). <paramref name="center"/> = centre de sa case, en coordonnées du monde.
+        /// </summary>
+        public static Rect Footprint(DecorKind kind, Vector2 center)
+        {
+            switch (kind)
+            {
+                case DecorKind.Hedge:
+                case DecorKind.HedgeFlowers:
+                    return new Rect(center.x - 0.5f, center.y + 0.1f, 1f, 0.4f);      // collée au mur derrière
+                case DecorKind.Barrel:
+                    return new Rect(center.x - 0.4f, center.y + 0.1f, 0.8f, 0.45f);
+                case DecorKind.Crates:
+                    return new Rect(center.x - 0.5f, center.y + 0.1f, 1f, 0.5f);
+                case DecorKind.FlowerBed:
+                    return new Rect(center.x - 0.95f, center.y - 0.55f, 1.9f, 0.85f);
+                case DecorKind.Lamp:
+                case DecorKind.Signpost:
+                    return new Rect(center.x - 0.18f, center.y - 0.42f, 0.36f, 0.3f);
+                default:                                                              // buissons, rochers
+                    return new Rect(center.x - 0.45f, center.y - 0.45f, 0.9f, 0.45f);
+            }
+        }
+
+        /// <summary>Pied du tronc d'un cocotier (le feuillage, lui, reste traversable).</summary>
+        public static Rect PalmFootprint(Vector2 center) => new Rect(center.x - 0.2f, center.y - 0.35f, 0.4f, 0.3f);
+
         /// <summary>Centre de gravité des cases de terre : le « milieu de l'île ».</summary>
         public static Vector2Int LandCentroid(TerrainType[,] terrain)
         {

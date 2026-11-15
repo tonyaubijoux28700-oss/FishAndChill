@@ -15,6 +15,9 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Tilemap de l'eau : sert à connaître les limites de la carte.")]
         private Tilemap _water;
 
+        [SerializeField, Tooltip("Obstacles fixes du décor (générés avec l'île) : on ne traverse plus lampadaires, haies, cocotiers…")]
+        private System.Collections.Generic.List<Rect> _staticObstacles = new System.Collections.Generic.List<Rect>();
+
         public Tilemap Land => _land;
         public Tilemap Water => _water;
 
@@ -67,8 +70,28 @@ namespace FishAndChill.World
         /// <summary>Ajoute une zone infranchissable (bâtiment…), en coordonnées du monde.</summary>
         public void AddObstacle(Rect area) => _obstacles.Add(area);
 
+        /// <summary>
+        /// Remplace les obstacles fixes de l'île (pied des lampadaires, tonneaux, haies, troncs de cocotiers…),
+        /// enregistrés avec la scène. Appelé par la génération de l'île.
+        /// </summary>
+        public void SetStaticObstacles(System.Collections.Generic.IEnumerable<Rect> obstacles)
+        {
+            _staticObstacles.Clear();
+            _staticObstacles.AddRange(obstacles);
+        }
+
+        public int StaticObstacleCount => _staticObstacles.Count;
+
         public bool IsBlocked(Vector2 worldPosition)
         {
+            foreach (Rect obstacle in _staticObstacles)
+            {
+                if (obstacle.Contains(worldPosition))
+                {
+                    return true;
+                }
+            }
+
             foreach (Rect obstacle in _obstacles)
             {
                 if (obstacle.Contains(worldPosition))
@@ -86,19 +109,31 @@ namespace FishAndChill.World
         /// </summary>
         public bool CanStandAt(Vector2 worldPosition, float radius)
         {
-            for (int corner = 0; corner < 4; corner++)
+            // Boîte du personnage contre chaque obstacle : même un obstacle fin (pied de lampadaire, tronc)
+            // qui tiendrait entre deux coins arrête le joueur.
+            var box = new Rect(worldPosition.x - radius, worldPosition.y - radius, radius * 2f, radius * 2f);
+            if (Overlaps(_staticObstacles, box) || Overlaps(_obstacles, box))
             {
-                var offset = new Vector2(corner % 2 == 0 ? -radius : radius, corner < 2 ? -radius : radius);
-                if (IsBlocked(worldPosition + offset))
-                {
-                    return false;
-                }
+                return false;
             }
 
             return IsLand(worldPosition + new Vector2(-radius, -radius))
                 && IsLand(worldPosition + new Vector2(radius, -radius))
                 && IsLand(worldPosition + new Vector2(-radius, radius))
                 && IsLand(worldPosition + new Vector2(radius, radius));
+        }
+
+        private static bool Overlaps(System.Collections.Generic.List<Rect> obstacles, Rect box)
+        {
+            foreach (Rect obstacle in obstacles)
+            {
+                if (obstacle.Overlaps(box))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>Rectangle de la carte en coordonnées du monde (pour bloquer la caméra).</summary>

@@ -164879,6 +164879,512 @@ MonoBehaviour:
   m_EditorClassIdentifier: FishAndChill::FishAndChill.World.WorldMap
   _land: {fileID: 1091301631}
   _water: {fileID: 694044183}
+  _staticObstacles:
+  - serializedVersion: 2
+    x: -5
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: 3
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: -6
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: 4
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: -7
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: 5
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: -8
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: 6
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: -9
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: 7
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: -10
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: 8
+    y: -6.4
+    width: 1
+    height: 0.4
+  - serializedVersion: 2
+    x: -7.45
+    y: -10.05
+    width: 1.9
+    height: 0.85
+  - serializedVersion: 2
+    x: 4.55
+    y: -10.05
+    width: 1.9
+    height: 0.85
+  - serializedVersion: 2
+    x: -11.68
+    y: -11.92
+    width: 0.36
+    height: 0.3
+  - serializedVersion: 2
+    x: 10.32
+    y: -11.92
+    width: 0.36
+    height: 0.3
+  - serializedVersion: 2
+    x: -11.68
+    y: -6.92
+    width: 0.36
+    height: 0.3
+  - serializedVersion: 2
+    x: 10.32
+    y: -6.92
+    width: 0.36
+    height: 0.3
+  - serializedVersion: 2
+    x: -11.95
+    y: -3.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 10.05
+    y: -3.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -11.95
+    y: -0.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 10.05
+    y: -0.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -10.95
+    y: 2.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 9.05
+    y: 2.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 20.1
+    y: -10.4
+    width: 0.8
+    height: 0.45
+  - serializedVersion: 2
+    x: 21.1
+    y: -10.4
+    width: 0.8
+    height: 0.45
+  - serializedVersion: 2
+    x: 13
+    y: -10.4
+    width: 1
+    height: 0.5
+  - serializedVersion: 2
+    x: 12.32
+    y: -12.92
+    width: 0.36
+    height: 0.3
+  - serializedVersion: 2
+    x: 22.32
+    y: -12.92
+    width: 0.36
+    height: 0.3
+  - serializedVersion: 2
+    x: 13.05
+    y: -8.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 21.05
+    y: -7.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -0.68
+    y: -21.92
+    width: 0.36
+    height: 0.3
+  - serializedVersion: 2
+    x: -1.6800001
+    y: -12.92
+    width: 0.36
+    height: 0.3
+  - serializedVersion: 2
+    x: -23.95
+    y: -8.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -22.95
+    y: -12.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -22.95
+    y: 1.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -15.95
+    y: 8.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -13.95
+    y: -10.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -13.95
+    y: 7.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -10.95
+    y: -16.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -10.95
+    y: 10.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: -1.95
+    y: 10.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 5.05
+    y: 15.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 6.05
+    y: 11.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 6.05
+    y: 17.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 8.05
+    y: 23.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 9.05
+    y: -17.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 12.05
+    y: -23.95
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 12.05
+    y: 14.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 14.05
+    y: 6.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 14.05
+    y: 18.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 15.05
+    y: 11.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 20.05
+    y: 2.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 22.05
+    y: 2.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 26.05
+    y: 3.05
+    width: 0.9
+    height: 0.45
+  - serializedVersion: 2
+    x: 4.3
+    y: -23.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 8.3
+    y: -21.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 11.3
+    y: -19.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 14.3
+    y: -18.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -7.7
+    y: -16.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -4.7
+    y: -14.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 17.3
+    y: -14.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -7.7
+    y: -13.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -18.7
+    y: -8.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -33.7
+    y: -7.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -28.7
+    y: -4.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -20.7
+    y: -4.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 29.3
+    y: -4.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -24.7
+    y: -3.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 18.3
+    y: -3.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -35.7
+    y: -1.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -18.7
+    y: -1.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 20.3
+    y: -0.85
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 30.3
+    y: 0.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -14.7
+    y: 1.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 13.3
+    y: 1.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -24.7
+    y: 2.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 16.3
+    y: 2.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -22.7
+    y: 5.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 11.3
+    y: 5.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 20.3
+    y: 5.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 17.3
+    y: 9.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -13.7
+    y: 10.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 18.3
+    y: 12.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -21.7
+    y: 13.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 21.3
+    y: 13.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -24.7
+    y: 14.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -6.7
+    y: 14.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 2.3
+    y: 14.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 7.3
+    y: 15.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -13.7
+    y: 16.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 1.3
+    y: 17.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -21.7
+    y: 18.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -1.7
+    y: 19.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 4.3
+    y: 19.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 17.3
+    y: 19.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 10.3
+    y: 20.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -20.7
+    y: 21.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -13.7
+    y: 21.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: -8.7
+    y: 22.15
+    width: 0.4
+    height: 0.3
+  - serializedVersion: 2
+    x: 1.3
+    y: 23.15
+    width: 0.4
+    height: 0.3
 --- !u!156049354 &1254510491
 Grid:
   m_ObjectHideFlags: 0

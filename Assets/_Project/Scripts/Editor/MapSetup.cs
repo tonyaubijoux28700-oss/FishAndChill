@@ -147,7 +147,9 @@ namespace FishAndChill.Editor
             // Parvis, chemins pavés et décor autour des bâtiments.
             TownLayout.Result town = TownLayout.Build(terrain, spawn, shopCell, aquariumCell, seed);
             FillDualLayer(pavingLayer, bounds, width, height, (x, y) => town.Paved[x, y], tiles.PavingEdges, tiles.PavingFull, seed + 5);
-            PlaceDecor(decorMap, bounds, town, tiles);
+            // Pied de chaque élément de décor et tronc de chaque cocotier : infranchissables.
+            var staticObstacles = new List<Rect>();
+            PlaceDecor(decorMap, bounds, town, tiles, staticObstacles);
 
             // Cocotiers sur l'herbe, espacés, jamais sur le point d'apparition, les bâtiments, les chemins ni le décor.
             var palms = new List<Vector2Int>();
@@ -170,6 +172,7 @@ namespace FishAndChill.Editor
                     }
 
                     palms.Add(new Vector2Int(x, y));
+                    staticObstacles.Add(TownLayout.PalmFootprint(new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f)));
                     decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tiles.Palm);
                 }
             }
@@ -182,6 +185,8 @@ namespace FishAndChill.Editor
 
             SetReference(worldMap, "_land", landMap);
             SetReference(worldMap, "_water", waterMap);
+            worldMap.SetStaticObstacles(staticObstacles);
+            EditorUtility.SetDirty(worldMap);
 
             // Position du joueur = ses pieds, au centre de la case.
             player.transform.position = new Vector3(bounds.xMin + spawn.x + 0.5f, bounds.yMin + spawn.y + 0.5f, 0f);
@@ -567,7 +572,7 @@ namespace FishAndChill.Editor
             set.SignpostRight = Decor("Panneau_Droite", DecorArt.Signpost(true), 0.3f);
         }
 
-        private static void PlaceDecor(Tilemap decorMap, BoundsInt bounds, TownLayout.Result town, TileSet tiles)
+        private static void PlaceDecor(Tilemap decorMap, BoundsInt bounds, TownLayout.Result town, TileSet tiles, List<Rect> obstacles)
         {
             foreach (TownLayout.Placement placement in town.Decor)
             {
@@ -584,6 +589,8 @@ namespace FishAndChill.Editor
                 }
 
                 decorMap.SetTile(new Vector3Int(bounds.xMin + placement.Cell.x, bounds.yMin + placement.Cell.y, 0), tile);
+                var center = new Vector2(bounds.xMin + placement.Cell.x + 0.5f, bounds.yMin + placement.Cell.y + 0.5f);
+                obstacles.Add(TownLayout.Footprint(placement.Kind, center));
             }
         }
 
