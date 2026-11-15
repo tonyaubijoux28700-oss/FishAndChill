@@ -30,6 +30,12 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   **FishAndChill → Prototype → Générer données et scène de pêche** (`PrototypeSetup.cs`, relançable).
 - L'affichage (`FishingPrototypeView`) est provisoire et construit par le code ; la logique est dans
   `FishingController` (états) et `Fishing/Core` (QTE pur, testé).
+- Déroulé : `Idle` → **`Casting`** (le bouchon vole en arc, durée selon la distance) → `Waiting` avec **1 à 3
+  titillements** (`NibblePlanner`, testé ; événement `Nibbled`, ferrer dessus = trop tôt) → `Bite` (le bouchon coule)
+  → `Reeling` (QTE). Rendu (`FishingPrototypeView`) : canne et fil dessinés pixel par pixel (`PixelPolyline`), la canne
+  arme puis fouette au lancer, le fil pend plus ou moins, ronds dans l'eau (plouf, titillements, touche,
+  éclaboussures du combat). Jauge du QTE avec la charte (cadre, bandeau « Ferre-le ! », barre d'eau, zone verte,
+  aiguille, pastilles réussites/ratés, flash et secousse), placée du côté opposé au bouchon.
 - `FishingController.PressAction()` et `Tick()` sont publics : on peut jouer le prototype par
   `unity command script eval` pour le tester sans clavier.
 - Tests : `unity command test run --mode EditMode --filter FishAndChill --filter-type assembly --project-path .`

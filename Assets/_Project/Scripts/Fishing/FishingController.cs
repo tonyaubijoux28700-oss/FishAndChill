@@ -10,6 +10,10 @@ namespace FishAndChill.Fishing
     public enum FishingState
     {
         Idle,
+
+        /// <summary>Le bouchon vole vers l'eau (lancer).</summary>
+        Casting,
+
         Waiting,
         Bite,
         Reeling,
@@ -52,6 +56,9 @@ namespace FishAndChill.Fishing
         [SerializeField, Min(0f)] private float _minWaitSeconds = 1.5f;
         [SerializeField, Min(0f)] private float _maxWaitSeconds = 4f;
 
+        [SerializeField, Min(0.1f), Tooltip("Durée du vol du bouchon pour un lancer de 4 cases (proportionnelle à la distance).")]
+        private float _castFlightSeconds = 0.7f;
+
         [Header("Réactivité")]
         [SerializeField, Min(0.1f), Tooltip("Temps pour ferrer une fois que ça mord.")]
         private float _biteWindowSeconds = 1f;
@@ -64,9 +71,15 @@ namespace FishAndChill.Fishing
         private System.Random _random;
         private float _timer;
         private float _phaseDuration;
+        private float _biteTime;
+        private float _waited;
+        private float[] _nibbles = new float[0];
 
         public event Action StateChanged;
         public event Action<QtePressResult> QtePressed;
+
+        /// <summary>Le poisson titille l'appât (le bouchon tressaille) : numéro du titillement, à partir de 1.</summary>
+        public event Action<int> Nibbled;
         /// <summary>Un poisson est attrapé : (poisson, nouvelle espèce ?, sac plein ?).</summary>
         public event Action<CaughtFish, bool, bool> FishCaught;
 
@@ -75,6 +88,9 @@ namespace FishAndChill.Fishing
 
         /// <summary>Point où le bouchon est tombé (valide pendant la pêche).</summary>
         public Vector2 CastPoint { get; private set; }
+
+        /// <summary>Titillements déjà faits pendant l'attente en cours.</summary>
+        public int NibbleCount { get; private set; }
         public FishSpecies HookedSpecies { get; private set; }
         public float HookedSizeCm { get; private set; }
         public QteChallenge Challenge { get; private set; }
@@ -154,10 +170,29 @@ namespace FishAndChill.Fishing
         {
             switch (State)
             {
-                case FishingState.Waiting:
+                case FishingState.Casting:
                     if (CountDown(deltaTime))
                     {
-                        StartPhase(FishingState.Bite, _biteWindowSeconds, "Ça mord ! Appuie vite pour ferrer !");
+                        // Le bouchon touche l'eau : l'attente commence, avec ses titillements.
+                        _waited = 0f;
+                        NibbleCount = 0;
+                        StartPhase(FishingState.Waiting, _biteTime, "Patience… attends que ça morde vraiment.");
+                    }
+
+                    break;
+
+                case FishingState.Waiting:
+                    _waited += deltaTime;
+                    while (NibbleCount < _nibbles.Length && _waited >= _nibbles[NibbleCount])
+                    {
+                        NibbleCount++;
+                        Message = "Ça titille… pas encore !";
+                        Nibbled?.Invoke(NibbleCount);
+                    }
+
+                    if (CountDown(deltaTime))
+                    {
+                        StartPhase(FishingState.Bite, _biteWindowSeconds, "Ça mord ! Le bouchon coule, ferre vite !");
                     }
 
                     break;
@@ -193,8 +228,13 @@ namespace FishAndChill.Fishing
                     Cast();
                     break;
 
+                case FishingState.Casting:
+                    break; // le bouchon est en l'air : on attend qu'il se pose
+
                 case FishingState.Waiting:
-                    Finish("Trop tôt ! Tu as remonté ta ligne à vide.");
+                    Finish(NibbleCount > 0
+                        ? "Trop tôt ! Il ne faisait que titiller l'appât…"
+                        : "Trop tôt ! Tu as remonté ta ligne à vide.");
                     break;
 
                 case FishingState.Bite:
@@ -263,7 +303,15 @@ namespace FishAndChill.Fishing
             HookedSizeCm = Mathf.Lerp(range.x, range.y, (float)_random.NextDouble());
             float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble())
                 * gear.BiteWaitFactor;
-            StartPhase(FishingState.Waiting, wait, "Patience… attends que ça morde.");
+
+            // 1 à 3 titillements avant la vraie touche : l'attente s'allonge au besoin pour les espacer.
+            _biteTime = Mathf.Max(wait, NibblePlanner.MinimumWait(1) + 0.2f);
+            _nibbles = NibblePlanner.Plan(_random, _biteTime);
+
+            // Le bouchon vole d'abord jusqu'à l'eau : plus le lancer est long, plus le vol dure.
+            Vector2 origin = _angler != null ? (Vector2)_angler.transform.position : (Vector2)transform.position;
+            float flight = _castFlightSeconds * Mathf.Clamp(Vector2.Distance(origin, castPoint) / 4f, 0.7f, 1.4f);
+            StartPhase(FishingState.Casting, flight, "Lancer !");
         }
 
         private bool TryFindCastPoint(out Vector2 castPoint)

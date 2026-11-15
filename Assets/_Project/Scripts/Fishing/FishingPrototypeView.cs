@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FishAndChill.Collection;
 using FishAndChill.Player;
 using UnityEngine;
@@ -14,9 +15,7 @@ namespace FishAndChill.Fishing
     {
         private static readonly Color PlayerColor = new Color(0.93f, 0.42f, 0.30f);
         private static readonly Color ShadowColor = new Color(0f, 0f, 0f, 0.35f);
-        private static readonly Color LineColor = new Color(1f, 1f, 1f, 0.7f);
         private static readonly Color BarColor = new Color(0.08f, 0.10f, 0.14f, 0.9f);
-        private static readonly Color ZoneColor = new Color(0.30f, 0.85f, 0.40f);
         private static readonly Color HitFlash = new Color(0.30f, 0.85f, 0.40f, 0.9f);
         private static readonly Color MissFlash = new Color(0.90f, 0.25f, 0.25f, 0.9f);
 
@@ -38,19 +37,13 @@ namespace FishAndChill.Fishing
         private Sprite _bobberSprite;
 
         private Transform _bobber;
-        private Transform _line;
         private SpriteRenderer _shadow;
         private Vector2 _castPoint;
         private Vector2 _shadowStart;
 
         private Text _header;
         private Text _message;
-        private Text _qteCounter;
         private GameObject _qtePanel;
-        private Image _barBackground;
-        private RectTransform _zoneRect;
-        private RectTransform _cursorRect;
-        private float _flashTimer;
 
         private void Awake()
         {
@@ -64,6 +57,7 @@ namespace FishAndChill.Fishing
         {
             _controller.StateChanged += OnStateChanged;
             _controller.QtePressed += OnQtePressed;
+            _controller.Nibbled += OnNibbled;
             _controller.FishCaught += OnFishCaught;
         }
 
@@ -71,6 +65,7 @@ namespace FishAndChill.Fishing
         {
             _controller.StateChanged -= OnStateChanged;
             _controller.QtePressed -= OnQtePressed;
+            _controller.Nibbled -= OnNibbled;
             _controller.FishCaught -= OnFishCaught;
         }
 
@@ -101,7 +96,8 @@ namespace FishAndChill.Fishing
 
             // La carte de prise remplace le message texte ; dans la boutique, aide propre à la boutique
             // (et rien quand le menu du marchand est ouvert).
-            if (_catchCard.IsVisible || (_playerMovement != null && _playerMovement.Locked))
+            // Pendant le combat, la jauge (et son bandeau « Ferre-le ! ») remplace le message.
+            if (_catchCard.IsVisible || (_playerMovement != null && _playerMovement.Locked) || _controller.State == FishingState.Reeling)
             {
                 _message.text = string.Empty;
             }
@@ -120,6 +116,27 @@ namespace FishAndChill.Fishing
         }
 
         // ---------- Monde ----------
+        //
+        // Canne et fil dessinés pixel par pixel (PixelPolyline). Le lancer : la canne arme vers l'arrière, fouette vers
+        // l'avant, le bouchon vole en arc puis fait « plouf ». L'attente : le bouchon dodeline, tressaille à chaque
+        // titillement. La touche : le bouchon coule sous l'eau. Le combat : le fil tendu suit le poisson qui se débat.
+
+        private static readonly Color RodCork = new Color(0.80f, 0.62f, 0.38f);
+        private static readonly Color RodBlank = new Color(0.22f, 0.30f, 0.44f);
+        private static readonly Color RodTip = new Color(0.85f, 0.25f, 0.22f);
+        private static readonly Color LineTint = new Color(0.96f, 0.97f, 1f, 0.9f);
+
+        private PixelPolyline _rod;
+        private PixelPolyline _lineDots;
+        private SpriteRenderer _bobberRenderer;
+        private readonly SpriteRenderer[] _ripples = new SpriteRenderer[4];
+        private readonly float[] _rippleAge = new float[4];
+        private readonly float[] _rippleSize = new float[4];
+        private Sprite _rippleSprite;
+        private float _nibbleTimer;
+        private float _biteAge;
+        private float _splashTimer;
+        private FishingState _lastState;
 
         private void BuildWorld()
         {
@@ -137,63 +154,225 @@ namespace FishAndChill.Fishing
 
             _playerMovement = _player.GetComponent<PlayerMovement>();
 
-            _line = CreateSprite("Fil", _square, LineColor, _player.position, new Vector2(0.04f, 1f), 8).transform;
+            _rod = new PixelPolyline(transform, "Canne", 11);
+            _lineDots = new PixelPolyline(transform, "Fil", 11);
             _shadow = CreateSprite("Ombre du poisson", _shadowSprites[1], ShadowColor, Vector2.zero, Vector2.one, 5);
-            _bobber = CreateSprite("Bouchon", _bobberSprite, Color.white, Vector2.zero, Vector2.one, 9).transform;
+            _bobberRenderer = CreateSprite("Bouchon", _bobberSprite, Color.white, Vector2.zero, Vector2.one, 9);
+            _bobber = _bobberRenderer.transform;
+
+            _rippleSprite = CreateRippleSprite();
+            for (int i = 0; i < _ripples.Length; i++)
+            {
+                _ripples[i] = CreateSprite("Rond dans l'eau", _rippleSprite, Color.white, Vector2.zero, Vector2.one, 6);
+                _ripples[i].enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// Main du pêcheur (ses pieds sont à sa position), direction de son regard, et décalage sur le côté :
+        /// face à l'écran ou de dos, la canne est tenue à droite du corps pour rester visible.
+        /// </summary>
+        private Vector2 Hand(out Vector2 facing, out Vector2 side)
+        {
+            facing = _playerMovement != null ? _playerMovement.Facing : Vector2.up;
+            side = Mathf.Abs(facing.x) < 0.5f ? Vector2.right * 0.35f : Vector2.zero;
+            return (Vector2)_player.position + Vector2.up * 0.7f + facing * 0.2f + side;
         }
 
         private void UpdateWorld()
         {
             FishingState state = _controller.State;
-            bool lineOut = state == FishingState.Waiting || state == FishingState.Bite || state == FishingState.Reeling;
+            if (state != _lastState)
+            {
+                OnWorldStateChanged(_lastState, state);
+                _lastState = state;
+            }
+
+            UpdateRipples(Time.deltaTime);
+
+            bool lineOut = state == FishingState.Casting || state == FishingState.Waiting || state == FishingState.Bite || state == FishingState.Reeling;
             _bobber.gameObject.SetActive(lineOut);
-            _line.gameObject.SetActive(lineOut);
-            _shadow.gameObject.SetActive(lineOut);
+            _shadow.gameObject.SetActive(lineOut && state != FishingState.Casting);
+            _rod.Clear();
+            _lineDots.Clear();
             if (!lineOut)
             {
                 return;
             }
 
             float time = Time.time;
+            Vector2 hand = Hand(out Vector2 facing, out Vector2 side);
+            Vector2 restTip = hand + facing * 1.0f + Vector2.up * (facing.y < -0.5f ? 0.15f : 0.45f) + side * 0.5f;
+            Vector2 tip = restTip;
             Vector2 bobber = _castPoint;
             Vector2 shadow = _castPoint;
+            float sag = 0.3f;
+            float bobberAlpha = 1f;
 
             switch (state)
             {
+                case FishingState.Casting:
+                {
+                    // Armer (canne vers l'arrière), fouetter vers l'avant, puis le bouchon vole en arc jusqu'à l'eau.
+                    float p = _controller.PhaseProgress;
+                    Vector2 backTip = hand - facing * 0.45f + Vector2.up * 1.1f + side * 0.6f;
+                    Vector2 whipTip = hand + facing * 1.1f + Vector2.up * 0.2f + side * 0.5f;
+                    if (p < 0.22f)
+                    {
+                        tip = Vector2.Lerp(restTip, backTip, Mathf.SmoothStep(0f, 1f, p / 0.22f));
+                    }
+                    else if (p < 0.4f)
+                    {
+                        tip = Vector2.Lerp(backTip, whipTip, Mathf.SmoothStep(0f, 1f, (p - 0.22f) / 0.18f));
+                    }
+                    else
+                    {
+                        tip = Vector2.Lerp(whipTip, restTip, Mathf.SmoothStep(0f, 1f, (p - 0.4f) / 0.6f));
+                    }
+
+                    float flight = Mathf.InverseLerp(0.3f, 1f, p);
+                    float distance = Vector2.Distance(hand, _castPoint);
+                    Vector2 ground = Vector2.Lerp(tip, _castPoint, 1f - (1f - flight) * (1f - flight));   // ralentit en fin de vol
+                    float arc = (0.8f + distance * 0.25f) * 4f * flight * (1f - flight);
+                    bobber = p < 0.3f ? tip : ground + Vector2.up * arc;
+                    sag = 0.08f;
+                    break;
+                }
+
                 case FishingState.Waiting:
-                    // Le poisson s'approche doucement du bouchon.
+                    // Le bouchon dodeline ; à chaque titillement il plonge un instant et tressaille.
                     bobber += new Vector2(0f, Mathf.Sin(time * 2f) * 0.03f);
-                    shadow = Vector2.Lerp(_shadowStart, _castPoint, Mathf.SmoothStep(0f, 1f, _controller.PhaseProgress));
+                    if (_nibbleTimer > 0f)
+                    {
+                        _nibbleTimer -= Time.deltaTime;
+                        float k = Mathf.Clamp01(_nibbleTimer / 0.35f);
+                        bobber += new Vector2(Mathf.Sin(time * 70f) * 0.03f * k, -0.09f * Mathf.Sin(k * Mathf.PI));
+                    }
+
+                    shadow = Vector2.Lerp(_shadowStart, _castPoint, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(_controller.PhaseProgress * 1.6f)));
                     shadow += new Vector2(Mathf.Sin(time * 3f) * 0.08f, 0f);
+                    if (_nibbleTimer > 0f)
+                    {
+                        shadow = Vector2.Lerp(shadow, _castPoint, 0.7f);   // le poisson vient taquiner l'appât
+                    }
+
+                    sag = 0.3f;
                     break;
 
                 case FishingState.Bite:
-                    // Le bouchon plonge et tremble.
-                    bobber += new Vector2(Mathf.Sin(time * 60f) * 0.06f, -0.08f);
+                {
+                    // Ça mord : le bouchon est tiré sous l'eau et disparaît peu à peu.
+                    _biteAge += Time.deltaTime;
+                    float sink = Mathf.Clamp01(_biteAge / 0.3f);
+                    bobber += new Vector2(Mathf.Sin(time * 55f) * 0.04f * (1f - sink), -0.22f * sink);
+                    bobberAlpha = Mathf.Lerp(1f, 0.25f, sink);
+                    shadow = _castPoint + new Vector2(Mathf.Sin(time * 20f) * 0.06f, -0.05f);
+                    tip = restTip + Vector2.down * 0.12f * sink;   // la canne plie un peu
+                    sag = 0.02f;
                     break;
+                }
 
                 case FishingState.Reeling:
-                    // Le poisson se débat au bout du fil.
+                    // Le poisson se débat au bout du fil tendu ; la canne plie vers lui. Éclaboussures de temps en temps.
                     shadow += new Vector2(Mathf.Sin(time * 9f) * 0.35f, Mathf.Cos(time * 7f) * 0.15f);
                     bobber = shadow;
+                    bobberAlpha = 0f;
+                    tip = restTip + (shadow - restTip).normalized * 0.15f + Vector2.down * 0.1f;
+                    sag = 0f;
+                    _splashTimer -= Time.deltaTime;
+                    if (_splashTimer <= 0f)
+                    {
+                        SpawnRipple(shadow, 0.6f);
+                        _splashTimer = 0.45f;
+                    }
+
                     break;
             }
 
             _bobber.position = bobber;
+            _bobberRenderer.color = new Color(1f, 1f, 1f, bobberAlpha);
             _shadow.transform.position = shadow;
             _shadow.transform.right = (Vector3)(_castPoint - shadow).normalized + Vector3.right * 0.001f;
-            // Le fil part de la main du pêcheur, du côté où il regarde.
-            Vector2 facing = _playerMovement != null ? _playerMovement.Facing : Vector2.up;
-            // La position du joueur est à ses pieds : la main est un demi-mètre plus haut.
-            PlaceLine((Vector2)_player.position + Vector2.up * 0.55f + facing * 0.45f, bobber);
+
+            // La canne : poignée en liège, blank bleu nuit, scion rouge.
+            _rod.DrawCurve(hand, tip, 0.04f, t => t < 0.22f ? RodCork : t > 0.9f ? RodTip : RodBlank, thickness: 2);
+            // Le fil part du scion et va jusqu'au bouchon (ou au poisson), plus ou moins détendu.
+            float lineSag = sag * Mathf.Clamp01(Vector2.Distance(tip, bobber) / 3f);
+            _lineDots.DrawCurve(tip, bobber, lineSag, _ => LineTint);
         }
 
-        private void PlaceLine(Vector2 from, Vector2 to)
+        private void OnWorldStateChanged(FishingState previous, FishingState state)
         {
-            Vector2 delta = to - from;
-            _line.position = from + delta * 0.5f;
-            _line.up = delta.normalized;
-            _line.localScale = new Vector3(0.04f, delta.magnitude, 1f);
+            if (state == FishingState.Waiting && previous == FishingState.Casting)
+            {
+                // Plouf : le bouchon touche l'eau.
+                SpawnRipple(_castPoint, 1f);
+                SpawnRipple(_castPoint, 0.6f);
+            }
+
+            if (state == FishingState.Bite)
+            {
+                _biteAge = 0f;
+                SpawnRipple(_castPoint, 1.2f);
+            }
+
+            if (state == FishingState.Reeling)
+            {
+                _splashTimer = 0f;
+            }
+        }
+
+        private void OnNibbled(int count)
+        {
+            _nibbleTimer = 0.35f;
+            SpawnRipple(_castPoint, 0.5f);
+        }
+
+        /// <summary>Un rond dans l'eau qui s'agrandit en s'effaçant.</summary>
+        private void SpawnRipple(Vector2 position, float size)
+        {
+            int slot = 0;
+            for (int i = 1; i < _ripples.Length; i++)
+            {
+                if (_rippleAge[i] > _rippleAge[slot] || !_ripples[i].enabled)
+                {
+                    slot = i;
+                    if (!_ripples[i].enabled)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            _ripples[slot].enabled = true;
+            _ripples[slot].transform.position = position;
+            _rippleAge[slot] = 0f;
+            _rippleSize[slot] = size;
+        }
+
+        private void UpdateRipples(float deltaTime)
+        {
+            const float life = 0.8f;
+            for (int i = 0; i < _ripples.Length; i++)
+            {
+                if (!_ripples[i].enabled)
+                {
+                    continue;
+                }
+
+                _rippleAge[i] += deltaTime;
+                float t = _rippleAge[i] / life;
+                if (t >= 1f)
+                {
+                    _ripples[i].enabled = false;
+                    continue;
+                }
+
+                // Taille par paliers de pixels (pas d'étirement flou) et transparence qui baisse.
+                float scale = Mathf.Round(Mathf.Lerp(0.4f, 1.6f, t) * _rippleSize[i] * 4f) / 4f;
+                _ripples[i].transform.localScale = new Vector3(Mathf.Max(0.25f, scale), Mathf.Max(0.25f, scale), 1f);
+                _ripples[i].color = new Color(1f, 1f, 1f, 0.75f * (1f - t));
+            }
         }
 
         // ---------- Interface ----------
@@ -220,24 +399,120 @@ namespace FishAndChill.Fishing
             _message = CreateText(root, "Message", font, 40, TextAnchor.MiddleCenter);
             Anchor(_message.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -150f), new Vector2(1400f, 130f), new Vector2(0.5f, 1f));
 
-            _qtePanel = new GameObject("QTE", typeof(RectTransform));
-            var panelRect = _qtePanel.GetComponent<RectTransform>();
-            panelRect.SetParent(root, false);
-            Anchor(panelRect, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 520f), new Vector2(900f, 56f), new Vector2(0.5f, 0f));
-
-            _barBackground = CreateImage(panelRect, "Barre", BarColor);
-            Stretch(_barBackground.rectTransform);
-
-            Image zone = CreateImage(_barBackground.rectTransform, "Zone de réussite", ZoneColor);
-            _zoneRect = zone.rectTransform;
-
-            Image cursor = CreateImage(_barBackground.rectTransform, "Curseur", Color.white);
-            _cursorRect = cursor.rectTransform;
-
-            _qteCounter = CreateText(panelRect, "Compteur", font, 30, TextAnchor.LowerCenter);
-            Anchor(_qteCounter.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 8f), new Vector2(900f, 50f), new Vector2(0.5f, 0f));
-
+            BuildQte(root);
             _catchCard = new CatchCard(root, _skin);
+        }
+
+        // ---------- Jauge du QTE ----------
+        //
+        // Cadre doré avec un bandeau « Ferre-le ! », barre d'eau, zone de réussite verte (liserés clair et foncé),
+        // curseur en forme d'aiguille, pastilles des réussites (vertes) et des ratés (rouges). Flash et secousse à
+        // chaque appui.
+
+        private static readonly Color ZoneFill = new Color(0.36f, 0.86f, 0.42f, 0.92f);
+        private static readonly Color ZoneLight = new Color(0.72f, 1.00f, 0.70f, 1f);
+        private static readonly Color ZoneDark = new Color(0.14f, 0.52f, 0.22f, 1f);
+        private static readonly Color PipEmpty = new Color(0.35f, 0.40f, 0.48f);
+        private static readonly Color PipHit = new Color(0.40f, 0.95f, 0.45f);
+        private static readonly Color PipMiss = new Color(0.95f, 0.30f, 0.28f);
+
+        private RectTransform _qteRect;
+        private RectTransform _barRect;
+        private RectTransform _zoneRect;
+        private RectTransform _cursorRect;
+        private Image _flash;
+        private RectTransform _hitPips;
+        private RectTransform _missPips;
+        private readonly List<Image> _hitPipImages = new List<Image>();
+        private readonly List<Image> _missPipImages = new List<Image>();
+        private float _flashTimer;
+        private float _shakeTimer;
+        private float _zonePop;
+
+        private void BuildQte(RectTransform root)
+        {
+            Image frame = UI.UiFactory.Sliced(root, "QTE", _skin != null ? _skin.Panel : null, _skin != null ? Color.white : BarColor);
+            _qtePanel = frame.gameObject;
+            _qteRect = frame.rectTransform;
+            UI.UiFactory.Place(_qteRect, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 300f), new Vector2(980f, 170f));
+
+            UI.UiFactory.TitlePlaque(_qteRect, _skin, "Ferre-le !", 28, new Vector2(0f, 84f), new Vector2(300f, 56f), out _);
+
+            // La barre : un fond d'eau creusé.
+            Image bar = UI.UiFactory.Sliced(_qteRect, "Barre", _skin != null ? _skin.WaterBackdrop : null, _skin != null ? Color.white : BarColor);
+            _barRect = bar.rectTransform;
+            UI.UiFactory.Center(_barRect, new Vector2(0f, 12f), new Vector2(860f, 52f));
+
+            // Zone de réussite : vert vif, liseré clair en haut et sombre en bas, bords marqués.
+            Image zone = CreateImage(_barRect, "Zone de réussite", ZoneFill);
+            _zoneRect = zone.rectTransform;
+            AddEdge(_zoneRect, "Haut", ZoneLight, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 6f));
+            AddEdge(_zoneRect, "Bas", ZoneDark, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 6f));
+            AddEdge(_zoneRect, "Gauche", ZoneDark, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(4f, 0f));
+            AddEdge(_zoneRect, "Droite", ZoneDark, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(4f, 0f));
+
+            // Flash de toute la barre (vert réussi, rouge raté).
+            _flash = CreateImage(_barRect, "Flash", Color.clear);
+            Stretch(_flash.rectTransform);
+            _flash.raycastTarget = false;
+
+            // Curseur : une aiguille avec une pointe, en pixel art.
+            Image cursor = CreateImage(_barRect, "Curseur", Color.white);
+            cursor.sprite = CreateNeedleSprite();
+            cursor.preserveAspect = true;
+            _cursorRect = cursor.rectTransform;
+            _cursorRect.sizeDelta = new Vector2(28f, 84f);
+
+            // Pastilles : réussites à gauche, ratés à droite.
+            _hitPips = AddPipRow(_qteRect, "Réussites", new Vector2(-230f, -52f));
+            _missPips = AddPipRow(_qteRect, "Ratés", new Vector2(230f, -52f));
+        }
+
+        private static void AddEdge(RectTransform parent, string name, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 size)
+        {
+            Image edge = CreateImage(parent, name, color);
+            RectTransform rect = edge.rectTransform;
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.pivot = new Vector2(anchorMin.x == anchorMax.x ? anchorMin.x : 0.5f, anchorMin.y == anchorMax.y ? anchorMin.y : 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = size;
+        }
+
+        private RectTransform AddPipRow(RectTransform parent, string caption, Vector2 position)
+        {
+            var row = new GameObject(caption, typeof(RectTransform));
+            var rect = row.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            UI.UiFactory.Center(rect, position, new Vector2(360f, 36f));
+
+            Text label = UI.UiFactory.Label(rect, "Légende", 20, TextAnchor.MiddleRight, new Color(0.80f, 0.84f, 0.88f));
+            label.text = caption;
+            UI.UiFactory.Place(label.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(130f, 0f), new Vector2(130f, 36f));
+            return rect;
+        }
+
+        /// <summary>Crée autant de pastilles que nécessaire (pierres de la charte).</summary>
+        private void EnsurePips(RectTransform row, List<Image> pips, int count)
+        {
+            if (pips.Count == count)
+            {
+                return;
+            }
+
+            foreach (Image pip in pips)
+            {
+                Destroy(pip.gameObject);
+            }
+
+            pips.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                Image pip = CreateImage(row, $"Pastille {i + 1}", PipEmpty);
+                pip.sprite = _skin != null ? _skin.Gem : null;
+                UI.UiFactory.Place(pip.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(150f + i * 38f, 0f), new Vector2(30f, 30f));
+                pips.Add(pip);
+            }
         }
 
         private void UpdateQte()
@@ -251,26 +526,88 @@ namespace FishAndChill.Fishing
             }
 
             TimingGauge gauge = challenge.Gauge;
-            _zoneRect.anchorMin = new Vector2(gauge.ZoneMin, 0f);
-            _zoneRect.anchorMax = new Vector2(gauge.ZoneMax, 1f);
+            float pop = 1f + 0.25f * Mathf.Clamp01(_zonePop / 0.15f);
+            float center = (gauge.ZoneMin + gauge.ZoneMax) * 0.5f;
+            float half = (gauge.ZoneMax - gauge.ZoneMin) * 0.5f;
+            _zoneRect.anchorMin = new Vector2(center - half, 0f);
+            _zoneRect.anchorMax = new Vector2(center + half, 1f);
             _zoneRect.offsetMin = Vector2.zero;
             _zoneRect.offsetMax = Vector2.zero;
+            _zoneRect.localScale = new Vector3(1f, pop, 1f);
 
-            _cursorRect.anchorMin = new Vector2(gauge.Position, -0.25f);
-            _cursorRect.anchorMax = new Vector2(gauge.Position, 1.25f);
-            _cursorRect.sizeDelta = new Vector2(10f, 0f);
-            _cursorRect.anchoredPosition = Vector2.zero;
+            _cursorRect.anchorMin = _cursorRect.anchorMax = new Vector2(gauge.Position, 0.5f);
+            _cursorRect.anchoredPosition = new Vector2(0f, 6f);
 
-            _qteCounter.text = $"Réussites {challenge.Hits}/{challenge.RequiredHits}     Ratés {challenge.Misses}/{challenge.MaxMisses}";
-
-            if (_flashTimer > 0f)
+            EnsurePips(_hitPips, _hitPipImages, challenge.RequiredHits);
+            EnsurePips(_missPips, _missPipImages, Mathf.Max(1, challenge.MaxMisses));
+            for (int i = 0; i < _hitPipImages.Count; i++)
             {
-                _flashTimer -= Time.deltaTime;
-                if (_flashTimer <= 0f)
+                _hitPipImages[i].color = i < challenge.Hits ? PipHit : PipEmpty;
+            }
+
+            for (int i = 0; i < _missPipImages.Count; i++)
+            {
+                _missPipImages[i].color = i < challenge.Misses ? PipMiss : PipEmpty;
+            }
+
+            // Flash qui s'éteint, secousse de la jauge après un raté, zone qui « saute » après une réussite.
+            float dt = Time.deltaTime;
+            _flashTimer = Mathf.Max(0f, _flashTimer - dt);
+            _zonePop = Mathf.Max(0f, _zonePop - dt);
+            Color flash = _flash.color;
+            flash.a = 0.45f * Mathf.Clamp01(_flashTimer / 0.2f);
+            _flash.color = flash;
+
+            _shakeTimer = Mathf.Max(0f, _shakeTimer - dt);
+            float shake = _shakeTimer > 0f ? Mathf.Sin(Time.time * 90f) * 10f * (_shakeTimer / 0.25f) : 0f;
+            // La jauge se place du côté opposé au bouchon pour ne jamais cacher le poisson.
+            bool lineBelow = _player != null && _castPoint.y < _player.position.y;
+            _qteRect.anchoredPosition = new Vector2(Mathf.Round(shake / 4f) * 4f, lineBelow ? 730f : 40f);
+        }
+
+        /// <summary>Aiguille du curseur 7×21 : pointe en triangle en haut, tige, pied ; blanc cerclé de sombre.</summary>
+        private static Sprite CreateNeedleSprite()
+        {
+            string[] rows =
+            {
+                "KKKKKKK",
+                "KWWWWWK",
+                ".KWWWK.",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                "..KWK..",
+                ".KWWWK.",
+                "KWWWWWK",
+                "KKKKKKK",
+            };
+
+            int height = rows.Length;
+            int width = rows[0].Length;
+            var texture = new Texture2D(width, height) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            for (int row = 0; row < height; row++)
+            {
+                for (int x = 0; x < width; x++)
                 {
-                    _barBackground.color = BarColor;
+                    char c = rows[row][x];
+                    Color color = c == 'K' ? new Color(0.10f, 0.08f, 0.10f) : c == 'W' ? new Color(1f, 0.97f, 0.88f) : Color.clear;
+                    texture.SetPixel(x, height - 1 - row, color);
                 }
             }
+
+            texture.Apply();
+            return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 4f);
         }
 
         private void OnDestroy()
@@ -316,7 +653,7 @@ namespace FishAndChill.Fishing
                 _cardWasBagFull = false;
             }
 
-            if (_controller.State == FishingState.Waiting)
+            if (_controller.State == FishingState.Casting)
             {
                 _castPoint = _controller.CastPoint;
 
@@ -334,8 +671,19 @@ namespace FishAndChill.Fishing
 
         private void OnQtePressed(QtePressResult result)
         {
-            _barBackground.color = result == QtePressResult.Hit ? HitFlash : MissFlash;
-            _flashTimer = 0.15f;
+            bool hit = result == QtePressResult.Hit;
+            Color flash = hit ? HitFlash : MissFlash;
+            flash.a = 0f;
+            _flash.color = flash;
+            _flashTimer = 0.2f;
+            if (hit)
+            {
+                _zonePop = 0.15f;
+            }
+            else
+            {
+                _shakeTimer = 0.25f;
+            }
         }
 
         private void OnFishCaught(CaughtFish fish, bool isNew, bool bagFull)
@@ -434,6 +782,27 @@ namespace FishAndChill.Fishing
                     // Une queue en pointe à gauche pour suggérer la silhouette du poisson.
                     bool tail = x < width * 0.18f && Mathf.Abs(dy) < 0.5f + (width * 0.18f - x) / width * 2f;
                     texture.SetPixel(x, y, inside || tail ? Color.white : Color.clear);
+                }
+            }
+
+            texture.Apply();
+            return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), WorldPixelsPerUnit);
+        }
+
+        /// <summary>Rond dans l'eau en pixel art : ellipse de contour d'un pixel, vue de dessus (aplatie).</summary>
+        private static Sprite CreateRippleSprite()
+        {
+            const int width = 20;
+            const int height = 8;
+            var texture = new Texture2D(width, height) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    float dx = (x + 0.5f - width * 0.5f) / (width * 0.5f);
+                    float dy = (y + 0.5f - height * 0.5f) / (height * 0.5f);
+                    float d = dx * dx + dy * dy;
+                    texture.SetPixel(x, y, d <= 1f && d >= 0.62f ? Color.white : Color.clear);
                 }
             }
 
