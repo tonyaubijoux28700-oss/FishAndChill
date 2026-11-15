@@ -29,7 +29,7 @@ namespace FishAndChill.Fishing
         [SerializeField, Tooltip("Charte pixel art de l'interface (carte de prise).")]
         private UI.UiSkin _skin;
 
-        private const string ShopHint = "Parle au marchand au comptoir (E) — redescends vers le paillasson pour sortir";
+        private const string ShopHint = "E au comptoir : parler au marchand — paillasson : sortir";
 
         private FishingController _controller;
         private PlayerMovement _playerMovement;

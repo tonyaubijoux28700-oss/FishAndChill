@@ -270,39 +270,8 @@ namespace FishAndChill.Editor
 
         // ---------- Marchand ----------
 
-        /// <summary>Marchand de face, 16×24 : bob de marin, moustache, tablier, chemise rayée.</summary>
-        public static Color[,] Merchant()
-        {
-            var p = new Color[16, 24];
-            Color skin = C(0.86f, 0.64f, 0.46f);
-            Color skinShade = C(0.74f, 0.52f, 0.36f);
-            Color cap = C(0.96f, 0.96f, 0.94f);
-            Color capBand = C(0.20f, 0.36f, 0.66f);
-            Color hair = C(0.82f, 0.82f, 0.80f);
-            Color shirt = C(0.20f, 0.36f, 0.66f);
-            Color apron = C(0.95f, 0.92f, 0.84f);
-            Color pants = C(0.30f, 0.26f, 0.22f);
-
-            void R(int x0, int top0, int x1, int top1, Color c) => PixelArt.Rect(p, x0, 23 - top1, x1, 23 - top0, c);
-
-            R(5, 1, 10, 3, cap); R(4, 4, 11, 4, capBand); R(3, 5, 12, 5, cap);
-            R(4, 6, 11, 11, skin);
-            R(4, 6, 4, 9, hair); R(11, 6, 11, 9, hair);
-            R(6, 8, 6, 8, C(0.1f, 0.08f, 0.08f)); R(9, 8, 9, 8, C(0.1f, 0.08f, 0.08f));
-            R(5, 10, 10, 10, hair);                 // moustache
-            R(7, 9, 8, 9, skinShade);               // nez
-            R(3, 12, 12, 17, shirt);
-            for (int y = 12; y <= 17; y += 2) R(3, y, 12, y, Color.Lerp(shirt, Color.white, 0.5f));
-            R(5, 13, 10, 20, apron);                // tablier
-            R(5, 13, 10, 13, Color.Lerp(apron, Color.black, 0.15f));
-            R(2, 13, 2, 16, shirt); R(13, 13, 13, 16, shirt);
-            R(2, 17, 2, 18, skin); R(13, 17, 13, 18, skin);
-            R(5, 21, 6, 22, pants); R(9, 21, 10, 22, pants);
-            R(5, 23, 6, 23, WoodDark); R(9, 23, 10, 23, WoodDark);
-
-            PixelArt.Outline(p, Outline);
-            return p;
-        }
+        /// <summary>Marchand de face, 16×24 : dessiné dans le style du pêcheur (voir <see cref="CharacterArt.Merchant"/>).</summary>
+        public static Color[,] Merchant() => CharacterArt.Merchant();
 
         // ---------- Icône minimap ----------
 

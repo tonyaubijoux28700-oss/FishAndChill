@@ -419,6 +419,150 @@ namespace FishAndChill.Editor
             c.Paint(strapRight ? x + 1 : x, bottom - 1, Color.Lerp(Sandal, Skin, 0.25f), Part.Skin);
         }
 
+        // ---------- Marchand ----------
+
+        private static readonly Color MerchantSkin = new Color(0.88f, 0.64f, 0.46f);
+        private static readonly Color GreyHair = new Color(0.84f, 0.84f, 0.82f);
+        private static readonly Color SailorWhite = new Color(0.96f, 0.96f, 0.93f);
+        private static readonly Color SailorBlue = new Color(0.20f, 0.36f, 0.68f);
+        private static readonly Color Apron = new Color(0.95f, 0.91f, 0.82f);
+        private static readonly Color Trousers = new Color(0.32f, 0.27f, 0.24f);
+        private static readonly Color Boot = new Color(0.30f, 0.20f, 0.14f);
+
+        /// <summary>
+        /// Marchand de face, 16×24, dans le même style que le pêcheur : vieux marin au bob blanc à ruban bleu,
+        /// grosse moustache grise, marinière rayée, tablier crème à poche (petit poisson brodé), pantalon et bottes.
+        /// </summary>
+        public static Color[,] Merchant()
+        {
+            var c = new Canvas();
+
+            // Bottes et pantalon.
+            c.Cylinder(5, 21, 6, 22, Trousers, Part.Shorts);
+            c.Cylinder(9, 21, 10, 22, Trousers, Part.Shorts);
+            c.Cylinder(5, 23, 6, 23, Boot, Part.Sandal);
+            c.Cylinder(9, 23, 10, 23, Boot, Part.Sandal);
+            c.Cylinder(4, 19, 11, 20, Trousers, Part.Shorts);
+            c.Clear(7, 20);
+            c.Clear(8, 20);
+
+            // Marinière (un peu de ventre), rayures ombrées comme le tissu.
+            c.Cylinder(3, 13, 12, 19, SailorBlue, Part.Shirt, roundTop: true);
+            for (int x = 3; x <= 12; x++)
+            {
+                for (int y = 13; y <= 19; y++)
+                {
+                    if (y % 2 == 0)
+                    {
+                        c.Paint(x, y, SailorWhite, Part.Shirt);
+                    }
+                }
+            }
+
+            // Bras le long du corps : manches rayées, avant-bras hâlés, mains.
+            foreach ((int x, float light) in new[] { (2, 1f), (13, 0.72f) })
+            {
+                for (int y = 13; y <= 18; y++)
+                {
+                    bool sleeve = y <= 16;
+                    Color color = sleeve ? (y % 2 == 0 ? SailorWhite : SailorBlue) : MerchantSkin;
+                    c.Set(x, y, color, sleeve ? Part.Shirt : Part.Skin, y == 18 ? light + 0.1f : light);
+                }
+            }
+
+            // Tablier à bavette, bretelles, cordon à la taille, poche avec un petit poisson brodé.
+            c.Cylinder(5, 14, 10, 20, Apron, Part.Hat, lightOffset: 0.05f);
+            c.Set(5, 13, Apron, Part.Hat, 0.95f);
+            c.Set(10, 13, Apron, Part.Hat, 0.8f);
+            for (int x = 3; x <= 12; x++)
+            {
+                if (x < 5 || x > 10)
+                {
+                    c.Paint(x, 16, Color.Lerp(Apron, Color.black, 0.1f), Part.Shirt);
+                }
+            }
+
+            for (int x = 6; x <= 9; x++)
+            {
+                c.Darken(x, 17, 0.12f);
+            }
+
+            c.Paint(7, 18, SailorBlue, Part.Hat);
+            c.Paint(8, 18, SailorBlue, Part.Hat);
+            c.Paint(6, 18, Color.Lerp(SailorBlue, Apron, 0.4f), Part.Hat);
+
+            // Tête : visage hâlé, cheveux gris sur les côtés, sourcils broussailleux, nez rond, moustache.
+            c.Ellipse(8f, 9.8f, 3.75f, 3.1f, MerchantSkin, Part.Skin);
+            for (int x = 5; x <= 10; x++)
+            {
+                for (int y = 8; y <= 11; y++)
+                {
+                    if (c.Is(x, y, Part.Skin))
+                    {
+                        c.Light[x, y] = Mathf.Max(c.Light[x, y], 1f);
+                    }
+                }
+            }
+
+            foreach (int y in new[] { 8, 9, 10 })
+            {
+                c.Set(4, y, GreyHair, Part.Hair, 0.95f);
+                c.Set(11, y, GreyHair, Part.Hair, 0.75f);
+            }
+
+            // Sourcils : un pixel gris au-dessus de chaque œil.
+            c.Paint(6, 8, Color.Lerp(GreyHair, MerchantSkin, 0.2f));
+            c.Paint(9, 8, Color.Lerp(GreyHair, MerchantSkin, 0.2f));
+            c.Flat(6, 9, Eye, Part.Skin);
+            c.Flat(9, 9, Eye, Part.Skin);
+            c.Paint(7, 10, Color.Lerp(MerchantSkin, Blush, 0.45f));
+            c.Paint(8, 10, Color.Lerp(MerchantSkin, Blush, 0.3f));
+            c.Paint(5, 10, Color.Lerp(MerchantSkin, Blush, 0.35f));
+            c.Paint(10, 10, Color.Lerp(MerchantSkin, Blush, 0.35f));
+            for (int x = 5; x <= 10; x++)
+            {
+                c.Paint(x, 11, GreyHair);
+            }
+
+            // Moustache en guidon : les pointes tombent, le menton reste visible au milieu.
+            c.Paint(5, 12, GreyHair);
+            c.Paint(10, 12, GreyHair);
+            c.Paint(7, 12, Color.Lerp(MerchantSkin, Lips, 0.3f));
+            c.Paint(8, 12, Color.Lerp(MerchantSkin, Lips, 0.3f));
+
+            // Bob de marin : calotte blanche, ruban bleu, petite ancre, bord court.
+            c.Ellipse(8f, 4.2f, 3.5f, 3.0f, SailorWhite, Part.Hat);
+            for (int x = 0; x < Width; x++)
+            {
+                if (c.Is(x, 5, Part.Hat))
+                {
+                    c.Paint(x, 5, SailorBlue);
+                }
+            }
+
+            c.Paint(8, 3, SailorBlue, Part.Hat);
+            c.Paint(8, 2, Color.Lerp(SailorBlue, SailorWhite, 0.4f), Part.Hat);
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 6; y <= 7; y++)
+                {
+                    float u = (x + 0.5f - 8f) / 5.4f;
+                    float v = (y + 0.5f - 6.7f) / 1.2f;
+                    if (u * u + v * v <= 1f)
+                    {
+                        c.Set(x, y, SailorWhite, Part.Hat, (y == 6 ? 1.05f : 0.78f) - Mathf.Max(0f, u) * 0.12f);
+                    }
+                }
+            }
+
+            for (int x = 4; x <= 11; x++)
+            {
+                c.Darken(x, 8, 0.1f);
+            }
+
+            return c.Render();
+        }
+
         // ---------- Profil (regarde vers la droite) ----------
 
         private static Color[,] DrawSide(int frame)
