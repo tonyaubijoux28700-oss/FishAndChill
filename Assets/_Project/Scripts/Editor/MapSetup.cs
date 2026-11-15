@@ -130,8 +130,8 @@ namespace FishAndChill.Editor
             // La boutique : dans les terres, loin du rivage, pas trop loin du point de départ.
             Vector2Int shopCell = FindBuildingSite(terrain, spawn, null, 0);
 
-            // L'aquarium : même règle, à bonne distance de la boutique.
-            Vector2Int aquariumCell = FindBuildingSite(terrain, spawn, shopCell, 15);
+            // L'aquarium, géant (18 cases de large, dôme compris) : beaucoup de terre autour, loin de la boutique.
+            Vector2Int aquariumCell = FindBuildingSite(terrain, spawn, shopCell, 18, halfWidth: 12, front: 7, back: 12);
 
             // Cocotiers sur l'herbe, espacés, jamais sur le point d'apparition ni sur l'aquarium.
             var palms = new List<Vector2Int>();
@@ -141,7 +141,7 @@ namespace FishAndChill.Editor
                 {
                     bool nearSpawn = Mathf.Abs(x - spawn.x) <= 3 && Mathf.Abs(y - spawn.y) <= 3;
                     bool nearShop = Mathf.Abs(x - shopCell.x) <= 5 && y >= shopCell.y - 4 && y <= shopCell.y + 5;
-                    bool nearAquarium = Mathf.Abs(x - aquariumCell.x) <= 6 && y >= aquariumCell.y - 4 && y <= aquariumCell.y + 6;
+                    bool nearAquarium = Mathf.Abs(x - aquariumCell.x) <= 11 && y >= aquariumCell.y - 4 && y <= aquariumCell.y + 15;
                     if (terrain[x, y] != TerrainType.Grass || nearSpawn || nearShop || nearAquarium || IslandGenerator.CellHash(x, y, seed + 1) > 0.045f)
                     {
                         continue;
@@ -208,13 +208,13 @@ namespace FishAndChill.Editor
         /// terre sur 7 cases de côté et 8 devant : bien à l'intérieur des terres, le plus près possible du départ,
         /// et au moins à <paramref name="minDistance"/> cases d'un autre bâtiment (<paramref name="avoid"/>).
         /// </summary>
-        private static Vector2Int FindBuildingSite(TerrainType[,] terrain, Vector2Int spawn, Vector2Int? avoid, int minDistance)
+        private static Vector2Int FindBuildingSite(TerrainType[,] terrain, Vector2Int spawn, Vector2Int? avoid, int minDistance, int halfWidth = 7, int front = 8, int back = 8)
         {
             bool Land(int x, int y) => !IslandGenerator.IsWater(terrain, x, y);
             bool FarEnough(int x, int y) => !avoid.HasValue
                 || Mathf.Max(Mathf.Abs(x - avoid.Value.x), Mathf.Abs(y - avoid.Value.y)) >= minDistance;
 
-            for (int radius = 4; radius <= 30; radius++)
+            for (int radius = 4; radius <= 45; radius++)
             {
                 for (int dx = -radius; dx <= radius; dx++)
                 {
@@ -228,9 +228,9 @@ namespace FishAndChill.Editor
                         int cx = spawn.x + dx;
                         int cy = spawn.y + dy;
                         bool fits = FarEnough(cx, cy);
-                        for (int x = cx - 7; x <= cx + 7 && fits; x++)
+                        for (int x = cx - halfWidth; x <= cx + halfWidth && fits; x++)
                         {
-                            for (int y = cy - 8; y <= cy + 8 && fits; y++)
+                            for (int y = cy - front; y <= cy + back && fits; y++)
                             {
                                 fits = Land(x, y);
                             }
@@ -244,7 +244,7 @@ namespace FishAndChill.Editor
                 }
             }
 
-            Debug.LogWarning("[FishAndChill] Pas de place idéale pour la boutique : elle est posée au nord du point de départ.");
+            Debug.LogWarning("[FishAndChill] Pas de place idéale pour un bâtiment : il est posé au nord du point de départ.");
             return spawn + Vector2Int.up * 6;
         }
 
@@ -318,7 +318,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_camera").objectReferenceValue = follow;
             so.FindProperty("_fishing").objectReferenceValue = controller;
             so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
-            so.FindProperty("_footprint").vector2Value = new Vector2(5.6f, 2.6f);
+            so.FindProperty("_footprint").vector2Value = new Vector2(16.6f, 8f);
             so.FindProperty("_interiorBackground").colorValue = new Color(0.04f, 0.07f, 0.10f);
             so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -332,6 +332,23 @@ namespace FishAndChill.Editor
             GameObject glassObject = EnsureObject("Vitre du bassin", room.transform);
             glassObject.transform.localPosition = Vector3.zero;
             SetSprite(glassObject, glass, -3).spriteSortPoint = SpriteSortPoint.Center;
+
+            // Mobilier de la salle (triés par les pieds, comme le joueur) : colonnes à méduses et bancs.
+            Sprite column = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses.png", AquariumArt.JellyfishColumn(), TileArt.Size, new Vector2(0.5f, 0f));
+            Sprite bench = PixelArt.Save($"{folder}/Aquarium_Banc.png", AquariumArt.Bench(), TileArt.Size, new Vector2(0.5f, 0f));
+            for (int i = 0; i < AquariumBuilding.JellyfishColumns.Length; i++)
+            {
+                GameObject item = EnsureObject($"Colonne à méduses {i + 1}", room.transform);
+                item.transform.position = interiorOrigin + AquariumBuilding.JellyfishColumns[i];
+                SetSprite(item, column, 10);
+            }
+
+            for (int i = 0; i < AquariumBuilding.Benches.Length; i++)
+            {
+                GameObject item = EnsureObject($"Banc {i + 1}", room.transform);
+                item.transform.position = interiorOrigin + AquariumBuilding.Benches[i];
+                SetSprite(item, bench, 10);
+            }
 
             GameObject fishObject = EnsureObject("Poissons du bassin", room.transform);
             fishObject.transform.localPosition = Vector3.zero;

@@ -17,8 +17,8 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Ordre d'affichage des poissons : entre le fond du bassin et la vitre.")]
         private int _sortingOrder = -4;
 
-        [SerializeField, Min(0.1f)] private float _minSpeed = 0.35f;
-        [SerializeField, Min(0.1f)] private float _maxSpeed = 0.9f;
+        [SerializeField, Min(0.1f)] private float _minSpeed = 0.6f;
+        [SerializeField, Min(0.1f)] private float _maxSpeed = 1.6f;
 
         private sealed class Swimmer
         {

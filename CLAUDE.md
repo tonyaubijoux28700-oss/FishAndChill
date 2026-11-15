@@ -72,12 +72,15 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium à ≥ 15 cases de la boutique).
-- **Aquarium** (`AquariumBuilding`, objet « Aquarium », façade au dôme de verre `AquariumArt`) : pièce 12×8 avec un
-  bassin sur le mur du fond. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
+- **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu. Façade 18×15 cases
+  (`AquariumArt`, 288×240 px : perron, colonnes, vitrines, rosace, immense dôme de verre plein d'eau, lanterne),
+  emprise 16,6×8, site choisi avec 12 cases de marge et à ≥ 18 cases de la boutique. Grande salle 30×18 cases, plus
+  grande que l'écran (la caméra suit le joueur) : bassin géant sur tout le mur du fond, allée en mosaïque, médaillon,
+  colonnes à méduses et bancs (obstacles, positions dans `AquariumBuilding.JellyfishColumns` / `Benches`). Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
   gros de chaque nouvelle espèce entre ; un poisson plus gros remplace l'exemplaire exposé (l'ancien revient dans le
   sac) ; les doublons restent dans le sac pour le marchand. `FishShop` ne vend pas un record de taille.
   Les poissons nagent dans le bassin (`AquariumTank`) avec leur petite version `FishSpecies.MiniSprite`
-  (≈ 22 px, réduite du grand dessin par `FishArt.GenerateMini` → `Art/Fish/Mini/`), entre le fond (ordre -5) et
+  (≈ 32 px, réduite au tiers du grand dessin par `FishArt.GenerateMini` → `Art/Fish/Mini/`), entre le fond (ordre -5) et
   la vitre (`Aquarium_Vitre.png`, ordre -3). L'index des poissons indique les espèces exposées.
 - `UI/InventoryHud` : **icône de sac** en bas à gauche (compteur « 2/3 », `UiArt.BagIcon`), **E** ouvre la fenêtre
   d'inventaire (joueur `Locked`, E/Échap ferme) ; devant le comptoir, E parle au marchand à la place. Quand le sac

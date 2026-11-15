@@ -95,13 +95,14 @@ namespace FishAndChill.Editor
         };
 
         /// <summary>
-        /// Petite version du poisson (≈ 22 px de long) pour l'aquarium, réduite depuis son dessin complet
+        /// Petite version du poisson (≈ 32 px de long) pour l'aquarium, réduite depuis son dessin complet
         /// (à appeler après <see cref="Generate"/>). Même échelle que l'île : 16 px par case.
         /// </summary>
         public static Sprite GenerateMini(string speciesId)
         {
             Color[,] full = PixelArt.Load($"{Folder}/{speciesId}.png");
-            int factor = Mathf.Max(2, Mathf.RoundToInt(full.GetLength(0) / 22f));
+            // Même facteur pour tous les dessins détaillés : les proportions entre espèces sont gardées.
+            int factor = full.GetLength(0) >= 64 ? 3 : 2;
             Color[,] mini = PixelArt.Downscale(full, factor);
 
             // Une marge d'un pixel pour le contour, qui garde la silhouette nette sur l'eau.
