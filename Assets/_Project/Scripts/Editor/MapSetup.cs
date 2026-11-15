@@ -136,13 +136,13 @@ namespace FishAndChill.Editor
             // Le joueur apparaît sur la plage sud, face à la mer.
             Vector2Int spawn = FindSouthSpawn(terrain);
 
-            // L'aquarium, géant (18 cases de large, dôme compris), au milieu de l'île, avec beaucoup de terre autour.
+            // L'aquarium, grand (12 cases de large, dôme compris), au milieu de l'île, avec beaucoup de terre autour.
             Vector2Int center = TownLayout.LandCentroid(terrain);
-            // La porte est 6 cases sous le centre du bâtiment (façade + dôme) : on vise le centre de l'île.
-            Vector2Int aquariumCell = FindBuildingSite(terrain, center + Vector2Int.down * 6, null, 0, halfWidth: 12, front: 8, back: 12, anyDirection: true);
+            // La porte est 4 cases sous le centre du bâtiment (façade + dôme) : on vise le centre de l'île.
+            Vector2Int aquariumCell = FindBuildingSite(terrain, center + Vector2Int.down * 4, null, 0, halfWidth: 9, front: 8, back: 10, anyDirection: true);
 
             // La boutique : dans les terres, près du point de départ, loin de l'aquarium.
-            Vector2Int shopCell = FindBuildingSite(terrain, spawn, aquariumCell, 18);
+            Vector2Int shopCell = FindBuildingSite(terrain, spawn, aquariumCell, 14);
 
             // Parvis, chemins pavés et décor autour des bâtiments.
             TownLayout.Result town = TownLayout.Build(terrain, spawn, shopCell, aquariumCell, seed);
@@ -159,7 +159,7 @@ namespace FishAndChill.Editor
                 {
                     bool nearSpawn = Mathf.Abs(x - spawn.x) <= 3 && Mathf.Abs(y - spawn.y) <= 3;
                     bool nearShop = Mathf.Abs(x - shopCell.x) <= 5 && y >= shopCell.y - 4 && y <= shopCell.y + 5;
-                    bool nearAquarium = Mathf.Abs(x - aquariumCell.x) <= 11 && y >= aquariumCell.y - 7 && y <= aquariumCell.y + 15;
+                    bool nearAquarium = Mathf.Abs(x - aquariumCell.x) <= 8 && y >= aquariumCell.y - 7 && y <= aquariumCell.y + 11;
                     if (terrain[x, y] != TerrainType.Grass || nearSpawn || nearShop || nearAquarium || town.Reserved[x, y]
                         || IslandGenerator.CellHash(x, y, seed + 1) > 0.045f)
                     {
@@ -341,7 +341,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_camera").objectReferenceValue = follow;
             so.FindProperty("_fishing").objectReferenceValue = controller;
             so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
-            so.FindProperty("_footprint").vector2Value = new Vector2(16.6f, 8f);
+            so.FindProperty("_footprint").vector2Value = new Vector2(11.2f, 5.2f);
             so.FindProperty("_interiorBackground").colorValue = new Color(0.04f, 0.07f, 0.10f);
             so.ApplyModifiedPropertiesWithoutUndo();
 

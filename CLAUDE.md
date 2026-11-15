@@ -81,10 +81,11 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   l'aquarium, ou exemplaires en trop : il laisse le plus gros), prix de 80 % à 130 % du `BasePrice` selon la taille.
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
-  `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium à ≥ 15 cases de la boutique).
-- **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu. Façade 18×15 cases
-  (`AquariumArt`, 288×240 px : perron, colonnes, vitrines, rosace, immense dôme de verre plein d'eau, lanterne),
-  emprise 16,6×8, site cherché autour du centre de l'île avec 12 cases de marge, la boutique à ≥ 18 cases. Grande salle 30×18 cases, plus
+  `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).
+- **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu. Façade 12×10 cases
+  (`AquariumArt`, 192×160 px, entre la 1re version 6×5 et la version 18×15 jugée trop grande : perron, colonnes,
+  4 vitrines, rosace, dôme de verre plein d'eau, lanterne), emprise 11,2×5,2, site cherché autour du centre de l'île
+  avec 9 cases de marge, la boutique à ≥ 14 cases. Grande salle 30×18 cases, plus
   grande que l'écran (la caméra suit le joueur) : bassin géant sur tout le mur du fond, allée en mosaïque, médaillon,
   colonnes à méduses et bancs (obstacles, positions dans `AquariumBuilding.JellyfishColumns` / `Benches`). Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
   gros de chaque nouvelle espèce entre ; un poisson plus gros remplace l'exemplaire exposé (l'ancien revient dans le

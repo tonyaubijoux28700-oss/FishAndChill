@@ -4,14 +4,14 @@ namespace FishAndChill.Editor
 {
     /// <summary>
     /// Pixel art de l'aquarium, un des plus grands bâtiments du jeu (16 px par case) :
-    /// façade 288×240 (18×15 cases) avec perron, colonnes, vitrines en arc, rosace, et un immense dôme de verre
+    /// façade 192×160 (12×10 cases) avec perron, colonnes, vitrines en arc, rosace, et un immense dôme de verre
     /// plein d'eau surmonté d'une lanterne ; grande salle 480×288 (30×18 cases) avec un bassin géant ;
     /// vitre du bassin (posée par-dessus les poissons), colonne à méduses, banc et icône 16×16 de minimap.
     /// </summary>
     public static class AquariumArt
     {
-        public const int ExteriorWidth = 288;
-        public const int ExteriorHeight = 240;
+        public const int ExteriorWidth = 192;
+        public const int ExteriorHeight = 160;
 
         /// <summary>Pivot au pied du perron, au milieu de la façade (la porte).</summary>
         public static readonly Vector2 ExteriorPivot = new Vector2(0.5f, 2f / ExteriorHeight);
@@ -66,66 +66,69 @@ namespace FishAndChill.Editor
         public static Color[,] Exterior()
         {
             var p = new Color[ExteriorWidth, ExteriorHeight];
-            const float cx = 143.5f;
+            const float cx = 95.5f;           // axe de la porte : tout est symétrique autour (x ↔ 191 - x)
+            const int band = 9;               // hauteur du soubassement en carreaux
 
-            // Derrière : toits en tuiles des ailes, puis le grand dôme.
-            DrawWingRoof(p, 10, 98);
-            DrawWingRoof(p, 190, 277);
-            DrawDome(p, cx, 104f, 112f, 116f, ribs: 7, fishCount: 9, seed: 4);
-            DrawLantern(p, cx, 218);
+            // Derrière : toits en tuiles des ailes, puis le dôme.
+            DrawWingRoof(p, 7, 66, 66, 14);
+            DrawWingRoof(p, 125, 184, 66, 14);
+            DrawDome(p, cx, 69f, 76f, 72f, ribs: 7, fishCount: 7, seed: 4);
+            DrawLantern(p, cx, 139);
 
             // Ailes : murs enduits, soubassement en carreaux, corniche ondulée.
-            DrawWall(p, 10, 277, 9, 100);
-            for (int x = 8; x <= 279; x++)
+            DrawWall(p, 7, 184, 6, 66, band);
+            for (int x = 5; x <= 186; x++)
             {
-                int wave = Mathf.RoundToInt(Mathf.Sin(x * 0.35f) * 1.2f);
-                for (int y = 96 + wave; y <= 106; y++)
+                int wave = Mathf.RoundToInt(Mathf.Sin(x * 0.45f) * 1f);
+                for (int y = 63 + wave; y <= 70; y++)
                 {
-                    p[x, y] = y >= 104 ? MetalLight : y >= 102 ? Tile : TileDark;
+                    p[x, y] = y >= 69 ? MetalLight : y >= 67 ? Tile : TileDark;
                 }
             }
 
-            // Vitrines en arc dans les ailes, séparées par des pilastres.
-            int[] windows = { 20, 58, 210, 248 };
+            // Deux vitrines en arc dans chaque aile, entre des pilastres (en miroir).
+            int[] windows = { 14, 39 };
             for (int i = 0; i < windows.Length; i++)
             {
-                DrawArchWindow(p, windows[i], windows[i] + 26, 28, 84, seed: 11 + i);
+                DrawArchWindow(p, windows[i], windows[i] + 18, 19, 56, seed: 11 + i);
+                DrawArchWindow(p, 191 - windows[i] - 18, 191 - windows[i], 19, 56, seed: 21 + i);
             }
 
-            foreach (int x in new[] { 10, 50, 88, 192, 236, 271 })
+            foreach (int x in new[] { 7, 33, 58 })
             {
-                DrawPilaster(p, x, x + 6, 9, 95);
+                DrawPilaster(p, x, x + 4, 6, 62, band);
+                DrawPilaster(p, 191 - x - 4, 191 - x, 6, 62, band);
             }
 
             // Pavillon d'entrée, en avant, plus haut que les ailes.
-            DrawWall(p, 96, 191, 9, 120, lighter: true);
-            for (int x = 94; x <= 193; x++)
+            DrawWall(p, 64, 127, 6, 80, band, lighter: true);
+            for (int x = 62; x <= 129; x++)
             {
-                for (int y = 117; y <= 126; y++)
+                for (int y = 78; y <= 84; y++)
                 {
-                    p[x, y] = y >= 124 ? MetalLight : y >= 121 ? Tile : TileDark;
+                    p[x, y] = y >= 83 ? MetalLight : y >= 81 ? Tile : TileDark;
                 }
             }
 
-            DrawColumn(p, 96, 104, 9, 116);
-            DrawColumn(p, 183, 191, 9, 116);
-            DrawRoseWindow(p, cx, 100f, 13f);
-            DrawSign(p, 116, 171, 78, 85);
-            DrawArchDoor(p, 122, 165, 9, 52, 22);
+            DrawColumn(p, 64, 69, 6, 77);
+            DrawColumn(p, 122, 127, 6, 77);
+            DrawRoseWindow(p, cx, 68f, 6f);
+            DrawSign(p, 77, 114, 52, 57);
+            DrawArchDoor(p, 81, 110, 6, 35, 15, handleY: 20);
 
-            // Perron : trois marches.
-            DrawStairs(p);
+            // Perron : trois marches et un tapis jusqu'à la porte.
+            DrawStairs(p, 72, 119, 87, 104);
 
             // Jardinières avec de petits palmiers de chaque côté du perron.
-            DrawPlanter(p, 98);
-            DrawPlanter(p, 177);
+            DrawPlanter(p, 58);
+            DrawPlanter(p, 121);
 
             PixelArt.SelectiveOutline(p, Outline, 0.6f);
 
             // Ombre douce au sol, seulement là où il n'y a rien.
             for (int x = 2; x < ExteriorWidth - 2; x++)
             {
-                for (int y = 0; y <= 6; y++)
+                for (int y = 0; y <= 4; y++)
                 {
                     if (!PixelArt.IsFilled(p, x, y))
                     {
@@ -137,7 +140,7 @@ namespace FishAndChill.Editor
             return p;
         }
 
-        private static void DrawWall(Color[,] p, int x0, int x1, int y0, int y1, bool lighter = false)
+        private static void DrawWall(Color[,] p, int x0, int x1, int y0, int y1, int band, bool lighter = false)
         {
             for (int x = x0; x <= x1; x++)
             {
@@ -145,10 +148,10 @@ namespace FishAndChill.Editor
                 for (int y = y0; y <= y1; y++)
                 {
                     Color c = DetailedFish.Shade(Plaster, Step((lighter ? 1.12f : 1.04f) - side * 0.22f, 6f));
-                    if (y <= y0 + 13)
+                    if (y <= y0 + band)
                     {
                         c = ((x / 8) + (y / 4)) % 2 == 0 ? Tile : TileDark;
-                        if (y == y0 + 13)
+                        if (y == y0 + band)
                         {
                             c = Color.Lerp(c, Color.white, 0.3f);
                         }
@@ -163,31 +166,31 @@ namespace FishAndChill.Editor
             }
         }
 
-        private static void DrawWingRoof(Color[,] p, int x0, int x1)
+        private static void DrawWingRoof(Color[,] p, int x0, int x1, int yBase, int height)
         {
-            for (int y = 100; y <= 122; y++)
+            for (int y = yBase; y <= yBase + height; y++)
             {
-                int inset = (y - 100) * 3 / 2;
+                int inset = (y - yBase) * 3 / 2;
                 for (int x = x0 + inset; x <= x1 - inset; x++)
                 {
-                    Color c = (y - 100) % 4 == 0 ? Color.Lerp(RoofTile, Color.black, 0.25f) : RoofTile;
+                    Color c = (y - yBase) % 4 == 0 ? Color.Lerp(RoofTile, Color.black, 0.25f) : RoofTile;
                     if ((x + (y / 4) * 3) % 8 == 0)
                     {
                         c = Color.Lerp(RoofTile, Color.black, 0.15f);
                     }
 
-                    p[x, y] = DetailedFish.Shade(c, y > 116 ? 1.15f : 1f);
+                    p[x, y] = DetailedFish.Shade(c, y > yBase + height - 5 ? 1.15f : 1f);
                 }
             }
         }
 
-        private static void DrawPilaster(Color[,] p, int x0, int x1, int y0, int y1)
+        private static void DrawPilaster(Color[,] p, int x0, int x1, int y0, int y1, int band)
         {
             for (int x = x0; x <= x1; x++)
             {
                 float u = (x - x0) / (float)Mathf.Max(1, x1 - x0) * 2f - 1f;
                 float light = Step(1.12f - (u + 1f) * 0.22f, 5f);
-                for (int y = y0 + 14; y <= y1; y++)
+                for (int y = y0 + band + 1; y <= y1; y++)
                 {
                     p[x, y] = DetailedFish.Shade(Stone, light);
                 }
@@ -270,7 +273,7 @@ namespace FishAndChill.Editor
             PixelArt.Set(p, (int)cx + 7, y0 + 44, Bubble);
         }
 
-        private static void DrawArchDoor(Color[,] p, int x0, int x1, int y0, int springY, int radius)
+        private static void DrawArchDoor(Color[,] p, int x0, int x1, int y0, int springY, int radius, int handleY)
         {
             float cx = (x0 + x1 + 1) * 0.5f;
             for (int x = x0 - 3; x <= x1 + 3; x++)
@@ -308,8 +311,8 @@ namespace FishAndChill.Editor
                 }
             }
 
-            PixelArt.Rect(p, (int)cx - 4, 30, (int)cx - 3, 34, Brass);
-            PixelArt.Rect(p, (int)cx + 2, 30, (int)cx + 3, 34, Brass);
+            PixelArt.Rect(p, (int)cx - 4, handleY, (int)cx - 3, handleY + 3, Brass);
+            PixelArt.Rect(p, (int)cx + 2, handleY, (int)cx + 3, handleY + 3, Brass);
         }
 
         private static void DrawRoseWindow(Color[,] p, float cx, float cy, float radius)
@@ -354,23 +357,24 @@ namespace FishAndChill.Editor
             PixelArt.Rect(p, x0 + 1, y0 + 1, x1 - 1, y1 - 1, Brass);
             PixelArt.Rect(p, x0 + 1, y1 - 1, x1 - 1, y1 - 1, C(1f, 0.90f, 0.55f));
             int middle = (x0 + x1) / 2;
-            DrawFish(p, middle - 16, (y0 + y1) / 2, Metal, 0, false);
+            int spacing = (x1 - x0) / 3;
+            DrawFish(p, middle - spacing, (y0 + y1) / 2, Metal, 0, false);
             DrawFish(p, middle, (y0 + y1) / 2, Metal, 0, false);
-            DrawFish(p, middle + 16, (y0 + y1) / 2, Metal, 0, false);
+            DrawFish(p, middle + spacing, (y0 + y1) / 2, Metal, 0, false);
         }
 
-        private static void DrawStairs(Color[,] p)
+        private static void DrawStairs(Color[,] p, int left, int right, int carpetLeft, int carpetRight)
         {
             for (int step = 0; step < 3; step++)
             {
-                int x0 = 108 + step * 5;
-                int x1 = 179 - step * 5;
-                int y0 = step * 3;
+                int x0 = left + step * 4;
+                int x1 = right - step * 4;
+                int y0 = step * 2;
                 for (int x = x0; x <= x1; x++)
                 {
-                    for (int y = y0; y <= y0 + 2; y++)
+                    for (int y = y0; y <= y0 + 1; y++)
                     {
-                        Color c = y == y0 + 2 ? Color.Lerp(Stone, Color.white, 0.3f) : DetailedFish.Shade(Stone, y == y0 ? 0.75f : 0.9f);
+                        Color c = y == y0 + 1 ? Color.Lerp(Stone, Color.white, 0.3f) : DetailedFish.Shade(Stone, y == y0 ? 0.75f : 0.9f);
                         if (x % 24 == 0)
                         {
                             c = Color.Lerp(c, Color.black, 0.12f);
@@ -382,11 +386,11 @@ namespace FishAndChill.Editor
             }
 
             // Tapis turquoise qui monte jusqu'à la porte.
-            for (int x = 131; x <= 156; x++)
+            for (int x = carpetLeft; x <= carpetRight; x++)
             {
-                for (int y = 0; y <= 9; y++)
+                for (int y = 0; y <= 6; y++)
                 {
-                    p[x, y] = x == 131 || x == 156 ? BrassDark : y % 3 == 2 ? Color.Lerp(Tile, Color.white, 0.2f) : Tile;
+                    p[x, y] = x == carpetLeft || x == carpetRight ? BrassDark : y % 3 == 2 ? Color.Lerp(Tile, Color.white, 0.2f) : Tile;
                 }
             }
         }

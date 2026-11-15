@@ -45,8 +45,8 @@ namespace FishAndChill.Editor
             public bool AquariumToTheRightOfSign;
         }
 
-        private const int PlazaHalfWidth = 10;
-        private const int PlazaDepth = 6;
+        private const int PlazaHalfWidth = 7;
+        private const int PlazaDepth = 5;
         private const int AvenueLength = 6;
         private const int LampSpacing = 6;
 
@@ -137,7 +137,7 @@ namespace FishAndChill.Editor
                 Result = new Result { Paved = new bool[_width, _height], Reserved = new bool[_width, _height] };
 
                 // Emprise des bâtiments (et du dôme de l'aquarium, qui recouvre ce qu'il y a derrière).
-                Block(aquarium.x - 9, aquarium.y, aquarium.x + 9, aquarium.y + 14);
+                Block(aquarium.x - 6, aquarium.y, aquarium.x + 6, aquarium.y + 10);
                 Block(shop.x - 3, shop.y, shop.x + 3, shop.y + 3);
             }
 
@@ -401,12 +401,12 @@ namespace FishAndChill.Editor
             public void DecorateAquarium()
             {
                 int ay = _aquarium.y;
-                for (int k = 4; k <= 9; k++)
+                for (int k = 3; k <= 5; k++)
                 {
                     Mirror(k, ay - 1, k % 2 == 0 ? DecorKind.HedgeFlowers : DecorKind.Hedge, (k / 2) % 2, allowOnPaving: true);
                 }
 
-                Mirror(6, ay - 4, DecorKind.FlowerBed, 0, allowOnPaving: true);
+                Mirror(4, ay - 3, DecorKind.FlowerBed, 0, allowOnPaving: true);
 
                 // Lampadaires aux quatre coins du parvis, puis en paires le long de l'allée.
                 Mirror(PlazaHalfWidth + 1, ay - 1, DecorKind.Lamp);
@@ -420,7 +420,7 @@ namespace FishAndChill.Editor
                 Mirror(PlazaHalfWidth + 1, ay + 2, DecorKind.BushFlowers, 1);
                 Mirror(PlazaHalfWidth + 1, ay + 5, DecorKind.Bush, 0);
                 Mirror(PlazaHalfWidth, ay + 8, DecorKind.BushFlowers, 2);
-                Mirror(PlazaHalfWidth + 1, ay + 11, DecorKind.Rock, 1);
+                Mirror(PlazaHalfWidth, ay + 10, DecorKind.Rock, 1);
             }
 
             /// <summary>Boutique : tonneaux et caisses contre la façade, lampadaires aux coins du parvis, buissons.</summary>
