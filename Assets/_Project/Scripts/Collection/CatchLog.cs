@@ -46,5 +46,28 @@ namespace FishAndChill.Collection
         }
 
         public bool IsDiscovered(string speciesId) => CountOf(speciesId) > 0;
+
+        /// <summary>Espèces déjà pêchées (pour la sauvegarde).</summary>
+        public IEnumerable<string> SpeciesIds => _counts.Keys;
+
+        /// <summary>Remet une espèce telle qu'elle était dans une sauvegarde (nombre de prises et record).</summary>
+        public void Restore(string speciesId, int count, float bestSizeCm)
+        {
+            if (string.IsNullOrEmpty(speciesId) || count <= 0)
+            {
+                return;
+            }
+
+            _counts[speciesId] = count;
+            _bestSizes[speciesId] = bestSizeCm;
+            Changed?.Invoke();
+        }
+
+        /// <summary>Remet le total des prises d'une sauvegarde.</summary>
+        public void RestoreTotal(int totalCatches)
+        {
+            TotalCatches = Math.Max(0, totalCatches);
+            Changed?.Invoke();
+        }
     }
 }

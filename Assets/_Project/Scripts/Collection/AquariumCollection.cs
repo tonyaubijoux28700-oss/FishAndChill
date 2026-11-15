@@ -25,6 +25,18 @@ namespace FishAndChill.Collection
             return _species.TryGetValue(speciesId, out CaughtFish fish) ? fish : null;
         }
 
+        /// <summary>Remet un exemplaire exposé tel qu'il était dans une sauvegarde.</summary>
+        public void Restore(CaughtFish specimen)
+        {
+            if (specimen == null || specimen.Species == null)
+            {
+                return;
+            }
+
+            _species[specimen.SpeciesId] = specimen;
+            Changed?.Invoke();
+        }
+
         /// <summary>Dépose ce qui doit aller dans l'aquarium ; le reste (doublons) reste dans le sac.</summary>
         public DepositResult Deposit(Inventory bag)
         {

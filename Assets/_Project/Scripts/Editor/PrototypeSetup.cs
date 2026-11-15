@@ -391,6 +391,21 @@ namespace FishAndChill.Editor
             hudSo.FindProperty("_aquarium").objectReferenceValue = aquarium;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
 
+            // Sauvegarde automatique : chargée au démarrage, réécrite après chaque changement.
+            var saveManager = partie.GetComponent<Save.SaveManager>();
+            if (saveManager == null)
+            {
+                saveManager = partie.AddComponent<Save.SaveManager>();
+            }
+
+            var saveSo = new SerializedObject(saveManager);
+            saveSo.FindProperty("_progress").objectReferenceValue = progress;
+            saveSo.FindProperty("_fishing").objectReferenceValue = controller;
+            SerializedProperty saveZones = saveSo.FindProperty("_zones");
+            saveZones.arraySize = 1;
+            saveZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
+            saveSo.ApplyModifiedPropertiesWithoutUndo();
+
             if (zone == null)
             {
                 Debug.LogError("[FishAndChill] Zone de test introuvable : la scène n'a pas de zone assignée.");

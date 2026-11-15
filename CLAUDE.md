@@ -129,7 +129,13 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Le bouton Play lance toujours `FishingPrototype` (`PlayModeStartScene`), même si une autre scène est ouverte.
 - **Ne pas lancer les tests pendant que l'éditeur entre ou sort du Play mode** : le lanceur de tests plante et
   laisse une scène vide ouverte.
-- Pas encore de sauvegarde : tout repart de zéro à chaque lancement.
+- **Sauvegarde automatique** (`Scripts/Save`) : `SaveManager` (objet « Partie », champs `_progress`, `_fishing`,
+  `_zones`) charge au démarrage et réécrit 1 s après chaque changement (`PlayerProgress.Changed`, `CatchLog.Changed`)
+  et en quittant. Fichier `sauvegarde.json` dans `Application.persistentDataPath`
+  (`%USERPROFILE%/AppData/LocalLow/FishAndChill/FishAndChill`), écrit via un `.tmp`. Contenu (`SaveData`, `Version`) :
+  pièces, sac, aquarium, niveaux de matériel, journal des prises ; espèces par `Id` (une espèce disparue est ignorée).
+  Logique dans `SaveSerializer` (testée). Menu **FishAndChill → Sauvegarde → Effacer la sauvegarde** pour repartir de
+  zéro. Nouvelle zone = l'ajouter au champ `_zones` du `SaveManager`, sinon ses prises ne se rechargent pas.
 
 ## Minimap
 

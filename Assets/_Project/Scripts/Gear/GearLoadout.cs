@@ -21,5 +21,12 @@ namespace FishAndChill.Gear
             _levels[category] = Level(category) + 1;
             Changed?.Invoke();
         }
+
+        /// <summary>Remet un niveau tel qu'il était dans une sauvegarde.</summary>
+        public void SetLevel(GearCategory category, int level)
+        {
+            _levels[category] = Math.Max(0, level);
+            Changed?.Invoke();
+        }
     }
 }
