@@ -266,11 +266,6 @@ namespace FishAndChill.Editor
 
             DrawWeed(p, x0 + 4, y0 + 2, 14 + random.Next(8));
             DrawWeed(p, x1 - 5, y0 + 2, 10 + random.Next(8));
-            Color[] colors = { FishOrange, FishYellow, FishBlue, CoralPink };
-            DrawFish(p, (int)cx + random.Next(-4, 5), y0 + 18 + random.Next(10), colors[random.Next(colors.Length)], 1, random.Next(2) == 0);
-            DrawFish(p, (int)cx + random.Next(-6, 7), y0 + 32 + random.Next(10), colors[random.Next(colors.Length)], 1, random.Next(2) == 0);
-            PixelArt.Set(p, (int)cx + 6, y0 + 40, Bubble);
-            PixelArt.Set(p, (int)cx + 7, y0 + 44, Bubble);
         }
 
         private static void DrawArchDoor(Color[,] p, int x0, int x1, int y0, int springY, int radius, int handleY)
@@ -348,7 +343,6 @@ namespace FishAndChill.Editor
                 }
             }
 
-            DrawFish(p, Mathf.RoundToInt(cx), Mathf.RoundToInt(cy), FishOrange, 1, false);
         }
 
         private static void DrawSign(Color[,] p, int x0, int x1, int y0, int y1)
@@ -357,10 +351,12 @@ namespace FishAndChill.Editor
             PixelArt.Rect(p, x0 + 1, y0 + 1, x1 - 1, y1 - 1, Brass);
             PixelArt.Rect(p, x0 + 1, y1 - 1, x1 - 1, y1 - 1, C(1f, 0.90f, 0.55f));
             int middle = (x0 + x1) / 2;
-            int spacing = (x1 - x0) / 3;
-            DrawFish(p, middle - spacing, (y0 + y1) / 2, Metal, 0, false);
-            DrawFish(p, middle, (y0 + y1) / 2, Metal, 0, false);
-            DrawFish(p, middle + spacing, (y0 + y1) / 2, Metal, 0, false);
+            // Plaque sobre : un filet gravé et deux rivets.
+            int midY = (y0 + y1) / 2;
+            PixelArt.Rect(p, x0 + 5, midY, x1 - 5, midY, BrassDark);
+            PixelArt.Set(p, x0 + 2, midY, Metal);
+            PixelArt.Set(p, x1 - 2, midY, Metal);
+            PixelArt.Set(p, middle, midY, Brass);
         }
 
         private static void DrawStairs(Color[,] p, int left, int right, int carpetLeft, int carpetRight)
@@ -505,10 +501,6 @@ namespace FishAndChill.Editor
             }
 
             DrawRay(p, Mathf.RoundToInt(cx + rx * 0.28f), Mathf.RoundToInt(baseY + ry * 0.35f));
-            for (int i = 0; i < 14; i++)
-            {
-                PixelArt.Set(p, Mathf.RoundToInt(cx - rx * 0.25f) + (i % 2), Mathf.RoundToInt(baseY + 10 + i * 6), Bubble);
-            }
         }
 
         /// <summary>Lanterne au sommet du dôme : anneau, petite coupole vitrée, épi doré et fanion.</summary>
