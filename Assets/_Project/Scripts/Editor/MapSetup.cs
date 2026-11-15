@@ -59,12 +59,38 @@ namespace FishAndChill.Editor
             public Tile SignpostRight;
         }
 
-        /// <summary>Les bâtiments posés sur l'île.</summary>
+        /// <summary>Les bâtiments posés sur l'île, et les zones (régions de la grille) avec leur ponton.</summary>
         public sealed class Buildings
         {
             public ShopBuilding Shop;
             public AquariumBuilding Aquarium;
+            public Rect IslandRegion;
+            public DockInfo IslandDock;
+            public Rect LakeRegion;
+            public DockInfo LakeDock;
         }
+
+        /// <summary>Un ponton : sol praticable au-dessus de l'eau, point d'arrivée au bout, regard vers le large.</summary>
+        public sealed class DockInfo
+        {
+            public Rect Area;
+            public Vector2 Arrival;
+            public Vector2 Facing;
+            public Transform Marker;
+        }
+
+        /// <summary>Le lac d'Annecy : une île retournée, loin à l'est de l'île sur la même grille.</summary>
+        private static readonly IslandGenerator.Settings LakeSettings = new IslandGenerator.Settings
+        {
+            Width = 80,
+            Height = 60,
+            Seed = 4242,
+        };
+
+        /// <summary>Écart (en cases) entre le bord est de l'île et le lac : la place des intérieurs de bâtiments.</summary>
+        private const int LakeGap = 100;
+
+        private const int DockLength = 5;
 
         /// <summary>Construit (ou reconstruit) l'île dans la scène ouverte et y branche joueur, pêche et caméra.</summary>
         public static Buildings BuildIsland(GameObject player, FishingController controller)
@@ -177,6 +203,14 @@ namespace FishAndChill.Editor
                 }
             }
 
+            // Ponton de l'île : sur la plage sud, à côté du point de départ, vers le large.
+            DockInfo islandDock = BuildDock(mapObject.transform, "Ponton - Île Mahana", terrain, bounds, spawn, Vector2Int.down);
+
+            // Le lac d'Annecy, loin à l'est (au-delà des intérieurs des bâtiments), avec son propre ponton.
+            TileSet lakeTiles = CreateLakeTiles();
+            var lakeBounds = new BoundsInt(bounds.xMax + LakeGap, -LakeSettings.Height / 2, 0, LakeSettings.Width, LakeSettings.Height, 1);
+            DockInfo lakeDock = BuildLake(mapObject.transform, lakeBounds, lakeTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, decorMap, staticObstacles);
+
             var worldMap = mapObject.GetComponent<WorldMap>();
             if (worldMap == null)
             {
@@ -186,6 +220,9 @@ namespace FishAndChill.Editor
             SetReference(worldMap, "_land", landMap);
             SetReference(worldMap, "_water", waterMap);
             worldMap.SetStaticObstacles(staticObstacles);
+            var islandRegion = new Rect(bounds.xMin, bounds.yMin, width, height);
+            var lakeRegion = new Rect(lakeBounds.xMin, lakeBounds.yMin, lakeBounds.size.x, lakeBounds.size.y);
+            worldMap.SetRegions(new[] { islandRegion, lakeRegion }, new[] { islandDock.Area, lakeDock.Area });
             EditorUtility.SetDirty(worldMap);
 
             // Position du joueur = ses pieds, au centre de la case.
@@ -221,8 +258,205 @@ namespace FishAndChill.Editor
             var aquariumInterior = new Vector2(bounds.xMax + 40f, bounds.yMin);
             AquariumBuilding aquarium = BuildAquarium(aquariumPosition, aquariumInterior, worldMap, player.GetComponent<PlayerMovement>(), follow, controller);
 
-            BuildMinimap(worldMap, decorMap, player.transform, tiles, shop, aquarium);
-            return new Buildings { Shop = shop, Aquarium = aquarium };
+            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, shop, aquarium, new[] { islandDock.Marker, lakeDock.Marker });
+            return new Buildings
+            {
+                Shop = shop, Aquarium = aquarium,
+                IslandRegion = islandRegion, IslandDock = islandDock,
+                LakeRegion = lakeRegion, LakeDock = lakeDock,
+            };
+        }
+
+        // ---------- Lac d'Annecy et pontons ----------
+
+        /// <summary>Tuiles du lac : celles de l'île recolorées (eau alpine, galets, prés) et des sapins.</summary>
+        private static TileSet CreateLakeTiles()
+        {
+            var set = new TileSet { Deep = new Tile[2], Shallow = new Tile[2], Sand = new Tile[3], Grass = new Tile[3] };
+            for (int i = 0; i < 2; i++)
+            {
+                set.Deep[i] = SaveTile($"Lac_Eau_{i}", LakeArt.Water(TileArt.DeepWater(i)), Vector2.one * 0.5f, TileArt.Size);
+                set.Shallow[i] = set.Deep[i];
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                set.Sand[i] = SaveTile($"Lac_Galets_{i}", LakeArt.Gravel(TileArt.Sand(i)), Vector2.one * 0.5f, TileArt.Size);
+                set.Grass[i] = SaveTile($"Lac_Pre_{i}", LakeArt.Meadow(TileArt.Grass(i)), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            set.Palm = SaveTile("Sapin", LakeArt.Pine(), LakeArt.PinePivot, TileArt.Size);
+
+            var shallow = new TransitionArt.Style
+            {
+                Fill = LakeArt.Water(TileArt.ShallowWater(0)),
+                InnerBand = 0.06f, InnerColor = LakeArt.Water(new Color(0.40f, 0.82f, 0.84f)), InnerBlend = 0.6f,
+                OuterBand = 0.07f, OuterColor = LakeArt.Water(new Color(0.24f, 0.66f, 0.74f)), DitherOuter = true,
+            };
+            var gravel = new TransitionArt.Style
+            {
+                Fill = LakeArt.Gravel(TileArt.Sand(0)),
+                InnerBand = 0.07f, InnerColor = new Color(0.38f, 0.39f, 0.38f), InnerBlend = 1f,      // galets mouillés
+                OuterBand = 0.07f, OuterColor = new Color(0.78f, 0.86f, 0.88f), DitherOuter = false,  // clapot
+            };
+            var meadow = new TransitionArt.Style
+            {
+                Fill = LakeArt.Meadow(TileArt.Grass(0)),
+                InnerBand = 0.06f, InnerColor = LakeArt.Meadow(new Color(0.24f, 0.50f, 0.24f)), InnerBlend = 1f,
+                OuterBand = 0.06f, OuterColor = LakeArt.Meadow(new Color(0.40f, 0.68f, 0.34f)), DitherOuter = true,
+            };
+
+            set.LagoonEdges = SaveEdges("LacEau", shallow);
+            set.SandEdges = SaveEdges("LacGalets", gravel);
+            set.GrassEdges = SaveEdges("LacPre", meadow);
+            set.LagoonFull = new[] { set.LagoonEdges[15], SaveTile("Bords/LacEau_15b", LakeArt.Water(TileArt.ShallowWater(1)), Vector2.one * 0.5f, TileArt.Size) };
+            set.SandFull = new[]
+            {
+                set.SandEdges[15],
+                SaveTile("Bords/LacGalets_15b", LakeArt.Gravel(TileArt.Sand(1)), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/LacGalets_15c", LakeArt.Gravel(TileArt.Sand(2)), Vector2.one * 0.5f, TileArt.Size),
+            };
+            set.GrassFull = new[]
+            {
+                set.GrassEdges[15],
+                SaveTile("Bords/LacPre_15b", LakeArt.Meadow(TileArt.Grass(1)), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/LacPre_15c", LakeArt.Meadow(TileArt.Grass(2)), Vector2.one * 0.5f, TileArt.Size),
+            };
+            return set;
+        }
+
+        /// <summary>Dessine le lac dans les couches de la carte (sans effacer l'île), ses sapins et son ponton.</summary>
+        private static DockInfo BuildLake(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap decorMap, List<Rect> obstacles)
+        {
+            TerrainType[,] terrain = LakeGenerator.Generate(LakeSettings);
+            int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
+            int width = terrain.GetLength(0);
+            int height = terrain.GetLength(1);
+            int seed = LakeSettings.Seed;
+
+            var waterTiles = new TileBase[width * height];
+            var landTiles = new TileBase[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = x + y * width;
+                    float hash = IslandGenerator.CellHash(x, y, seed);
+                    waterTiles[index] = tiles.Deep[hash < 0.5f ? 0 : 1];
+                    if (terrain[x, y] == TerrainType.Sand)
+                    {
+                        landTiles[index] = tiles.Sand[hash < 0.88f ? 0 : hash < 0.95f ? 1 : 2];
+                    }
+                    else if (terrain[x, y] == TerrainType.Grass)
+                    {
+                        landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
+                    }
+                }
+            }
+
+            waterMap.SetTilesBlock(bounds, waterTiles);
+            landMap.SetTilesBlock(bounds, landTiles);
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance, tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
+            FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
+            FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
+
+            // Ponton sur la rive sud, vers le nord (le large du lac).
+            int cx = width / 2;
+            int cy = height / 2;
+            while (cy > 1 && terrain[cx, cy] == TerrainType.Water)
+            {
+                cy--;
+            }
+
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Lac d'Annecy", terrain, bounds, new Vector2Int(cx, cy - 1), Vector2Int.up);
+            Vector2 dockCell = dock.Area.center - new Vector2(bounds.xMin, bounds.yMin);
+
+            // Forêt de sapins sur les prés, plus dense que les cocotiers, jamais près du ponton.
+            var pines = new List<Vector2Int>();
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 7;
+                    if (terrain[x, y] != TerrainType.Grass || nearDock || IslandGenerator.CellHash(x, y, seed + 1) > 0.09f)
+                    {
+                        continue;
+                    }
+
+                    if (pines.Exists(other => Mathf.Abs(other.x - x) < 2 && Mathf.Abs(other.y - y) < 2))
+                    {
+                        continue;
+                    }
+
+                    pines.Add(new Vector2Int(x, y));
+                    obstacles.Add(TownLayout.PalmFootprint(new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f)));
+                    decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tiles.Palm);
+                }
+            }
+
+            return dock;
+        }
+
+        /// <summary>
+        /// Pose un ponton de 2 cases de large qui part de la terre (depuis <paramref name="from"/>, en allant vers
+        /// <paramref name="direction"/>) et avance de <see cref="DockLength"/> cases dans l'eau, avec une barque amarrée.
+        /// </summary>
+        private static DockInfo BuildDock(Transform mapRoot, string name, TerrainType[,] terrain, BoundsInt bounds, Vector2Int from, Vector2Int direction)
+        {
+            int width = terrain.GetLength(0);
+            int height = terrain.GetLength(1);
+            bool Water(int x, int y) => x >= 1 && y >= 1 && x < width - 1 && y < height - 1 && terrain[x, y] == TerrainType.Water;
+
+            int column = from.x;
+            int shore = from.y;
+            foreach (int offset in new[] { 3, 4, 5, 2, 6, 7, -3, -4, -5, 8, -6 })
+            {
+                int x = from.x + offset;
+                int y = from.y;
+                while (y > 0 && y < height - 1 && !(Water(x, y) && Water(x + 1, y)))
+                {
+                    y += direction.y;
+                }
+
+                bool ok = true;
+                for (int k = 0; k < DockLength + 2 && ok; k++)
+                {
+                    ok = Water(x, y + k * direction.y) && Water(x + 1, y + k * direction.y);
+                }
+
+                if (ok)
+                {
+                    column = x;
+                    shore = y - direction.y;
+                    break;
+                }
+            }
+
+            int end = shore + DockLength * direction.y;
+            int yMin = Mathf.Min(shore, end);
+            int yMax = Mathf.Max(shore, end) + 1;
+            var area = new Rect(bounds.xMin + column, bounds.yMin + yMin, 2f, yMax - yMin);
+
+            GameObject dock = EnsureObject(name, mapRoot);
+            dock.transform.position = new Vector3(area.center.x, area.center.y, 0f);
+            Sprite planks = PixelArt.Save($"{TilesFolder}/Ponton.png", LakeArt.Dock(yMax - yMin), TileArt.Size, Vector2.one * 0.5f);
+            SetSprite(dock, planks, -9);
+
+            // Barque amarrée le long du bout du ponton, côté est.
+            GameObject boat = EnsureObject("Barque", dock.transform);
+            float endY = bounds.yMin + end + 0.5f - direction.y * 1.2f;
+            boat.transform.position = new Vector3(area.xMax + 0.6f, endY, 0f);
+            Sprite boatSprite = PixelArt.Save($"{TilesFolder}/Barque.png", LakeArt.Boat(), TileArt.Size, Vector2.one * 0.5f);
+            SetSprite(boat, boatSprite, -8);
+
+            return new DockInfo
+            {
+                Area = area,
+                Arrival = new Vector2(area.center.x, bounds.yMin + end + 0.5f - direction.y * 0.4f),
+                Facing = new Vector2(direction.x, direction.y),
+                Marker = dock.transform,
+            };
         }
 
         /// <summary>
@@ -513,9 +747,13 @@ namespace FishAndChill.Editor
         /// La Tilemap est décalée d'une demi-case pour que ses coins tombent sur les centres des cases logiques.
         /// </summary>
         private static void FillDualLayer(Tilemap layer, BoundsInt bounds, int width, int height,
-            System.Func<int, int, bool> isSet, Tile[] edges, Tile[] fullVariants, int seed)
+            System.Func<int, int, bool> isSet, Tile[] edges, Tile[] fullVariants, int seed, bool clear = true)
         {
-            layer.ClearAllTiles();
+            if (clear)
+            {
+                layer.ClearAllTiles();
+            }
+
             layer.transform.localPosition = new Vector3(0.5f, 0.5f, 0f);
 
             bool At(int x, int y) => x >= 0 && y >= 0 && x < width && y < height && isSet(x, y);
@@ -644,7 +882,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, ShopBuilding shop, AquariumBuilding aquarium)
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform[] docks)
         {
             Sprite shopIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeBoutique.png", ShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
             Sprite aquariumIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeAquarium.png", AquariumArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
@@ -666,15 +904,24 @@ namespace FishAndChill.Editor
             foreach (Tile t in tiles.Sand) entries.Add((t, new Color(0.96f, 0.88f, 0.67f)));
             foreach (Tile t in tiles.Grass) entries.Add((t, new Color(0.33f, 0.65f, 0.32f)));
             entries.Add((tiles.Palm, new Color(0.12f, 0.42f, 0.18f)));
+            foreach (Tile t in lakeTiles.Deep) entries.Add((t, new Color(0.13f, 0.40f, 0.50f)));
+            foreach (Tile t in lakeTiles.Sand) entries.Add((t, new Color(0.66f, 0.66f, 0.64f)));
+            foreach (Tile t in lakeTiles.Grass) entries.Add((t, new Color(0.30f, 0.56f, 0.30f)));
+            entries.Add((lakeTiles.Palm, new Color(0.10f, 0.30f, 0.20f)));
+            Sprite dockIcon = PixelArt.Save("Assets/_Project/Art/UI/IconePonton.png", LakeArt.BoatIcon(), TileArt.Size, Vector2.one * 0.5f);
 
             var so = new SerializedObject(minimap);
             so.FindProperty("_map").objectReferenceValue = worldMap;
             so.FindProperty("_player").objectReferenceValue = player;
             so.FindProperty("_decor").objectReferenceValue = decorMap;
             SerializedProperty landmarks = so.FindProperty("_landmarks");
-            landmarks.arraySize = 2;
+            landmarks.arraySize = 2 + docks.Length;
             SetLandmark(landmarks.GetArrayElementAtIndex(0), "Boutique", shop.transform, shopIcon);
             SetLandmark(landmarks.GetArrayElementAtIndex(1), "Aquarium", aquarium.transform, aquariumIcon);
+            for (int i = 0; i < docks.Length; i++)
+            {
+                SetLandmark(landmarks.GetArrayElementAtIndex(2 + i), "Ponton", docks[i], dockIcon);
+            }
             so.FindProperty("_waterColor").colorValue = new Color(0.14f, 0.54f, 0.67f);
             so.FindProperty("_pixelsPerCell").intValue = 6;
 

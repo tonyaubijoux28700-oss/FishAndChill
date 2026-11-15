@@ -18,6 +18,14 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Obstacles fixes du décor (générés avec l'île) : on ne traverse plus lampadaires, haies, cocotiers…")]
         private System.Collections.Generic.List<Rect> _staticObstacles = new System.Collections.Generic.List<Rect>();
 
+        [SerializeField, Tooltip("Rectangle de chaque zone sur la grille (île, lac…), en coordonnées du monde. Vide = toute la carte.")]
+        private System.Collections.Generic.List<Rect> _regions = new System.Collections.Generic.List<Rect>();
+
+        [SerializeField, Tooltip("Sols praticables au-dessus de l'eau, enregistrés avec la scène (pontons).")]
+        private System.Collections.Generic.List<Rect> _staticWalkable = new System.Collections.Generic.List<Rect>();
+
+        private int _currentRegion;
+
         public Tilemap Land => _land;
         public Tilemap Water => _water;
 
@@ -27,6 +35,14 @@ namespace FishAndChill.World
         /// </summary>
         public bool IsLand(Vector2 worldPosition)
         {
+            foreach (Rect area in _staticWalkable)
+            {
+                if (area.Contains(worldPosition))
+                {
+                    return true;
+                }
+            }
+
             // Les intérieurs (boutique…) sont des sols praticables hors de l'île.
             foreach (Rect area in _walkableAreas)
             {
@@ -136,11 +152,36 @@ namespace FishAndChill.World
             return false;
         }
 
-        /// <summary>Rectangle de la carte en coordonnées du monde (pour bloquer la caméra).</summary>
+        /// <summary>Remplace les régions (une par zone) et les pontons. Appelé par la génération de la carte.</summary>
+        public void SetRegions(System.Collections.Generic.IEnumerable<Rect> regions, System.Collections.Generic.IEnumerable<Rect> walkable)
+        {
+            _regions.Clear();
+            _regions.AddRange(regions);
+            _staticWalkable.Clear();
+            _staticWalkable.AddRange(walkable);
+            _currentRegion = 0;
+        }
+
+        public int RegionCount => _regions.Count;
+
+        public int CurrentRegion => _currentRegion;
+
+        /// <summary>Change la région affichée (caméra, minimap) après un voyage.</summary>
+        public void SetCurrentRegion(int index)
+        {
+            _currentRegion = Mathf.Clamp(index, 0, Mathf.Max(0, _regions.Count - 1));
+        }
+
+        /// <summary>Rectangle de la région actuelle (ou de toute la carte) en coordonnées du monde (pour bloquer la caméra).</summary>
         public Rect WorldBounds
         {
             get
             {
+                if (_regions.Count > 0)
+                {
+                    return _regions[Mathf.Clamp(_currentRegion, 0, _regions.Count - 1)];
+                }
+
                 Tilemap reference = _water != null ? _water : _land;
                 if (reference == null)
                 {

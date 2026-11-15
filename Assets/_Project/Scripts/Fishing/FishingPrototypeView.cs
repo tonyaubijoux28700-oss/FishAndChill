@@ -63,6 +63,7 @@ namespace FishAndChill.Fishing
         private void OnEnable()
         {
             _controller.StateChanged += OnStateChanged;
+            _controller.ZoneChanged += RefreshHeaderIfReady;
             _controller.QtePressed += OnQtePressed;
             _controller.Nibbled += OnNibbled;
             _controller.FishCaught += OnFishCaught;
@@ -71,6 +72,7 @@ namespace FishAndChill.Fishing
         private void OnDisable()
         {
             _controller.StateChanged -= OnStateChanged;
+            _controller.ZoneChanged -= RefreshHeaderIfReady;
             _controller.QtePressed -= OnQtePressed;
             _controller.Nibbled -= OnNibbled;
             _controller.FishCaught -= OnFishCaught;

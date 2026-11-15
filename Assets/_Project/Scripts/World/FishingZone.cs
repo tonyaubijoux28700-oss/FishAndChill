@@ -27,7 +27,18 @@ namespace FishAndChill.World
         [SerializeField] private Color _waterColor = new Color(0.16f, 0.42f, 0.55f);
         [SerializeField] private List<SpeciesEntry> _species = new List<SpeciesEntry>();
 
+        [SerializeField, Tooltip("Position sur la carte du monde (0..1, 0 = bas gauche).")]
+        private Vector2 _mapPosition = new Vector2(0.5f, 0.5f);
+
+        [SerializeField, Tooltip("Pays ou région réelle, affiché sur la carte du monde.")]
+        private string _region;
+
         public string DisplayName => string.IsNullOrEmpty(_displayName) ? name : _displayName;
+        public Vector2 MapPosition => _mapPosition;
+        public string Region => _region;
+
+        /// <summary>Identifiant stable de la zone (nom de l'asset), pour la sauvegarde.</summary>
+        public string Id => name;
         public string Description => _description;
         public Color WaterColor => _waterColor;
         public IReadOnlyList<SpeciesEntry> Species => _species;

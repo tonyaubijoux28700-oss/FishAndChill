@@ -17,6 +17,7 @@ namespace FishAndChill.Editor
         private const string Root = "Assets/_Project";
         private const string SpeciesFolder = Root + "/Data/Species";
         private const string ZonesFolder = Root + "/Data/Zones";
+        private const string LakeZonePath = ZonesFolder + "/LacAnnecy.asset";
         private const string ScenesFolder = Root + "/Scenes";
         private const string ScenePath = ScenesFolder + "/FishingPrototype.unity";
         private const string TemplateScenePath = "Assets/Scenes/SampleScene.unity";
@@ -72,6 +73,16 @@ namespace FishAndChill.Editor
                 1.5f, 0.16f, 4, 2, new Vector2(45f, 120f), 45, new Color(0.35f, 0.45f, 0.25f), 10f),
             new SpeciesData("salvelinus-umbla", "Omble chevalier", "Salvelinus umbla", Rarity.Epic,
                 1.8f, 0.12f, 4, 1, new Vector2(25f, 70f), 90, new Color(0.85f, 0.45f, 0.30f), 5f),
+            new SpeciesData("coregonus-lavaretus", "Lavaret", "Coregonus lavaretus", Rarity.Uncommon,
+                1.2f, 0.22f, 3, 2, new Vector2(30f, 55f), 18, new Color(0.75f, 0.80f, 0.84f), 15f),
+
+            // Pas que des poissons : l'écrevisse signal (installée dans le lac) et la grenouille rieuse des rives.
+            new SpeciesData("pacifastacus-leniusculus", "Écrevisse signal", "Pacifastacus leniusculus", Rarity.Common,
+                0.9f, 0.26f, 2, 2, new Vector2(8f, 16f), 7, new Color(0.42f, 0.30f, 0.18f), 18f,
+                CreatureKind.Crustacean, BodyShape.Lobster),
+            new SpeciesData("pelophylax-ridibundus", "Grenouille rieuse", "Pelophylax ridibundus", Rarity.Uncommon,
+                1.1f, 0.22f, 3, 2, new Vector2(7f, 15f), 15, new Color(0.42f, 0.54f, 0.24f), 10f,
+                CreatureKind.Amphibian, BodyShape.Frog),
         };
 
         // Île Mahana (fictive, ambiance Polynésie) : vraies espèces de lagon et de récif de l'Indo-Pacifique,
@@ -132,18 +143,21 @@ namespace FishAndChill.Editor
             EnsureFolder(SpeciesFolder);
             EnsureFolder(ZonesFolder);
 
-            // Conservé pour plus tard : une zone d'eau douce réelle.
-            CreateOrUpdateZone(ZonesFolder + "/LacAnnecy.asset", "Lac d'Annecy",
-                "Lac alpin aux eaux claires, en Haute-Savoie.", new Color(0.16f, 0.48f, 0.58f), AnnecySpecies);
+            // Deuxième zone : un lac alpin d'eau douce bien réel.
+            CreateOrUpdateZone(LakeZonePath, "Lac d'Annecy",
+                "Lac alpin aux eaux très claires, entouré de prés et de forêts de sapins.", new Color(0.12f, 0.34f, 0.44f), AnnecySpecies,
+                new Vector2(0.52f, 0.74f), "Haute-Savoie, France");
 
             string startPath = ZonesFolder + "/IleMahana.asset";
             CreateOrUpdateZone(startPath, "Île Mahana",
                 "Île tropicale fictive : lagon turquoise, plages de sable blanc et cocotiers. Point de départ de l'aventure.",
-                MahanaWater, MahanaSpecies);
+                MahanaWater, MahanaSpecies,
+                new Vector2(0.12f, 0.36f), "Polynésie (île fictive)");
             return startPath;
         }
 
-        private static void CreateOrUpdateZone(string path, string displayName, string description, Color water, SpeciesData[] speciesData)
+        private static void CreateOrUpdateZone(string path, string displayName, string description, Color water, SpeciesData[] speciesData,
+            Vector2 mapPosition, string region)
         {
             var species = new FishSpecies[speciesData.Length];
             for (int i = 0; i < speciesData.Length; i++)
@@ -156,6 +170,8 @@ namespace FishAndChill.Editor
             so.FindProperty("_displayName").stringValue = displayName;
             so.FindProperty("_description").stringValue = description;
             so.FindProperty("_waterColor").colorValue = water;
+            so.FindProperty("_mapPosition").vector2Value = mapPosition;
+            so.FindProperty("_region").stringValue = region;
 
             SerializedProperty entries = so.FindProperty("_species");
             entries.arraySize = species.Length;
@@ -378,9 +394,11 @@ namespace FishAndChill.Editor
 
             Sprite bookIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeIndex.png", UiArt.BookIcon(), 16, new Vector2(0.5f, 0.5f));
             var indexSo = new SerializedObject(fishIndex);
+            var lakeZone = AssetDatabase.LoadAssetAtPath<FishingZone>(LakeZonePath);
             SerializedProperty zones = indexSo.FindProperty("_zones");
-            zones.arraySize = 1;
+            zones.arraySize = 2;
             zones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
+            zones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
             indexSo.FindProperty("_fishing").objectReferenceValue = controller;
             indexSo.FindProperty("_player").objectReferenceValue = movement;
             indexSo.FindProperty("_bookIcon").objectReferenceValue = bookIcon;
@@ -402,9 +420,46 @@ namespace FishAndChill.Editor
             saveSo.FindProperty("_progress").objectReferenceValue = progress;
             saveSo.FindProperty("_fishing").objectReferenceValue = controller;
             SerializedProperty saveZones = saveSo.FindProperty("_zones");
-            saveZones.arraySize = 1;
+            saveZones.arraySize = 2;
             saveZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
+            saveZones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
+
+            // Voyage entre les zones : un ponton par zone, E ouvre la carte du monde.
+            var travel = partie.GetComponent<ZoneTravel>();
+            if (travel == null)
+            {
+                travel = partie.AddComponent<ZoneTravel>();
+            }
+
+            var travelSo = new SerializedObject(travel);
+            SerializedProperty destinations = travelSo.FindProperty("_destinations");
+            destinations.arraySize = 2;
+            SetDestination(destinations.GetArrayElementAtIndex(0), zone, 0, buildings.IslandDock);
+            SetDestination(destinations.GetArrayElementAtIndex(1), lakeZone, 1, buildings.LakeDock);
+            travelSo.FindProperty("_player").objectReferenceValue = movement;
+            travelSo.FindProperty("_fishing").objectReferenceValue = controller;
+            travelSo.FindProperty("_map").objectReferenceValue = Object.FindAnyObjectByType<WorldMap>();
+            travelSo.FindProperty("_camera").objectReferenceValue = Object.FindAnyObjectByType<CameraFollow>();
+            travelSo.FindProperty("_minimap").objectReferenceValue = minimap;
+            travelSo.FindProperty("_save").objectReferenceValue = saveManager;
+            travelSo.ApplyModifiedPropertiesWithoutUndo();
+            saveSo.FindProperty("_travel").objectReferenceValue = travel;
             saveSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var travelMenu = partie.GetComponent<UI.TravelMenu>();
+            if (travelMenu == null)
+            {
+                travelMenu = partie.AddComponent<UI.TravelMenu>();
+            }
+
+            var travelMenuSo = new SerializedObject(travelMenu);
+            travelMenuSo.FindProperty("_travel").objectReferenceValue = travel;
+            travelMenuSo.FindProperty("_player").objectReferenceValue = movement;
+            travelMenuSo.FindProperty("_fishing").objectReferenceValue = controller;
+            travelMenuSo.FindProperty("_skin").objectReferenceValue = skin;
+            travelMenuSo.ApplyModifiedPropertiesWithoutUndo();
+            hudSo.FindProperty("_travel").objectReferenceValue = travel;
+            hudSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Menu pause (Échap / Start) : reprendre, volume, plein écran, nouvelle partie, quitter.
             var pauseMenu = partie.GetComponent<UI.PauseMenu>();
@@ -430,6 +485,16 @@ namespace FishAndChill.Editor
             EditorSceneManager.SaveScene(scene);
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
+        }
+
+        private static void SetDestination(SerializedProperty entry, FishingZone zone, int region, MapSetup.DockInfo dock)
+        {
+            entry.FindPropertyRelative("Zone").objectReferenceValue = zone;
+            entry.FindPropertyRelative("Region").intValue = region;
+            entry.FindPropertyRelative("Arrival").vector2Value = dock.Arrival;
+            entry.FindPropertyRelative("Facing").vector2Value = dock.Facing;
+            entry.FindPropertyRelative("Dock").rectValue = dock.Area;
+            entry.FindPropertyRelative("Marker").objectReferenceValue = dock.Marker;
         }
 
         private static void SetSprites(SerializedProperty array, Sprite[] sprites)

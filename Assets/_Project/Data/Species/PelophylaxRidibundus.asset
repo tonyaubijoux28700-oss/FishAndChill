@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PelophylaxRidibundus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: pelophylax-ridibundus
+  _commonName: Grenouille rieuse
+  _scientificName: Pelophylax ridibundus
+  _rarity: 1
+  _kind: 3
+  _bodyShape: 4
+  _difficulty:
+    _cursorSpeed: 1.1
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _sizeRangeCm: {x: 7, y: 15}
+  _basePrice: 15
+  _placeholderColor: {r: 0.42, g: 0.54, b: 0.24, a: 1}
+  _sprite: {fileID: 21300000, guid: 6a0275122b27820419e3d2852c69b655, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 8f462dee43650ac44be18352de14ceb5, type: 3}

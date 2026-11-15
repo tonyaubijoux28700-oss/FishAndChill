@@ -70,7 +70,22 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   **redessinées à chaque génération** : pour garder un dessin fait main, le renommer.
 - Zone de départ : **Île Mahana** (fictive, tropicale) avec 11 vraies espèces indo-pacifiques : 8 poissons, 2 crustacés
   (crabe de palétuvier, langouste porcelaine) et 1 reptile (tortue verte).
-  La zone « Lac d'Annecy » reste en données pour plus tard. Palmiers sur la Tilemap `Décor` (tronc bloquant).
+  Palmiers sur la Tilemap `Décor` (tronc bloquant).
+- **Plusieurs zones sur la même grille** : chaque zone est une **région** de `WorldMap` (`SetRegions`, `CurrentRegion`) ;
+  `WorldBounds` (caméra, minimap) ne donne que la région actuelle. **Lac d'Annecy** : `LakeGenerator` (île retournée :
+  eau au centre, galets, prés ; testé), 80×60 cases, à `LakeGap` = 100 cases à l'est de l'île (au-delà des intérieurs),
+  construit par `MapSetup.BuildLake` dans les mêmes Tilemaps (tuiles de l'île recolorées par `LakeArt` : eau alpine,
+  galets, prés ; sapins). 8 espèces : 6 poissons (`AnnecyFishArt` + `PikeArt`), écrevisse signal et grenouille rieuse
+  (`FreshwaterCreatureArt`). Sur place, **pêche seulement** (aquarium et marchand à Mahana).
+- **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
+  2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`, barque amarrée). Sur le ponton, **E** ouvre
+  la **carte du monde** (←/→, Espace part, Échap ferme ; le sac ne s'ouvre pas sur le ponton) : fondu au noir, arrivée
+  au bout du ponton, zone de pêche (`FishingController.SetZone`), région, minimap (`SetTitle`/`Rebuild`), grand bandeau
+  du nom de la zone. Position sur la carte du monde et pays dans `FishingZone` (`_mapPosition`, `_region`).
+  **Toutes les destinations sont ouvertes** : l'ordre de déblocage sera conçu plus tard. La zone actuelle est
+  sauvegardée (`SaveData.Zone` = nom de l'asset de zone) et on y reprend au lancement.
+  Nouvelle zone = une région de plus dans `MapSetup`, une destination dans `PrototypeSetup` (`SetDestination`), et la
+  zone dans les `_zones` de l'index et du `SaveManager`.
 - **Aménagement** (`TownLayout`, appelé par `MapSetup`) : l'aquarium est au **milieu de l'île** (`LandCentroid`),
   la boutique près du départ. Aménagement **ordonné** : parvis symétrique devant l'aquarium + allée centrale de 3 cases
   dans l'axe de la porte (lampadaires en paires), chemins **droits à angles droits** de 3 cases (`BestZPath` : un seul
@@ -122,7 +137,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   Icônes de la boutique et de l'aquarium sur la minimap (`Minimap._landmarks`).
 - **Index des poissons** (`UI/FishIndex`, objet « Partie ») : icône de livre à droite du sac (compteur « 2/8 »,
   `UiArt.BookIcon`), **Tab** (ou Y manette, `IndexInput`) ouvre le livre (joueur `Locked`), Tab/Échap ferme.
-  Grille 4×2 par page de toutes les espèces des zones du champ `_zones` (Mahana seule pour l'instant) : espèces
+  Grille 4×2 par page de toutes les espèces des zones du champ `_zones` (Mahana et Annecy) : espèces
   découvertes dessinées, les autres en silhouette « ??? ». Flèches/ZQSD choisissent, fiche en bas (rareté, prises,
   record, taille). « Découverte » = déjà pêchée une fois (`CatchLog`, qui garde aussi le record de taille).
   Logique dans `SpeciesIndex` (testée).

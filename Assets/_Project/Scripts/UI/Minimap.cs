@@ -74,6 +74,17 @@ namespace FishAndChill.UI
         private MapView _large;
         private Texture2D _texture;
         private Rect _worldBounds;
+        private Text _titleText;
+
+        /// <summary>Titre de la grande carte (nom de la zone).</summary>
+        public void SetTitle(string title)
+        {
+            _title = title;
+            if (_titleText != null)
+            {
+                _titleText.text = title;
+            }
+        }
 
         /// <summary>La grande carte est-elle ouverte ?</summary>
         public bool IsOpen => _large != null && _large.Root.activeSelf;
@@ -150,9 +161,11 @@ namespace FishAndChill.UI
             }
 
             _worldBounds = _map.WorldBounds;
+            // Seulement la région de la zone actuelle (les autres zones sont ailleurs sur la même grille).
             Tilemap reference = _map.Water != null ? _map.Water : _map.Land;
-            reference.CompressBounds();
-            BoundsInt cells = reference.cellBounds;
+            Vector3Int min = reference.WorldToCell(_worldBounds.min + Vector2.one * 0.01f);
+            Vector3Int max = reference.WorldToCell(_worldBounds.max - Vector2.one * 0.01f);
+            var cells = new BoundsInt(min.x, min.y, 0, max.x - min.x + 1, max.y - min.y + 1, 1);
 
             var lookup = new Dictionary<TileBase, Color>();
             foreach (TileColor entry in _palette)
@@ -211,6 +224,11 @@ namespace FishAndChill.UI
 
         private void ApplyTexture(MapView view, Vector2 size)
         {
+            if (view == null)
+            {
+                return;
+            }
+
             view.Image.texture = _texture;
             view.Image.rectTransform.sizeDelta = size;
 
@@ -236,8 +254,9 @@ namespace FishAndChill.UI
             for (int i = 0; i < view.Landmarks.Count && i < _landmarks.Count; i++)
             {
                 Transform target = _landmarks[i].Target;
-                view.Landmarks[i].gameObject.SetActive(target != null);
-                if (target != null)
+                bool here = target != null && _worldBounds.Contains((Vector2)target.position);
+                view.Landmarks[i].gameObject.SetActive(here);
+                if (here)
                 {
                     Vector2 mark = MinimapMath.WorldToNormalized(target.position, _worldBounds);
                     view.Landmarks[i].anchoredPosition = new Vector2((mark.x - 0.5f) * size.x, (mark.y - 0.5f) * size.y);
@@ -307,6 +326,7 @@ namespace FishAndChill.UI
 
             Text title = AddText(rect, "Titre", font, 38, TextAnchor.MiddleCenter);
             title.text = _title;
+            _titleText = title;
             UiFactory.Bold(title);
             title.rectTransform.anchoredPosition = new Vector2(0f, 248f);
             title.rectTransform.sizeDelta = new Vector2(600f, 50f);

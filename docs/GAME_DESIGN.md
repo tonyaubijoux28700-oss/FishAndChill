@@ -89,8 +89,13 @@ Les données doivent être faciles à ajouter en masse, par exemple par import d
 - Les autres zones sont inspirées de lieux réels (ex. le lac d'Annecy, déjà en données, la côte bretonne,
   l'Amazonie, un récif de la mer Rouge).
 - Chaque zone a sa propre liste d'espèces et ses taux d'apparition.
-- Débloquées par la progression (argent, matériel minimum, ou les deux) **[À décider]**.
-- **[À décider]** : comment voyager (carte du monde, menu…).
+- Débloquées par la progression (argent, matériel minimum, ou les deux) **[À décider]** : pour l'instant toutes
+  les destinations sont ouvertes, l'ordre de déblocage sera conçu plus tard.
+- **Voyage** : un ponton avec une barque dans chaque zone ; E ouvre la **carte du monde** (destinations, espèces
+  découvertes), fondu au noir et arrivée au bout du ponton de la destination. Sur place, **pêche seulement** :
+  aquarium et marchand restent sur l'Île Mahana.
+- **2e zone : le Lac d'Annecy** (Haute-Savoie) : lac alpin, rives de galets, prés et sapins ; 8 espèces réelles
+  (gardon, perche, truite fario, brochet, omble chevalier, lavaret, écrevisse signal, grenouille rieuse).
 
 ## Sac
 

@@ -20,6 +20,7 @@ namespace FishAndChill.Save
 
         [SerializeField] private PlayerProgress _progress;
         [SerializeField] private FishingController _fishing;
+        [SerializeField] private ZoneTravel _travel;
 
         [SerializeField, Tooltip("Zones dont les espèces peuvent figurer dans la sauvegarde.")]
         private FishingZone[] _zones = new FishingZone[0];
@@ -37,6 +38,9 @@ namespace FishAndChill.Save
 
         /// <summary>La partie a été reprise depuis une sauvegarde.</summary>
         public bool Loaded { get; private set; }
+
+        /// <summary>Zone enregistrée dans la sauvegarde (null si aucune) : ZoneTravel y ramène le joueur au démarrage.</summary>
+        public string SavedZone { get; private set; }
 
         private void Awake()
         {
@@ -69,6 +73,11 @@ namespace FishAndChill.Save
             {
                 _fishing.CatchLog.Changed += MarkDirty;
             }
+
+            if (_travel != null)
+            {
+                _travel.Traveled += MarkDirty;
+            }
         }
 
         private void OnDestroy()
@@ -81,6 +90,11 @@ namespace FishAndChill.Save
             if (_fishing != null)
             {
                 _fishing.CatchLog.Changed -= MarkDirty;
+            }
+
+            if (_travel != null)
+            {
+                _travel.Traveled -= MarkDirty;
             }
         }
 
@@ -123,6 +137,7 @@ namespace FishAndChill.Save
             _dirty = false;
             CatchLog log = _fishing != null ? _fishing.CatchLog : new CatchLog();
             SaveData data = SaveSerializer.Capture(_progress.Bag, _progress.Aquarium, _progress.Wallet, _progress.Gear, log);
+            data.Zone = _travel != null ? _travel.CurrentZoneId : null;
             try
             {
                 string temporary = SavePath + ".tmp";
@@ -191,6 +206,7 @@ namespace FishAndChill.Save
                 _progress.Bag, _progress.Aquarium, _progress.Wallet, _progress.Gear, log);
             _loading = false;
             Loaded = true;
+            SavedZone = data.Zone;
         }
     }
 }

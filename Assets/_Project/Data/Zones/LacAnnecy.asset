@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: LacAnnecy
   m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
   _displayName: Lac d'Annecy
-  _description: Lac alpin aux eaux claires, en Haute-Savoie.
-  _waterColor: {r: 0.16, g: 0.48, b: 0.58, a: 1}
+  _description: "Lac alpin aux eaux tr\xE8s claires, entour\xE9 de pr\xE9s et de for\xEAts de sapins."
+  _waterColor: {r: 0.12, g: 0.34, b: 0.44, a: 1}
   _species:
   - _species: {fileID: 11400000, guid: a2afba05d20072d439bfe4edf2e0f1d9, type: 2}
     _weight: 40
@@ -26,3 +26,11 @@ MonoBehaviour:
     _weight: 10
   - _species: {fileID: 11400000, guid: 8c929172ffceb9a4c9242bf4cd42c005, type: 2}
     _weight: 5
+  - _species: {fileID: 11400000, guid: e4845ef79f965f749894ec70c4e14c36, type: 2}
+    _weight: 15
+  - _species: {fileID: 11400000, guid: bc46845ef1e23874793514f9243b417e, type: 2}
+    _weight: 18
+  - _species: {fileID: 11400000, guid: ec726d8e4c5c2e34fbfdf47a5c8153a4, type: 2}
+    _weight: 10
+  _mapPosition: {x: 0.52, y: 0.74}
+  _region: Haute-Savoie, France

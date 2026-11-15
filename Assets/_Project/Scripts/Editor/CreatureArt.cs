@@ -20,6 +20,8 @@ namespace FishAndChill.Editor
                 case "scylla-serrata": pixels = MudCrab(); return true;
                 case "panulirus-versicolor": pixels = PaintedLobster(); return true;
                 case "chelonia-mydas": pixels = GreenTurtle(); return true;
+                case "pacifastacus-leniusculus": pixels = FreshwaterCreatureArt.SignalCrayfish(); return true;
+                case "pelophylax-ridibundus": pixels = FreshwaterCreatureArt.MarshFrog(); return true;
                 default: pixels = null; return false;
             }
         }
@@ -29,7 +31,7 @@ namespace FishAndChill.Editor
         private static float Step(float light) => Mathf.Round(light * 6f) / 6f;
 
         /// <summary>Ellipse éclairée comme un volume rond.</summary>
-        private static void Blob(Color[,] p, float cx, float cy, float rx, float ry, Color color, float rotation = 0f)
+        internal static void Blob(Color[,] p, float cx, float cy, float rx, float ry, Color color, float rotation = 0f)
         {
             float cos = Mathf.Cos(rotation);
             float sin = Mathf.Sin(rotation);
@@ -59,7 +61,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Membre en « capsule » de (x0, y0) à (x1, y1), éclairé comme un cylindre.</summary>
-        private static void Limb(Color[,] p, float x0, float y0, float x1, float y1, float radius, Color color)
+        internal static void Limb(Color[,] p, float x0, float y0, float x1, float y1, float radius, Color color)
         {
             float dx = x1 - x0;
             float dy = y1 - y0;
@@ -90,7 +92,7 @@ namespace FishAndChill.Editor
             }
         }
 
-        private static Color[,] Finish(Color[,] p, Color outline)
+        internal static Color[,] Finish(Color[,] p, Color outline)
         {
             PixelArt.SelectiveOutline(p, outline, 0.5f);
             return p;

@@ -42,5 +42,8 @@ namespace FishAndChill.Save
         public List<GearLevel> Gear = new List<GearLevel>();
         public List<Catches> CatchLog = new List<Catches>();
         public int TotalCatches;
+
+        /// <summary>Zone où se trouve le joueur (identifiant de la FishingZone) ; vide = zone de départ.</summary>
+        public string Zone;
     }
 }

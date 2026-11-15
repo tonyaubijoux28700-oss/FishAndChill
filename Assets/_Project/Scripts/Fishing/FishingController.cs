@@ -86,6 +86,16 @@ namespace FishAndChill.Fishing
         public FishingState State { get; private set; } = FishingState.Idle;
         public FishingZone Zone => _zone;
 
+        /// <summary>Le joueur a changé de zone (voyage) : les espèces qui mordent ne sont plus les mêmes.</summary>
+        public event Action ZoneChanged;
+
+        /// <summary>Change la zone de pêche (après un voyage).</summary>
+        public void SetZone(FishingZone zone)
+        {
+            _zone = zone;
+            ZoneChanged?.Invoke();
+        }
+
         /// <summary>Point où le bouchon est tombé (valide pendant la pêche).</summary>
         public Vector2 CastPoint { get; private set; }
 

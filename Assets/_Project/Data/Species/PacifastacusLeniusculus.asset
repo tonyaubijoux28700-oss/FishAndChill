@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PacifastacusLeniusculus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: pacifastacus-leniusculus
+  _commonName: "\xC9crevisse signal"
+  _scientificName: Pacifastacus leniusculus
+  _rarity: 0
+  _kind: 1
+  _bodyShape: 2
+  _difficulty:
+    _cursorSpeed: 0.9
+    _zoneWidth: 0.26
+    _requiredHits: 2
+    _maxMisses: 2
+  _sizeRangeCm: {x: 8, y: 16}
+  _basePrice: 7
+  _placeholderColor: {r: 0.42, g: 0.3, b: 0.18, a: 1}
+  _sprite: {fileID: 21300000, guid: 97e5efbc96848964d99b092cd39edfc8, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 815cf997d4012594693359b435c67654, type: 3}

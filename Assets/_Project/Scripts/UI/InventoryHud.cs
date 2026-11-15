@@ -44,6 +44,9 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("L'aquarium : devant le bassin, E dépose le sac (au lieu d'ouvrir la fenêtre).")]
         private AquariumBuilding _aquarium;
 
+        [SerializeField, Tooltip("Voyage : sur le ponton, E ouvre la carte du monde au lieu du sac.")]
+        private ZoneTravel _travel;
+
         [SerializeField, Min(1f)] private float _toastSeconds = 5f;
 
         private sealed class SlotView
@@ -160,6 +163,12 @@ namespace FishAndChill.UI
         private bool CanOpenNow()
         {
             if (_shopMenu != null && (_shopMenu.IsOpen || _shopMenu.PlayerAtCounter))
+            {
+                return false;
+            }
+
+            // Sur le ponton, E ouvre la carte du monde.
+            if (_travel != null && _travel.PlayerAtDock)
             {
                 return false;
             }
