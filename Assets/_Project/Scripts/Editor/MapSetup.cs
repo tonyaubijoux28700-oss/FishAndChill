@@ -50,6 +50,13 @@ namespace FishAndChill.Editor
             public Tile[] LagoonFull;
             public Tile[] SandFull;
             public Tile[] GrassFull;
+
+            // Pavés des parvis et chemins (double grille), et décor posé autour des bâtiments.
+            public Tile[] PavingEdges;
+            public Tile[] PavingFull;
+            public readonly Dictionary<TownLayout.DecorKind, Tile[]> Decor = new Dictionary<TownLayout.DecorKind, Tile[]>();
+            public Tile SignpostLeft;
+            public Tile SignpostRight;
         }
 
         /// <summary>Les bâtiments posés sur l'île.</summary>
@@ -78,6 +85,8 @@ namespace FishAndChill.Editor
             Tilemap lagoonLayer = EnsureTilemap(mapObject.transform, "Rendu - Lagon", -18, TilemapRenderer.Mode.Chunk);
             Tilemap sandLayer = EnsureTilemap(mapObject.transform, "Rendu - Sable", -15, TilemapRenderer.Mode.Chunk);
             Tilemap grassLayer = EnsureTilemap(mapObject.transform, "Rendu - Herbe", -12, TilemapRenderer.Mode.Chunk);
+            // Pavés des parvis et des chemins, par-dessus l'herbe, avec les mêmes bords arrondis.
+            Tilemap pavingLayer = EnsureTilemap(mapObject.transform, "Rendu - Pavés", -11, TilemapRenderer.Mode.Chunk);
             // Même ordre que le joueur, tri individuel : on passe derrière un cocotier quand on est au nord.
             Tilemap decorMap = EnsureTilemap(mapObject.transform, "Décor", 10, TilemapRenderer.Mode.Individual);
 
@@ -127,13 +136,20 @@ namespace FishAndChill.Editor
             // Le joueur apparaît sur la plage sud, face à la mer.
             Vector2Int spawn = FindSouthSpawn(terrain);
 
-            // La boutique : dans les terres, loin du rivage, pas trop loin du point de départ.
-            Vector2Int shopCell = FindBuildingSite(terrain, spawn, null, 0);
+            // L'aquarium, géant (18 cases de large, dôme compris), au milieu de l'île, avec beaucoup de terre autour.
+            Vector2Int center = TownLayout.LandCentroid(terrain);
+            // La porte est 6 cases sous le centre du bâtiment (façade + dôme) : on vise le centre de l'île.
+            Vector2Int aquariumCell = FindBuildingSite(terrain, center + Vector2Int.down * 6, null, 0, halfWidth: 12, front: 8, back: 12, anyDirection: true);
 
-            // L'aquarium, géant (18 cases de large, dôme compris) : beaucoup de terre autour, loin de la boutique.
-            Vector2Int aquariumCell = FindBuildingSite(terrain, spawn, shopCell, 18, halfWidth: 12, front: 7, back: 12);
+            // La boutique : dans les terres, près du point de départ, loin de l'aquarium.
+            Vector2Int shopCell = FindBuildingSite(terrain, spawn, aquariumCell, 18);
 
-            // Cocotiers sur l'herbe, espacés, jamais sur le point d'apparition ni sur l'aquarium.
+            // Parvis, chemins pavés et décor autour des bâtiments.
+            TownLayout.Result town = TownLayout.Build(terrain, spawn, shopCell, aquariumCell, seed);
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => town.Paved[x, y], tiles.PavingEdges, tiles.PavingFull, seed + 5);
+            PlaceDecor(decorMap, bounds, town, tiles);
+
+            // Cocotiers sur l'herbe, espacés, jamais sur le point d'apparition, les bâtiments, les chemins ni le décor.
             var palms = new List<Vector2Int>();
             for (int y = 0; y < height; y++)
             {
@@ -141,8 +157,9 @@ namespace FishAndChill.Editor
                 {
                     bool nearSpawn = Mathf.Abs(x - spawn.x) <= 3 && Mathf.Abs(y - spawn.y) <= 3;
                     bool nearShop = Mathf.Abs(x - shopCell.x) <= 5 && y >= shopCell.y - 4 && y <= shopCell.y + 5;
-                    bool nearAquarium = Mathf.Abs(x - aquariumCell.x) <= 11 && y >= aquariumCell.y - 4 && y <= aquariumCell.y + 15;
-                    if (terrain[x, y] != TerrainType.Grass || nearSpawn || nearShop || nearAquarium || IslandGenerator.CellHash(x, y, seed + 1) > 0.045f)
+                    bool nearAquarium = Mathf.Abs(x - aquariumCell.x) <= 11 && y >= aquariumCell.y - 7 && y <= aquariumCell.y + 15;
+                    if (terrain[x, y] != TerrainType.Grass || nearSpawn || nearShop || nearAquarium || town.Reserved[x, y]
+                        || IslandGenerator.CellHash(x, y, seed + 1) > 0.045f)
                     {
                         continue;
                     }
@@ -208,19 +225,20 @@ namespace FishAndChill.Editor
         /// terre sur 7 cases de côté et 8 devant : bien à l'intérieur des terres, le plus près possible du départ,
         /// et au moins à <paramref name="minDistance"/> cases d'un autre bâtiment (<paramref name="avoid"/>).
         /// </summary>
-        private static Vector2Int FindBuildingSite(TerrainType[,] terrain, Vector2Int spawn, Vector2Int? avoid, int minDistance, int halfWidth = 7, int front = 8, int back = 8)
+        private static Vector2Int FindBuildingSite(TerrainType[,] terrain, Vector2Int spawn, Vector2Int? avoid, int minDistance, int halfWidth = 7, int front = 8, int back = 8, bool anyDirection = false)
         {
             bool Land(int x, int y) => !IslandGenerator.IsWater(terrain, x, y);
             bool FarEnough(int x, int y) => !avoid.HasValue
                 || Mathf.Max(Mathf.Abs(x - avoid.Value.x), Mathf.Abs(y - avoid.Value.y)) >= minDistance;
 
-            for (int radius = 4; radius <= 45; radius++)
+            // Recherche en anneaux autour du point de départ (vers le nord seulement, sauf anyDirection).
+            for (int radius = anyDirection ? 0 : 4; radius <= 45; radius++)
             {
                 for (int dx = -radius; dx <= radius; dx++)
                 {
-                    for (int dy = 0; dy <= radius; dy++)
+                    for (int dy = anyDirection ? -radius : 0; dy <= radius; dy++)
                     {
-                        if (Mathf.Max(Mathf.Abs(dx), dy) != radius)
+                        if (Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy)) != radius)
                         {
                             continue;
                         }
@@ -457,6 +475,17 @@ namespace FishAndChill.Editor
                 SaveTile("Bords/Herbe_15b", TileArt.Grass(1), Vector2.one * 0.5f, TileArt.Size),
                 SaveTile("Bords/Herbe_15c", TileArt.Grass(2), Vector2.one * 0.5f, TileArt.Size),
             };
+
+            var paving = new TransitionArt.Style
+            {
+                Fill = DecorArt.Paving(0),
+                InnerBand = 0.07f, InnerColor = new Color(0.58f, 0.54f, 0.47f), InnerBlend = 1f,         // bordure de pierres
+                OuterBand = 0.06f, OuterColor = new Color(0.36f, 0.56f, 0.28f), DitherOuter = true,    // herbe foulée
+            };
+            set.PavingEdges = SaveEdges("Paves", paving);
+            set.PavingFull = new[] { set.PavingEdges[15], SaveTile("Bords/Paves_15b", DecorArt.Paving(1), Vector2.one * 0.5f, TileArt.Size) };
+
+            CreateDecorTiles(set);
             return set;
         }
 
@@ -510,6 +539,54 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Crée la tuile et (re)dessine son image (provisoire : régénérée à chaque lancement).</summary>
+        /// <summary>
+        /// Tuiles de décor (Tilemap « Décor », tri individuel comme le joueur). Le pivot place le pied de l'objet
+        /// dans la case : haies, tonneaux et caisses sont remontés contre le mur du bâtiment juste derrière.
+        /// </summary>
+        private static void CreateDecorTiles(TileSet set)
+        {
+            // Pivot tel que le bas du dessin soit à « baseFromCenter » cases sous (+) ou au-dessus (-) du centre de la case.
+            Vector2 Pivot(int heightPx, float baseFromCenter) => new Vector2(0.5f, baseFromCenter / (heightPx / (float)TileArt.Size));
+
+            Tile Decor(string name, Color[,] pixels, float baseFromCenter)
+            {
+                return SaveTile($"Decor/{name}", pixels, Pivot(pixels.GetLength(1), baseFromCenter), TileArt.Size);
+            }
+
+            PixelArt.EnsureFolder($"{TilesFolder}/Decor");
+            set.Decor[TownLayout.DecorKind.Hedge] = new[] { Decor("Haie_0", DecorArt.Hedge(false, 3), -0.3f), Decor("Haie_1", DecorArt.Hedge(false, 8), -0.3f) };
+            set.Decor[TownLayout.DecorKind.HedgeFlowers] = new[] { Decor("Haie_Fleurs_0", DecorArt.Hedge(true, 5), -0.3f), Decor("Haie_Fleurs_1", DecorArt.Hedge(true, 6), -0.3f) };
+            set.Decor[TownLayout.DecorKind.Bush] = new[] { Decor("Buisson_0", DecorArt.Bush(0), 0.4f) };
+            set.Decor[TownLayout.DecorKind.BushFlowers] = new[] { Decor("Buisson_1", DecorArt.Bush(1), 0.4f), Decor("Buisson_2", DecorArt.Bush(2), 0.4f), Decor("Buisson_3", DecorArt.Bush(3), 0.4f) };
+            set.Decor[TownLayout.DecorKind.FlowerBed] = new[] { Decor("Massif_0", DecorArt.FlowerBed(21), 0.6f) };
+            set.Decor[TownLayout.DecorKind.Lamp] = new[] { Decor("Lampadaire", DecorArt.Lamp(), 0.3f) };
+            set.Decor[TownLayout.DecorKind.Barrel] = new[] { Decor("Tonneau", DecorArt.Barrel(), -0.2f) };
+            set.Decor[TownLayout.DecorKind.Crates] = new[] { Decor("Caisses", DecorArt.Crates(), -0.2f) };
+            set.Decor[TownLayout.DecorKind.Rock] = new[] { Decor("Rocher_0", DecorArt.Rock(0), 0.4f), Decor("Rocher_1", DecorArt.Rock(1), 0.4f) };
+            set.SignpostLeft = Decor("Panneau_Gauche", DecorArt.Signpost(false), 0.3f);
+            set.SignpostRight = Decor("Panneau_Droite", DecorArt.Signpost(true), 0.3f);
+        }
+
+        private static void PlaceDecor(Tilemap decorMap, BoundsInt bounds, TownLayout.Result town, TileSet tiles)
+        {
+            foreach (TownLayout.Placement placement in town.Decor)
+            {
+                Tile tile;
+                if (placement.Kind == TownLayout.DecorKind.Signpost)
+                {
+                    tile = town.AquariumToTheRightOfSign ? tiles.SignpostRight : tiles.SignpostLeft;
+                }
+                else
+                {
+                    Tile[] variants = tiles.Decor[placement.Kind];
+                    float hash = IslandGenerator.CellHash(placement.Cell.x, placement.Cell.y, 77);
+                    tile = variants[Mathf.Min(variants.Length - 1, (int)(hash * variants.Length))];
+                }
+
+                decorMap.SetTile(new Vector3Int(bounds.xMin + placement.Cell.x, bounds.yMin + placement.Cell.y, 0), tile);
+            }
+        }
+
         private static Tile SaveTile(string tileName, Color[,] pixels, Vector2 pivot, int pixelsPerUnit)
         {
             Sprite sprite = PixelArt.Save($"{TilesFolder}/{tileName}.png", pixels, pixelsPerUnit, pivot);

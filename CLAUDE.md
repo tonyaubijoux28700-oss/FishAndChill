@@ -54,6 +54,11 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   **redessinées à chaque génération** : pour garder un dessin fait main, le renommer.
 - Zone de départ : **Île Mahana** (fictive, tropicale) avec 8 vraies espèces indo-pacifiques.
   La zone « Lac d'Annecy » reste en données pour plus tard. Palmiers sur la Tilemap `Décor` (non bloquants).
+- **Aménagement** (`TownLayout`, appelé par `MapSetup`) : l'aquarium est au **milieu de l'île** (`LandCentroid`),
+  la boutique près du départ. Parvis pavés devant les portes et chemins pavés (plage → boutique → aquarium, chemin le
+  moins coûteux qui préfère l'herbe) sur la couche `Rendu - Pavés` (double grille, bords arrondis). Décor sur `Décor`
+  (`DecorArt`, `Art/Tiles/Decor/`, non bloquant) : haies au pied des façades, massifs, lampadaires, tonneaux et
+  caisses de la boutique, panneau indicateur, buissons et rochers. Les cocotiers évitent tout ça (`Result.Reserved`).
 
 ## Sac, aquarium et pièces
 
@@ -74,7 +79,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium à ≥ 15 cases de la boutique).
 - **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu. Façade 18×15 cases
   (`AquariumArt`, 288×240 px : perron, colonnes, vitrines, rosace, immense dôme de verre plein d'eau, lanterne),
-  emprise 16,6×8, site choisi avec 12 cases de marge et à ≥ 18 cases de la boutique. Grande salle 30×18 cases, plus
+  emprise 16,6×8, site cherché autour du centre de l'île avec 12 cases de marge, la boutique à ≥ 18 cases. Grande salle 30×18 cases, plus
   grande que l'écran (la caméra suit le joueur) : bassin géant sur tout le mur du fond, allée en mosaïque, médaillon,
   colonnes à méduses et bancs (obstacles, positions dans `AquariumBuilding.JellyfishColumns` / `Benches`). Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
   gros de chaque nouvelle espèce entre ; un poisson plus gros remplace l'exemplaire exposé (l'ancien revient dans le
