@@ -266,6 +266,9 @@ namespace FishAndChill.Fishing
         /// <summary>Effets du matériel du joueur (aucun si la pêche n'est pas reliée à une partie).</summary>
         private GearEffects GearEffects => _progress != null ? _progress.GearEffects : GearEffects.None;
 
+        /// <summary>Ce point est-il dans l'eau (selon la côte dessinée) ? Sert à garder le poisson hors du sable.</summary>
+        public bool IsWater(Vector2 point) => _map == null || _map.IsWater(point);
+
         /// <summary>Pas de pêche à l'intérieur d'un bâtiment (boutique, aquarium).</summary>
         public bool CanFishHere => InteriorBuilding.Occupied == null;
 

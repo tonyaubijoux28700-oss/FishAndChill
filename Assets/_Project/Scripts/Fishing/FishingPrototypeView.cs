@@ -14,7 +14,6 @@ namespace FishAndChill.Fishing
     public sealed class FishingPrototypeView : MonoBehaviour
     {
         private static readonly Color PlayerColor = new Color(0.93f, 0.42f, 0.30f);
-        private static readonly Color ShadowColor = new Color(0f, 0f, 0f, 0.35f);
         private static readonly Color BarColor = new Color(0.08f, 0.10f, 0.14f, 0.9f);
         private static readonly Color HitFlash = new Color(0.30f, 0.85f, 0.40f, 0.9f);
         private static readonly Color MissFlash = new Color(0.90f, 0.25f, 0.25f, 0.9f);
@@ -33,7 +32,13 @@ namespace FishAndChill.Fishing
         private CatchCard _catchCard;
         private bool _cardWasBagFull;
         private Sprite _square;
-        private Sprite[] _shadowSprites;
+        private FishShadowSprites _fishShadows;
+        private int _fishSize = 1;
+        private Vector2 _fishAnchor;
+        private Vector2 _fishPosition;
+        private Vector2 _fishHeading = Vector2.right;
+        private float _tailTimer;
+        private int _tailFrame = 1;
         private Sprite _bobberSprite;
 
         private Transform _bobber;
@@ -49,7 +54,8 @@ namespace FishAndChill.Fishing
         {
             _controller = GetComponent<FishingController>();
             _square = CreateSquareSprite();
-            _shadowSprites = new[] { CreatePixelEllipse(12, 5), CreatePixelEllipse(20, 8), CreatePixelEllipse(30, 11) };
+            // Silhouettes du poisson sous l'eau : 18, 26 et 36 pixels de long.
+            _fishShadows = new FishShadowSprites(18, 26, 36);
             _bobberSprite = CreateBobberSprite();
         }
 
@@ -156,7 +162,7 @@ namespace FishAndChill.Fishing
 
             _rod = new PixelPolyline(transform, "Canne", 11);
             _lineDots = new PixelPolyline(transform, "Fil", 11);
-            _shadow = CreateSprite("Ombre du poisson", _shadowSprites[1], ShadowColor, Vector2.zero, Vector2.one, 5);
+            _shadow = CreateSprite("Poisson sous l'eau", _fishShadows.Get(1, Vector2.right, 1), Color.white, Vector2.zero, Vector2.one, 5);
             _bobberRenderer = CreateSprite("Bouchon", _bobberSprite, Color.white, Vector2.zero, Vector2.one, 9);
             _bobber = _bobberRenderer.transform;
 
@@ -249,15 +255,20 @@ namespace FishAndChill.Fishing
                         bobber += new Vector2(Mathf.Sin(time * 70f) * 0.03f * k, -0.09f * Mathf.Sin(k * Mathf.PI));
                     }
 
-                    shadow = Vector2.Lerp(_shadowStart, _castPoint, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(_controller.PhaseProgress * 1.6f)));
-                    shadow += new Vector2(Mathf.Sin(time * 3f) * 0.08f, 0f);
+                {
+                    // Le poisson arrive du large et tourne autour de l'appât ; il fonce dessus à chaque titillement.
+                    Vector2 approach = Vector2.Lerp(_shadowStart, _fishAnchor, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(_controller.PhaseProgress * 1.6f)));
+                    Vector2 across = new Vector2(-_fishHeading.y, _fishHeading.x);
+                    Vector2 desired = approach + across * Mathf.Sin(time * 2.4f) * 0.25f;
                     if (_nibbleTimer > 0f)
                     {
-                        shadow = Vector2.Lerp(shadow, _castPoint, 0.7f);   // le poisson vient taquiner l'appât
+                        desired = Vector2.Lerp(desired, _fishAnchor, 0.8f);
                     }
 
+                    shadow = MoveFish(desired, 1.6f);
                     sag = 0.3f;
                     break;
+                }
 
                 case FishingState.Bite:
                 {
@@ -266,7 +277,7 @@ namespace FishAndChill.Fishing
                     float sink = Mathf.Clamp01(_biteAge / 0.3f);
                     bobber += new Vector2(Mathf.Sin(time * 55f) * 0.04f * (1f - sink), -0.22f * sink);
                     bobberAlpha = Mathf.Lerp(1f, 0.25f, sink);
-                    shadow = _castPoint + new Vector2(Mathf.Sin(time * 20f) * 0.06f, -0.05f);
+                    shadow = MoveFish(_fishAnchor + new Vector2(Mathf.Sin(time * 20f) * 0.06f, 0f), 3f);
                     tip = restTip + Vector2.down * 0.12f * sink;   // la canne plie un peu
                     sag = 0.02f;
                     break;
@@ -274,7 +285,7 @@ namespace FishAndChill.Fishing
 
                 case FishingState.Reeling:
                     // Le poisson se débat au bout du fil tendu ; la canne plie vers lui. Éclaboussures de temps en temps.
-                    shadow += new Vector2(Mathf.Sin(time * 9f) * 0.35f, Mathf.Cos(time * 7f) * 0.15f);
+                    shadow = MoveFish(_fishAnchor + new Vector2(Mathf.Sin(time * 9f) * 0.45f, Mathf.Cos(time * 7f) * 0.25f), 4f);
                     bobber = shadow;
                     bobberAlpha = 0f;
                     tip = restTip + (shadow - restTip).normalized * 0.15f + Vector2.down * 0.1f;
@@ -291,14 +302,108 @@ namespace FishAndChill.Fishing
 
             _bobber.position = bobber;
             _bobberRenderer.color = new Color(1f, 1f, 1f, bobberAlpha);
-            _shadow.transform.position = shadow;
-            _shadow.transform.right = (Vector3)(_castPoint - shadow).normalized + Vector3.right * 0.001f;
+            // Silhouette dessinée dans la bonne direction (pas de rotation de sprite), calée au pixel.
+            bool fighting = state == FishingState.Reeling || state == FishingState.Bite;
+            _tailTimer -= Time.deltaTime;
+            if (_tailTimer <= 0f)
+            {
+                _tailFrame = (_tailFrame + 1) % 4;
+                _tailTimer = fighting ? 0.07f : 0.18f;
+            }
+
+            int frame = _tailFrame == 3 ? 1 : _tailFrame;   // 0, 1, 2, 1… : la queue va et vient
+            _shadow.sprite = _fishShadows.Get(_fishSize, _fishHeading, frame);
+            _shadow.transform.rotation = Quaternion.identity;
+            _shadow.transform.position = new Vector3(Mathf.Round(shadow.x * 16f) / 16f, Mathf.Round(shadow.y * 16f) / 16f, 0f);
 
             // La canne : poignée en liège, blank bleu nuit, scion rouge.
             _rod.DrawCurve(hand, tip, 0.04f, t => t < 0.22f ? RodCork : t > 0.9f ? RodTip : RodBlank, thickness: 2);
             // Le fil part du scion et va jusqu'au bouchon (ou au poisson), plus ou moins détendu.
             float lineSag = sag * Mathf.Clamp01(Vector2.Distance(tip, bobber) / 3f);
             _lineDots.DrawCurve(tip, bobber, lineSag, _ => LineTint);
+        }
+
+        // ---------- Le poisson reste dans l'eau ----------
+
+        /// <summary>Demi-longueur de la silhouette, en cases, selon la taille.</summary>
+        private float FishHalfLength => (_fishSize == 0 ? 18 : _fishSize == 1 ? 26 : 36) / 32f;
+
+        /// <summary>Le poisson entier (museau, queue, flancs) est-il dans l'eau à cet endroit ?</summary>
+        private bool FitsInWater(Vector2 center, Vector2 heading)
+        {
+            float half = FishHalfLength + 0.1f;
+            Vector2 along = heading.sqrMagnitude > 0.0001f ? heading.normalized : Vector2.right;
+            Vector2 across = new Vector2(-along.y, along.x);
+            return _controller.IsWater(center)
+                && _controller.IsWater(center + along * half)
+                && _controller.IsWater(center - along * half)
+                && _controller.IsWater(center + across * half * 0.4f)
+                && _controller.IsWater(center - across * half * 0.4f);
+        }
+
+        /// <summary>
+        /// Rapproche le poisson de <paramref name="desired"/> (vitesse en cases par seconde), sans jamais lui faire
+        /// toucher le sable : s'il ne tient pas dans l'eau là-bas, il reste où il est. Met à jour sa direction de nage.
+        /// </summary>
+        private Vector2 MoveFish(Vector2 desired, float speed)
+        {
+            Vector2 next = Vector2.MoveTowards(_fishPosition, desired, speed * Time.deltaTime);
+            Vector2 step = next - _fishPosition;
+            Vector2 heading = step.sqrMagnitude > 0.00002f ? step.normalized : _fishHeading;
+            if (FitsInWater(next, heading))
+            {
+                _fishPosition = next;
+                // La direction tourne doucement (pas de demi-tour instantané).
+                _fishHeading = Vector2.Lerp(_fishHeading, heading, 8f * Time.deltaTime).normalized;
+            }
+
+            return _fishPosition;
+        }
+
+        /// <summary>
+        /// Endroit sous le bouchon où le poisson tient entièrement dans l'eau : le bouchon lui-même si possible,
+        /// sinon un peu plus au large.
+        /// </summary>
+        private Vector2 FindWaterSpot(Vector2 castPoint, Vector2 away)
+        {
+            for (int k = 0; k <= 20; k++)
+            {
+                Vector2 candidate = castPoint + away * (k * 0.12f);
+                if (FitsInWater(candidate, -away) && FitsInWater(candidate, new Vector2(-away.y, away.x)))
+                {
+                    return candidate;
+                }
+            }
+
+            return castPoint;
+        }
+
+        /// <summary>
+        /// D'où arrive le poisson : au large, dans une direction où tout le trajet jusqu'à l'appât reste dans l'eau.
+        /// </summary>
+        private Vector2 FindStartSpot(Vector2 anchor, Vector2 away)
+        {
+            float[] angles = { 0f, 25f, -25f, 50f, -50f, 80f, -80f, 120f, -120f };
+            foreach (float distance in new[] { 2.5f, 1.8f, 1.2f })
+            {
+                foreach (float angle in angles)
+                {
+                    Vector2 direction = (Vector2)(Quaternion.Euler(0f, 0f, angle + Random.Range(-10f, 10f)) * away);
+                    Vector2 start = anchor + direction * distance;
+                    bool clear = true;
+                    for (int i = 0; i <= 8 && clear; i++)
+                    {
+                        clear = FitsInWater(Vector2.Lerp(start, anchor, i / 8f), -direction);
+                    }
+
+                    if (clear)
+                    {
+                        return start;
+                    }
+                }
+            }
+
+            return anchor;
         }
 
         private void OnWorldStateChanged(FishingState previous, FishingState state)
@@ -657,13 +762,16 @@ namespace FishAndChill.Fishing
             {
                 _castPoint = _controller.CastPoint;
 
-                // Le poisson arrive du large : de l'autre côté du bouchon par rapport au pêcheur.
-                Vector2 away = (_castPoint - (Vector2)_player.position).normalized;
-                _shadowStart = _castPoint + (away + Random.insideUnitCircle * 0.6f).normalized * 2.5f;
-
-                // Ombre en pixel art à taille fixe (pas d'étirement) : petite, moyenne ou grande selon le poisson.
+                // Silhouette petite, moyenne ou grande selon la taille du poisson.
                 float sizeCm = _controller.HookedSizeCm;
-                _shadow.sprite = _shadowSprites[sizeCm < 35f ? 0 : sizeCm < 80f ? 1 : 2];
+                _fishSize = sizeCm < 35f ? 0 : sizeCm < 80f ? 1 : 2;
+
+                // Le poisson se tient sous le bouchon, mais toujours entièrement dans l'eau ; il arrive du large.
+                Vector2 away = (_castPoint - (Vector2)_player.position).normalized;
+                _fishAnchor = FindWaterSpot(_castPoint, away);
+                _shadowStart = FindStartSpot(_fishAnchor, away);
+                _fishPosition = _shadowStart;
+                _fishHeading = (_fishAnchor - _shadowStart).sqrMagnitude > 0.01f ? (_fishAnchor - _shadowStart).normalized : -away;
             }
 
             RefreshHeader();
@@ -767,27 +875,6 @@ namespace FishAndChill.Fishing
         }
 
         private const float WorldPixelsPerUnit = 16f;
-
-        /// <summary>Ellipse pleine en pixel art (ombre du poisson), à 16 pixels par unité comme le décor.</summary>
-        private static Sprite CreatePixelEllipse(int width, int height)
-        {
-            var texture = new Texture2D(width, height) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    float dx = (x + 0.5f - width * 0.5f) / (width * 0.5f);
-                    float dy = (y + 0.5f - height * 0.5f) / (height * 0.5f);
-                    bool inside = dx * dx + dy * dy <= 1f;
-                    // Une queue en pointe à gauche pour suggérer la silhouette du poisson.
-                    bool tail = x < width * 0.18f && Mathf.Abs(dy) < 0.5f + (width * 0.18f - x) / width * 2f;
-                    texture.SetPixel(x, y, inside || tail ? Color.white : Color.clear);
-                }
-            }
-
-            texture.Apply();
-            return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), WorldPixelsPerUnit);
-        }
 
         /// <summary>Rond dans l'eau en pixel art : ellipse de contour d'un pixel, vue de dessus (aplatie).</summary>
         private static Sprite CreateRippleSprite()

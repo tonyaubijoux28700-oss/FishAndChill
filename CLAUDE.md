@@ -36,6 +36,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   arme puis fouette au lancer, le fil pend plus ou moins, ronds dans l'eau (plouf, titillements, touche,
   éclaboussures du combat). Jauge du QTE avec la charte (cadre, bandeau « Ferre-le ! », barre d'eau, zone verte,
   aiguille, pastilles réussites/ratés, flash et secousse), placée du côté opposé au bouchon.
+- Le poisson sous l'eau : silhouette vue de dessus (`FishShadowSprites` : tête ronde, pectorales, queue fourchue qui
+  ondule), dessinée d'avance en 16 directions × 3 positions de queue × 3 tailles (18/26/36 px), jamais tournée.
+  Il reste **entièrement dans l'eau** : `FishingController.IsWater` + `FitsInWater` (museau, queue, flancs) ; point
+  sous le bouchon et point de départ choisis dans l'eau, et il s'arrête plutôt que d'avancer sur le sable.
 - `FishingController.PressAction()` et `Tick()` sont publics : on peut jouer le prototype par
   `unity command script eval` pour le tester sans clavier.
 - Tests : `unity command test run --mode EditMode --filter FishAndChill --filter-type assembly --project-path .`
