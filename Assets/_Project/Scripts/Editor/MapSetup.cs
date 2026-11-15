@@ -227,6 +227,7 @@ namespace FishAndChill.Editor
             var lakeRegion = new Rect(lakeBounds.xMin, lakeBounds.yMin, lakeBounds.size.x, lakeBounds.size.y);
             worldMap.SetRegions(new[] { islandRegion, lakeRegion }, new[] { islandDock.Area, lakeDock.Area });
             BuildLakeLife(mapObject.transform, worldMap, player.transform, lakeDock.Area);
+            BuildIslandLife(mapObject.transform, worldMap, player.transform, islandDock.Area);
             EditorUtility.SetDirty(worldMap);
 
             // Position du joueur = ses pieds, au centre de la case.
@@ -332,6 +333,58 @@ namespace FishAndChill.Editor
             set.Lilies = new[] { SaveTile("Decor/Nenuphar_0", LakeArt.Lily(0), Vector2.one * 0.5f, TileArt.Size), SaveTile("Decor/Nenuphar_1", LakeArt.Lily(1), Vector2.one * 0.5f, TileArt.Size), SaveTile("Decor/Nenuphar_2", LakeArt.Lily(2), Vector2.one * 0.5f, TileArt.Size) };
             set.Rocks = new[] { SaveTile("Decor/Lac_Rocher_0", LakeArt.Gravel(DecorArt.Rock(0)), new Vector2(0.5f, 0.4f), TileArt.Size), SaveTile("Decor/Lac_Rocher_1", DecorArt.Rock(1), new Vector2(0.5f, 0.4f), TileArt.Size) };
             return set;
+        }
+
+        /// <summary>
+        /// La vie de l'Île Mahana : raies sous l'eau du lagon, bernard-l'ermite sur la plage, papillons, poissons
+        /// volants, frégate qui traverse le ciel et ombres de nuages.
+        /// </summary>
+        private static void BuildIslandLife(Transform root, WorldMap map, Transform player, Rect dock)
+        {
+            const string folder = "Assets/_Project/Art/Ambient";
+            PixelArt.EnsureFolder(folder);
+            Sprite[] Frames(string name, int count, System.Func<int, Color[,]> draw)
+            {
+                var sprites = new Sprite[count];
+                for (int i = 0; i < count; i++)
+                {
+                    sprites[i] = PixelArt.Save($"{folder}/{name}_{i}.png", draw(i), TileArt.Size, Vector2.one * 0.5f);
+                }
+
+                return sprites;
+            }
+
+            GameObject go = EnsureObject("Vie de l'île", root);
+            var life = go.GetComponent<AmbientLife>();
+            if (life == null)
+            {
+                life = go.AddComponent<AmbientLife>();
+            }
+
+            var so = new SerializedObject(life);
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_region").intValue = 0;
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 1.5f, dock.yMin - 1f, dock.width + 4f, dock.height + 2f);
+            SerializedProperty swimmers = so.FindProperty("_swimmers");
+            swimmers.arraySize = 1;
+            SetSwimmer(swimmers.GetArrayElementAtIndex(0), Frames("Raie", 2, MahanaLifeArt.Ray), 4, 0.45f);
+            swimmers.GetArrayElementAtIndex(0).FindPropertyRelative("Order").intValue = -17; // sous l'eau
+            SerializedProperty walkers = so.FindProperty("_walkers");
+            walkers.arraySize = 1;
+            SetSwimmer(walkers.GetArrayElementAtIndex(0), Frames("BernardLermite", 2, MahanaLifeArt.HermitCrab), 7, 0.35f);
+            SetSprites(so.FindProperty("_dragonfly"), Frames("Papillon", 2, MahanaLifeArt.Butterfly));
+            so.FindProperty("_dragonflies").intValue = 2;
+            SetSprites(so.FindProperty("_jumpingFish"), Frames("PoissonVolant", 3, MahanaLifeArt.FlyingFish));
+            SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
+            so.FindProperty("_jumpLength").floatValue = 3f;   // le poisson volant plane loin
+            so.FindProperty("_jumpHeight").floatValue = 0.9f;
+            so.FindProperty("_jumpSeconds").floatValue = 1.1f;
+            SetSprites(so.FindProperty("_passer"), Frames("Fregate", 2, MahanaLifeArt.Frigatebird));
+            so.FindProperty("_passerShadow").objectReferenceValue = PixelArt.Save($"{folder}/Fregate_Ombre.png", MahanaLifeArt.FrigatebirdShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_cloud").objectReferenceValue = PixelArt.Save($"{folder}/OmbreNuage.png", LakeLifeArt.CloudShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_clouds").intValue = 5;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         /// <summary>La faune du lac (cygnes, canards, libellules, poissons qui sautent, ombres de nuages), animée en jeu.</summary>

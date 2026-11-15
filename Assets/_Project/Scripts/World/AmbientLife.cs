@@ -17,6 +17,7 @@ namespace FishAndChill.World
             public Sprite[] Frames;
             [Min(0)] public int Count = 3;
             [Min(0.05f)] public float Speed = 0.5f;
+            [Tooltip("Ordre d'affichage : -7 à la surface, -17 sous l'eau (sous le sable et l'herbe).")] public int Order = -7;
         }
 
         [SerializeField] private WorldMap _map;
@@ -33,6 +34,17 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Poisson qui saute : sortie, sommet, plongeon.")] private Sprite[] _jumpingFish = new Sprite[0];
         [SerializeField, Tooltip("Rond dans l'eau qui s'élargit.")] private Sprite[] _ring = new Sprite[0];
         [SerializeField] private Vector2 _jumpInterval = new Vector2(2.5f, 6f);
+        [SerializeField, Min(0.2f), Tooltip("Longueur du saut (poisson volant : plus long).")] private float _jumpLength = 1.2f;
+        [SerializeField, Min(0.1f)] private float _jumpHeight = 0.7f;
+        [SerializeField, Min(0.1f)] private float _jumpSeconds = 0.6f;
+
+        [SerializeField, Tooltip("Petites bêtes qui marchent sur la rive (bernard-l'ermite…).")]
+        private List<Swimmer> _walkers = new List<Swimmer>();
+
+        [SerializeField, Tooltip("Oiseau qui traverse le ciel de temps en temps (tête vers la droite).")]
+        private Sprite[] _passer = new Sprite[0];
+        [SerializeField] private Sprite _passerShadow;
+        [SerializeField] private Vector2 _passerInterval = new Vector2(6f, 14f);
 
         [SerializeField] private Sprite _cloud;
         [SerializeField, Min(0)] private int _clouds = 4;
@@ -51,6 +63,11 @@ namespace FishAndChill.World
 
         private readonly List<Critter> _birds = new List<Critter>();
         private readonly List<Critter> _flies = new List<Critter>();
+        private readonly List<Critter> _crawlers = new List<Critter>();
+        private Critter _bird;
+        private SpriteRenderer _birdShadow;
+        private float _birdTimer;
+        private bool _birdFlying;
         private readonly List<Transform> _cloudShadows = new List<Transform>();
         private System.Random _random;
         private SpriteRenderer _jumper;
@@ -77,14 +94,36 @@ namespace FishAndChill.World
             {
                 for (int i = 0; i < swimmer.Count && swimmer.Frames.Length > 0; i++)
                 {
-                    if (TryPickWater(Region.center, Mathf.Max(Region.width, Region.height), out Vector2 start))
+                    if (TryPickWater(Region.center, Mathf.Max(Region.width, Region.height) * 0.5f, out Vector2 start, 400))
                     {
-                        Critter bird = Spawn("Oiseau", swimmer.Frames, start, -7);
+                        Critter bird = Spawn("Nageur", swimmer.Frames, start, swimmer.Order);
                         bird.Speed = swimmer.Speed * Range(0.75f, 1.25f);
                         bird.Target = start;
                         _birds.Add(bird);
                     }
                 }
+            }
+
+            foreach (Swimmer walker in _walkers)
+            {
+                for (int i = 0; i < walker.Count && walker.Frames.Length > 0; i++)
+                {
+                    if (TryPickShore(Region.center, Mathf.Max(Region.width, Region.height) * 0.5f, out Vector2 start, 600))
+                    {
+                        Critter crawler = Spawn("Marcheur", walker.Frames, start, 9);
+                        crawler.Speed = walker.Speed * Range(0.75f, 1.25f);
+                        _crawlers.Add(crawler);
+                    }
+                }
+            }
+
+            if (_passer.Length > 0)
+            {
+                _bird = Spawn("Oiseau dans le ciel", _passer, Region.center, 45);
+                _bird.Renderer.enabled = false;
+                _birdShadow = Spawn("Ombre de l'oiseau", new[] { _passerShadow }, Region.center, 8).Renderer;
+                _birdShadow.enabled = false;
+                _birdTimer = Range(2f, _passerInterval.x);
             }
 
             for (int i = 0; i < _dragonflies && _dragonfly.Length > 0; i++)
@@ -139,6 +178,13 @@ namespace FishAndChill.World
             {
                 UpdateFly(fly, dt);
             }
+
+            foreach (Critter crawler in _crawlers)
+            {
+                UpdateCrawler(crawler, dt);
+            }
+
+            UpdatePasser(dt);
 
             foreach (Transform cloud in _cloudShadows)
             {
@@ -230,6 +276,112 @@ namespace FishAndChill.World
             fly.Renderer.flipX = step.x < 0f;
         }
 
+        // ---------- Petites bêtes de la rive ----------
+
+        private void UpdateCrawler(Critter crawler, float dt)
+        {
+            if (crawler.Wait > 0f)
+            {
+                crawler.Wait -= dt;
+                return;
+            }
+
+            Vector2 position = crawler.Renderer.transform.position;
+            Vector2 toTarget = crawler.Target - position;
+            if (toTarget.magnitude < 0.05f)
+            {
+                // Pause (rentré dans sa coquille), puis quelques pas le long de la plage.
+                crawler.Wait = Range(1f, 4f);
+                if (TryPickShore(position, 2.5f, out Vector2 next))
+                {
+                    crawler.Target = next;
+                }
+
+                return;
+            }
+
+            Vector2 direction = toTarget.normalized;
+            if (!_map.IsLand(position + direction * 0.3f) || _map.IsBlocked(position + direction * 0.3f))
+            {
+                crawler.Target = position;
+                return;
+            }
+
+            Animate(crawler, dt, 0.15f);
+            crawler.Renderer.transform.position = position + direction * Mathf.Min(crawler.Speed * dt, toTarget.magnitude);
+            crawler.Renderer.flipX = direction.x < 0f;
+        }
+
+        /// <summary>Un coin de plage : de la terre, dégagée, avec de l'eau à une case ou moins.</summary>
+        private bool TryPickShore(Vector2 around, float radius, out Vector2 point, int attempts = 60)
+        {
+            for (int attempt = 0; attempt < attempts; attempt++)
+            {
+                point = around + Random2(radius);
+                if (!Region.Contains(point) || _avoid.Contains(point) || !_map.IsLand(point) || _map.IsBlocked(point))
+                {
+                    continue;
+                }
+
+                if (_map.IsWater(point + Vector2.down) || _map.IsWater(point + Vector2.up)
+                    || _map.IsWater(point + Vector2.left) || _map.IsWater(point + Vector2.right))
+                {
+                    return true;
+                }
+            }
+
+            point = around;
+            return false;
+        }
+
+        // ---------- Oiseau qui traverse le ciel ----------
+
+        private void UpdatePasser(float dt)
+        {
+            if (_bird == null || _player == null)
+            {
+                return;
+            }
+
+            if (!_birdFlying)
+            {
+                _birdTimer -= dt;
+                if (_birdTimer > 0f)
+                {
+                    return;
+                }
+
+                // Il entre par un côté de l'écran et ressort de l'autre, un peu en biais.
+                bool right = _random.NextDouble() < 0.5;
+                Vector2 player = _player.position;
+                _bird.Renderer.transform.position = player + new Vector2(right ? -14f : 14f, Range(-3f, 4f));
+                _bird.Target = player + new Vector2(right ? 14f : -14f, Range(-3f, 4f));
+                _bird.Speed = Range(2.2f, 3.2f);
+                _bird.Renderer.flipX = !right;
+                _bird.Renderer.enabled = true;
+                _birdShadow.enabled = true;
+                _birdShadow.flipX = !right;
+                _birdFlying = true;
+            }
+
+            Animate(_bird, dt, 0.35f);
+            Vector2 position = _bird.Renderer.transform.position;
+            Vector2 toTarget = _bird.Target - position;
+            if (toTarget.magnitude < 0.2f)
+            {
+                _bird.Renderer.enabled = false;
+                _birdShadow.enabled = false;
+                _birdFlying = false;
+                _birdTimer = Range(_passerInterval.x, _passerInterval.y);
+                return;
+            }
+
+            position += toTarget.normalized * _bird.Speed * dt;
+            _bird.Renderer.transform.position = position;
+            // L'ombre au sol, décalée : l'oiseau est haut dans le ciel.
+            _birdShadow.transform.position = position + new Vector2(1.2f, -2.2f);
+        }
+
         // ---------- Poisson qui saute ----------
 
         private void UpdateJump(float dt)
@@ -249,8 +401,8 @@ namespace FishAndChill.World
             if (_jumpTime >= 0f)
             {
                 _jumpTime += dt;
-                float t = _jumpTime / 0.6f;
-                _jumper.transform.position = AmbientMath.JumpArc(_jumpFrom, _jumpTo, 0.7f, t);
+                float t = _jumpTime / _jumpSeconds;
+                _jumper.transform.position = AmbientMath.JumpArc(_jumpFrom, _jumpTo, _jumpHeight, t);
                 _jumper.sprite = _jumpingFish[Mathf.Clamp(Mathf.FloorToInt(t * 3f), 0, _jumpingFish.Length - 1)];
                 if (t >= 1f)
                 {
@@ -270,11 +422,11 @@ namespace FishAndChill.World
 
             _jumpTimer = Range(_jumpInterval.x, _jumpInterval.y);
             // Dans le champ de la caméra : à quelques cases du joueur, en pleine eau.
-            if (TryPickWater(_player.position, 7f, out Vector2 from) && IsOpenWater(from + Vector2.right * 1.2f))
+            if (TryPickWater(_player.position, 7f, out Vector2 from) && IsOpenWater(from + Vector2.right * _jumpLength) && IsOpenWater(from - Vector2.right * _jumpLength))
             {
                 bool right = _random.NextDouble() < 0.5;
                 _jumpFrom = from;
-                _jumpTo = from + (right ? Vector2.right : Vector2.left) * 1.2f;
+                _jumpTo = from + (right ? Vector2.right : Vector2.left) * _jumpLength;
                 _jumper.flipX = !right;
                 _jumper.enabled = true;
                 _jumpTime = 0f;
@@ -331,9 +483,9 @@ namespace FishAndChill.World
                 && _map.IsWater(p + new Vector2(0f, m)) && _map.IsWater(p - new Vector2(0f, m));
         }
 
-        private bool TryPickWater(Vector2 around, float radius, out Vector2 point)
+        private bool TryPickWater(Vector2 around, float radius, out Vector2 point, int attempts = 40)
         {
-            for (int attempt = 0; attempt < 40; attempt++)
+            for (int attempt = 0; attempt < attempts; attempt++)
             {
                 point = around + Random2(radius);
                 if (IsOpenWater(point))

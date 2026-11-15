@@ -71618,11 +71618,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 1f13fa6def632d7409ee039eaf901c3b, type: 3}
     Count: 3
     Speed: 0.35
+    Order: -7
   - Frames:
     - {fileID: 21300000, guid: f5911fae5a0f3a446bf8d7f2409ae78c, type: 3}
     - {fileID: 21300000, guid: d9deab3f2f25fbd4684f7518725ad918, type: 3}
     Count: 6
     Speed: 0.6
+    Order: -7
   _dragonfly:
   - {fileID: 21300000, guid: 89f8ce4e2ed1a714d9a45ad33ca0e9c7, type: 3}
   - {fileID: 21300000, guid: 3cccf6ddd46ed174d92692a85c4c8ba9, type: 3}
@@ -71636,6 +71638,13 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 5460ae81f1ae62b46a2244ea16f2a086, type: 3}
   - {fileID: 21300000, guid: 5a7bef8dbda107040957fea62a793114, type: 3}
   _jumpInterval: {x: 2.5, y: 6}
+  _jumpLength: 1.2
+  _jumpHeight: 0.7
+  _jumpSeconds: 0.6
+  _walkers: []
+  _passer: []
+  _passerShadow: {fileID: 0}
+  _passerInterval: {x: 6, y: 14}
   _cloud: {fileID: 21300000, guid: 90834ea7bb0c08c408fdf1e97a221676, type: 3}
   _clouds: 4
   _wind: {x: 0.55, y: 0.12}
@@ -314310,6 +314319,7 @@ Transform:
   - {fileID: 1077453714}
   - {fileID: 2040948408}
   - {fileID: 617424229}
+  - {fileID: 2021900232}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1312084949
@@ -397727,6 +397737,97 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &2021900231
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2021900232}
+  - component: {fileID: 2021900233}
+  m_Layer: 0
+  m_Name: "Vie de l'\xEEle"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2021900232
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2021900231}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1254510492}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2021900233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2021900231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9733f250d4735ec4ab629e90e200278d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.AmbientLife
+  _map: {fileID: 1254510490}
+  _region: 0
+  _player: {fileID: 1141459285}
+  _avoid:
+    serializedVersion: 2
+    x: 1.5
+    y: -33
+    width: 6
+    height: 8
+  _swimmers:
+  - Frames:
+    - {fileID: 21300000, guid: 3f989b5d2497b5e4991741eced2e8f71, type: 3}
+    - {fileID: 21300000, guid: 0115f8b484ef3d54daf3a2848d0ec8f5, type: 3}
+    Count: 4
+    Speed: 0.45
+    Order: -17
+  _dragonfly:
+  - {fileID: 21300000, guid: 77c26c7e8b10fae4cb241ccae9836d9b, type: 3}
+  - {fileID: 21300000, guid: 02f80dcb27f3df54fb65278d186c355d, type: 3}
+  _dragonflies: 2
+  _jumpingFish:
+  - {fileID: 21300000, guid: 1390319bf0b5d6f40b519f573ff1713c, type: 3}
+  - {fileID: 21300000, guid: 7b64ccc38982b294ea44a518d4c37afb, type: 3}
+  - {fileID: 21300000, guid: 6c7232ef479d18f42a65217bb544955e, type: 3}
+  _ring:
+  - {fileID: 21300000, guid: f1ef822e0939b3f48998c561b2bdae9d, type: 3}
+  - {fileID: 21300000, guid: 5460ae81f1ae62b46a2244ea16f2a086, type: 3}
+  - {fileID: 21300000, guid: 5a7bef8dbda107040957fea62a793114, type: 3}
+  _jumpInterval: {x: 2.5, y: 6}
+  _jumpLength: 3
+  _jumpHeight: 0.9
+  _jumpSeconds: 1.1
+  _walkers:
+  - Frames:
+    - {fileID: 21300000, guid: 4b8f48f46d129ab4e95f7e53c503acfd, type: 3}
+    - {fileID: 21300000, guid: f8ac9f302a992254db8d3d9ea294b6f6, type: 3}
+    Count: 7
+    Speed: 0.35
+    Order: 0
+  _passer:
+  - {fileID: 21300000, guid: cb088feb7f470ee4d951403a6a8bf996, type: 3}
+  - {fileID: 21300000, guid: eccdcf951b99e43418ae5cf90fad8c0b, type: 3}
+  _passerShadow: {fileID: 21300000, guid: b184f2ba3e3b6d444b90f76d7e0494ea, type: 3}
+  _passerInterval: {x: 6, y: 14}
+  _cloud: {fileID: 21300000, guid: 90834ea7bb0c08c408fdf1e97a221676, type: 3}
+  _clouds: 5
+  _wind: {x: 0.55, y: 0.12}
 --- !u!1 &2040948407
 GameObject:
   m_ObjectHideFlags: 0
