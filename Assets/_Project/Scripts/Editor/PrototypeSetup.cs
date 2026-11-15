@@ -406,6 +406,21 @@ namespace FishAndChill.Editor
             saveZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             saveSo.ApplyModifiedPropertiesWithoutUndo();
 
+            // Menu pause (Échap / Start) : reprendre, volume, plein écran, nouvelle partie, quitter.
+            var pauseMenu = partie.GetComponent<UI.PauseMenu>();
+            if (pauseMenu == null)
+            {
+                pauseMenu = partie.AddComponent<UI.PauseMenu>();
+            }
+
+            var pauseSo = new SerializedObject(pauseMenu);
+            pauseSo.FindProperty("_player").objectReferenceValue = movement;
+            pauseSo.FindProperty("_fishing").objectReferenceValue = controller;
+            pauseSo.FindProperty("_minimap").objectReferenceValue = minimap;
+            pauseSo.FindProperty("_save").objectReferenceValue = saveManager;
+            pauseSo.FindProperty("_skin").objectReferenceValue = skin;
+            pauseSo.ApplyModifiedPropertiesWithoutUndo();
+
             if (zone == null)
             {
                 Debug.LogError("[FishAndChill] Zone de test introuvable : la scène n'a pas de zone assignée.");

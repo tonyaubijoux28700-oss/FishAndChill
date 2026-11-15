@@ -3008,6 +3008,7 @@ GameObject:
   - component: {fileID: 332295274}
   - component: {fileID: 332295275}
   - component: {fileID: 332295276}
+  - component: {fileID: 332295277}
   m_Layer: 0
   m_Name: Partie
   m_TagString: Untagged
@@ -3117,6 +3118,23 @@ MonoBehaviour:
   _zones:
   - {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
   _saveDelay: 1
+--- !u!114 &332295277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332295270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e70a20303de8ec4e9a73658e995290b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.UI.PauseMenu
+  _player: {fileID: 1141459283}
+  _fishing: {fileID: 1235020156}
+  _minimap: {fileID: 998233999}
+  _save: {fileID: 332295276}
+  _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
 --- !u!1 &343519370
 GameObject:
   m_ObjectHideFlags: 0

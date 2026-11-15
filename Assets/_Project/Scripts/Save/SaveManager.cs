@@ -140,6 +140,27 @@ namespace FishAndChill.Save
             }
         }
 
+        /// <summary>Efface la sauvegarde et recharge la scène : la partie repart de zéro.</summary>
+        public void StartNewGame()
+        {
+            _dirty = false;
+            enabled = false;
+            try
+            {
+                if (File.Exists(SavePath))
+                {
+                    File.Delete(SavePath);
+                }
+            }
+            catch (IOException exception)
+            {
+                Debug.LogWarning($"[FishAndChill] Sauvegarde impossible à effacer : {exception.Message}");
+            }
+
+            Time.timeScale = 1f;
+            UnityEngine.SceneManagement.SceneManager.LoadScene(gameObject.scene.path);
+        }
+
         private void Load()
         {
             if (!File.Exists(SavePath))

@@ -136,6 +136,12 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   pièces, sac, aquarium, niveaux de matériel, journal des prises ; espèces par `Id` (une espèce disparue est ignorée).
   Logique dans `SaveSerializer` (testée). Menu **FishAndChill → Sauvegarde → Effacer la sauvegarde** pour repartir de
   zéro. Nouvelle zone = l'ajouter au champ `_zones` du `SaveManager`, sinon ses prises ne se rechargent pas.
+- **Menu pause** (`UI/PauseMenu`, objet « Partie », canvas ordre 20) : **Échap** ou Start, seulement si aucun autre
+  menu n'était ouvert à l'image précédente (Échap ferme d'abord sac, livre, marchand, grande carte). Fige le jeu
+  (`Time.timeScale = 0`, `FishingController` et `Minimap` désactivés, joueur `Locked`), reprise une image plus tard.
+  Lignes : Reprendre, Volume (←/→, `AudioListener.volume`), Plein écran, Nouvelle partie (à valider deux fois,
+  `SaveManager.StartNewGame` efface et recharge la scène), Quitter. Options dans `PlayerPrefs`. Calculs dans
+  `PauseMenuLogic` (testés), touches dans `PauseInput`.
 
 ## Minimap
 
