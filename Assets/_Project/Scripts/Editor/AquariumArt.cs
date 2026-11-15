@@ -53,7 +53,6 @@ namespace FishAndChill.Editor
         private static readonly Color Bubble = C(0.86f, 0.97f, 1.00f);
         private static readonly Color FishOrange = C(1.00f, 0.56f, 0.22f);
         private static readonly Color FishYellow = C(1.00f, 0.86f, 0.30f);
-        private static readonly Color FishBlue = C(0.30f, 0.55f, 0.95f);
         private static readonly Color Wood = C(0.62f, 0.42f, 0.24f);
         private static readonly Color Leaf = C(0.26f, 0.62f, 0.30f);
 
@@ -72,7 +71,7 @@ namespace FishAndChill.Editor
             // Derrière : toits en tuiles des ailes, puis le dôme.
             DrawWingRoof(p, 7, 66, 66, 14);
             DrawWingRoof(p, 125, 184, 66, 14);
-            DrawDome(p, cx, 69f, 76f, 72f, ribs: 7, fishCount: 7, seed: 4);
+            DrawDome(p, cx, 69f, 76f, 72f, ribs: 7);
             DrawLantern(p, cx, 139);
 
             // Ailes : murs enduits, soubassement en carreaux, corniche ondulée.
@@ -423,8 +422,8 @@ namespace FishAndChill.Editor
             }
         }
 
-        /// <summary>Dôme de verre plein d'eau : nervures, reflets, poissons et bulles.</summary>
-        private static void DrawDome(Color[,] p, float cx, float baseY, float rx, float ry, int ribs, int fishCount, int seed)
+        /// <summary>Dôme de verre plein d'eau, vide : nervures, reflets et rayons de lumière.</summary>
+        private static void DrawDome(Color[,] p, float cx, float baseY, float rx, float ry, int ribs)
         {
             int width = p.GetLength(0);
             int height = p.GetLength(1);
@@ -487,20 +486,6 @@ namespace FishAndChill.Editor
                     p[x, y] = c;
                 }
             }
-
-            // Habitants du dôme : poissons de plusieurs tailles, une raie, des bulles.
-            var random = new System.Random(seed);
-            Color[] colors = { FishOrange, FishYellow, FishBlue, CoralPink, C(0.95f, 0.95f, 0.90f) };
-            for (int i = 0; i < fishCount; i++)
-            {
-                float a = (float)random.NextDouble() * 2f - 1f;
-                float b = 0.15f + (float)random.NextDouble() * 0.6f;
-                int fx = Mathf.RoundToInt(cx + a * rx * Mathf.Sqrt(1f - b * b) * 0.75f);
-                int fy = Mathf.RoundToInt(baseY + b * ry);
-                DrawFish(p, fx, fy, colors[random.Next(colors.Length)], random.Next(1, 3), random.Next(2) == 0);
-            }
-
-            DrawRay(p, Mathf.RoundToInt(cx + rx * 0.28f), Mathf.RoundToInt(baseY + ry * 0.35f));
         }
 
         /// <summary>Lanterne au sommet du dôme : anneau, petite coupole vitrée, épi doré et fanion.</summary>
@@ -1061,25 +1046,6 @@ namespace FishAndChill.Editor
             }
 
             PixelArt.Set(p, cx + (halfLength - 1) * d, cy + (halfHeight > 1 ? 1 : 0), Color.Lerp(color, Color.black, 0.75f)); // œil
-        }
-
-        /// <summary>Raie manta stylisée vue de dessus, dans le dôme.</summary>
-        private static void DrawRay(Color[,] p, int cx, int cy)
-        {
-            Color ray = C(0.22f, 0.30f, 0.40f);
-            for (int x = -12; x <= 12; x++)
-            {
-                int h = Mathf.RoundToInt(5f * (1f - Mathf.Abs(x) / 13f));
-                for (int y = -h / 2; y <= h; y++)
-                {
-                    PixelArt.Set(p, cx + x, cy + y, y > h / 2 ? Color.Lerp(ray, Color.white, 0.2f) : ray);
-                }
-            }
-
-            for (int k = 1; k <= 8; k++)
-            {
-                PixelArt.Set(p, cx - k / 3, cy - 2 - k, ray); // queue
-            }
         }
     }
 }
