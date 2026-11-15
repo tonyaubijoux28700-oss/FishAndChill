@@ -5,9 +5,10 @@ using UnityEngine;
 namespace FishAndChill.World
 {
     /// <summary>
-    /// Les poissons du bassin : un petit sprite par espèce déposée (<see cref="FishSpecies.MiniSprite"/>), qui nage
-    /// d'un bord à l'autre en ondulant, change parfois de profondeur et se retourne aux vitres.
-    /// Un nouveau venu plonge depuis la surface.
+    /// Les pensionnaires du bassin : un petit sprite par espèce déposée (<see cref="FishSpecies.MiniSprite"/>).
+    /// Les poissons nagent d'un bord à l'autre en ondulant, changent de profondeur et se retournent aux vitres.
+    /// Les crustacés, reptiles et amphibiens ne nagent pas : ils coulent jusqu'au sable, y marchent lentement et
+    /// s'arrêtent de temps en temps. Un nouveau venu arrive par la surface.
     /// </summary>
     public sealed class AquariumTank : MonoBehaviour
     {
@@ -23,12 +24,14 @@ namespace FishAndChill.World
         private sealed class Swimmer
         {
             public SpriteRenderer Renderer;
+            public bool OnBottom;      // crustacés, reptiles, amphibiens : au fond, ils marchent sans nager
             public float Direction;
             public float Speed;
             public float Depth;
             public float TargetDepth;
             public float Phase;
             public float NextTurn;
+            public float PauseTimer;   // ceux du fond s'arrêtent de temps en temps
             public Vector2 Position;   // position exacte (le sprite, lui, est calé au pixel)
         }
 
@@ -36,6 +39,9 @@ namespace FishAndChill.World
         private System.Random _random = new System.Random(7);
 
         public int SwimmerCount => _swimmers.Count;
+
+        /// <summary>Hauteur du sable sous la zone de nage (ceux du fond y posent les pattes).</summary>
+        private const float SandBelowSwimArea = 0.3f;
 
         private void Start()
         {
@@ -58,7 +64,7 @@ namespace FishAndChill.World
             }
         }
 
-        /// <summary>Ajoute un nageur pour chaque espèce arrivée dans l'aquarium.</summary>
+        /// <summary>Ajoute un pensionnaire pour chaque espèce arrivée dans l'aquarium.</summary>
         private void Sync()
         {
             foreach (CaughtFish specimen in _progress.Aquarium.Specimens)
@@ -75,19 +81,24 @@ namespace FishAndChill.World
         private Swimmer CreateSwimmer(FishSpecies species)
         {
             Rect area = _building.SwimArea;
-            var go = new GameObject($"Poisson - {species.CommonName}");
+            bool onBottom = species.Kind.LivesOnBottom();
+            var go = new GameObject($"{species.Kind.DisplayName()} - {species.CommonName}");
             go.transform.SetParent(transform, false);
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = species.MiniSprite;
+            // Ceux du fond passent devant les poissons (ils sont plus près de la vitre, sur le sable).
             renderer.sortingOrder = _sortingOrder;
 
             var swimmer = new Swimmer
             {
                 Renderer = renderer,
+                OnBottom = onBottom,
                 Direction = _random.NextDouble() < 0.5 ? -1f : 1f,
-                Speed = Mathf.Lerp(_minSpeed, _maxSpeed, (float)_random.NextDouble()),
-                Depth = 1f,                                   // arrive par la surface
-                TargetDepth = (float)_random.NextDouble(),
+                Speed = onBottom
+                    ? Mathf.Lerp(0.15f, 0.35f, (float)_random.NextDouble())
+                    : Mathf.Lerp(_minSpeed, _maxSpeed, (float)_random.NextDouble()),
+                Depth = 1f,                                   // arrive par la surface (et coule au fond)
+                TargetDepth = onBottom ? 0f : (float)_random.NextDouble(),
                 Phase = (float)_random.NextDouble() * 10f,
                 NextTurn = 3f + (float)_random.NextDouble() * 6f,
             };
@@ -107,32 +118,52 @@ namespace FishAndChill.World
                 Transform t = swimmer.Renderer.transform;
                 float halfWidth = swimmer.Renderer.sprite != null ? swimmer.Renderer.sprite.bounds.extents.x : 0.5f;
                 float halfHeight = swimmer.Renderer.sprite != null ? swimmer.Renderer.sprite.bounds.extents.y : 0.3f;
-
-                // Demi-tour aux vitres, et parfois sans raison (comme un vrai poisson).
-                swimmer.NextTurn -= dt;
                 Vector2 position = swimmer.Position;
-                position.x += swimmer.Direction * swimmer.Speed * dt;
-                if (position.x > area.xMax - halfWidth || position.x < area.xMin + halfWidth || swimmer.NextTurn <= 0f)
-                {
-                    swimmer.Direction = position.x > area.center.x ? -1f : 1f;
-                    if (swimmer.NextTurn <= 0f)
-                    {
-                        swimmer.Direction = -swimmer.Direction;
-                    }
 
-                    swimmer.NextTurn = 4f + (float)_random.NextDouble() * 6f;
-                    swimmer.TargetDepth = (float)_random.NextDouble();
-                    position.x = Mathf.Clamp(position.x, area.xMin + halfWidth, area.xMax - halfWidth);
+                // Ceux du fond ne bougent qu'une fois posés, et font des pauses.
+                bool settled = !swimmer.OnBottom || swimmer.Depth <= 0f;
+                if (swimmer.OnBottom && settled)
+                {
+                    swimmer.PauseTimer -= dt;
                 }
 
-                // Profondeur : glisse vers la cible, avec une petite ondulation.
-                swimmer.Depth = Mathf.MoveTowards(swimmer.Depth, swimmer.TargetDepth, dt * 0.25f);
-                swimmer.Phase += dt * (1.5f + swimmer.Speed);
-                float yMin = area.yMin + halfHeight;
-                float yMax = area.yMax - halfHeight;
-                position.y = Mathf.Lerp(yMin, yMax, swimmer.Depth) + Mathf.Sin(swimmer.Phase) * 0.06f;
+                bool walking = settled && (!swimmer.OnBottom || swimmer.PauseTimer <= 0f);
+                if (walking)
+                {
+                    // Demi-tour aux vitres, et parfois sans raison.
+                    swimmer.NextTurn -= dt;
+                    position.x += swimmer.Direction * swimmer.Speed * dt;
+                    if (position.x > area.xMax - halfWidth || position.x < area.xMin + halfWidth || swimmer.NextTurn <= 0f)
+                    {
+                        swimmer.Direction = position.x > area.center.x ? -1f : 1f;
+                        if (swimmer.NextTurn <= 0f)
+                        {
+                            swimmer.Direction = -swimmer.Direction;
+                        }
 
-                // Le dessin regarde vers la droite : on le retourne quand il nage vers la gauche.
+                        swimmer.NextTurn = 4f + (float)_random.NextDouble() * 6f;
+                        if (swimmer.OnBottom)
+                        {
+                            swimmer.PauseTimer = 1f + (float)_random.NextDouble() * 3f;   // un temps d'arrêt
+                        }
+                        else
+                        {
+                            swimmer.TargetDepth = (float)_random.NextDouble();
+                        }
+
+                        position.x = Mathf.Clamp(position.x, area.xMin + halfWidth, area.xMax - halfWidth);
+                    }
+                }
+
+                // Profondeur : les poissons ondulent ; ceux du fond coulent jusqu'au sable puis y restent posés.
+                swimmer.Depth = Mathf.MoveTowards(swimmer.Depth, swimmer.TargetDepth, dt * (swimmer.OnBottom ? 0.6f : 0.25f));
+                swimmer.Phase += dt * (1.5f + swimmer.Speed);
+                float yMin = area.yMin + halfHeight - (swimmer.OnBottom ? SandBelowSwimArea : 0f);
+                float yMax = area.yMax - halfHeight;
+                float wobble = swimmer.OnBottom ? 0f : Mathf.Sin(swimmer.Phase) * 0.06f;
+                position.y = Mathf.Lerp(yMin, yMax, swimmer.Depth) + wobble;
+
+                // Le dessin regarde vers la droite : on le retourne quand il va vers la gauche.
                 swimmer.Renderer.flipX = swimmer.Direction < 0f;
 
                 // Pixels nets : le sprite est calé au pixel (16 par case), la position exacte est gardée à part.

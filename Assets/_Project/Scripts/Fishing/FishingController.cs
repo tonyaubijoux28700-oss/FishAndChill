@@ -200,7 +200,7 @@ namespace FishAndChill.Fishing
                 case FishingState.Bite:
                     if (CountDown(deltaTime))
                     {
-                        Finish("Trop lent… le poisson a lâché l'appât.");
+                        Finish($"Trop lent… {HookedSpecies.CommonName.ToLowerInvariant()} a lâché l'appât.");
                     }
 
                     break;
@@ -298,7 +298,7 @@ namespace FishAndChill.Fishing
             HookedSpecies = _zone.PickSpecies(_random, species => gear.RarityMultiplier(species.Rarity));
             if (HookedSpecies == null)
             {
-                Finish($"Aucun poisson dans la zone « {_zone.DisplayName} ».");
+                Finish($"Rien à pêcher dans la zone « {_zone.DisplayName} ».");
                 return;
             }
 
@@ -341,7 +341,7 @@ namespace FishAndChill.Fishing
             }
             else if (Challenge.Status == QteStatus.Failed)
             {
-                Finish("Le fil s'est détendu… le poisson s'est échappé !");
+                Finish($"Le fil s'est détendu… ta prise ({HookedSpecies.CommonName.ToLowerInvariant()}) s'est échappée !");
             }
         }
 
@@ -357,7 +357,7 @@ namespace FishAndChill.Fishing
             {
                 // Sac plein : on attend que le joueur choisisse quoi relâcher (pas de délai).
                 PendingFish = fish;
-                StartPhase(FishingState.BagFull, 0f, $"{header}\nSac plein ! 1 à {_progress.Bag.Capacity} : relâcher ce poisson du sac — Espace : relâcher le nouveau.");
+                StartPhase(FishingState.BagFull, 0f, $"{header}\nSac plein ! 1 à {_progress.Bag.Capacity} : relâcher cette prise du sac — Espace : relâcher le nouveau.");
                 FishCaught?.Invoke(fish, isNew, true);
                 return;
             }

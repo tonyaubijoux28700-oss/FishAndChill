@@ -45,6 +45,8 @@ Chaque espèce est une donnée (ScriptableObject), pas du code :
 | Champ | Exemple |
 |---|---|
 | Nom commun / nom scientifique | Truite arc-en-ciel / *Oncorhynchus mykiss* |
+| Type de créature | Poisson, Crustacé, Reptile, Amphibien |
+| Silhouette sous l'eau | poisson, crabe, langouste, tortue, grenouille |
 | Rareté | Commun, Peu commun, Rare, Épique, Légendaire |
 | Zones et habitats | Rivière, lac (eau douce) |
 | Conditions (optionnel) | heure, météo, saison **[À décider]** |
@@ -53,6 +55,12 @@ Chaque espèce est une donnée (ScriptableObject), pas du code :
 | Taille / poids (plage) | 30–60 cm |
 | Prix de revente | selon rareté et taille |
 | Sprite (pixel art) | — |
+
+**On ne pêche pas que des poissons** : aussi des **crustacés** (crabes, langoustes, homards…), des
+**reptiles** marins (tortues…) et, en eau douce, des **amphibiens** (grenouilles, tritons…). Pendant la pêche,
+la silhouette sous l'eau suit l'animal. Dans l'aquarium, **seuls les poissons nagent** : les autres se tiennent
+au fond, sur le sable, marchent lentement et font des pauses. Les prochaines zones en auront davantage
+(amphibiens dans les zones d'eau douce, homards en Bretagne…).
 
 **Échelle** : « toutes les espèces existantes » représente plus de 30 000 espèces réelles.
 Les données doivent être faciles à ajouter en masse, par exemple par import d'un tableur.
@@ -74,6 +82,9 @@ Les données doivent être faciles à ajouter en masse, par exemple par import d
   | Banane de mer | *Albula glossodonta* | Rare |
   | Grand barracuda | *Sphyraena barracuda* | Épique |
   | Carangue géante | *Caranx ignobilis* | Légendaire |
+  | Crabe de palétuvier (crustacé) | *Scylla serrata* | Peu commun |
+  | Langouste porcelaine (crustacé) | *Panulirus versicolor* | Rare |
+  | Tortue verte (reptile) | *Chelonia mydas* | Épique |
 
 - Les autres zones sont inspirées de lieux réels (ex. le lac d'Annecy, déjà en données, la côte bretonne,
   l'Amazonie, un récif de la mer Rouge).

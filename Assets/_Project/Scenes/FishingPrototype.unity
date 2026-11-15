@@ -165018,6 +165018,7 @@ MonoBehaviour:
   _castSpread: 1.2
   _minWaitSeconds: 1.5
   _maxWaitSeconds: 4
+  _castFlightSeconds: 0.7
   _biteWindowSeconds: 1
   _resultSeconds: 2.5
   _catchResultSeconds: 6

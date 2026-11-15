@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: CheloniaMydas
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: chelonia-mydas
+  _commonName: Tortue verte
+  _scientificName: Chelonia mydas
+  _rarity: 3
+  _kind: 2
+  _bodyShape: 3
+  _difficulty:
+    _cursorSpeed: 1.6
+    _zoneWidth: 0.14
+    _requiredHits: 5
+    _maxMisses: 2
+  _sizeRangeCm: {x: 60, y: 120}
+  _basePrice: 120
+  _placeholderColor: {r: 0.42, g: 0.34, b: 0.18, a: 1}
+  _sprite: {fileID: 21300000, guid: 9b55d604bdc2bbe4d89271a6d3418958, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 0c3711d60eb9d5a4fb5bb736aa40299e, type: 3}

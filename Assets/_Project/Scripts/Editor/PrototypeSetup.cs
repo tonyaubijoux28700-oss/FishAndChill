@@ -35,10 +35,15 @@ namespace FishAndChill.Editor
             public readonly int Price;
             public readonly Color Color;
             public readonly float Weight;
+            public readonly CreatureKind Kind;
+            public readonly BodyShape Shape;
 
             public SpeciesData(string id, string commonName, string scientificName, Rarity rarity,
-                float speed, float zoneWidth, int hits, int misses, Vector2 sizeCm, int price, Color color, float weight)
+                float speed, float zoneWidth, int hits, int misses, Vector2 sizeCm, int price, Color color, float weight,
+                CreatureKind kind = CreatureKind.Fish, BodyShape shape = BodyShape.Fish)
             {
+                Kind = kind;
+                Shape = shape;
                 Id = id;
                 CommonName = commonName;
                 ScientificName = scientificName;
@@ -89,6 +94,17 @@ namespace FishAndChill.Editor
                 1.9f, 0.13f, 4, 1, new Vector2(60f, 160f), 110, new Color(0.60f, 0.65f, 0.70f), 3f),
             new SpeciesData("caranx-ignobilis", "Carangue géante", "Caranx ignobilis", Rarity.Legendary,
                 2.2f, 0.11f, 5, 1, new Vector2(60f, 170f), 250, new Color(0.30f, 0.32f, 0.38f), 2f),
+
+            // On ne pêche pas que des poissons : crustacés du lagon et des mangroves, et la tortue verte.
+            new SpeciesData("scylla-serrata", "Crabe de palétuvier", "Scylla serrata", Rarity.Uncommon,
+                1.0f, 0.22f, 3, 2, new Vector2(10f, 25f), 18, new Color(0.38f, 0.40f, 0.22f), 12f,
+                CreatureKind.Crustacean, BodyShape.Crab),
+            new SpeciesData("panulirus-versicolor", "Langouste porcelaine", "Panulirus versicolor", Rarity.Rare,
+                1.4f, 0.17f, 4, 2, new Vector2(20f, 40f), 55, new Color(0.13f, 0.42f, 0.50f), 6f,
+                CreatureKind.Crustacean, BodyShape.Lobster),
+            new SpeciesData("chelonia-mydas", "Tortue verte", "Chelonia mydas", Rarity.Epic,
+                1.6f, 0.14f, 5, 2, new Vector2(60f, 120f), 120, new Color(0.42f, 0.34f, 0.18f), 2f,
+                CreatureKind.Reptile, BodyShape.Turtle),
         };
 
         private static readonly Color MahanaWater = new Color(0.20f, 0.68f, 0.75f);
@@ -164,6 +180,8 @@ namespace FishAndChill.Editor
             so.FindProperty("_commonName").stringValue = data.CommonName;
             so.FindProperty("_scientificName").stringValue = data.ScientificName;
             so.FindProperty("_rarity").enumValueIndex = (int)data.Rarity;
+            so.FindProperty("_kind").enumValueIndex = (int)data.Kind;
+            so.FindProperty("_bodyShape").enumValueIndex = (int)data.Shape;
             so.FindProperty("_difficulty._cursorSpeed").floatValue = data.Speed;
             so.FindProperty("_difficulty._zoneWidth").floatValue = data.ZoneWidth;
             so.FindProperty("_difficulty._requiredHits").intValue = data.Hits;

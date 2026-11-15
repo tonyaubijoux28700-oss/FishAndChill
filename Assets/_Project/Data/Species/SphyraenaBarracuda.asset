@@ -16,6 +16,8 @@ MonoBehaviour:
   _commonName: Grand barracuda
   _scientificName: Sphyraena barracuda
   _rarity: 3
+  _kind: 0
+  _bodyShape: 0
   _difficulty:
     _cursorSpeed: 1.9
     _zoneWidth: 0.13

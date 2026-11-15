@@ -34,6 +34,7 @@ namespace FishAndChill.Fishing
         private Sprite _square;
         private FishShadowSprites _fishShadows;
         private int _fishSize = 1;
+        private BodyShape _hookedShape = BodyShape.Fish;
         private Vector2 _fishAnchor;
         private Vector2 _fishPosition;
         private Vector2 _fishHeading = Vector2.right;
@@ -312,7 +313,7 @@ namespace FishAndChill.Fishing
             }
 
             int frame = _tailFrame == 3 ? 1 : _tailFrame;   // 0, 1, 2, 1… : la queue va et vient
-            _shadow.sprite = _fishShadows.Get(_fishSize, _fishHeading, frame);
+            _shadow.sprite = _fishShadows.Get(_hookedShape, _fishSize, _fishHeading, frame);
             _shadow.transform.rotation = Quaternion.identity;
             _shadow.transform.position = new Vector3(Mathf.Round(shadow.x * 16f) / 16f, Mathf.Round(shadow.y * 16f) / 16f, 0f);
 
@@ -765,6 +766,8 @@ namespace FishAndChill.Fishing
                 // Silhouette petite, moyenne ou grande selon la taille du poisson.
                 float sizeCm = _controller.HookedSizeCm;
                 _fishSize = sizeCm < 35f ? 0 : sizeCm < 80f ? 1 : 2;
+                // Poisson, crabe, langouste, tortue ou grenouille : la silhouette suit l'espèce.
+                _hookedShape = _controller.HookedSpecies != null ? _controller.HookedSpecies.BodyShape : BodyShape.Fish;
 
                 // Le poisson se tient sous le bouchon, mais toujours entièrement dans l'eau ; il arrive du large.
                 Vector2 away = (_castPoint - (Vector2)_player.position).normalized;

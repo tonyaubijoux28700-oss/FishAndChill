@@ -16,6 +16,8 @@ MonoBehaviour:
   _commonName: Perche commune
   _scientificName: Perca fluviatilis
   _rarity: 0
+  _kind: 0
+  _bodyShape: 0
   _difficulty:
     _cursorSpeed: 1
     _zoneWidth: 0.25

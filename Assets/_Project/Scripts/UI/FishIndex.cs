@@ -246,8 +246,8 @@ namespace FishAndChill.UI
             _detailName.text = $"N° {_selected + 1}   {species.CommonName}";
             CaughtFish specimen = _progress != null && _progress.Aquarium != null ? _progress.Aquarium.SpecimenOf(species.Id) : null;
             _detailScientific.text = specimen != null
-                ? $"{species.ScientificName}   <color=#FFD54D>•  Dans l'aquarium ({specimen.SizeCm:0} cm)</color>"
-                : $"{species.ScientificName}   •  Pas encore dans l'aquarium";
+                ? $"{species.ScientificName}   •  {species.Kind.DisplayName()}   <color=#FFD54D>•  Dans l'aquarium ({specimen.SizeCm:0} cm)</color>"
+                : $"{species.ScientificName}   •  {species.Kind.DisplayName()}   •  Pas encore dans l'aquarium";
             _detailStats.text =
                 $"<color=#{ColorUtility.ToHtmlStringRGB(rarity)}>{species.Rarity.DisplayName()}</color>" +
                 $"   •   Prises : {log.CountOf(species.Id)}" +
@@ -314,12 +314,12 @@ namespace FishAndChill.UI
             BuildIcon(root);
 
             // Le livre ouvert, au centre de l'écran.
-            Image window = UiFactory.Sliced(root, "Index des poissons", SkinSprite(s => s.Panel), SkinTint(new Color(0.08f, 0.12f, 0.19f)));
+            Image window = UiFactory.Sliced(root, "Index des espèces", SkinSprite(s => s.Panel), SkinTint(new Color(0.08f, 0.12f, 0.19f)));
             _window = window.gameObject;
             RectTransform panel = window.rectTransform;
             UiFactory.Center(panel, new Vector2(0f, 20f), new Vector2(1200f, 790f));
 
-            UiFactory.TitlePlaque(panel, _skin, "Index des poissons", 36, new Vector2(0f, 387f), new Vector2(520f, 76f), out _);
+            UiFactory.TitlePlaque(panel, _skin, "Index des espèces", 36, new Vector2(0f, 387f), new Vector2(520f, 76f), out _);
 
             _subtitle = UiFactory.Label(panel, "Zones", 24, TextAnchor.MiddleCenter, Muted);
             UiFactory.Center(_subtitle.rectTransform, new Vector2(0f, 318f), new Vector2(1100f, 36f));

@@ -16,6 +16,8 @@ MonoBehaviour:
   _commonName: Omble chevalier
   _scientificName: Salvelinus umbla
   _rarity: 3
+  _kind: 0
+  _bodyShape: 0
   _difficulty:
     _cursorSpeed: 1.8
     _zoneWidth: 0.12

@@ -16,6 +16,8 @@ MonoBehaviour:
   _commonName: Perroquet commun
   _scientificName: Scarus psittacus
   _rarity: 1
+  _kind: 0
+  _bodyShape: 0
   _difficulty:
     _cursorSpeed: 1.1
     _zoneWidth: 0.24

@@ -16,6 +16,8 @@ MonoBehaviour:
   _commonName: Gardon
   _scientificName: Rutilus rutilus
   _rarity: 0
+  _kind: 0
+  _bodyShape: 0
   _difficulty:
     _cursorSpeed: 0.8
     _zoneWidth: 0.3

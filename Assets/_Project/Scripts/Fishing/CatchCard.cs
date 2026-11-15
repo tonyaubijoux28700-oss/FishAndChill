@@ -138,9 +138,9 @@ namespace FishAndChill.Fishing
             string bag = bagCount >= 0 ? $"  (sac {bagCount}/{bagCapacity})" : string.Empty;
             if (bagFull)
             {
-                _footer.text = "Sac plein ! Relâche un poisson pour le garder";
+                _footer.text = "Sac plein ! Relâche une prise pour la garder";
                 _footer.color = Gold;
-                _hint.text = $"1 à {bagCapacity} : relâcher ce poisson du sac   •   Espace : relâcher le nouveau";
+                _hint.text = $"1 à {bagCapacity} : relâcher cette prise du sac   •   Espace : relâcher le nouveau";
                 _hint.color = Color.white;
             }
             else

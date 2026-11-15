@@ -3,7 +3,10 @@ using UnityEngine;
 
 namespace FishAndChill.Collection
 {
-    /// <summary>Fiche d'une espèce de poisson. Une espèce = un asset, jamais du code.</summary>
+    /// <summary>
+    /// Fiche d'une espèce pêchable : poisson, crustacé, reptile ou amphibien (le nom de la classe est resté
+    /// « FishSpecies »). Une espèce = un asset, jamais du code.
+    /// </summary>
     [CreateAssetMenu(menuName = "FishAndChill/Espèce de poisson", fileName = "NewFishSpecies")]
     public sealed class FishSpecies : ScriptableObject
     {
@@ -13,6 +16,13 @@ namespace FishAndChill.Collection
         [SerializeField] private string _commonName;
         [SerializeField] private string _scientificName;
         [SerializeField] private Rarity _rarity;
+
+        [SerializeField, Tooltip("Poisson, crustacé, reptile ou amphibien : seuls les poissons nagent dans l'aquarium.")]
+        private CreatureKind _kind = CreatureKind.Fish;
+
+        [SerializeField, Tooltip("Silhouette sous l'eau pendant la pêche.")]
+        private BodyShape _bodyShape = BodyShape.Fish;
+
         [SerializeField] private QteDifficulty _difficulty = new QteDifficulty();
 
         [SerializeField, Tooltip("Taille minimale et maximale, en centimètres.")]
@@ -32,6 +42,8 @@ namespace FishAndChill.Collection
         public string CommonName => string.IsNullOrEmpty(_commonName) ? name : _commonName;
         public string ScientificName => _scientificName;
         public Rarity Rarity => _rarity;
+        public CreatureKind Kind => _kind;
+        public BodyShape BodyShape => _bodyShape;
         public QteDifficulty Difficulty => _difficulty;
         public Vector2 SizeRangeCm => _sizeRangeCm;
         public int BasePrice => _basePrice;

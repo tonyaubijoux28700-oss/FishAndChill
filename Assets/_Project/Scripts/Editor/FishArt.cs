@@ -131,6 +131,12 @@ namespace FishAndChill.Editor
                 return PixelArt.Save($"{Folder}/{speciesId}.png", PikeArt.Draw(), 16, new Vector2(0.5f, 0.5f));
             }
 
+            // Crustacés, reptiles… : leurs propres dessins.
+            if (CreatureArt.TryGet(speciesId, out Color[,] creature))
+            {
+                return PixelArt.Save($"{Folder}/{speciesId}.png", creature, 16, new Vector2(0.5f, 0.5f));
+            }
+
             if (MahanaFishArt.TryGet(speciesId, out DetailedFish detailed))
             {
                 return PixelArt.Save($"{Folder}/{speciesId}.png", detailed.Draw(), 16, new Vector2(0.5f, 0.5f));

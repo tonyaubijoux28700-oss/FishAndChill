@@ -16,6 +16,8 @@ MonoBehaviour:
   _commonName: Banane de mer
   _scientificName: Albula glossodonta
   _rarity: 2
+  _kind: 0
+  _bodyShape: 0
   _difficulty:
     _cursorSpeed: 1.6
     _zoneWidth: 0.16

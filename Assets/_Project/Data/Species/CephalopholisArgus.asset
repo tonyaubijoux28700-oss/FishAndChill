@@ -16,6 +16,8 @@ MonoBehaviour:
   _commonName: "M\xE9rou paon"
   _scientificName: Cephalopholis argus
   _rarity: 1
+  _kind: 0
+  _bodyShape: 0
   _difficulty:
     _cursorSpeed: 1.2
     _zoneWidth: 0.22

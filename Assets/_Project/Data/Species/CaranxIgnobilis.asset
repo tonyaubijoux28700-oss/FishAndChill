@@ -16,6 +16,8 @@ MonoBehaviour:
   _commonName: "Carangue g\xE9ante"
   _scientificName: Caranx ignobilis
   _rarity: 4
+  _kind: 0
+  _bodyShape: 0
   _difficulty:
     _cursorSpeed: 2.2
     _zoneWidth: 0.11

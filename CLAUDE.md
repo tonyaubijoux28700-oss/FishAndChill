@@ -38,6 +38,12 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   aiguille, pastilles réussites/ratés, flash et secousse), placée du côté opposé au bouchon.
 - Le poisson sous l'eau : silhouette vue de dessus (`FishShadowSprites` : tête ronde, pectorales, queue fourchue qui
   ondule), dessinée d'avance en 16 directions × 3 positions de queue × 3 tailles (18/26/36 px), jamais tournée.
+- **On ne pêche pas que des poissons** : `FishSpecies` (nom de classe gardé) a un `Kind` (`CreatureKind` : poisson,
+  crustacé, reptile, amphibien) et une `BodyShape` (silhouette sous l'eau : poisson, crabe, langouste, tortue,
+  grenouille, toutes dans `FishShadowSprites`, chacune animée). Dans l'aquarium, seuls les poissons nagent : les
+  autres (`LivesOnBottom`) coulent au fond, marchent lentement sur le sable et font des pauses (`AquariumTank`).
+  Dessins des non-poissons dans `CreatureArt` (crabe, langouste, tortue), même style que `DetailedFish`.
+  Messages et index écrits pour toutes les espèces (« ta prise », « Index des espèces »).
   Il reste **entièrement dans l'eau** : `FishingController.IsWater` + `FitsInWater` (museau, queue, flancs) ; point
   sous le bouchon et point de départ choisis dans l'eau, et il s'arrête plutôt que d'avancer sur le sable.
 - `FishingController.PressAction()` et `Tick()` sont publics : on peut jouer le prototype par
@@ -62,7 +68,8 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   et doit tomber dans l'eau (`CastTargeting`). `CameraFollow` sur la caméra, bloquée aux limites de la carte.
 - Tuiles pixel art provisoires (16×16, 16 px/unité, filtre Point) dans `Assets/_Project/Art/Tiles/`,
   **redessinées à chaque génération** : pour garder un dessin fait main, le renommer.
-- Zone de départ : **Île Mahana** (fictive, tropicale) avec 8 vraies espèces indo-pacifiques.
+- Zone de départ : **Île Mahana** (fictive, tropicale) avec 11 vraies espèces indo-pacifiques : 8 poissons, 2 crustacés
+  (crabe de palétuvier, langouste porcelaine) et 1 reptile (tortue verte).
   La zone « Lac d'Annecy » reste en données pour plus tard. Palmiers sur la Tilemap `Décor` (tronc bloquant).
 - **Aménagement** (`TownLayout`, appelé par `MapSetup`) : l'aquarium est au **milieu de l'île** (`LandCentroid`),
   la boutique près du départ. Aménagement **ordonné** : parvis symétrique devant l'aquarium + allée centrale de 3 cases

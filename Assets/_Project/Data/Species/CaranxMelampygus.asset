@@ -16,6 +16,8 @@ MonoBehaviour:
   _commonName: "Carangue \xE0 points bleus"
   _scientificName: Caranx melampygus
   _rarity: 2
+  _kind: 0
+  _bodyShape: 0
   _difficulty:
     _cursorSpeed: 1.5
     _zoneWidth: 0.17

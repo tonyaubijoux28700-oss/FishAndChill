@@ -32,3 +32,9 @@ MonoBehaviour:
     _weight: 3
   - _species: {fileID: 11400000, guid: f9e130c52fab5304da835ea89eda9b98, type: 2}
     _weight: 2
+  - _species: {fileID: 11400000, guid: 780246b68e2c9a6418ae26cb14406f0b, type: 2}
+    _weight: 12
+  - _species: {fileID: 11400000, guid: 2bf5f33d332c4414881a3d369311f7f1, type: 2}
+    _weight: 6
+  - _species: {fileID: 11400000, guid: 425ae51231487f84baec4c7cf87a7db5, type: 2}
+    _weight: 2
