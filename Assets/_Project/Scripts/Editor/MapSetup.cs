@@ -488,7 +488,9 @@ namespace FishAndChill.Editor
                 OuterBand = 0.06f, OuterColor = new Color(0.36f, 0.56f, 0.28f), DitherOuter = true,    // herbe foulée
             };
             set.PavingEdges = SaveEdges("Paves", paving);
-            set.PavingFull = new[] { set.PavingEdges[15], SaveTile("Bords/Paves_15b", DecorArt.Paving(1), Vector2.one * 0.5f, TileArt.Size) };
+            // Pavés propres presque partout ; quelques brins d'herbe entre les pierres, rarement (5 %).
+            Tile pavingGrassy = SaveTile("Bords/Paves_15b", DecorArt.Paving(1), Vector2.one * 0.5f, TileArt.Size);
+            set.PavingFull = new[] { set.PavingEdges[15], set.PavingEdges[15], pavingGrassy };
 
             CreateDecorTiles(set);
             return set;
@@ -583,9 +585,11 @@ namespace FishAndChill.Editor
                 }
                 else
                 {
+                    // Variante imposée (décor en miroir de part et d'autre d'une porte), sinon au hasard de la case.
                     Tile[] variants = tiles.Decor[placement.Kind];
                     float hash = IslandGenerator.CellHash(placement.Cell.x, placement.Cell.y, 77);
-                    tile = variants[Mathf.Min(variants.Length - 1, (int)(hash * variants.Length))];
+                    int index = placement.Variant >= 0 ? placement.Variant % variants.Length : (int)(hash * variants.Length);
+                    tile = variants[Mathf.Min(variants.Length - 1, index)];
                 }
 
                 decorMap.SetTile(new Vector3Int(bounds.xMin + placement.Cell.x, bounds.yMin + placement.Cell.y, 0), tile);

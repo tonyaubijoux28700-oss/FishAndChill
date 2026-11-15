@@ -5,10 +5,11 @@ using UnityEngine;
 namespace FishAndChill.Editor
 {
     /// <summary>
-    /// Aménagement autour des bâtiments, pour qu'ils ne soient pas juste « posés » sur l'herbe :
-    /// parvis pavés devant les portes, chemins pavés (plage → boutique → aquarium), haies le long des façades,
-    /// massifs de fleurs, lampadaires, tonneaux et caisses de la boutique, panneau indicateur, et un peu de nature
-    /// (buissons, rochers) sur toute l'île. Toutes les positions sont en cases de la grille de l'île.
+    /// Aménagement autour des bâtiments, pour qu'ils ne soient pas juste « posés » sur l'herbe, et de façon
+    /// ordonnée : parvis symétrique devant l'aquarium prolongé par une allée centrale bordée de lampadaires en
+    /// paires, chemins droits à angles droits (3 cases de large) qui se raccordent au bout de l'allée et au milieu
+    /// du côté du parvis, lampadaires réguliers, décor en miroir de part et d'autre de la porte.
+    /// Toutes les positions sont en cases de la grille de l'île.
     /// </summary>
     public static class TownLayout
     {
@@ -19,19 +20,23 @@ namespace FishAndChill.Editor
             public readonly Vector2Int Cell;
             public readonly DecorKind Kind;
 
-            public Placement(Vector2Int cell, DecorKind kind)
+            /// <summary>Variante de dessin imposée (pour un décor en miroir) ; -1 = au hasard de la case.</summary>
+            public readonly int Variant;
+
+            public Placement(Vector2Int cell, DecorKind kind, int variant = -1)
             {
                 Cell = cell;
                 Kind = kind;
+                Variant = variant;
             }
         }
 
         public sealed class Result
         {
-            /// <summary>Cases pavées (parvis et chemins).</summary>
+            /// <summary>Cases pavées (parvis, allée et chemins).</summary>
             public bool[,] Paved;
 
-            /// <summary>Cases à laisser libres (bâtiments, décor) : pas de cocotier dessus.</summary>
+            /// <summary>Cases à laisser libres (bâtiments, abords des chemins, décor) : pas de cocotier dessus.</summary>
             public bool[,] Reserved;
 
             public readonly List<Placement> Decor = new List<Placement>();
@@ -39,6 +44,11 @@ namespace FishAndChill.Editor
             /// <summary>L'aquarium est-il à droite du panneau indicateur ?</summary>
             public bool AquariumToTheRightOfSign;
         }
+
+        private const int PlazaHalfWidth = 10;
+        private const int PlazaDepth = 6;
+        private const int AvenueLength = 6;
+        private const int LampSpacing = 6;
 
         /// <summary>
         /// Zone infranchissable d'un élément de décor : seulement son pied (on passe derrière un lampadaire, pas à
@@ -91,15 +101,51 @@ namespace FishAndChill.Editor
 
         public static Result Build(TerrainType[,] terrain, Vector2Int spawn, Vector2Int shop, Vector2Int aquarium, int seed)
         {
-            int width = terrain.GetLength(0);
-            int height = terrain.GetLength(1);
-            var result = new Result { Paved = new bool[width, height], Reserved = new bool[width, height] };
-            bool Inside(int x, int y) => x >= 0 && y >= 0 && x < width && y < height;
-            bool Land(int x, int y) => Inside(x, y) && terrain[x, y] != TerrainType.Water;
+            var layout = new Layout(terrain, shop, aquarium);
+            layout.PavePlazas();
+            List<List<Vector2Int>> segments = layout.PavePaths(spawn);
+            layout.ReserveAroundPaving(2);
+            layout.DecorateAquarium();
+            layout.DecorateShop();
+            layout.LightPaths(segments);
+            layout.PlaceSignpost(segments);
+            layout.ScatterNature(seed);
+            return layout.Result;
+        }
 
-            // Emprise des bâtiments (et du dôme de l'aquarium, qui recouvre ce qu'il y a derrière).
-            var blocked = new bool[width, height];
-            void Block(int x0, int y0, int x1, int y1)
+        /// <summary>État de construction de l'aménagement.</summary>
+        private sealed class Layout
+        {
+            private readonly TerrainType[,] _terrain;
+            private readonly int _width;
+            private readonly int _height;
+            private readonly bool[,] _blocked;
+            private readonly Vector2Int _shop;
+            private readonly Vector2Int _aquarium;
+            private int _avenueEnd;
+
+            public readonly Result Result;
+
+            public Layout(TerrainType[,] terrain, Vector2Int shop, Vector2Int aquarium)
+            {
+                _terrain = terrain;
+                _width = terrain.GetLength(0);
+                _height = terrain.GetLength(1);
+                _shop = shop;
+                _aquarium = aquarium;
+                _blocked = new bool[_width, _height];
+                Result = new Result { Paved = new bool[_width, _height], Reserved = new bool[_width, _height] };
+
+                // Emprise des bâtiments (et du dôme de l'aquarium, qui recouvre ce qu'il y a derrière).
+                Block(aquarium.x - 9, aquarium.y, aquarium.x + 9, aquarium.y + 14);
+                Block(shop.x - 3, shop.y, shop.x + 3, shop.y + 3);
+            }
+
+            private bool Inside(int x, int y) => x >= 0 && y >= 0 && x < _width && y < _height;
+            private bool Land(int x, int y) => Inside(x, y) && _terrain[x, y] != TerrainType.Water;
+            private bool Grass(int x, int y) => Inside(x, y) && _terrain[x, y] == TerrainType.Grass;
+
+            private void Block(int x0, int y0, int x1, int y1)
             {
                 for (int x = x0; x <= x1; x++)
                 {
@@ -107,239 +153,366 @@ namespace FishAndChill.Editor
                     {
                         if (Inside(x, y))
                         {
-                            blocked[x, y] = true;
-                            result.Reserved[x, y] = true;
+                            _blocked[x, y] = true;
+                            Result.Reserved[x, y] = true;
                         }
                     }
                 }
             }
 
-            Block(aquarium.x - 9, aquarium.y, aquarium.x + 9, aquarium.y + 14);
-            Block(shop.x - 3, shop.y, shop.x + 3, shop.y + 3);
-
-            // Parvis : grand devant l'aquarium (coins arrondis), plus petit devant la boutique.
-            void Pave(int x, int y)
+            private void Pave(int x, int y, bool grassOnly)
             {
-                if (Land(x, y) && !blocked[x, y])
+                if (Land(x, y) && !_blocked[x, y] && (!grassOnly || Grass(x, y)))
                 {
-                    result.Paved[x, y] = true;
-                    result.Reserved[x, y] = true;
+                    Result.Paved[x, y] = true;
+                    Result.Reserved[x, y] = true;
                 }
             }
 
-            for (int x = aquarium.x - 10; x <= aquarium.x + 10; x++)
+            /// <summary>Parvis symétrique de l'aquarium (coins du bas arrondis) et allée centrale ; parvis de la boutique.</summary>
+            public void PavePlazas()
             {
-                for (int y = aquarium.y - 6; y <= aquarium.y - 1; y++)
+                int ax = _aquarium.x;
+                int ay = _aquarium.y;
+                for (int dx = -PlazaHalfWidth; dx <= PlazaHalfWidth; dx++)
                 {
-                    bool corner = Mathf.Abs(x - aquarium.x) >= 9 && y == aquarium.y - 6;
-                    if (!corner)
+                    for (int y = ay - PlazaDepth; y <= ay - 1; y++)
                     {
-                        Pave(x, y);
+                        bool roundedCorner = Mathf.Abs(dx) >= PlazaHalfWidth - 1 && y == ay - PlazaDepth;
+                        if (!roundedCorner)
+                        {
+                            Pave(ax + dx, y, grassOnly: false);
+                        }
+                    }
+                }
+
+                // Allée centrale, 3 cases de large, dans l'axe de la porte.
+                _avenueEnd = ay - PlazaDepth;
+                for (int k = 1; k <= AvenueLength; k++)
+                {
+                    int y = ay - PlazaDepth - k;
+                    if (!Land(ax - 1, y) || !Land(ax, y) || !Land(ax + 1, y))
+                    {
+                        break;
+                    }
+
+                    for (int dx = -1; dx <= 1; dx++)
+                    {
+                        Pave(ax + dx, y, grassOnly: false);
+                    }
+
+                    _avenueEnd = y;
+                }
+
+                for (int x = _shop.x - 4; x <= _shop.x + 4; x++)
+                {
+                    for (int y = _shop.y - 3; y <= _shop.y - 1; y++)
+                    {
+                        Pave(x, y, grassOnly: false);
                     }
                 }
             }
 
-            for (int x = shop.x - 4; x <= shop.x + 4; x++)
+            /// <summary>
+            /// Chemins droits à angles droits, 3 cases de large : de la plage au bout de l'allée, et de la boutique
+            /// au milieu du côté du parvis. Renvoie les segments droits (pour aligner les lampadaires).
+            /// </summary>
+            public List<List<Vector2Int>> PavePaths(Vector2Int spawn)
             {
-                for (int y = shop.y - 3; y <= shop.y - 1; y++)
+                var segments = new List<List<Vector2Int>>();
+                int ax = _aquarium.x;
+
+                // Plage → bout de l'allée : on descend dans l'axe, on tourne une fois, on rejoint la plage.
+                var avenueFoot = new Vector2Int(ax, _avenueEnd - 1);
+                List<List<Vector2Int>> toBeach = BestZPath(avenueFoot, spawn, verticalFirst: true);
+                segments.AddRange(toBeach);
+
+                // Boutique → le chemin principal, en T, bien plus bas que l'allée : le chemin descend du parvis de la
+                // boutique puis rejoint le chemin de la plage. Le parvis de l'aquarium et son allée restent symétriques.
+                var beachPath = new List<Vector2Int>();
+                foreach (List<Vector2Int> segment in toBeach)
                 {
-                    Pave(x, y);
+                    beachPath.AddRange(segment);
+                }
+
+                Vector2Int junction = beachPath.Count > 0 ? beachPath[Mathf.Min(6, beachPath.Count - 1)] : avenueFoot;
+                var shopExit = new Vector2Int(_shop.x, _shop.y - 5);
+                segments.AddRange(BestZPath(shopExit, junction, verticalFirst: true));
+
+                foreach (List<Vector2Int> segment in segments)
+                {
+                    foreach (Vector2Int cell in segment)
+                    {
+                        for (int dx = -1; dx <= 1; dx++)
+                        {
+                            for (int dy = -1; dy <= 1; dy++)
+                            {
+                                Pave(cell.x + dx, cell.y + dy, grassOnly: true);
+                            }
+                        }
+                    }
+                }
+
+                return segments;
+            }
+
+            /// <summary>
+            /// Chemin en Z (trois segments droits) de <paramref name="from"/> à <paramref name="to"/> : on cherche
+            /// l'endroit du virage qui évite l'eau et les bâtiments et passe le plus possible dans l'herbe.
+            /// </summary>
+            private List<List<Vector2Int>> BestZPath(Vector2Int from, Vector2Int to, bool verticalFirst)
+            {
+                List<List<Vector2Int>> best = null;
+                int bestScore = int.MaxValue;
+                int lo = verticalFirst ? Mathf.Min(from.y, to.y) : Mathf.Min(from.x, to.x);
+                int hi = verticalFirst ? Mathf.Max(from.y, to.y) : Mathf.Max(from.x, to.x);
+                for (int turn = lo; turn <= hi; turn++)
+                {
+                    var corner1 = verticalFirst ? new Vector2Int(from.x, turn) : new Vector2Int(turn, from.y);
+                    var corner2 = verticalFirst ? new Vector2Int(to.x, turn) : new Vector2Int(turn, to.y);
+                    var path = new List<List<Vector2Int>> { Line(from, corner1), Line(corner1, corner2), Line(corner2, to) };
+                    int score = Score(path);
+                    if (score < bestScore)
+                    {
+                        bestScore = score;
+                        best = path;
+                    }
+                }
+
+                return best ?? new List<List<Vector2Int>>();
+            }
+
+            /// <summary>Coût d'un chemin : impossible s'il traverse l'eau ou un bâtiment, cher sur le sable.</summary>
+            private int Score(List<List<Vector2Int>> path)
+            {
+                int score = 0;
+                foreach (List<Vector2Int> segment in path)
+                {
+                    foreach (Vector2Int cell in segment)
+                    {
+                        for (int dx = -1; dx <= 1; dx++)
+                        {
+                            for (int dy = -1; dy <= 1; dy++)
+                            {
+                                int x = cell.x + dx;
+                                int y = cell.y + dy;
+                                if (!Inside(x, y))
+                                {
+                                    return int.MaxValue;
+                                }
+
+                                if (_blocked[x, y])
+                                {
+                                    return int.MaxValue;
+                                }
+                            }
+                        }
+
+                        if (!Land(cell.x, cell.y))
+                        {
+                            score += 1000;   // un peu d'eau près de la plage reste possible : le pavé n'y est pas posé
+                        }
+                        else
+                        {
+                            score += Grass(cell.x, cell.y) ? 1 : 3;
+                        }
+                    }
+                }
+
+                return score;
+            }
+
+            private static List<Vector2Int> Line(Vector2Int a, Vector2Int b)
+            {
+                var cells = new List<Vector2Int>();
+                Vector2Int step = new Vector2Int(System.Math.Sign(b.x - a.x), System.Math.Sign(b.y - a.y));
+                Vector2Int at = a;
+                cells.Add(at);
+                while (at != b)
+                {
+                    at += step;
+                    cells.Add(at);
+                }
+
+                return cells;
+            }
+
+            /// <summary>Les abords des pavés restent dégagés (pas de cocotier ni de buisson au ras du chemin).</summary>
+            public void ReserveAroundPaving(int margin)
+            {
+                var paved = Result.Paved;
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (!paved[x, y])
+                        {
+                            continue;
+                        }
+
+                        for (int dx = -margin; dx <= margin; dx++)
+                        {
+                            for (int dy = -margin; dy <= margin; dy++)
+                            {
+                                if (Inside(x + dx, y + dy))
+                                {
+                                    Result.Reserved[x + dx, y + dy] = true;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
-            // Chemins pavés de 2 cases, qui préfèrent l'herbe à la plage : plage → boutique → aquarium.
-            List<Vector2Int> toShop = FindPath(terrain, blocked, spawn, new Vector2Int(shop.x, shop.y - 3));
-            List<Vector2Int> toAquarium = FindPath(terrain, blocked, new Vector2Int(shop.x, shop.y - 3), new Vector2Int(aquarium.x, aquarium.y - 6));
-            var pathCells = new List<Vector2Int>();
-            pathCells.AddRange(toShop);
-            pathCells.AddRange(toAquarium);
-            foreach (Vector2Int cell in pathCells)
+            private void Put(int x, int y, DecorKind kind, int variant = -1, bool allowOnPaving = false)
             {
-                if (terrain[cell.x, cell.y] != TerrainType.Grass)
-                {
-                    continue; // le chemin commence là où finit le sable
-                }
-
-                Pave(cell.x, cell.y);
-                if (Inside(cell.x + 1, cell.y) && terrain[cell.x + 1, cell.y] == TerrainType.Grass) Pave(cell.x + 1, cell.y);
-                if (Inside(cell.x, cell.y + 1) && terrain[cell.x, cell.y + 1] == TerrainType.Grass) Pave(cell.x, cell.y + 1);
-            }
-
-            // ----- Décor -----
-            void Put(int x, int y, DecorKind kind)
-            {
-                if (!Inside(x, y) || !Land(x, y) || blocked[x, y])
+                if (!Land(x, y) || _blocked[x, y] || (!allowOnPaving && Result.Paved[x, y]))
                 {
                     return;
                 }
 
-                result.Decor.Add(new Placement(new Vector2Int(x, y), kind));
-                for (int dx = -1; dx <= 1; dx++)
+                foreach (Placement other in Result.Decor)
                 {
-                    for (int dy = -1; dy <= 1; dy++)
+                    if (other.Cell.x == x && other.Cell.y == y)
                     {
-                        if (Inside(x + dx, y + dy))
+                        return;
+                    }
+
+                    // Pas deux lampadaires collés : au moins 3 cases entre eux.
+                    bool bothLamps = kind == DecorKind.Lamp && other.Kind == DecorKind.Lamp;
+                    if (bothLamps && Mathf.Abs(other.Cell.x - x) < 3 && Mathf.Abs(other.Cell.y - y) < 3)
+                    {
+                        return;
+                    }
+                }
+
+                Result.Decor.Add(new Placement(new Vector2Int(x, y), kind, variant));
+                Result.Reserved[x, y] = true;
+            }
+
+            /// <summary>Pose la même chose des deux côtés de l'axe de la porte (cases ax - k et ax + k).</summary>
+            private void Mirror(int k, int y, DecorKind kind, int variant = -1, bool allowOnPaving = false)
+            {
+                Put(_aquarium.x - k, y, kind, variant, allowOnPaving);
+                Put(_aquarium.x + k, y, kind, variant, allowOnPaving);
+            }
+
+            /// <summary>Décor de l'aquarium, en miroir : haies, massifs, lampadaires du parvis et de l'allée, buissons.</summary>
+            public void DecorateAquarium()
+            {
+                int ay = _aquarium.y;
+                for (int k = 4; k <= 9; k++)
+                {
+                    Mirror(k, ay - 1, k % 2 == 0 ? DecorKind.HedgeFlowers : DecorKind.Hedge, (k / 2) % 2, allowOnPaving: true);
+                }
+
+                Mirror(6, ay - 4, DecorKind.FlowerBed, 0, allowOnPaving: true);
+
+                // Lampadaires aux quatre coins du parvis, puis en paires le long de l'allée.
+                Mirror(PlazaHalfWidth + 1, ay - 1, DecorKind.Lamp);
+                Mirror(PlazaHalfWidth + 1, ay - PlazaDepth, DecorKind.Lamp);
+                for (int y = ay - PlazaDepth - 2; y >= _avenueEnd; y -= 3)
+                {
+                    Mirror(2, y, DecorKind.Lamp);
+                }
+
+                // Buissons et rochers sur les côtés du bâtiment, identiques à gauche et à droite.
+                Mirror(PlazaHalfWidth + 1, ay + 2, DecorKind.BushFlowers, 1);
+                Mirror(PlazaHalfWidth + 1, ay + 5, DecorKind.Bush, 0);
+                Mirror(PlazaHalfWidth, ay + 8, DecorKind.BushFlowers, 2);
+                Mirror(PlazaHalfWidth + 1, ay + 11, DecorKind.Rock, 1);
+            }
+
+            /// <summary>Boutique : tonneaux et caisses contre la façade, lampadaires aux coins du parvis, buissons.</summary>
+            public void DecorateShop()
+            {
+                int sx = _shop.x;
+                int sy = _shop.y;
+                Put(sx + 3, sy - 1, DecorKind.Barrel, allowOnPaving: true);
+                Put(sx + 4, sy - 1, DecorKind.Barrel, allowOnPaving: true);
+                Put(sx - 4, sy - 1, DecorKind.Crates, allowOnPaving: true);
+                // Deux lampadaires de part et d'autre du chemin qui part du parvis (comme ceux de l'allée).
+                Put(sx - 2, sy - 5, DecorKind.Lamp);
+                Put(sx + 2, sy - 5, DecorKind.Lamp);
+                Put(sx - 5, sy + 1, DecorKind.BushFlowers, 1);
+                Put(sx + 5, sy + 1, DecorKind.BushFlowers, 1);
+            }
+
+            /// <summary>Un lampadaire toutes les <see cref="LampSpacing"/> cases, toujours du même côté du chemin.</summary>
+            public void LightPaths(List<List<Vector2Int>> segments)
+            {
+                foreach (List<Vector2Int> segment in segments)
+                {
+                    if (segment.Count < 5)
+                    {
+                        continue;
+                    }
+
+                    bool vertical = segment[0].x == segment[segment.Count - 1].x;
+                    for (int i = 3; i < segment.Count - 2; i += LampSpacing)
+                    {
+                        Vector2Int cell = segment[i];
+                        int x = vertical ? cell.x - 2 : cell.x;   // à gauche d'un chemin vertical
+                        int y = vertical ? cell.y : cell.y + 2;   // au nord d'un chemin horizontal
+                        if (Grass(x, y) && Result.Paved[cell.x, cell.y])
                         {
-                            result.Reserved[x + dx, y + dy] = true;
+                            Put(x, y, DecorKind.Lamp);
                         }
                     }
                 }
             }
 
-            // Aquarium : haies fleuries au pied des ailes, deux massifs, lampadaires aux coins du parvis,
-            // buissons et rochers sur les côtés.
-            for (int k = 4; k <= 9; k++)
+            /// <summary>Panneau indicateur là où le chemin de la plage atteint l'herbe.</summary>
+            public void PlaceSignpost(List<List<Vector2Int>> segments)
             {
-                DecorKind hedge = k % 2 == 0 ? DecorKind.HedgeFlowers : DecorKind.Hedge;
-                Put(aquarium.x - k, aquarium.y - 1, hedge);
-                Put(aquarium.x + k, aquarium.y - 1, hedge);
-            }
-
-            Put(aquarium.x - 6, aquarium.y - 4, DecorKind.FlowerBed);
-            Put(aquarium.x + 6, aquarium.y - 4, DecorKind.FlowerBed);
-            Put(aquarium.x - 11, aquarium.y - 6, DecorKind.Lamp);
-            Put(aquarium.x + 11, aquarium.y - 6, DecorKind.Lamp);
-            Put(aquarium.x - 11, aquarium.y - 1, DecorKind.Lamp);
-            Put(aquarium.x + 11, aquarium.y - 1, DecorKind.Lamp);
-            Put(aquarium.x - 11, aquarium.y + 2, DecorKind.BushFlowers);
-            Put(aquarium.x + 11, aquarium.y + 2, DecorKind.BushFlowers);
-            Put(aquarium.x - 11, aquarium.y + 5, DecorKind.Rock);
-            Put(aquarium.x + 11, aquarium.y + 5, DecorKind.Bush);
-            Put(aquarium.x - 10, aquarium.y + 8, DecorKind.Bush);
-            Put(aquarium.x + 10, aquarium.y + 8, DecorKind.BushFlowers);
-
-            // Boutique : tonneaux et caisses contre la façade, lampadaires, un buisson.
-            Put(shop.x + 3, shop.y - 1, DecorKind.Barrel);
-            Put(shop.x + 4, shop.y - 1, DecorKind.Barrel);
-            Put(shop.x - 4, shop.y - 1, DecorKind.Crates);
-            Put(shop.x - 5, shop.y - 3, DecorKind.Lamp);
-            Put(shop.x + 5, shop.y - 3, DecorKind.Lamp);
-            Put(shop.x - 4, shop.y + 1, DecorKind.BushFlowers);
-            Put(shop.x + 4, shop.y + 2, DecorKind.Bush);
-
-            // Lampadaires le long des chemins, et le panneau indicateur au début du chemin.
-            bool signPlaced = false;
-            int sinceLamp = 0;
-            foreach (Vector2Int cell in pathCells)
-            {
-                if (terrain[cell.x, cell.y] != TerrainType.Grass)
+                // Le chemin de la plage est le premier : on le parcourt depuis la plage.
+                var beachPath = new List<Vector2Int>();
+                for (int s = 0; s < segments.Count && s < 3; s++)
                 {
-                    continue;
+                    beachPath.AddRange(segments[s]);
                 }
 
-                int side = (cell.x + cell.y) % 2 == 0 ? -1 : 2;
-                int sx = cell.x + side;
-                if (!signPlaced && Land(sx, cell.y) && !result.Paved[sx, cell.y])
+                for (int i = beachPath.Count - 1; i >= 0; i--)
                 {
-                    Put(sx, cell.y, DecorKind.Signpost);
-                    result.AquariumToTheRightOfSign = aquarium.x > sx;
-                    signPlaced = true;
-                    sinceLamp = 0;
-                    continue;
-                }
-
-                if (++sinceLamp >= 9 && Land(sx, cell.y) && !result.Paved[sx, cell.y] && !result.Reserved[sx, cell.y])
-                {
-                    Put(sx, cell.y, DecorKind.Lamp);
-                    sinceLamp = 0;
-                }
-            }
-
-            // Un peu de nature partout ailleurs : buissons (parfois fleuris) et rochers.
-            for (int x = 1; x < width - 1; x++)
-            {
-                for (int y = 1; y < height - 1; y++)
-                {
-                    if (terrain[x, y] != TerrainType.Grass || result.Reserved[x, y])
+                    Vector2Int cell = beachPath[i];
+                    if (!Result.Paved[cell.x, cell.y])
                     {
                         continue;
                     }
 
-                    float hash = IslandGenerator.CellHash(x, y, seed + 9);
-                    if (hash < 0.012f)
+                    // Du côté opposé à la boutique, pour ne pas gêner le raccord de son chemin.
+                    int x = cell.x + (_shop.x > cell.x ? -2 : 2);
+                    if (Grass(x, cell.y + 1))
                     {
-                        Put(x, y, DecorKind.Bush);
+                        Put(x, cell.y + 1, DecorKind.Signpost);
+                        Result.AquariumToTheRightOfSign = _aquarium.x > x;
                     }
-                    else if (hash < 0.018f)
-                    {
-                        Put(x, y, DecorKind.BushFlowers);
-                    }
-                    else if (hash < 0.023f)
-                    {
-                        Put(x, y, DecorKind.Rock);
-                    }
+
+                    return;
                 }
             }
 
-            return result;
-        }
-
-        /// <summary>Chemin le moins coûteux (4 voisins) : l'herbe coûte 1, le sable 4 ; ni eau ni bâtiment.</summary>
-        private static List<Vector2Int> FindPath(TerrainType[,] terrain, bool[,] blocked, Vector2Int from, Vector2Int to)
-        {
-            int width = terrain.GetLength(0);
-            int height = terrain.GetLength(1);
-            var cost = new int[width, height];
-            var previous = new Vector2Int[width, height];
-            for (int x = 0; x < width; x++)
+            /// <summary>Un peu de nature ailleurs : buissons (parfois fleuris) et rochers, loin des chemins.</summary>
+            public void ScatterNature(int seed)
             {
-                for (int y = 0; y < height; y++)
+                for (int x = 1; x < _width - 1; x++)
                 {
-                    cost[x, y] = int.MaxValue;
-                }
-            }
-
-            var open = new SortedSet<(int cost, int x, int y)>();
-            cost[from.x, from.y] = 0;
-            open.Add((0, from.x, from.y));
-            Vector2Int[] steps = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-            while (open.Count > 0)
-            {
-                (int c, int cx, int cy) = open.Min;
-                open.Remove(open.Min);
-                if (cx == to.x && cy == to.y)
-                {
-                    break;
-                }
-
-                foreach (Vector2Int step in steps)
-                {
-                    int nx = cx + step.x;
-                    int ny = cy + step.y;
-                    if (nx < 0 || ny < 0 || nx >= width || ny >= height || terrain[nx, ny] == TerrainType.Water || blocked[nx, ny])
+                    for (int y = 1; y < _height - 1; y++)
                     {
-                        continue;
-                    }
-
-                    int next = c + (terrain[nx, ny] == TerrainType.Grass ? 1 : 4);
-                    if (next < cost[nx, ny])
-                    {
-                        if (cost[nx, ny] != int.MaxValue)
+                        if (!Grass(x, y) || Result.Reserved[x, y])
                         {
-                            open.Remove((cost[nx, ny], nx, ny));
+                            continue;
                         }
 
-                        cost[nx, ny] = next;
-                        previous[nx, ny] = new Vector2Int(cx, cy);
-                        open.Add((next, nx, ny));
+                        float hash = IslandGenerator.CellHash(x, y, seed + 9);
+                        DecorKind? kind = hash < 0.012f ? DecorKind.Bush : hash < 0.018f ? DecorKind.BushFlowers : hash < 0.023f ? DecorKind.Rock : (DecorKind?)null;
+                        if (kind.HasValue)
+                        {
+                            Put(x, y, kind.Value);
+                        }
                     }
                 }
             }
-
-            var path = new List<Vector2Int>();
-            if (cost[to.x, to.y] == int.MaxValue)
-            {
-                return path;
-            }
-
-            for (Vector2Int at = to; at != from; at = previous[at.x, at.y])
-            {
-                path.Add(at);
-            }
-
-            path.Add(from);
-            path.Reverse();
-            return path;
         }
     }
 }
