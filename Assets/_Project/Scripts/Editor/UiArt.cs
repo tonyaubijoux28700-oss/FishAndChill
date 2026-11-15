@@ -107,5 +107,119 @@ namespace FishAndChill.Editor
             PixelArt.Outline(p, C(0.05f, 0.10f, 0.14f));
             return p;
         }
+
+        /// <summary>Canne à pêche 20×20 : scion en diagonale, poignée en liège, moulinet, fil et bouchon.</summary>
+        public static Color[,] RodIcon()
+        {
+            var p = new Color[20, 20];
+            Color blank = C(0.20f, 0.30f, 0.45f);
+            Color blankLight = C(0.40f, 0.52f, 0.68f);
+            Color cork = C(0.80f, 0.62f, 0.38f);
+            Color reel = C(0.75f, 0.78f, 0.82f);
+            Color line = C(0.92f, 0.94f, 0.96f);
+
+            // Canne : du bas-gauche (poignée) vers le haut-droite (scion).
+            for (int k = 0; k <= 15; k++)
+            {
+                int x = 2 + k;
+                int y = 2 + k;
+                PixelArt.Set(p, x, y, k < 4 ? cork : blank);
+                PixelArt.Set(p, x, y + 1, k < 4 ? Color.Lerp(cork, Color.white, 0.25f) : blankLight);
+            }
+
+            // Moulinet sous la poignée.
+            PixelArt.Rect(p, 6, 3, 8, 5, reel);
+            PixelArt.Set(p, 7, 4, C(0.35f, 0.38f, 0.42f));
+            PixelArt.Set(p, 9, 3, C(0.35f, 0.38f, 0.42f));
+
+            // Fil qui pend du scion, avec un bouchon rouge et blanc.
+            for (int y = 9; y <= 17; y++)
+            {
+                PixelArt.Set(p, 18, y, line);
+            }
+
+            PixelArt.Rect(p, 17, 6, 19, 7, C(0.90f, 0.22f, 0.22f));
+            PixelArt.Rect(p, 17, 8, 19, 8, Color.white);
+            PixelArt.Outline(p, C(0.05f, 0.08f, 0.12f));
+            return p;
+        }
+
+        /// <summary>Hameçon 20×20 : tige argentée, œillet, courbe et ardillon.</summary>
+        public static Color[,] HookIcon()
+        {
+            var p = new Color[20, 20];
+            Color steel = C(0.78f, 0.82f, 0.88f);
+            Color steelDark = C(0.48f, 0.52f, 0.60f);
+            Color shine = C(0.98f, 0.99f, 1.00f);
+
+            // Œillet en haut.
+            PixelArt.Rect(p, 11, 16, 13, 18, steel);
+            PixelArt.Set(p, 12, 17, PixelArt.Clear);
+
+            // Tige verticale.
+            for (int y = 6; y <= 15; y++)
+            {
+                PixelArt.Set(p, 12, y, steel);
+                PixelArt.Set(p, 13, y, steelDark);
+            }
+
+            PixelArt.Set(p, 12, 13, shine);
+            PixelArt.Set(p, 12, 12, shine);
+
+            // Courbe en J vers la gauche, puis la pointe qui remonte.
+            int[,] curve = { { 12, 5 }, { 11, 4 }, { 10, 3 }, { 9, 3 }, { 8, 3 }, { 7, 4 }, { 6, 5 }, { 6, 6 }, { 6, 7 }, { 6, 8 } };
+            for (int i = 0; i < curve.GetLength(0); i++)
+            {
+                PixelArt.Set(p, curve[i, 0], curve[i, 1], steel);
+                PixelArt.Set(p, curve[i, 0], curve[i, 1] - 1, steelDark);
+            }
+
+            // Ardillon.
+            PixelArt.Set(p, 7, 8, steel);
+            PixelArt.Set(p, 7, 9, steelDark);
+            PixelArt.Set(p, 6, 9, shine);
+            PixelArt.Outline(p, C(0.06f, 0.08f, 0.12f));
+            return p;
+        }
+
+        /// <summary>Appât 20×20 : leurre en forme de petit poisson argenté et orange, avec son hameçon triple.</summary>
+        public static Color[,] BaitIcon()
+        {
+            var p = new Color[20, 20];
+            Color body = C(0.95f, 0.58f, 0.22f);
+            Color belly = C(0.98f, 0.86f, 0.55f);
+            Color back = C(0.70f, 0.32f, 0.14f);
+            Color steel = C(0.78f, 0.82f, 0.88f);
+
+            // Corps du leurre (ovale, tête à droite).
+            for (int x = 4; x <= 15; x++)
+            {
+                float t = (x - 9.5f) / 6f;
+                int half = Mathf.RoundToInt(3.6f * Mathf.Sqrt(Mathf.Max(0f, 1f - t * t)));
+                for (int y = 11 - half; y <= 11 + half; y++)
+                {
+                    Color c = y > 11 + half / 2 ? back : y < 11 - half / 2 ? belly : body;
+                    PixelArt.Set(p, x, y, c);
+                }
+            }
+
+            // Queue, œil, bavette et reflet.
+            PixelArt.Rect(p, 2, 9, 3, 13, body);
+            PixelArt.Set(p, 1, 8, body);
+            PixelArt.Set(p, 1, 14, body);
+            PixelArt.Set(p, 13, 12, C(0.10f, 0.08f, 0.08f));
+            PixelArt.Rect(p, 16, 9, 17, 10, C(0.85f, 0.90f, 0.95f));
+            PixelArt.Set(p, 8, 13, Color.white);
+            PixelArt.Set(p, 9, 13, Color.white);
+
+            // Hameçon triple sous le ventre.
+            PixelArt.Rect(p, 9, 4, 9, 7, steel);
+            PixelArt.Set(p, 8, 3, steel);
+            PixelArt.Set(p, 10, 3, steel);
+            PixelArt.Set(p, 7, 4, steel);
+            PixelArt.Set(p, 11, 4, steel);
+            PixelArt.Outline(p, C(0.10f, 0.06f, 0.04f));
+            return p;
+        }
     }
 }

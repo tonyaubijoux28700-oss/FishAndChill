@@ -1,5 +1,6 @@
 using System;
 using FishAndChill.Collection;
+using FishAndChill.Gear;
 using FishAndChill.Player;
 using FishAndChill.World;
 using UnityEngine;
@@ -197,7 +198,8 @@ namespace FishAndChill.Fishing
                     break;
 
                 case FishingState.Bite:
-                    Challenge = new QteChallenge(HookedSpecies.Difficulty, _random);
+                    // Le matériel (canne, hameçon) rend le combat plus facile.
+                    Challenge = new QteChallenge(GearEffects.Apply(HookedSpecies.Difficulty), _random);
                     StartPhase(FishingState.Reeling, 0f, "Appuie quand le curseur est dans la zone verte !");
                     break;
 
@@ -221,6 +223,9 @@ namespace FishAndChill.Fishing
         }
 
         /// <summary>Peut-on lancer d'ici ? Non à l'intérieur de la boutique.</summary>
+        /// <summary>Effets du matériel du joueur (aucun si la pêche n'est pas reliée à une partie).</summary>
+        private GearEffects GearEffects => _progress != null ? _progress.GearEffects : GearEffects.None;
+
         /// <summary>Pas de pêche à l'intérieur d'un bâtiment (boutique, aquarium).</summary>
         public bool CanFishHere => InteriorBuilding.Occupied == null;
 
@@ -245,7 +250,9 @@ namespace FishAndChill.Fishing
             }
 
             CastPoint = castPoint;
-            HookedSpecies = _zone.PickSpecies(_random);
+            // L'appât attire plus souvent les espèces rares et fait mordre plus vite.
+            GearEffects gear = GearEffects;
+            HookedSpecies = _zone.PickSpecies(_random, species => gear.RarityMultiplier(species.Rarity));
             if (HookedSpecies == null)
             {
                 Finish($"Aucun poisson dans la zone « {_zone.DisplayName} ».");
@@ -254,7 +261,8 @@ namespace FishAndChill.Fishing
 
             Vector2 range = HookedSpecies.SizeRangeCm;
             HookedSizeCm = Mathf.Lerp(range.x, range.y, (float)_random.NextDouble());
-            float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble());
+            float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble())
+                * gear.BiteWaitFactor;
             StartPhase(FishingState.Waiting, wait, "Patience… attends que ça morde.");
         }
 
@@ -298,7 +306,7 @@ namespace FishAndChill.Fishing
             {
                 // Sac plein : on attend que le joueur choisisse quoi relâcher (pas de délai).
                 PendingFish = fish;
-                StartPhase(FishingState.BagFull, 0f, $"{header}\nSac plein ! 1, 2 ou 3 : relâcher ce poisson du sac — Espace : relâcher le nouveau.");
+                StartPhase(FishingState.BagFull, 0f, $"{header}\nSac plein ! 1 à {_progress.Bag.Capacity} : relâcher ce poisson du sac — Espace : relâcher le nouveau.");
                 FishCaught?.Invoke(fish, isNew, true);
                 return;
             }

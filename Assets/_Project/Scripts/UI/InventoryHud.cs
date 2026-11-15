@@ -194,7 +194,7 @@ namespace FishAndChill.UI
             }
 
             _windowTitle.text = Choosing ? "Quel poisson relâcher ?" : $"Mon sac  {_progress.Bag.Count}/{_progress.Bag.Capacity}";
-            _windowHelp.text = Choosing ? "1, 2, 3 : relâcher   •   Espace : relâcher le nouveau" : "E ou Échap : fermer";
+            _windowHelp.text = Choosing ? $"1 à {_progress.Bag.Capacity} : relâcher   •   Espace : relâcher le nouveau" : "E ou Échap : fermer";
             _windowHelp.color = Choosing ? Gold : Muted;
         }
 

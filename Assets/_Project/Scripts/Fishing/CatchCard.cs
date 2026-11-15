@@ -140,7 +140,7 @@ namespace FishAndChill.Fishing
             {
                 _footer.text = "Sac plein ! Relâche un poisson pour le garder";
                 _footer.color = Gold;
-                _hint.text = "1, 2, 3 : relâcher ce poisson du sac   •   Espace : relâcher le nouveau";
+                _hint.text = $"1 à {bagCapacity} : relâcher ce poisson du sac   •   Espace : relâcher le nouveau";
                 _hint.color = Color.white;
             }
             else

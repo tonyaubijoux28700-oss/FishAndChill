@@ -279,6 +279,11 @@ namespace FishAndChill.Editor
                 progress = partie.AddComponent<PlayerProgress>();
             }
 
+            // Le matériel vendu par le marchand (canne, hameçon, appât, sac).
+            var progressSo = new SerializedObject(progress);
+            progressSo.FindProperty("_gearCatalog").objectReferenceValue = GearSetup.CreateOrUpdate();
+            progressSo.ApplyModifiedPropertiesWithoutUndo();
+
             so = new SerializedObject(controller);
             so.FindProperty("_progress").objectReferenceValue = progress;
             so.ApplyModifiedPropertiesWithoutUndo();

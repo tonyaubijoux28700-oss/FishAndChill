@@ -33,12 +33,19 @@ namespace FishAndChill.World
         public IReadOnlyList<SpeciesEntry> Species => _species;
 
         /// <summary>Tire au sort l'espèce qui va mordre, selon les fréquences. Null si la zone est vide.</summary>
-        public FishSpecies PickSpecies(System.Random random)
+        public FishSpecies PickSpecies(System.Random random) => PickSpecies(random, null);
+
+        /// <summary>
+        /// Tirage avec un multiplicateur de fréquence par espèce (l'appât rend les espèces rares plus fréquentes).
+        /// </summary>
+        public FishSpecies PickSpecies(System.Random random, System.Func<FishSpecies, float> weightMultiplier)
         {
             var weights = new float[_species.Count];
             for (int i = 0; i < _species.Count; i++)
             {
-                weights[i] = _species[i].Species != null ? _species[i].Weight : 0f;
+                FishSpecies species = _species[i].Species;
+                float multiplier = species != null && weightMultiplier != null ? weightMultiplier(species) : 1f;
+                weights[i] = species != null ? _species[i].Weight * multiplier : 0f;
             }
 
             int index = WeightedPicker.Pick(weights, random.NextDouble());
