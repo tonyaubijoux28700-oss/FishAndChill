@@ -162,7 +162,7 @@ namespace FishAndChill.Editor
             }
 
             DrawEye(p);
-            SelectiveOutline(p);
+            PixelArt.SelectiveOutline(p, OutlineColor);
             return p;
         }
 
@@ -575,67 +575,6 @@ namespace FishAndChill.Editor
                     float light = 0.95f + 0.18f * Mathf.Clamp(dy / Mathf.Max(1f, span), -1f, 1f);
                     p[x, y] = Shade(c, light);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Contour sélectif : chaque pixel du contour prend une version sombre et froide de la couleur voisine,
-        /// plus claire sur le haut (côté lumière) : la forme reste lisible sans le trait noir « découpé ».
-        /// </summary>
-        private void SelectiveOutline(Color[,] p)
-        {
-            var outline = new Color[Width, Height];
-            var has = new bool[Width, Height];
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (PixelArt.IsFilled(p, x, y))
-                    {
-                        continue;
-                    }
-
-                    Color sum = Color.clear;
-                    int count = 0;
-                    AddNeighbour(p, x + 1, y, ref sum, ref count);
-                    AddNeighbour(p, x - 1, y, ref sum, ref count);
-                    AddNeighbour(p, x, y + 1, ref sum, ref count);
-                    AddNeighbour(p, x, y - 1, ref sum, ref count);
-                    if (count == 0)
-                    {
-                        continue;
-                    }
-
-                    Color n = sum / count;
-                    bool litSide = PixelArt.IsFilled(p, x, y - 1) && !PixelArt.IsFilled(p, x, y + 1);
-                    Color dark = litSide
-                        ? new Color(n.r * 0.50f, n.g * 0.52f, n.b * 0.60f)
-                        : new Color(n.r * 0.28f, n.g * 0.30f, n.b * 0.40f);
-                    Color o = Color.Lerp(dark, OutlineColor, litSide ? 0.2f : 0.45f);
-                    o.a = 1f;
-                    outline[x, y] = o;
-                    has[x, y] = true;
-                }
-            }
-
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (has[x, y])
-                    {
-                        p[x, y] = outline[x, y];
-                    }
-                }
-            }
-        }
-
-        private void AddNeighbour(Color[,] p, int x, int y, ref Color sum, ref int count)
-        {
-            if (PixelArt.IsFilled(p, x, y))
-            {
-                sum += p[x, y];
-                count++;
             }
         }
 

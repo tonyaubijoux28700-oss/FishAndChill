@@ -118,6 +118,70 @@ namespace FishAndChill.Editor
             }
         }
 
+        /// <summary>
+        /// Contour sélectif (poissons, personnages) : chaque pixel du contour prend une version sombre et froide de la
+        /// couleur voisine, plus claire sur le haut (côté lumière), mêlée à <paramref name="color"/>
+        /// (<paramref name="ink"/> = part de cette couleur sur le côté ombre). Plus doux qu'un trait noir uniforme.
+        /// </summary>
+        public static void SelectiveOutline(Color[,] pixels, Color color, float ink = 0.45f)
+        {
+            int width = pixels.GetLength(0);
+            int height = pixels.GetLength(1);
+            var outline = new Color[width, height];
+            var has = new bool[width, height];
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (IsFilled(pixels, x, y))
+                    {
+                        continue;
+                    }
+
+                    Color sum = Color.clear;
+                    int count = 0;
+                    AddNeighbour(pixels, x + 1, y, ref sum, ref count);
+                    AddNeighbour(pixels, x - 1, y, ref sum, ref count);
+                    AddNeighbour(pixels, x, y + 1, ref sum, ref count);
+                    AddNeighbour(pixels, x, y - 1, ref sum, ref count);
+                    if (count == 0)
+                    {
+                        continue;
+                    }
+
+                    Color n = sum / count;
+                    bool litSide = IsFilled(pixels, x, y - 1) && !IsFilled(pixels, x, y + 1);
+                    Color dark = litSide
+                        ? new Color(n.r * 0.50f, n.g * 0.52f, n.b * 0.60f)
+                        : new Color(n.r * 0.28f, n.g * 0.30f, n.b * 0.40f);
+                    Color o = Color.Lerp(dark, color, litSide ? ink * 0.45f : ink);
+                    o.a = 1f;
+                    outline[x, y] = o;
+                    has[x, y] = true;
+                }
+            }
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (has[x, y])
+                    {
+                        pixels[x, y] = outline[x, y];
+                    }
+                }
+            }
+        }
+
+        private static void AddNeighbour(Color[,] pixels, int x, int y, ref Color sum, ref int count)
+        {
+            if (IsFilled(pixels, x, y))
+            {
+                sum += pixels[x, y];
+                count++;
+            }
+        }
+
         public static Color[,] MirrorX(Color[,] pixels)
         {
             int width = pixels.GetLength(0);

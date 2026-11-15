@@ -105,7 +105,9 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
     sable (coquillage, étoile de mer), herbe (hibiscus, frangipanier), variantes choisies par `CellHash` ;
     cocotiers 32×40 sur la Tilemap `Décor` en tri individuel, même ordre que le joueur ;
   - tri par profondeur : Renderer2D en *Custom Axis* (0, 1, 0) — plus au nord = dessiné derrière ;
-  - pêcheur 16×24, pivot **aux pieds**, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator` ;
+  - pêcheur 16×24, pivot **aux pieds**, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator`.
+    Même style que les poissons : formes rondes éclairées par paliers (`DetailedFish.Shade`), contour sélectif
+    partagé (`PixelArt.SelectiveOutline`), ombre douce au sol. Le marchand (`ShopArt.Merchant`) est encore à l'ancien style ;
   - poissons de profil, tête à droite, un par espèce (`FishArt.cs` → `Art/Fish/`), assignés au champ
     `_sprite` de chaque `FishSpecies`. Dessins **détaillés** (≈ 96 px de long) via le moteur paramétrable
     `DetailedFish` (silhouette, dégradé, nageoires, queue, tête, motifs) : profils lissés (Catmull-Rom), corps
