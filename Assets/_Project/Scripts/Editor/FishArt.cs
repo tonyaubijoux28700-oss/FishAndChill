@@ -94,6 +94,33 @@ namespace FishAndChill.Editor
             },
         };
 
+        /// <summary>
+        /// Petite version du poisson (≈ 22 px de long) pour l'aquarium, réduite depuis son dessin complet
+        /// (à appeler après <see cref="Generate"/>). Même échelle que l'île : 16 px par case.
+        /// </summary>
+        public static Sprite GenerateMini(string speciesId)
+        {
+            Color[,] full = PixelArt.Load($"{Folder}/{speciesId}.png");
+            int factor = Mathf.Max(2, Mathf.RoundToInt(full.GetLength(0) / 22f));
+            Color[,] mini = PixelArt.Downscale(full, factor);
+
+            // Une marge d'un pixel pour le contour, qui garde la silhouette nette sur l'eau.
+            int width = mini.GetLength(0) + 2;
+            int height = mini.GetLength(1) + 2;
+            var framed = new Color[width, height];
+            for (int x = 0; x < mini.GetLength(0); x++)
+            {
+                for (int y = 0; y < mini.GetLength(1); y++)
+                {
+                    framed[x + 1, y + 1] = mini[x, y];
+                }
+            }
+
+            PixelArt.SelectiveOutline(framed, new Color(0.06f, 0.08f, 0.12f), 0.5f);
+            PixelArt.EnsureFolder($"{Folder}/Mini");
+            return PixelArt.Save($"{Folder}/Mini/{speciesId}.png", framed, 16, new Vector2(0.5f, 0.5f));
+        }
+
         /// <summary>Dessine le poisson et renvoie son sprite. Espèce inconnue : forme générique à sa couleur provisoire.</summary>
         public static Sprite Generate(string speciesId, Color fallbackColor)
         {

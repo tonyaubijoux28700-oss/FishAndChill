@@ -35,13 +35,15 @@ namespace FishAndChill.Collection
             }
 
             CaughtFish fish = bag[slot];
-            if (aquarium != null && aquarium.Contains(fish.SpeciesId))
+            if (KeeperSlot(bag, fish.SpeciesId) != slot)
             {
+                // Pas le plus gros de son espèce dans le sac : c'est un doublon.
                 return true;
             }
 
-            // Nouvelle espèce : on garde le plus gros exemplaire, les autres sont des doublons.
-            return KeeperSlot(bag, fish.SpeciesId) != slot;
+            // Le plus gros du sac : gardé si l'espèce manque à l'aquarium, ou s'il bat le record de l'aquarium.
+            CaughtFish specimen = aquarium?.SpecimenOf(fish.SpeciesId);
+            return specimen != null && fish.SizeCm <= specimen.SizeCm;
         }
 
         /// <summary>Vend le poisson de la place <paramref name="slot"/> ; renvoie le gain (0 si refusé).</summary>

@@ -23,13 +23,11 @@ namespace FishAndChill.Fishing
         [SerializeField, Tooltip("Le pêcheur : le fil part de sa position.")]
         private Transform _player;
 
-        [SerializeField, Tooltip("Optionnel : dans la boutique, l'aide de pêche est remplacée par celle de la boutique.")]
-        private World.ShopBuilding _shop;
-
         [SerializeField, Tooltip("Charte pixel art de l'interface (carte de prise).")]
         private UI.UiSkin _skin;
 
         private const string ShopHint = "E au comptoir : parler au marchand — paillasson : sortir";
+        private const string AquariumHint = "Paillasson : sortir";
 
         private FishingController _controller;
         private PlayerMovement _playerMovement;
@@ -107,9 +105,13 @@ namespace FishAndChill.Fishing
             {
                 _message.text = string.Empty;
             }
-            else if (_shop != null && _shop.IsPlayerInside)
+            else if (World.InteriorBuilding.Occupied is World.ShopBuilding)
             {
                 _message.text = ShopHint;
+            }
+            else if (World.InteriorBuilding.Occupied is World.AquariumBuilding)
+            {
+                _message.text = AquariumHint;
             }
             else
             {

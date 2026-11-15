@@ -172,6 +172,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_basePrice").intValue = data.Price;
             so.FindProperty("_placeholderColor").colorValue = data.Color;
             so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color);
+            so.FindProperty("_miniSprite").objectReferenceValue = FishArt.GenerateMini(data.Id);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(asset);
             return asset;
@@ -285,10 +286,21 @@ namespace FishAndChill.Editor
             // Le pêcheur est trié par ses pieds (pivot) pour passer devant / derrière les cocotiers et l'aquarium.
             renderer.spriteSortPoint = SpriteSortPoint.Pivot;
 
-            // L'île de départ, la boutique, la caméra qui suit et les branchements joueur / carte.
-            ShopBuilding shop = MapSetup.BuildIsland(player, controller);
+            // L'île de départ, la boutique, l'aquarium, la caméra qui suit et les branchements joueur / carte.
+            MapSetup.Buildings buildings = MapSetup.BuildIsland(player, controller);
+            ShopBuilding shop = buildings.Shop;
+            AquariumBuilding aquarium = buildings.Aquarium;
 
-            // Interface du sac et des pièces (l'aquarium aura plus tard son propre bâtiment : pas de dépôt ici).
+            // L'aquarium dépose le sac de la partie, et ses poissons nagent dans le bassin.
+            var aquariumSo = new SerializedObject(aquarium);
+            aquariumSo.FindProperty("_progress").objectReferenceValue = progress;
+            aquariumSo.ApplyModifiedPropertiesWithoutUndo();
+            var tank = Object.FindAnyObjectByType<AquariumTank>();
+            var tankSo = new SerializedObject(tank);
+            tankSo.FindProperty("_progress").objectReferenceValue = progress;
+            tankSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Interface du sac et des pièces.
             var hud = partie.GetComponent<UI.InventoryHud>();
             if (hud == null)
             {
@@ -350,19 +362,12 @@ namespace FishAndChill.Editor
             indexSo.FindProperty("_player").objectReferenceValue = movement;
             indexSo.FindProperty("_bookIcon").objectReferenceValue = bookIcon;
             indexSo.FindProperty("_skin").objectReferenceValue = skin;
+            indexSo.FindProperty("_progress").objectReferenceValue = progress;
             indexSo.ApplyModifiedPropertiesWithoutUndo();
 
-            hudSo.FindProperty("_station").objectReferenceValue = null;
+            hudSo.FindProperty("_aquarium").objectReferenceValue = aquarium;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
 
-            var viewShopSo = new SerializedObject(view);
-            viewShopSo.FindProperty("_shop").objectReferenceValue = shop;
-            viewShopSo.ApplyModifiedPropertiesWithoutUndo();
-
-            // Pas de pêche dans la boutique.
-            var controllerShopSo = new SerializedObject(controller);
-            controllerShopSo.FindProperty("_shop").objectReferenceValue = shop;
-            controllerShopSo.ApplyModifiedPropertiesWithoutUndo();
             if (zone == null)
             {
                 Debug.LogError("[FishAndChill] Zone de test introuvable : la scène n'a pas de zone assignée.");

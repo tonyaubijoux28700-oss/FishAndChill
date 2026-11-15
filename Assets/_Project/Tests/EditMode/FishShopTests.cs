@@ -40,15 +40,18 @@ namespace FishAndChill.Tests
         }
 
         [Test]
-        public void SpeciesAlreadyInAquarium_IsAlwaysSellable()
+        public void SpeciesAlreadyInAquarium_SmallerFishIsSellable_RecordIsKept()
         {
             var aquarium = new AquariumCollection();
             var bag = new Inventory(3);
+            bag.TryAdd(TestFish.Fish(Pike, 80f));
+            aquarium.Deposit(bag);
+
             bag.TryAdd(TestFish.Fish(Pike, 50f));
-            aquarium.Deposit(bag, new Wallet());
+            Assert.That(FishShop.IsSellable(bag.Fish, 0, aquarium), Is.True, "plus petit que celui de l'aquarium");
 
             bag.TryAdd(TestFish.Fish(Pike, 100f));
-
+            Assert.That(FishShop.IsSellable(bag.Fish, 1, aquarium), Is.False, "nouveau record : gardé pour l'aquarium");
             Assert.That(FishShop.IsSellable(bag.Fish, 0, aquarium), Is.True);
         }
 

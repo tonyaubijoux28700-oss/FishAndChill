@@ -25,6 +25,9 @@ namespace FishAndChill.Collection
 
         [SerializeField] private Sprite _sprite;
 
+        [SerializeField, Tooltip("Petite version (≈ 22 px) qui nage dans l'aquarium.")]
+        private Sprite _miniSprite;
+
         public string Id => string.IsNullOrEmpty(_id) ? name : _id;
         public string CommonName => string.IsNullOrEmpty(_commonName) ? name : _commonName;
         public string ScientificName => _scientificName;
@@ -34,5 +37,8 @@ namespace FishAndChill.Collection
         public int BasePrice => _basePrice;
         public Color PlaceholderColor => _placeholderColor;
         public Sprite Sprite => _sprite;
+
+        /// <summary>Sprite de l'aquarium (le grand dessin s'il n'y a pas de petite version).</summary>
+        public Sprite MiniSprite => _miniSprite != null ? _miniSprite : _sprite;
     }
 }

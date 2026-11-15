@@ -41,8 +41,8 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Charte pixel art de l'interface.")]
         private UiSkin _skin;
 
-        [SerializeField, Tooltip("Optionnel : bâtiment de dépôt (futur aquarium).")]
-        private AquariumStation _station;
+        [SerializeField, Tooltip("L'aquarium : devant le bassin, E dépose le sac (au lieu d'ouvrir la fenêtre).")]
+        private AquariumBuilding _aquarium;
 
         [SerializeField, Min(1f)] private float _toastSeconds = 5f;
 
@@ -88,9 +88,9 @@ namespace FishAndChill.UI
             _progress.EnsureCreated();
             BuildUi();
             _progress.Changed += Refresh;
-            if (_station != null)
+            if (_aquarium != null)
             {
-                _station.Deposited += OnDeposited;
+                _aquarium.Deposited += OnDeposited;
             }
 
             Refresh();
@@ -104,9 +104,9 @@ namespace FishAndChill.UI
                 _progress.Changed -= Refresh;
             }
 
-            if (_station != null)
+            if (_aquarium != null)
             {
-                _station.Deposited -= OnDeposited;
+                _aquarium.Deposited -= OnDeposited;
             }
         }
 
@@ -164,6 +164,12 @@ namespace FishAndChill.UI
                 return false;
             }
 
+            // Devant le bassin, E dépose les poissons.
+            if (_aquarium != null && _aquarium.PlayerAtTank)
+            {
+                return false;
+            }
+
             if (_fishing != null && _fishing.State != FishingState.Idle && _fishing.State != FishingState.Result)
             {
                 return false;
@@ -212,10 +218,10 @@ namespace FishAndChill.UI
 
         private void UpdatePrompt()
         {
-            if (_station != null && _station.PlayerInRange)
+            if (_aquarium != null && _aquarium.CanDeposit && !IsOpen && _toastTimer <= 0f)
             {
                 _prompt.gameObject.SetActive(true);
-                _prompt.text = _progress.Bag.Count > 0 ? "E : déposer tes poissons à l'aquarium" : "Aquarium — ton sac est vide";
+                _prompt.text = _progress.Bag.Count > 0 ? "E : déposer tes poissons dans le bassin" : "Ton sac est vide : va pêcher !";
             }
             else
             {
@@ -276,21 +282,26 @@ namespace FishAndChill.UI
             var text = new StringBuilder();
             if (result.IsEmpty)
             {
-                text.Append("Ton sac est vide : va pêcher !");
+                text.Append(_progress.Bag.Count == 0
+                    ? "Ton sac est vide : va pêcher !"
+                    : "Rien de nouveau pour le bassin :\nvends tes doublons au marchand.");
             }
             else
             {
-                if (result.NewSpecies.Count > 0)
+                foreach (CaughtFish fish in result.NewSpecies)
                 {
-                    text.Append($"<color=#FFD54D>+{result.NewSpecies.Count} nouvelle(s) espèce(s) dans l'aquarium</color>\n");
+                    text.Append($"<color=#FFD54D>Nouvelle espèce : {fish.Species.CommonName}</color>\n");
                 }
 
-                if (result.Sold.Count > 0)
+                foreach (CaughtFish fish in result.Upgraded)
                 {
-                    text.Append($"{result.Sold.Count} doublon(s) vendu(s) : <color=#FFD54D>+{result.CoinsEarned} pièces</color>\n");
+                    text.Append($"Record ! {fish.Species.CommonName} de {fish.SizeCm:0} cm exposé\n");
                 }
 
-                text.Append($"Aquarium : {_progress.Aquarium.SpeciesCount} espèce(s)");
+                if (result.LeftInBag > 0)
+                {
+                    text.Append($"{result.LeftInBag} poisson(s) restent dans le sac pour le marchand\n");
+                }
             }
 
             _toastText.text = text.ToString().TrimEnd('\n');
@@ -357,8 +368,9 @@ namespace FishAndChill.UI
 
             Image toast = UiFactory.Sliced(root, "Résumé", SkinSprite(s => s.Panel), _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
             _toast = toast.gameObject;
-            UiFactory.Place(toast.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -280f), new Vector2(820f, 180f));
-            _toastText = UiFactory.Label(toast.rectTransform, "Texte", 28, TextAnchor.MiddleCenter, Color.white);
+            // En bas de l'écran : dans l'aquarium, le bassin (en haut) reste visible pendant le résumé.
+            UiFactory.Place(toast.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 60f), new Vector2(860f, 230f));
+            _toastText = UiFactory.Label(toast.rectTransform, "Texte", 24, TextAnchor.MiddleCenter, Color.white);
             UiFactory.Stretch(_toastText.rectTransform, 24f);
             _toast.SetActive(false);
         }

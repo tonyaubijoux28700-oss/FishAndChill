@@ -34,6 +34,9 @@ namespace FishAndChill.UI
         private FishingZone[] _zones = new FishingZone[0];
 
         [SerializeField] private FishingController _fishing;
+
+        [SerializeField, Tooltip("Pour indiquer les espèces déjà exposées dans l'aquarium.")]
+        private PlayerProgress _progress;
         [SerializeField] private PlayerMovement _player;
 
         [SerializeField, Tooltip("Icône du livre (pixel art).")]
@@ -241,7 +244,10 @@ namespace FishAndChill.UI
             Color rarity = species.Rarity.DisplayColor();
             Vector2 range = species.SizeRangeCm;
             _detailName.text = $"N° {_selected + 1}   {species.CommonName}";
-            _detailScientific.text = species.ScientificName;
+            CaughtFish specimen = _progress != null && _progress.Aquarium != null ? _progress.Aquarium.SpecimenOf(species.Id) : null;
+            _detailScientific.text = specimen != null
+                ? $"{species.ScientificName}   <color=#FFD54D>•  Dans l'aquarium ({specimen.SizeCm:0} cm)</color>"
+                : $"{species.ScientificName}   •  Pas encore dans l'aquarium";
             _detailStats.text =
                 $"<color=#{ColorUtility.ToHtmlStringRGB(rarity)}>{species.Rarity.DisplayName()}</color>" +
                 $"   •   Prises : {log.CountOf(species.Id)}" +

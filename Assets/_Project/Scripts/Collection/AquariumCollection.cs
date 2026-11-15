@@ -4,8 +4,9 @@ using System.Collections.Generic;
 namespace FishAndChill.Collection
 {
     /// <summary>
-    /// L'aquarium : un exemplaire de chaque espèce. Au dépôt, chaque nouvelle espèce y entre ;
-    /// tout poisson d'une espèce déjà présente (doublon) est vendu.
+    /// L'aquarium : un exemplaire de chaque espèce (le plus gros qu'on y ait déposé).
+    /// Au dépôt, le plus gros poisson de chaque nouvelle espèce y entre ; un poisson plus gros que celui de
+    /// l'aquarium prend sa place (l'ancien revient dans le sac, pour le marchand). Les doublons restent dans le sac.
     /// </summary>
     public sealed class AquariumCollection
     {
@@ -18,36 +19,61 @@ namespace FishAndChill.Collection
 
         public bool Contains(string speciesId) => _species.ContainsKey(speciesId);
 
-        /// <summary>Vide le sac dans l'aquarium et crédite le porte-monnaie pour les doublons vendus.</summary>
-        public DepositResult Deposit(Inventory inventory, Wallet wallet)
+        /// <summary>L'exemplaire exposé de cette espèce (null si absente).</summary>
+        public CaughtFish SpecimenOf(string speciesId)
         {
-            if (inventory == null)
-            {
-                throw new ArgumentNullException(nameof(inventory));
-            }
+            return _species.TryGetValue(speciesId, out CaughtFish fish) ? fish : null;
+        }
 
-            if (wallet == null)
+        /// <summary>Dépose ce qui doit aller dans l'aquarium ; le reste (doublons) reste dans le sac.</summary>
+        public DepositResult Deposit(Inventory bag)
+        {
+            if (bag == null)
             {
-                throw new ArgumentNullException(nameof(wallet));
+                throw new ArgumentNullException(nameof(bag));
             }
 
             var result = new DepositResult();
-            foreach (CaughtFish fish in inventory.TakeAll())
+
+            // Le plus gros exemplaire de chaque espèce présente dans le sac.
+            var biggest = new Dictionary<string, int>();
+            for (int slot = 0; slot < bag.Count; slot++)
             {
-                if (_species.ContainsKey(fish.SpeciesId))
+                string id = bag.Fish[slot].SpeciesId;
+                if (!biggest.TryGetValue(id, out int best) || bag.Fish[slot].SizeCm > bag.Fish[best].SizeCm)
                 {
-                    result.Sold.Add(fish);
-                    result.CoinsEarned += fish.SalePrice;
-                }
-                else
-                {
-                    _species.Add(fish.SpeciesId, fish);
-                    result.NewSpecies.Add(fish);
+                    biggest[id] = slot;
                 }
             }
 
-            wallet.Add(result.CoinsEarned);
-            if (result.NewSpecies.Count > 0)
+            // Records : on échange avec l'exemplaire de l'aquarium (les places du sac ne bougent pas).
+            var newSlots = new List<int>();
+            foreach (KeyValuePair<string, int> entry in biggest)
+            {
+                CaughtFish current = SpecimenOf(entry.Key);
+                if (current == null)
+                {
+                    newSlots.Add(entry.Value);
+                }
+                else if (bag.Fish[entry.Value].SizeCm > current.SizeCm)
+                {
+                    CaughtFish record = bag.Replace(entry.Value, current);
+                    _species[entry.Key] = record;
+                    result.Upgraded.Add(record);
+                }
+            }
+
+            // Nouvelles espèces : retirées du sac en partant de la fin pour garder les numéros de place valides.
+            newSlots.Sort();
+            for (int i = newSlots.Count - 1; i >= 0; i--)
+            {
+                CaughtFish fish = bag.RemoveAt(newSlots[i]);
+                _species.Add(fish.SpeciesId, fish);
+                result.NewSpecies.Insert(0, fish);
+            }
+
+            result.LeftInBag = bag.Count;
+            if (!result.IsEmpty)
             {
                 Changed?.Invoke();
             }

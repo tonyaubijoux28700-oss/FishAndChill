@@ -40,7 +40,7 @@ namespace FishAndChill.Editor
             texture.Apply();
             string fullPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, assetPath);
             File.WriteAllBytes(fullPath, texture.EncodeToPNG());
-            Object.DestroyImmediate(texture);
+            UnityEngine.Object.DestroyImmediate(texture);
 
             AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
             var importer = (TextureImporter)AssetImporter.GetAtPath(assetPath);
@@ -180,6 +180,63 @@ namespace FishAndChill.Editor
                 sum += pixels[x, y];
                 count++;
             }
+        }
+
+        /// <summary>Relit un PNG du projet en tableau de pixels (x vers la droite, y vers le haut).</summary>
+        public static Color[,] Load(string assetPath)
+        {
+            var texture = new Texture2D(2, 2);
+            texture.LoadImage(System.IO.File.ReadAllBytes(assetPath));
+            var pixels = new Color[texture.width, texture.height];
+            for (int x = 0; x < texture.width; x++)
+            {
+                for (int y = 0; y < texture.height; y++)
+                {
+                    pixels[x, y] = texture.GetPixel(x, y);
+                }
+            }
+
+            UnityEngine.Object.DestroyImmediate(texture);
+            return pixels;
+        }
+
+        /// <summary>
+        /// Réduit un dessin d'un facteur entier : chaque bloc devient un pixel (moyenne des pixels pleins),
+        /// transparent si le bloc est trop vide. Sert aux petits poissons de l'aquarium.
+        /// </summary>
+        public static Color[,] Downscale(Color[,] source, int factor, float coverage = 0.4f)
+        {
+            int width = Mathf.CeilToInt(source.GetLength(0) / (float)factor);
+            int height = Mathf.CeilToInt(source.GetLength(1) / (float)factor);
+            var result = new Color[width, height];
+            for (int bx = 0; bx < width; bx++)
+            {
+                for (int by = 0; by < height; by++)
+                {
+                    Color sum = Color.clear;
+                    int filled = 0;
+                    for (int x = bx * factor; x < (bx + 1) * factor; x++)
+                    {
+                        for (int y = by * factor; y < (by + 1) * factor; y++)
+                        {
+                            if (IsFilled(source, x, y) && source[x, y].a > 0.5f)
+                            {
+                                sum += source[x, y];
+                                filled++;
+                            }
+                        }
+                    }
+
+                    if (filled >= factor * factor * coverage)
+                    {
+                        Color c = sum / filled;
+                        c.a = 1f;
+                        result[bx, by] = c;
+                    }
+                }
+            }
+
+            return result;
         }
 
         public static Color[,] MirrorX(Color[,] pixels)

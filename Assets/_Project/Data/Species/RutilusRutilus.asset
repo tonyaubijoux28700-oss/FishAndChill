@@ -25,3 +25,4 @@ MonoBehaviour:
   _basePrice: 5
   _placeholderColor: {r: 0.75, g: 0.78, b: 0.8, a: 1}
   _sprite: {fileID: 21300000, guid: 4d92927114cafa747a650153a11e9f1c, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 31e3402de667e2641a05e45ce0feac2e, type: 3}

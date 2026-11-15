@@ -69,12 +69,20 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - **Marchand** (`UI/ShopMenu`) : E devant le comptoir ouvre le menu (joueur `Locked`), 1/2/3 vend un poisson,
   V vend tout, Échap/E ferme. Règles dans `FishShop` (testées) : il n'achète que les doublons (espèce déjà dans
   l'aquarium, ou exemplaires en trop : il laisse le plus gros), prix de 80 % à 130 % du `BasePrice` selon la taille.
-- **L'aquarium aura son propre bâtiment** (à faire) : `AquariumStation`, `AquariumCollection.Deposit` et
-  `AquariumArt` sont prêts mais ne sont plus placés sur l'île. En attendant, l'aquarium reste vide.
+- **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
+  calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
+  `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium à ≥ 15 cases de la boutique).
+- **Aquarium** (`AquariumBuilding`, objet « Aquarium », façade au dôme de verre `AquariumArt`) : pièce 12×8 avec un
+  bassin sur le mur du fond. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
+  gros de chaque nouvelle espèce entre ; un poisson plus gros remplace l'exemplaire exposé (l'ancien revient dans le
+  sac) ; les doublons restent dans le sac pour le marchand. `FishShop` ne vend pas un record de taille.
+  Les poissons nagent dans le bassin (`AquariumTank`) avec leur petite version `FishSpecies.MiniSprite`
+  (≈ 22 px, réduite du grand dessin par `FishArt.GenerateMini` → `Art/Fish/Mini/`), entre le fond (ordre -5) et
+  la vitre (`Aquarium_Vitre.png`, ordre -3). L'index des poissons indique les espèces exposées.
 - `UI/InventoryHud` : **icône de sac** en bas à gauche (compteur « 2/3 », `UiArt.BagIcon`), **E** ouvre la fenêtre
   d'inventaire (joueur `Locked`, E/Échap ferme) ; devant le comptoir, E parle au marchand à la place. Quand le sac
   est plein après une prise, la fenêtre s'ouvre seule (places 1/2/3 qui clignotent). Pièces en haut à droite.
-  Icône de boutique sur la minimap.
+  Icônes de la boutique et de l'aquarium sur la minimap (`Minimap._landmarks`).
 - **Index des poissons** (`UI/FishIndex`, objet « Partie ») : icône de livre à droite du sac (compteur « 2/8 »,
   `UiArt.BookIcon`), **Tab** (ou Y manette, `IndexInput`) ouvre le livre (joueur `Locked`), Tab/Échap ferme.
   Grille 4×2 par page de toutes les espèces des zones du champ `_zones` (Mahana seule pour l'instant) : espèces

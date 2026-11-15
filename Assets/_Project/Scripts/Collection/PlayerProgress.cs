@@ -36,7 +36,7 @@ namespace FishAndChill.Collection
             Wallet.Changed += RaiseChanged;
         }
 
-        public DepositResult DepositBag() => Aquarium.Deposit(Bag, Wallet);
+        public DepositResult DepositBag() => Aquarium.Deposit(Bag);
 
         private void RaiseChanged() => Changed?.Invoke();
     }

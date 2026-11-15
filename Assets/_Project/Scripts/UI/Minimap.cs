@@ -28,7 +28,16 @@ namespace FishAndChill.UI
             public RawImage Image;
             public RectTransform Dot;
             public Image DotImage;
-            public RectTransform Landmark;
+            public readonly List<RectTransform> Landmarks = new List<RectTransform>();
+        }
+
+        /// <summary>Lieu signalé sur la carte par une icône (boutique, aquarium…).</summary>
+        [Serializable]
+        public sealed class Landmark
+        {
+            public string Name;
+            public Transform Target;
+            public Sprite Icon;
         }
 
         [SerializeField] private WorldMap _map;
@@ -40,16 +49,11 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Couleur de chaque tuile sur la carte.")]
         private List<TileColor> _palette = new List<TileColor>();
 
-        [SerializeField, Tooltip("Lieu à signaler sur la carte (la boutique).")]
-        private Transform _landmark;
+        [SerializeField, Tooltip("Lieux à signaler sur la carte (boutique, aquarium), chacun avec son icône.")]
+        private List<Landmark> _landmarks = new List<Landmark>();
 
-        [SerializeField, Tooltip("Icône du lieu signalé (sinon un losange orange).")]
-        private Sprite _landmarkIcon;
-
-        [SerializeField] private Color _landmarkColor = new Color(1.00f, 0.60f, 0.15f);
-
-        [SerializeField, Tooltip("Quand le joueur est dans la boutique, son point s'affiche sur la boutique.")]
-        private ShopBuilding _shop;
+        [SerializeField, Tooltip("Couleur d'un lieu sans icône (losange).")]
+        private Color _landmarkColor = new Color(1.00f, 0.60f, 0.15f);
 
         [SerializeField] private Color _waterColor = new Color(0.20f, 0.62f, 0.72f);
         [SerializeField] private Color _unknownLandColor = new Color(0.80f, 0.75f, 0.55f);
@@ -131,7 +135,8 @@ namespace FishAndChill.UI
                     return new Vector2(0.5f, 0.5f);
                 }
 
-                Vector2 position = _shop != null && _shop.IsPlayerInside ? (Vector2)_shop.transform.position : (Vector2)_player.position;
+                // Dans un bâtiment, le point reste sur sa porte.
+                Vector2 position = InteriorBuilding.Occupied != null ? (Vector2)InteriorBuilding.Occupied.transform.position : (Vector2)_player.position;
                 return MinimapMath.WorldToNormalized(position, _worldBounds);
             }
         }
@@ -228,11 +233,15 @@ namespace FishAndChill.UI
             Vector2 size = view.Image.rectTransform.sizeDelta;
             view.Dot.anchoredPosition = new Vector2((normalized.x - 0.5f) * size.x, (normalized.y - 0.5f) * size.y);
 
-            view.Landmark.gameObject.SetActive(_landmark != null);
-            if (_landmark != null)
+            for (int i = 0; i < view.Landmarks.Count && i < _landmarks.Count; i++)
             {
-                Vector2 mark = MinimapMath.WorldToNormalized(_landmark.position, _worldBounds);
-                view.Landmark.anchoredPosition = new Vector2((mark.x - 0.5f) * size.x, (mark.y - 0.5f) * size.y);
+                Transform target = _landmarks[i].Target;
+                view.Landmarks[i].gameObject.SetActive(target != null);
+                if (target != null)
+                {
+                    Vector2 mark = MinimapMath.WorldToNormalized(target.position, _worldBounds);
+                    view.Landmarks[i].anchoredPosition = new Vector2((mark.x - 0.5f) * size.x, (mark.y - 0.5f) * size.y);
+                }
             }
 
             Color color = _playerColor;
@@ -305,7 +314,7 @@ namespace FishAndChill.UI
             MapView view = CreateView(frame.gameObject, rect, 20f, new Vector2(0f, -10f));
 
             Text close = AddText(rect, "Fermer", font, 22, TextAnchor.MiddleCenter);
-            close.text = "Point rouge : toi  •  Icône : boutique  •  M ou Échap pour fermer";
+            close.text = "Point rouge : toi  •  Icônes : boutique, aquarium  •  M ou Échap : fermer";
             close.color = new Color(0.80f, 0.84f, 0.88f);
             close.rectTransform.anchoredPosition = new Vector2(0f, -256f);
             close.rectTransform.sizeDelta = new Vector2(600f, 34f);
@@ -319,16 +328,22 @@ namespace FishAndChill.UI
             var image = imageObject.GetComponent<RawImage>();
             image.rectTransform.anchoredPosition = imageOffset;
 
-            Image landmark = AddImage(image.rectTransform, "Boutique", _landmarkIcon != null ? Color.white : _landmarkColor);
-            if (_landmarkIcon != null)
+            var view = new MapView { Root = rootObject, Image = image };
+            foreach (Landmark place in _landmarks)
             {
-                landmark.sprite = _landmarkIcon;
-                landmark.rectTransform.sizeDelta = new Vector2(dotSize * 2.6f, dotSize * 2.6f);
-            }
-            else
-            {
-                landmark.rectTransform.sizeDelta = new Vector2(dotSize * 0.9f, dotSize * 0.9f);
-                landmark.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                Image landmark = AddImage(image.rectTransform, string.IsNullOrEmpty(place.Name) ? "Lieu" : place.Name, place.Icon != null ? Color.white : _landmarkColor);
+                if (place.Icon != null)
+                {
+                    landmark.sprite = place.Icon;
+                    landmark.rectTransform.sizeDelta = new Vector2(dotSize * 2.6f, dotSize * 2.6f);
+                }
+                else
+                {
+                    landmark.rectTransform.sizeDelta = new Vector2(dotSize * 0.9f, dotSize * 0.9f);
+                    landmark.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                }
+
+                view.Landmarks.Add(landmark.rectTransform);
             }
 
             Image dot = AddImage(image.rectTransform, "Toi", _playerColor);
@@ -337,7 +352,9 @@ namespace FishAndChill.UI
             dotBorder.effectColor = Color.white;
             dotBorder.effectDistance = new Vector2(2f, -2f);
 
-            return new MapView { Root = rootObject, Image = image, Dot = dot.rectTransform, DotImage = dot, Landmark = landmark.rectTransform };
+            view.Dot = dot.rectTransform;
+            view.DotImage = dot;
+            return view;
         }
 
         private static Image AddImage(RectTransform parent, string name, Color color)
