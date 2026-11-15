@@ -166,6 +166,17 @@ namespace FishAndChill.World
 
         public int CurrentRegion => _currentRegion;
 
+        /// <summary>Rectangle d'une région (toute la carte s'il n'y a pas de régions).</summary>
+        public Rect RegionBounds(int index)
+        {
+            if (_regions.Count == 0)
+            {
+                return WorldBounds;
+            }
+
+            return _regions[Mathf.Clamp(index, 0, _regions.Count - 1)];
+        }
+
         /// <summary>Change la région affichée (caméra, minimap) après un voyage.</summary>
         public void SetCurrentRegion(int index)
         {

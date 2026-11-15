@@ -206,6 +206,110 @@ namespace FishAndChill.Editor
             return p;
         }
 
+        // ---------- Décor du lac ----------
+
+        /// <summary>Touffe de roseaux 16×24 : tiges fines qui ondulent, quelques massettes brunes, pied dans l'eau.</summary>
+        public static Color[,] Reeds(int variant)
+        {
+            var p = new Color[16, 24];
+            Color stem = C(0.42f, 0.56f, 0.24f);
+            Color stemDark = C(0.26f, 0.38f, 0.16f);
+            Color cattail = C(0.44f, 0.28f, 0.16f);
+            var random = new System.Random(500 + variant);
+            int count = 6 + variant;
+            for (int i = 0; i < count; i++)
+            {
+                float x0 = 3f + random.Next(0, 10);
+                int top = 12 + random.Next(0, 10);
+                float lean = (float)(random.NextDouble() - 0.5) * 4f;
+                Color c = i % 2 == 0 ? stem : stemDark;
+                for (int y = 1; y <= top; y++)
+                {
+                    float t = y / (float)top;
+                    PixelArt.Set(p, Mathf.RoundToInt(x0 + lean * t * t), y, c);
+                }
+
+                if (i % 3 == 0 && top > 15)
+                {
+                    int cx = Mathf.RoundToInt(x0 + lean * 0.7f);
+                    for (int y = top - 7; y <= top - 3; y++)
+                    {
+                        PixelArt.Set(p, cx, y, cattail);
+                        PixelArt.Set(p, cx + 1, y, DetailedFish.Shade(cattail, 0.8f));
+                    }
+                }
+            }
+
+            PixelArt.SelectiveOutline(p, C(0.10f, 0.16f, 0.06f), 0.5f);
+            // Petits ronds dans l'eau au pied de la touffe.
+            for (int x = 2; x <= 13; x++)
+            {
+                if (p[x, 0].a < 0.01f && x % 3 != 0) p[x, 0] = C(0.75f, 0.85f, 0.88f, 0.55f);
+            }
+
+            return p;
+        }
+
+        /// <summary>Nénuphar 16×16 : feuilles rondes fendues, parfois une fleur blanche ou rose.</summary>
+        public static Color[,] Lily(int variant)
+        {
+            var p = new Color[16, 16];
+            Color leaf = C(0.24f, 0.50f, 0.22f);
+            void Pad(float cx, float cy, float r, float notch)
+            {
+                for (int x = 0; x < 16; x++)
+                {
+                    for (int y = 0; y < 16; y++)
+                    {
+                        float dx = x + 0.5f - cx;
+                        float dy = y + 0.5f - cy;
+                        if (dx * dx + dy * dy > r * r) continue;
+                        float angle = Mathf.Atan2(dy, dx);
+                        if (Mathf.Abs(Mathf.DeltaAngle(angle * Mathf.Rad2Deg, notch)) < 18f) continue; // la fente
+                        float light = 1.05f - dy / r * 0.15f + dx / r * -0.1f;
+                        p[x, y] = DetailedFish.Shade(leaf, Mathf.Round(light * 5f) / 5f);
+                    }
+                }
+            }
+
+            Pad(6f, 7f, 5f, 40f);
+            if (variant != 1) Pad(12f, 11f, 3f, 200f);
+            if (variant == 2) Pad(12.5f, 4f, 2.6f, 120f);
+            PixelArt.SelectiveOutline(p, C(0.08f, 0.20f, 0.10f), 0.5f);
+            if (variant != 2)
+            {
+                Color petal = variant == 0 ? C(0.98f, 0.97f, 0.94f) : C(0.96f, 0.70f, 0.80f);
+                foreach (Vector2Int d in new[] { new Vector2Int(0, 1), new Vector2Int(1, 0), new Vector2Int(-1, 0), new Vector2Int(0, -1), new Vector2Int(1, 1), new Vector2Int(-1, 1) })
+                {
+                    PixelArt.Set(p, 6 + d.x, 8 + d.y, petal);
+                }
+
+                PixelArt.Set(p, 6, 8, C(0.98f, 0.82f, 0.25f));
+            }
+
+            return p;
+        }
+
+        /// <summary>Pré d'altitude fleuri 16×16 : gentianes bleues, marguerites blanches ou boutons d'or.</summary>
+        public static Color[,] FlowerMeadow(int variant)
+        {
+            Color[,] p = Meadow(TileArt.Grass(0));
+            Color[] petals = { C(0.30f, 0.42f, 0.92f), C(0.98f, 0.98f, 0.94f), C(0.98f, 0.84f, 0.20f) };
+            Color petal = petals[variant % petals.Length];
+            var random = new System.Random(700 + variant);
+            for (int i = 0; i < 3; i++)
+            {
+                int x = 2 + random.Next(0, 12);
+                int y = 2 + random.Next(0, 12);
+                PixelArt.Set(p, x, y, petal);
+                PixelArt.Set(p, x + 1, y, DetailedFish.Shade(petal, 0.85f));
+                PixelArt.Set(p, x, y + 1, DetailedFish.Shade(petal, 1.1f));
+                PixelArt.Set(p, x, y - 1, C(0.20f, 0.42f, 0.18f));
+            }
+
+            return p;
+        }
+
         /// <summary>Icône de minimap du ponton : une petite barque.</summary>
         public static Color[,] BoatIcon()
         {

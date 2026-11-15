@@ -42,6 +42,9 @@ namespace FishAndChill.Editor
             public Tile[] Sand;
             public Tile[] Grass;
             public Tile Palm;
+            public Tile[] Reeds;
+            public Tile[] Lilies;
+            public Tile[] Rocks;
 
             // Tuiles de rendu en double grille : [masque 0..15], plus des variantes pour le masque plein (15).
             public Tile[] LagoonEdges;
@@ -223,6 +226,7 @@ namespace FishAndChill.Editor
             var islandRegion = new Rect(bounds.xMin, bounds.yMin, width, height);
             var lakeRegion = new Rect(lakeBounds.xMin, lakeBounds.yMin, lakeBounds.size.x, lakeBounds.size.y);
             worldMap.SetRegions(new[] { islandRegion, lakeRegion }, new[] { islandDock.Area, lakeDock.Area });
+            BuildLakeLife(mapObject.transform, worldMap, player.transform, lakeDock.Area);
             EditorUtility.SetDirty(worldMap);
 
             // Position du joueur = ses pieds, au centre de la case.
@@ -319,10 +323,70 @@ namespace FishAndChill.Editor
             set.GrassFull = new[]
             {
                 set.GrassEdges[15],
-                SaveTile("Bords/LacPre_15b", LakeArt.Meadow(TileArt.Grass(1)), Vector2.one * 0.5f, TileArt.Size),
-                SaveTile("Bords/LacPre_15c", LakeArt.Meadow(TileArt.Grass(2)), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/LacPre_15b", LakeArt.FlowerMeadow(0), Vector2.one * 0.5f, TileArt.Size), // gentianes
+                SaveTile("Bords/LacPre_15c", LakeArt.FlowerMeadow(1), Vector2.one * 0.5f, TileArt.Size), // marguerites
             };
+
+            // Décor du lac : roseaux au bord de l'eau, nénuphars, rochers.
+            set.Reeds = new[] { SaveTile("Decor/Roseaux_0", LakeArt.Reeds(0), new Vector2(0.5f, 0.17f), TileArt.Size), SaveTile("Decor/Roseaux_1", LakeArt.Reeds(1), new Vector2(0.5f, 0.17f), TileArt.Size) };
+            set.Lilies = new[] { SaveTile("Decor/Nenuphar_0", LakeArt.Lily(0), Vector2.one * 0.5f, TileArt.Size), SaveTile("Decor/Nenuphar_1", LakeArt.Lily(1), Vector2.one * 0.5f, TileArt.Size), SaveTile("Decor/Nenuphar_2", LakeArt.Lily(2), Vector2.one * 0.5f, TileArt.Size) };
+            set.Rocks = new[] { SaveTile("Decor/Lac_Rocher_0", LakeArt.Gravel(DecorArt.Rock(0)), new Vector2(0.5f, 0.4f), TileArt.Size), SaveTile("Decor/Lac_Rocher_1", DecorArt.Rock(1), new Vector2(0.5f, 0.4f), TileArt.Size) };
             return set;
+        }
+
+        /// <summary>La faune du lac (cygnes, canards, libellules, poissons qui sautent, ombres de nuages), animée en jeu.</summary>
+        private static void BuildLakeLife(Transform root, WorldMap map, Transform player, Rect dock)
+        {
+            const string folder = "Assets/_Project/Art/Ambient";
+            PixelArt.EnsureFolder(folder);
+            Sprite[] Frames(string name, int count, System.Func<int, Color[,]> draw)
+            {
+                var sprites = new Sprite[count];
+                for (int i = 0; i < count; i++)
+                {
+                    sprites[i] = PixelArt.Save($"{folder}/{name}_{i}.png", draw(i), TileArt.Size, Vector2.one * 0.5f);
+                }
+
+                return sprites;
+            }
+
+            GameObject go = EnsureObject("Vie du lac", root);
+            var life = go.GetComponent<AmbientLife>();
+            if (life == null)
+            {
+                life = go.AddComponent<AmbientLife>();
+            }
+
+            var so = new SerializedObject(life);
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_region").intValue = 1;
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 1.5f, dock.yMin - 1f, dock.width + 4f, dock.height + 2f);
+            SerializedProperty swimmers = so.FindProperty("_swimmers");
+            swimmers.arraySize = 2;
+            SetSwimmer(swimmers.GetArrayElementAtIndex(0), Frames("Cygne", 2, LakeLifeArt.Swan), 3, 0.35f);
+            SetSwimmer(swimmers.GetArrayElementAtIndex(1), Frames("Canard", 2, LakeLifeArt.Duck), 6, 0.6f);
+            SetSprites(so.FindProperty("_dragonfly"), Frames("Libellule", 2, LakeLifeArt.Dragonfly));
+            SetSprites(so.FindProperty("_jumpingFish"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
+            SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
+            so.FindProperty("_cloud").objectReferenceValue = PixelArt.Save($"{folder}/OmbreNuage.png", LakeLifeArt.CloudShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void SetSwimmer(SerializedProperty entry, Sprite[] frames, int count, float speed)
+        {
+            SetSprites(entry.FindPropertyRelative("Frames"), frames);
+            entry.FindPropertyRelative("Count").intValue = count;
+            entry.FindPropertyRelative("Speed").floatValue = speed;
+        }
+
+        private static void SetSprites(SerializedProperty array, Sprite[] sprites)
+        {
+            array.arraySize = sprites.Length;
+            for (int i = 0; i < sprites.Length; i++)
+            {
+                array.GetArrayElementAtIndex(i).objectReferenceValue = sprites[i];
+            }
         }
 
         /// <summary>Dessine le lac dans les couches de la carte (sans effacer l'île), ses sapins et son ponton.</summary>
@@ -371,6 +435,40 @@ namespace FishAndChill.Editor
 
             DockInfo dock = BuildDock(mapRoot, "Ponton - Lac d'Annecy", terrain, bounds, new Vector2Int(cx, cy - 1), Vector2Int.up);
             Vector2 dockCell = dock.Area.center - new Vector2(bounds.xMin, bounds.yMin);
+            var taken = new bool[width, height];
+            bool NearDock(int x, int y, int margin) => Mathf.Abs(x - dockCell.x) <= 3 + margin && Mathf.Abs(y - dockCell.y) <= 5 + margin;
+            void Put(int x, int y, Tile tile)
+            {
+                taken[x, y] = true;
+                decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tile);
+            }
+
+            for (int y = 1; y < height - 1; y++)
+            {
+                for (int x = 1; x < width - 1; x++)
+                {
+                    float hash = IslandGenerator.CellHash(x, y, seed + 7);
+                    bool besideWater = terrain[x + 1, y] == TerrainType.Water || terrain[x - 1, y] == TerrainType.Water
+                        || terrain[x, y + 1] == TerrainType.Water || terrain[x, y - 1] == TerrainType.Water;
+                    if (terrain[x, y] == TerrainType.Sand && besideWater && hash < 0.22f && !NearDock(x, y, 1))
+                    {
+                        // Roseaux sur la rive, au ras de l'eau (on passe à travers : décor bas).
+                        Put(x, y, tiles.Reeds[hash < 0.11f ? 0 : 1]);
+                    }
+                    else if (terrain[x, y] == TerrainType.Water && distance[x, y] >= 2 && distance[x, y] <= 4 && hash < 0.07f && !NearDock(x, y, 3))
+                    {
+                        // Nénuphars près des bords, en eau calme.
+                        Put(x, y, tiles.Lilies[Mathf.FloorToInt(hash / 0.07f * 3f) % 3]);
+                    }
+                    else if (terrain[x, y] != TerrainType.Water && !besideWater && hash > 0.985f && !NearDock(x, y, 2))
+                    {
+                        // Rochers, solides comme un tronc.
+                        Put(x, y, tiles.Rocks[hash > 0.993f ? 1 : 0]);
+                        obstacles.Add(new Rect(bounds.xMin + x + 0.1f, bounds.yMin + y + 0.15f, 0.8f, 0.45f));
+                    }
+                }
+            }
+
 
             // Forêt de sapins sur les prés, plus dense que les cocotiers, jamais près du ponton.
             var pines = new List<Vector2Int>();
@@ -379,7 +477,7 @@ namespace FishAndChill.Editor
                 for (int x = 0; x < width; x++)
                 {
                     bool nearDock = Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 7;
-                    if (terrain[x, y] != TerrainType.Grass || nearDock || IslandGenerator.CellHash(x, y, seed + 1) > 0.09f)
+                    if (terrain[x, y] != TerrainType.Grass || nearDock || taken[x, y] || IslandGenerator.CellHash(x, y, seed + 1) > 0.09f)
                     {
                         continue;
                     }
