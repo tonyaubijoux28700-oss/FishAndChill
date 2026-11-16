@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FishAndChill.Fishing;
 using FishAndChill.Player;
 using FishAndChill.Save;
@@ -9,7 +9,7 @@ namespace FishAndChill.UI
 {
     /// <summary>
     /// Menu pause : Échap (ou Start) quand aucun autre menu n'est ouvert. Le jeu se fige (<c>Time.timeScale = 0</c>).
-    /// Lignes : Reprendre, Volume (←/→), Plein écran, Nouvelle partie (à confirmer), Quitter le jeu.
+    /// Lignes : Reprendre, Volume (←/→), Plein écran, Retour au titre (sauvegarde puis écran titre), Quitter le jeu.
     /// ↑/↓ (ou ZQSD) pour choisir, Espace / Entrée / A pour valider, Échap / B pour reprendre.
     /// Volume et plein écran sont retenus d'une partie à l'autre (<see cref="PlayerPrefs"/>).
     /// </summary>
@@ -20,14 +20,13 @@ namespace FishAndChill.UI
 
         private static readonly Color Gold = new Color(1.00f, 0.84f, 0.30f);
         private static readonly Color Normal = new Color(0.86f, 0.90f, 0.94f);
-        private static readonly Color Danger = new Color(1.00f, 0.55f, 0.45f);
 
         private enum Row
         {
             Resume,
             Volume,
             Fullscreen,
-            NewGame,
+            Title,
             Quit,
         }
 
@@ -44,7 +43,6 @@ namespace FishAndChill.UI
         private GameObject _window;
         private Text _hint;
         private int _selected;
-        private bool _confirmNewGame;
         private bool _blockedLastFrame;
         private bool _resumeNextFrame;
         private float _volume = 0.8f;
@@ -104,8 +102,7 @@ namespace FishAndChill.UI
             if (dy != 0)
             {
                 _selected = PauseMenuLogic.Move(_selected, -dy, RowCount);
-                _confirmNewGame = false;
-            }
+                }
 
             if (dx != 0 && (Row)_selected == Row.Volume)
             {
@@ -138,7 +135,6 @@ namespace FishAndChill.UI
         public void Open()
         {
             _selected = 0;
-            _confirmNewGame = false;
             _window.SetActive(true);
             Time.timeScale = 0f;
             SetGameplayEnabled(false);
@@ -183,14 +179,10 @@ namespace FishAndChill.UI
                 case Row.Fullscreen:
                     ToggleFullscreen();
                     break;
-                case Row.NewGame:
-                    if (!_confirmNewGame)
+                case Row.Title:
+                    if (_save != null)
                     {
-                        _confirmNewGame = true;
-                    }
-                    else if (_save != null)
-                    {
-                        _save.StartNewGame();
+                        _save.ReturnToTitle();
                     }
 
                     break;
@@ -239,7 +231,7 @@ namespace FishAndChill.UI
                 case Row.Resume: return "Reprendre";
                 case Row.Volume: return $"Volume :  <  {PauseMenuLogic.VolumeText(_volume)}  >";
                 case Row.Fullscreen: return $"Plein écran :  {((_fullscreenShown ?? Screen.fullScreen) ? "Oui" : "Non")}";
-                case Row.NewGame: return _confirmNewGame ? "Tout effacer ? Valide encore" : "Nouvelle partie";
+                case Row.Title: return "Retour au titre";
                 default: return "Quitter le jeu";
             }
         }
@@ -251,14 +243,14 @@ namespace FishAndChill.UI
                 bool selected = i == _selected;
                 Row row = (Row)i;
                 _rowLabels[i].text = RowText(row);
-                _rowLabels[i].color = row == Row.NewGame && _confirmNewGame ? Danger : selected ? Gold : Normal;
+                _rowLabels[i].color = selected ? Gold : Normal;
                 _rowFrames[i].color = selected ? Color.white : new Color(1f, 1f, 1f, 0.45f);
                 _rowFrames[i].rectTransform.localScale = selected ? new Vector3(1.04f, 1.04f, 1f) : Vector3.one;
             }
 
             _hint.text = (Row)_selected == Row.Volume
                 ? "← → régler le volume      Échap reprendre"
-                : "↑ ↓ choisir      Espace valider      Échap reprendre";
+                : "Haut / Bas : choisir      Espace : valider      Échap : reprendre";
         }
 
         private void BuildUi()

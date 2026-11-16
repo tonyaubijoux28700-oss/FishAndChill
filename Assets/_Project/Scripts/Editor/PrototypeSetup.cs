@@ -476,6 +476,25 @@ namespace FishAndChill.Editor
             pauseSo.FindProperty("_skin").objectReferenceValue = skin;
             pauseSo.ApplyModifiedPropertiesWithoutUndo();
 
+            // Écran titre (3 emplacements de sauvegarde), posé sur l'île tant qu'aucune partie n'est choisie.
+            var titleScreen = partie.GetComponent<UI.TitleScreen>();
+            if (titleScreen == null)
+            {
+                titleScreen = partie.AddComponent<UI.TitleScreen>();
+            }
+
+            var titleSo = new SerializedObject(titleScreen);
+            titleSo.FindProperty("_save").objectReferenceValue = saveManager;
+            titleSo.FindProperty("_player").objectReferenceValue = movement;
+            titleSo.FindProperty("_fishing").objectReferenceValue = controller;
+            titleSo.FindProperty("_minimap").objectReferenceValue = minimap;
+            titleSo.FindProperty("_skin").objectReferenceValue = skin;
+            SerializedProperty titleZones = titleSo.FindProperty("_zones");
+            titleZones.arraySize = 2;
+            titleZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
+            titleZones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
+            titleSo.ApplyModifiedPropertiesWithoutUndo();
+
             if (zone == null)
             {
                 Debug.LogError("[FishAndChill] Zone de test introuvable : la scène n'a pas de zone assignée.");

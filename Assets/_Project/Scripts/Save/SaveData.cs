@@ -45,5 +45,11 @@ namespace FishAndChill.Save
 
         /// <summary>Zone où se trouve le joueur (identifiant de la FishingZone) ; vide = zone de départ.</summary>
         public string Zone;
+
+        /// <summary>Temps de jeu total, en secondes.</summary>
+        public float PlaySeconds;
+
+        /// <summary>Date de la dernière sauvegarde (ticks de DateTime, heure locale) ; 0 = inconnue.</summary>
+        public long SavedAtTicks;
     }
 }

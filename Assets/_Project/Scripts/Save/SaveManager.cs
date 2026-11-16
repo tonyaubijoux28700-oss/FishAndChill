@@ -33,8 +33,82 @@ namespace FishAndChill.Save
         private bool _loading;
         private float _timer;
 
-        /// <summary>Chemin complet du fichier de sauvegarde.</summary>
-        public static string SavePath => Path.Combine(Application.persistentDataPath, FileName);
+        /// <summary>
+        /// Emplacement choisi sur l'écran titre (0 à 2), -1 tant qu'aucun n'est choisi : la scène démarre alors sur
+        /// l'écran titre, sans charger ni écrire de sauvegarde. Garde sa valeur quand la scène est rechargée.
+        /// </summary>
+        public static int ActiveSlot { get; private set; } = -1;
+
+        /// <summary>Chemin complet du fichier de sauvegarde de l'emplacement actif.</summary>
+        public static string SavePath => PathFor(ActiveSlot);
+
+        /// <summary>Chemin du fichier d'un emplacement.</summary>
+        public static string PathFor(int slot) => Path.Combine(Application.persistentDataPath, SaveSlots.FileName(slot));
+
+        /// <summary>Une partie est-elle en cours (emplacement choisi) ?</summary>
+        public static bool InGame => ActiveSlot >= 0;
+
+        private float _playSeconds;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => ActiveSlot = -1; // le rechargement du domaine est désactivé en éditeur
+
+        /// <summary>Lit un emplacement sans le charger (écran titre) ; null s'il est vide ou illisible.</summary>
+        public static SaveData Peek(int slot)
+        {
+            string path = PathFor(slot);
+            try
+            {
+                return File.Exists(path) ? SaveSerializer.FromJson(File.ReadAllText(path)) : null;
+            }
+            catch (IOException)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>Efface un emplacement.</summary>
+        public static void DeleteSlot(int slot)
+        {
+            try
+            {
+                if (File.Exists(PathFor(slot)))
+                {
+                    File.Delete(PathFor(slot));
+                }
+            }
+            catch (IOException exception)
+            {
+                Debug.LogWarning($"[FishAndChill] Sauvegarde impossible à effacer : {exception.Message}");
+            }
+        }
+
+        /// <summary>Lance la partie de cet emplacement (reprise, ou nouvelle partie s'il est vide) : recharge la scène.</summary>
+        public void PlaySlot(int slot)
+        {
+            ActiveSlot = Mathf.Clamp(slot, 0, SaveSlots.Count - 1);
+            Reload();
+        }
+
+        /// <summary>Sauvegarde, puis revient à l'écran titre.</summary>
+        public void ReturnToTitle()
+        {
+            if (InGame)
+            {
+                Save();
+            }
+
+            ActiveSlot = -1;
+            Reload();
+        }
+
+        private void Reload()
+        {
+            _dirty = false;
+            enabled = false;
+            Time.timeScale = 1f;
+            UnityEngine.SceneManagement.SceneManager.LoadScene(gameObject.scene.path);
+        }
 
         /// <summary>La partie a été reprise depuis une sauvegarde.</summary>
         public bool Loaded { get; private set; }
@@ -67,8 +141,20 @@ namespace FishAndChill.Save
             }
 
             _progress.EnsureCreated();
+            if (!InGame)
+            {
+                // Écran titre : rien n'est chargé ni écrit tant qu'un emplacement n'est pas choisi.
+                enabled = false;
+                return;
+            }
+
             Load();
             _progress.Changed += MarkDirty;
+            if (!Loaded)
+            {
+                MarkDirty(); // emplacement vide : la nouvelle partie l'occupe tout de suite
+            }
+
             if (_fishing != null)
             {
                 _fishing.CatchLog.Changed += MarkDirty;
@@ -100,6 +186,11 @@ namespace FishAndChill.Save
 
         private void Update()
         {
+            if (Time.timeScale > 0f)
+            {
+                _playSeconds += Time.unscaledDeltaTime;
+            }
+
             if (!_dirty)
             {
                 return;
@@ -114,7 +205,7 @@ namespace FishAndChill.Save
 
         private void OnApplicationQuit()
         {
-            if (_dirty)
+            if (InGame && enabled)
             {
                 Save();
             }
@@ -138,6 +229,8 @@ namespace FishAndChill.Save
             CatchLog log = _fishing != null ? _fishing.CatchLog : new CatchLog();
             SaveData data = SaveSerializer.Capture(_progress.Bag, _progress.Aquarium, _progress.Wallet, _progress.Gear, log);
             data.Zone = _travel != null ? _travel.CurrentZoneId : null;
+            data.PlaySeconds = _playSeconds;
+            data.SavedAtTicks = System.DateTime.Now.Ticks;
             try
             {
                 string temporary = SavePath + ".tmp";
@@ -207,6 +300,7 @@ namespace FishAndChill.Save
             _loading = false;
             Loaded = true;
             SavedZone = data.Zone;
+            _playSeconds = data.PlaySeconds;
         }
     }
 }
