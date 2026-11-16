@@ -93,7 +93,7 @@ namespace FishAndChill.Editor
         };
 
         /// <summary>Écart (en cases) entre le bord est de l'île et le lac : la place des intérieurs de bâtiments.</summary>
-        private const int LakeGap = 100;
+        private const int LakeGap = 140;
 
         /// <summary>Le fleuve amazonien : un tronçon de fleuve qui serpente dans la jungle, à l'est du lac.</summary>
         private static readonly IslandGenerator.Settings RiverSettings = new IslandGenerator.Settings
@@ -1036,7 +1036,9 @@ namespace FishAndChill.Editor
             SetSprite(glassObject, glass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
             // Salle du lac, à droite du grand hall par un passage voûté.
-            Sprite lakeRoom = PixelArt.Save($"{folder}/Aquarium_SalleDuLac.png", AquariumLifeArt.LakeRoom(), TileArt.Size, Vector2.zero);
+            Color[,] lakeRoomPixels = AquariumLifeArt.LakeRoom();
+            AquariumAmazonArt.OpenRightPassage(lakeRoomPixels); // passage vers la salle Amazonie
+            Sprite lakeRoom = PixelArt.Save($"{folder}/Aquarium_SalleDuLac.png", lakeRoomPixels, TileArt.Size, Vector2.zero);
             Sprite lakeGlass = PixelArt.Save($"{folder}/Aquarium_SalleDuLac_Vitre.png", AquariumLifeArt.LakeTankGlass(), TileArt.Size, Vector2.zero);
             GameObject lakeObject = EnsureObject("Salle du lac", room.transform);
             lakeObject.transform.localPosition = new Vector3(AquariumBuilding.HallWidth, 0f, 0f);
@@ -1044,6 +1046,17 @@ namespace FishAndChill.Editor
             GameObject lakeGlassObject = EnsureObject("Vitre du bassin du lac", room.transform);
             lakeGlassObject.transform.localPosition = new Vector3(AquariumBuilding.HallWidth, 0f, 0f);
             SetSprite(lakeGlassObject, lakeGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
+
+            // Salle Amazonie, au bout de la salle du lac par un second passage.
+            float amazonX = AquariumBuilding.AmazonRoomX - AquariumBuilding.PassageWidth;
+            Sprite amazonRoom = PixelArt.Save($"{folder}/Aquarium_SalleAmazonie.png", AquariumAmazonArt.AmazonRoom(), TileArt.Size, Vector2.zero);
+            Sprite amazonGlass = PixelArt.Save($"{folder}/Aquarium_SalleAmazonie_Vitre.png", AquariumAmazonArt.TankGlass(), TileArt.Size, Vector2.zero);
+            GameObject amazonObject = EnsureObject("Salle Amazonie", room.transform);
+            amazonObject.transform.localPosition = new Vector3(amazonX, 0f, 0f);
+            SetSprite(amazonObject, amazonRoom, -6).spriteSortPoint = SpriteSortPoint.Center;
+            GameObject amazonGlassObject = EnsureObject("Vitre du bassin Amazonie", room.transform);
+            amazonGlassObject.transform.localPosition = new Vector3(amazonX, 0f, 0f);
+            SetSprite(amazonGlassObject, amazonGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
             // Mobilier de la salle (triés par les pieds, comme le joueur) : colonnes à méduses et bancs.
             Sprite column = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses.png", AquariumArt.JellyfishColumnV2(), TileArt.Size, new Vector2(0.5f, 0f));
@@ -1079,6 +1092,8 @@ namespace FishAndChill.Editor
             var annecy = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/LacAnnecy.asset");
             BuildTank(room.transform, "Poissons du bassin", aquarium, mahana, AquariumBuilding.HallTank);
             BuildTank(room.transform, "Poissons du bassin du lac", aquarium, annecy, AquariumBuilding.LakeTank);
+            var amazon = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/FleuveAmazone.asset");
+            BuildTank(room.transform, "Poissons du bassin Amazonie", aquarium, amazon, AquariumBuilding.AmazonTank);
 
             BuildTankLife(room.transform, aquarium, folder);
             // Visiteurs mis de côté pour l'instant (AquariumVisitors et BuildVisitors restent prêts à resservir).
@@ -1153,6 +1168,14 @@ namespace FishAndChill.Editor
             Sprite[] lakeCaustics = Frames("Reflets_Lac", 3, f => AquariumLifeArt.Caustics(f, new Color(0.75f, 1f, 0.82f)), center);
             BuildLife(room, "Vie du bassin du lac", aquarium, AquariumBuilding.LakeTank, 23, new[] { (pondweed, 6, false), (elodea, 5, true) },
                 bubble, 3, ray, 3, minnow, 2, 9, lakeCaustics, new Sprite[0][], new Transform[0]);
+
+            // Amazonie : plantes épées, cabombas devant, bancs de néons cardinaux (rouge et bleu), reflets dorés.
+            Sprite[] sword = Frames("PlanteEpee", 3, f => AquariumLifeArt.Plant(f, 18, 34, 4, new Color(0.30f, 0.54f, 0.22f), new Color(0.18f, 0.36f, 0.14f), new Color(0.46f, 0.68f, 0.30f), true, 17), bottom);
+            Sprite[] cabomba = Frames("Cabomba", 3, f => AquariumLifeArt.Plant(f, 16, 26, 4, new Color(0.40f, 0.60f, 0.20f), new Color(0.26f, 0.42f, 0.12f), new Color(0.60f, 0.76f, 0.30f), false, 19), bottom);
+            Sprite[] tetra = Frames("NeonCardinal", 2, f => AquariumLifeArt.TinyFish(f, new Color(0.20f, 0.70f, 0.96f), new Color(0.92f, 0.20f, 0.16f), new Color(0.80f, 0.86f, 0.90f)), center);
+            Sprite[] amazonCaustics = Frames("Reflets_Amazonie", 3, f => AquariumLifeArt.Caustics(f, new Color(1f, 0.86f, 0.56f)), center);
+            BuildLife(room, "Vie du bassin Amazonie", aquarium, AquariumBuilding.AmazonTank, 37, new[] { (sword, 6, false), (cabomba, 5, true) },
+                bubble, 3, ray, 3, tetra, 3, 10, amazonCaustics, new Sprite[0][], new Transform[0]);
         }
 
         private static void BuildLife(Transform room, string name, AquariumBuilding aquarium, Rect area, int seed,

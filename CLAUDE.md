@@ -95,7 +95,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   Palmiers sur la Tilemap `Décor` (tronc bloquant).
 - **Plusieurs zones sur la même grille** : chaque zone est une **région** de `WorldMap` (`SetRegions`, `CurrentRegion`) ;
   `WorldBounds` (caméra, minimap) ne donne que la région actuelle. **Lac d'Annecy** : `LakeGenerator` (île retournée :
-  eau au centre, galets, prés ; testé), 80×60 cases, à `LakeGap` = 100 cases à l'est de l'île (au-delà des intérieurs),
+  eau au centre, galets, prés ; testé), 80×60 cases, à `LakeGap` = 140 cases à l'est de l'île (au-delà des intérieurs),
   construit par `MapSetup.BuildLake` dans les mêmes Tilemaps (tuiles de l'île recolorées par `LakeArt` : eau alpine,
   galets, prés ; sapins). 13 espèces : 11 poissons (`AnnecyFishArt` + `PikeArt` + `ExtraFishArt`), écrevisse signal et grenouille rieuse
   (`FreshwaterCreatureArt`). Sur place, **pêche seulement** (aquarium et marchand à Mahana).
@@ -115,7 +115,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   héliconias et orchidées). Vie (`BuildAmazonLife`, dessins `AmazonLifeArt`) : dauphins roses, caïmans, morphos, aras
   avec leur ombre. 14 espèces (`PrototypeSetup.AmazonSpecies`) : 12 poissons (`AmazonFishArt` : piranha, oscar, pléco,
   discus, tucunaré, tambaqui, arowana, surubim, payara, pirarara, gymnote électrique, arapaïma légendaire), matamata et
-  crevette d'Amazonie (`AmazonCreatureArt`). **Pas encore de salle à l'aquarium** pour cette zone.
+  crevette d'Amazonie (`AmazonCreatureArt`). Salle Amazonie à l'aquarium (voir Aquarium).
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`, barque amarrée). Sur le ponton, **E** ouvre
   la **carte du monde** (←/→, Espace part, Échap ferme ; le sac ne s'ouvre pas sur le ponton) : fondu au noir, arrivée
@@ -180,10 +180,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu. Façade 12×10 cases
   (`AquariumArt`, 192×160 px, entre la 1re version 6×5 et la version 18×15 jugée trop grande : perron, colonnes,
   4 vitrines, rosace, dôme de verre plein d'eau, lanterne), emprise 11,2×5,2, site cherché autour du centre de l'île
-  avec 9 cases de marge, la boutique à ≥ 14 cases. **Deux salles** (intérieur 56×18 cases) : le **grand hall du lagon**
+  avec 9 cases de marge, la boutique à ≥ 14 cases. **Trois salles** (intérieur 82×18 cases) : le **grand hall du lagon**
   (30 cases : bassin tropical, allée en mosaïque, médaillon, colonnes à méduses, bancs) et, par un **passage voûté** dans
   le mur de droite (`PassageBottom`/`PassageTop`), la **salle du lac** (24 cases, `AquariumLifeArt.LakeRoom` : lambris,
-  parquet, tapis, bassin d'eau douce aux galets avec souche). Entrée au milieu du hall (`InteriorBuilding.EntranceX`).
+  parquet, tapis, bassin d'eau douce aux galets avec souche), puis par un 2e passage au bout de la salle du lac (`AquariumAmazonArt.OpenRightPassage`) la **salle Amazonie** (24 cases, `AquariumAmazonArt` : tomettes, tapis à zigzags, mur de feuilles, bassin d'eau noire couleur thé, racines, feuilles mortes ; `AmazonTank`, plantes épées, cabombas, néons cardinaux). Intérieur 82×18 cases. Entrée au milieu du hall (`InteriorBuilding.EntranceX`).
   Un `AquariumTank` par bassin (`_zone`, `_area` = `HallTank` / `LakeTank`) : chaque bassin montre les espèces de sa zone,
   à leur taille réelle (échelle de `FishDisplayScale`). **Vie des bassins** (`World/TankLife`, dessins `AquariumLifeArt`) :
   plantes qui ondulent (laminaires, herbiers / potamots, élodées ; derrière et devant les poissons), bulles, rayons de

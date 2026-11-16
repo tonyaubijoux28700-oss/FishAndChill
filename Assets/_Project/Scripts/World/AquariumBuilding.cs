@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using FishAndChill.Collection;
 using FishAndChill.Fishing;
 using FishAndChill.Player;
@@ -10,7 +10,8 @@ namespace FishAndChill.World
     /// L'aquarium, un des plus grands bâtiments du jeu, en deux salles (voir <see cref="InteriorBuilding"/> pour
     /// l'entrée et la sortie) :
     /// - le grand hall du lagon (30×18 cases) : bassin géant tropical sur tout le mur du fond, colonnes à méduses, bancs ;
-    /// - la salle du lac (24×18 cases), à droite, par un passage voûté : bassin d'eau douce aux galets et roseaux.
+    /// - la salle du lac (24×18 cases), à droite, par un passage voûté : bassin d'eau douce aux galets et roseaux ;
+    /// - la salle Amazonie (24×18 cases), encore à droite par un second passage : bassin d'eau noire, racines, feuilles.
     /// Chaque bassin montre les espèces de sa zone. Devant l'un ou l'autre, E dépose le sac : chaque nouvelle espèce entre,
     /// un poisson plus gros remplace celui exposé ; les doublons restent dans le sac.
     /// </summary>
@@ -20,7 +21,9 @@ namespace FishAndChill.World
         public const float PassageWidth = 2f;
         public const float LakeRoomWidth = 24f;
         public const float LakeRoomX = HallWidth + PassageWidth;
-        public const float InteriorWidth = LakeRoomX + LakeRoomWidth;
+        public const float AmazonRoomWidth = 24f;
+        public const float AmazonRoomX = LakeRoomX + LakeRoomWidth + PassageWidth;
+        public const float InteriorWidth = AmazonRoomX + AmazonRoomWidth;
         public const float InteriorHeight = 18f;
 
         /// <summary>Haut du sol : au-delà commencent les bassins.</summary>
@@ -33,6 +36,7 @@ namespace FishAndChill.World
         /// <summary>Eau du bassin du hall et de celui de la salle du lac (relatives au coin de la salle).</summary>
         public static readonly Rect HallTank = new Rect(2.4f, 12.4f, HallWidth - 4.8f, 4.4f);
         public static readonly Rect LakeTank = new Rect(LakeRoomX + 2.4f, 12.4f, LakeRoomWidth - 4.8f, 4.4f);
+        public static readonly Rect AmazonTank = new Rect(AmazonRoomX + 2.4f, 12.4f, AmazonRoomWidth - 4.8f, 4.4f);
 
         /// <summary>Colonnes à méduses (pied, relatif au coin de la salle).</summary>
         public static readonly Vector2[] JellyfishColumns = { new Vector2(4.5f, 3.2f), new Vector2(25.5f, 3.2f) };
@@ -42,6 +46,7 @@ namespace FishAndChill.World
         {
             new Vector2(9f, 6.2f), new Vector2(21f, 6.2f),
             new Vector2(LakeRoomX + 7f, 6.2f), new Vector2(LakeRoomX + 17f, 6.2f),
+            new Vector2(AmazonRoomX + 7f, 6.2f), new Vector2(AmazonRoomX + 17f, 6.2f),
         };
 
         [SerializeField] private PlayerProgress _progress;
@@ -77,7 +82,8 @@ namespace FishAndChill.World
                     return false;
                 }
 
-                return (feet.x >= HallTank.xMin && feet.x <= HallTank.xMax) || (feet.x >= LakeTank.xMin && feet.x <= LakeTank.xMax);
+                return (feet.x >= HallTank.xMin && feet.x <= HallTank.xMax) || (feet.x >= LakeTank.xMin && feet.x <= LakeTank.xMax)
+                    || (feet.x >= AmazonTank.xMin && feet.x <= AmazonTank.xMax);
             }
         }
 
@@ -89,6 +95,9 @@ namespace FishAndChill.World
             // Le passage voûté et le sol de la salle du lac.
             map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(HallWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
             map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(LakeRoomX + 0.7f, 0.15f), new Vector2(LakeRoomWidth - 1.4f, FloorTop - 0.15f)));
+            // Deuxième passage, au bout de la salle du lac, et la salle Amazonie.
+            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(AmazonRoomX - PassageWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
+            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(AmazonRoomX + 0.7f, 0.15f), new Vector2(AmazonRoomWidth - 1.4f, FloorTop - 0.15f)));
 
             foreach (Vector2 spot in JellyfishColumns)
             {
