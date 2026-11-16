@@ -16,6 +16,7 @@ namespace FishAndChill.Gear
         [SerializeField, Min(0)] private int _price;
         [SerializeField] private float _value;
         [SerializeField] private float _value2;
+        [SerializeField, Tooltip("Icône de l'objet (inventaire, marchand).")] private Sprite _icon;
 
         public GearLevel()
         {
@@ -33,5 +34,13 @@ namespace FishAndChill.Gear
         public int Price => _price;
         public float Value => _value;
         public float Value2 => _value2;
+        public Sprite Icon => _icon;
+
+        /// <summary>Donne son icône à l'objet (génération des données).</summary>
+        public GearLevel WithIcon(Sprite icon)
+        {
+            _icon = icon;
+            return this;
+        }
     }
 }

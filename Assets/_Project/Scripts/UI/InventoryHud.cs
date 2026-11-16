@@ -1,7 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using FishAndChill.Collection;
 using FishAndChill.Fishing;
+using FishAndChill.Gear;
 using FishAndChill.Player;
 using FishAndChill.World;
 using UnityEngine;
@@ -11,8 +12,9 @@ using UnityEngine.UI;
 namespace FishAndChill.UI
 {
     /// <summary>
-    /// Le sac : une icône en bas à gauche (avec le compteur « 2/3 »), et une fenêtre d'inventaire ouverte avec E
-    /// (une case par place : dessin, nom, taille, rareté), habillées avec la charte pixel art.
+    /// Le sac : une icône en bas à gauche (avec le compteur « 2/3 »), et une grande fenêtre d'inventaire ouverte avec E :
+    /// à gauche le matériel utilisé (canne, hameçon, appât, sac : icône, nom, effet, niveau), à droite les poissons du sac
+    /// (une case par place : dessin à l'échelle, nom, taille, rareté ; les places pas encore achetées sont verrouillées).
     /// Devant le comptoir, E parle au marchand à la place. Quand le sac est plein après une prise, la fenêtre
     /// s'ouvre seule pour montrer les places 1, 2, 3. Affiche aussi les pièces en haut à droite.
     /// </summary>
@@ -22,11 +24,29 @@ namespace FishAndChill.UI
         private static readonly Color Muted = new Color(0.66f, 0.72f, 0.78f);
         private static readonly Color EmptyTint = new Color(0.62f, 0.66f, 0.72f);
 
-        private const float SlotWidth = 168f;
-        private const float SlotHeight = 214f;
-        private const float SlotGap = 12f;
-        private const float WindowPadding = 22f;
+        private const float SlotWidth = 270f;
+        private const float SlotHeight = 250f;
+        private const float SlotGap = 16f;
         private const float IconSize = 112f;
+        private const int SlotColumns = 3;
+        private const int ShownSlots = 6;
+        private const float WindowWidth = 1460f;
+        private const float WindowHeight = 760f;
+        private static readonly Color Ink = new Color(0.90f, 0.93f, 0.96f);
+
+        private static readonly GearCategory[] GearOrder = { GearCategory.Rod, GearCategory.Hook, GearCategory.Bait, GearCategory.Bag };
+        private static readonly string[] GearLabels = { "CANNE", "HAMEÇON", "APPÂT", "SAC" };
+
+        private sealed class GearView
+        {
+            public Image Icon;
+            public Text Name;
+            public Text Effect;
+            public readonly List<Image> Levels = new List<Image>();
+        }
+
+        private readonly List<GearView> _gear = new List<GearView>();
+        private Text _fishTitle;
 
         [SerializeField] private PlayerProgress _progress;
         [SerializeField] private FishingController _fishing;
@@ -58,6 +78,7 @@ namespace FishAndChill.UI
             public Image NumberPlaque;
             public Text Name;
             public Text Details;
+            public GameObject Lock;
         }
 
         private readonly List<SlotView> _slots = new List<SlotView>();
@@ -202,7 +223,10 @@ namespace FishAndChill.UI
                 _openedForChoice = false;
             }
 
-            _windowTitle.text = Choosing ? "Quel poisson relâcher ?" : $"Mon sac  {_progress.Bag.Count}/{_progress.Bag.Capacity}";
+            _windowTitle.text = Choosing ? "Quel poisson relâcher ?" : "Mon inventaire";
+            // Pendant le choix, la carte de la prise est à gauche : la fenêtre se fait plus petite, à droite.
+            _windowRect.anchoredPosition = Choosing ? new Vector2(470f, 10f) : new Vector2(0f, 10f);
+            _windowRect.localScale = Vector3.one * (Choosing ? 0.6f : 1f);
             _windowHelp.text = Choosing ? $"1 à {_progress.Bag.Capacity} : relâcher   •   Espace : relâcher le nouveau" : "E ou Échap : fermer";
             _windowHelp.color = Choosing ? Gold : Muted;
         }
@@ -252,22 +276,28 @@ namespace FishAndChill.UI
         private void Refresh()
         {
             Inventory bag = _progress.Bag;
-            if (_builtCapacity != bag.Capacity)
+            int shown = Mathf.Max(ShownSlots, bag.Capacity);
+            if (_builtCapacity != shown)
             {
-                BuildSlots(bag.Capacity);
+                BuildSlots(shown);
             }
 
             _badge.text = $"{bag.Count}/{bag.Capacity}";
+            _fishTitle.text = $"Mes poissons   {bag.Count} / {bag.Capacity}";
+            RefreshGear();
 
             for (int i = 0; i < _slots.Count; i++)
             {
                 SlotView slot = _slots[i];
+                bool locked = i >= bag.Capacity;
                 bool filled = i < bag.Count;
+                slot.Lock.SetActive(locked);
+                slot.NumberPlaque.gameObject.SetActive(!locked);
                 slot.Backdrop.gameObject.SetActive(filled);
                 slot.RarityStrip.gameObject.SetActive(filled);
                 if (!filled)
                 {
-                    slot.Name.text = "Place libre";
+                    slot.Name.text = locked ? string.Empty : "Place libre";
                     slot.Name.color = Muted;
                     slot.Details.text = string.Empty;
                     continue;
@@ -276,6 +306,8 @@ namespace FishAndChill.UI
                 CaughtFish fish = bag.Fish[i];
                 slot.Fish.sprite = fish.Species.Sprite;
                 slot.Fish.color = fish.Species.Sprite != null ? Color.white : fish.Species.PlaceholderColor;
+                Vector2 pixels = fish.Species.Sprite != null ? fish.Species.Sprite.rect.size : new Vector2(2f, 1f);
+                slot.Fish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(SlotWidth - 40f, 100f), pixels, fish.SizeCm);
                 slot.Name.text = fish.Species.CommonName;
                 slot.Name.color = Color.white;
                 Color rarity = fish.Species.Rarity.DisplayColor();
@@ -284,6 +316,31 @@ namespace FishAndChill.UI
             }
 
             _coins.text = $"{_progress.Wallet.Coins} pièces";
+        }
+
+        /// <summary>Le matériel utilisé : icône, nom, effet et niveau (pierres allumées) de chaque famille.</summary>
+        private void RefreshGear()
+        {
+            GearCatalog catalog = _progress.GearCatalog;
+            for (int i = 0; i < _gear.Count; i++)
+            {
+                GearView view = _gear[i];
+                GearCategory category = GearOrder[i];
+                GearLine line = catalog != null ? catalog.Line(category) : null;
+                int level = _progress.Gear.Level(category);
+                GearLevel item = line != null ? line.At(level) : null;
+                view.Icon.sprite = item != null && item.Icon != null ? item.Icon : line != null ? line.Icon : null;
+                view.Icon.enabled = view.Icon.sprite != null;
+                view.Name.text = item != null ? item.Name : "—";
+                view.Effect.text = item == null ? string.Empty
+                    : level == 0 && category != GearCategory.Bag ? "Matériel de départ" : ShopMenu.EffectText(category, item);
+                int max = line != null ? line.MaxLevel : 0;
+                for (int k = 0; k < view.Levels.Count; k++)
+                {
+                    view.Levels[k].gameObject.SetActive(k <= max);
+                    view.Levels[k].color = k <= level ? Gold : new Color(0.32f, 0.36f, 0.42f);
+                }
+            }
         }
 
         private void OnDeposited(DepositResult result)
@@ -329,7 +386,7 @@ namespace FishAndChill.UI
             canvasObject.transform.SetParent(transform, false);
             var canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 8;
+            canvas.sortingOrder = 11; // au-dessus de la carte de prise et de son voile (10), sous le carnet (12)
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
@@ -353,17 +410,23 @@ namespace FishAndChill.UI
             UiFactory.Bold(key);
             UiFactory.Place(key.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(10f, -6f), new Vector2(30f, 28f));
 
-            // Fenêtre d'inventaire, juste au-dessus de l'icône (sans recouvrir le centre de l'écran).
+            // Grande fenêtre d'inventaire au centre : le matériel à gauche, les poissons à droite.
             Image window = UiFactory.Sliced(root, "Fenêtre du sac", SkinSprite(s => s.Panel), _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
             _window = window.gameObject;
             _windowRect = window.rectTransform;
-            UiFactory.Place(_windowRect, Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(24f, 24f + IconSize + 30f), Vector2.one * 100f);
+            UiFactory.Center(_windowRect, new Vector2(0f, 10f), new Vector2(WindowWidth, WindowHeight));
 
-            _windowTitle = UiFactory.TitlePlaque(_windowRect, _skin, string.Empty, 26, Vector2.zero, new Vector2(360f, 54f), out RectTransform titlePlaque);
-            UiFactory.Place(titlePlaque, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(360f, 54f));
+            _windowTitle = UiFactory.TitlePlaque(_windowRect, _skin, string.Empty, 30, Vector2.zero, new Vector2(460f, 64f), out RectTransform titlePlaque);
+            UiFactory.Place(titlePlaque, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(460f, 64f));
 
-            _windowHelp = UiFactory.Label(_windowRect, "Aide", 20, TextAnchor.MiddleCenter, Muted);
-            UiFactory.Place(_windowHelp.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(-30f, 28f));
+            _windowHelp = UiFactory.Label(_windowRect, "Aide", 21, TextAnchor.MiddleCenter, Muted);
+            UiFactory.Place(_windowHelp.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(-30f, 30f));
+
+            BuildGearPanel();
+
+            _fishTitle = UiFactory.Label(_windowRect, "Titre poissons", 28, TextAnchor.MiddleLeft, Gold);
+            UiFactory.Bold(_fishTitle);
+            UiFactory.Center(_fishTitle.rectTransform, new Vector2(245f, 300f), new Vector2(860f, 40f));
 
             // Pièces : en haut à droite, sur une plaque.
             _coins = UiFactory.TitlePlaque(root, _skin, "0 pièces", 26, Vector2.zero, new Vector2(220f, 52f), out RectTransform coinsPlaque);
@@ -384,7 +447,62 @@ namespace FishAndChill.UI
             _toast.SetActive(false);
         }
 
-        private void BuildSlots(int capacity)
+        /// <summary>Panneau « Mon matériel » à gauche : une rangée par famille (icône, nom, effet, niveau).</summary>
+        private void BuildGearPanel()
+        {
+            Image panel = UiFactory.Sliced(_windowRect, "Matériel", SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+            UiFactory.Center(panel.rectTransform, new Vector2(-480f, -10f), new Vector2(440f, 640f));
+            RectTransform rect = panel.rectTransform;
+
+            Text title = UiFactory.Label(rect, "Titre", 28, TextAnchor.MiddleCenter, Gold);
+            UiFactory.Bold(title);
+            title.text = "Mon matériel";
+            UiFactory.Center(title.rectTransform, new Vector2(0f, 284f), new Vector2(400f, 40f));
+
+            for (int i = 0; i < GearOrder.Length; i++)
+            {
+                float y = 175f - i * 132f;
+                Image row = UiFactory.Sliced(rect, $"Matériel {i + 1}", SkinSprite(s => s.Panel), _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
+                UiFactory.Center(row.rectTransform, new Vector2(0f, y), new Vector2(404f, 120f));
+                RectTransform r = row.rectTransform;
+
+                Image iconBox = UiFactory.Sliced(r, "Case", SkinSprite(s => s.WaterBackdrop), _skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
+                UiFactory.Center(iconBox.rectTransform, new Vector2(-142f, 0f), new Vector2(92f, 92f));
+                Image icon = UiFactory.Plain(iconBox.rectTransform, "Icône", Color.white);
+                icon.preserveAspect = true;
+                UiFactory.Center(icon.rectTransform, Vector2.zero, new Vector2(76f, 76f));
+
+                Text label = UiFactory.Label(r, "Famille", 17, TextAnchor.MiddleLeft, Gold);
+                label.text = GearLabels[i];
+                UiFactory.Center(label.rectTransform, new Vector2(52f, 35f), new Vector2(270f, 22f));
+
+                Text name = UiFactory.Label(r, "Nom", 23, TextAnchor.MiddleLeft, Ink);
+                UiFactory.Bold(name);
+                UiFactory.Center(name.rectTransform, new Vector2(52f, 12f), new Vector2(270f, 30f));
+
+                Text effect = UiFactory.Label(r, "Effet", 15, TextAnchor.UpperLeft, Muted);
+                effect.horizontalOverflow = HorizontalWrapMode.Wrap;
+                UiFactory.Center(effect.rectTransform, new Vector2(52f, -22f), new Vector2(270f, 40f));
+
+                var view = new GearView { Icon = icon, Name = name, Effect = effect };
+                for (int k = 0; k < 4; k++)
+                {
+                    Image gem = UiFactory.Plain(r, $"Niveau {k}", Color.white);
+                    gem.sprite = SkinSprite(s => s.Gem);
+                    UiFactory.Center(gem.rectTransform, new Vector2(104f + k * 20f, 35f), new Vector2(16f, 16f));
+                    view.Levels.Add(gem);
+                }
+
+                _gear.Add(view);
+            }
+
+            Text hint = UiFactory.Label(rect, "Conseil", 17, TextAnchor.MiddleCenter, Muted);
+            hint.text = "Améliore ton matériel chez le marchand";
+            UiFactory.Center(hint.rectTransform, new Vector2(0f, -296f), new Vector2(400f, 26f));
+        }
+
+        /// <summary>Cases des poissons (3 colonnes) : les places achetées, puis les places encore verrouillées.</summary>
+        private void BuildSlots(int count)
         {
             foreach (SlotView slot in _slots)
             {
@@ -392,29 +510,32 @@ namespace FishAndChill.UI
             }
 
             _slots.Clear();
-            _builtCapacity = capacity;
-            _windowRect.sizeDelta = new Vector2(WindowPadding * 2f + capacity * SlotWidth + (capacity - 1) * SlotGap, SlotHeight + 110f);
+            _builtCapacity = count;
+            float gridLeft = 245f - (SlotColumns * SlotWidth + (SlotColumns - 1) * SlotGap) * 0.5f;
 
-            for (int i = 0; i < capacity; i++)
+            for (int i = 0; i < count; i++)
             {
+                int column = i % SlotColumns;
+                int row = i / SlotColumns;
+                var position = new Vector2(gridLeft + SlotWidth * 0.5f + column * (SlotWidth + SlotGap), 135f - row * (SlotHeight + SlotGap));
                 Image frame = UiFactory.Sliced(_windowRect, $"Place {i + 1}", SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
-                UiFactory.Place(frame.rectTransform, Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(WindowPadding + i * (SlotWidth + SlotGap), 52f), new Vector2(SlotWidth, SlotHeight));
+                UiFactory.Center(frame.rectTransform, position, new Vector2(SlotWidth, SlotHeight));
 
-                // Fond d'eau avec le poisson.
+                // Fond d'eau avec le poisson (à l'échelle de sa taille).
                 Image backdrop = UiFactory.Sliced(frame.rectTransform, "Fond d'eau", SkinSprite(s => s.WaterBackdrop), _skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
-                UiFactory.Place(backdrop.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -12f), new Vector2(SlotWidth - 20f, 96f));
+                UiFactory.Place(backdrop.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -12f), new Vector2(SlotWidth - 22f, 130f));
                 Image fish = UiFactory.Plain(backdrop.rectTransform, "Poisson", Color.white);
                 fish.preserveAspect = true;
-                UiFactory.Center(fish.rectTransform, Vector2.zero, new Vector2(SlotWidth - 34f, 74f));
+                UiFactory.Center(fish.rectTransform, Vector2.zero, new Vector2(SlotWidth - 40f, 100f));
 
-                Text name = UiFactory.Label(frame.rectTransform, "Nom", 20, TextAnchor.MiddleCenter, Color.white);
+                Text name = UiFactory.Label(frame.rectTransform, "Nom", 22, TextAnchor.MiddleCenter, Color.white);
                 UiFactory.Bold(name);
                 name.horizontalOverflow = HorizontalWrapMode.Wrap;
-                UiFactory.Place(name.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 52f), new Vector2(SlotWidth - 16f, 50f));
+                UiFactory.Place(name.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 50f), new Vector2(SlotWidth - 16f, 52f));
 
-                Text details = UiFactory.Label(frame.rectTransform, "Détails", 15, TextAnchor.MiddleCenter, Color.white);
+                Text details = UiFactory.Label(frame.rectTransform, "Détails", 17, TextAnchor.MiddleCenter, Color.white);
                 details.horizontalOverflow = HorizontalWrapMode.Overflow;
-                UiFactory.Place(details.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 22f), new Vector2(SlotWidth - 10f, 28f));
+                UiFactory.Place(details.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(SlotWidth - 10f, 30f));
 
                 // Liseré de rareté en bas de la case.
                 Image strip = UiFactory.Plain(frame.rectTransform, "Rareté", Color.white);
@@ -425,6 +546,14 @@ namespace FishAndChill.UI
                 UiFactory.Place(plaque, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0.5f, 0.5f), new Vector2(10f, -8f), new Vector2(38f, 34f));
                 number.fontSize = UiFactory.Size(22);
 
+                // Place pas encore achetée : voile sombre et explication.
+                Image lockVeil = UiFactory.Plain(frame.rectTransform, "Verrou", new Color(0.03f, 0.05f, 0.08f, 0.72f));
+                UiFactory.Stretch(lockVeil.rectTransform, 8f);
+                Text lockText = UiFactory.Label(lockVeil.rectTransform, "Texte", 19, TextAnchor.MiddleCenter, Muted);
+                lockText.horizontalOverflow = HorizontalWrapMode.Wrap;
+                lockText.text = "Place verrouillée\n\nUn sac plus grand\nchez le marchand";
+                UiFactory.Stretch(lockText.rectTransform, 12f);
+
                 _slots.Add(new SlotView
                 {
                     Frame = frame,
@@ -434,6 +563,7 @@ namespace FishAndChill.UI
                     NumberPlaque = plaque.GetComponent<Image>(),
                     Name = name,
                     Details = details,
+                    Lock = lockVeil.gameObject,
                 });
             }
         }

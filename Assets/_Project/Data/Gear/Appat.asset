@@ -20,15 +20,19 @@ MonoBehaviour:
     _price: 0
     _value: 0
     _value2: 0
+    _icon: {fileID: 21300000, guid: e0380dae2b61cba4c8b39a6fffe9594b, type: 3}
   - _name: "Crevettes fra\xEEches"
     _price: 50
     _value: 0.4
     _value2: 0.15
+    _icon: {fileID: 21300000, guid: eb5cfd83b5d87224e951531157a7b308, type: 3}
   - _name: Leurre brillant
     _price: 160
     _value: 0.8
     _value2: 0.25
+    _icon: {fileID: 21300000, guid: 75636373a1685e7459ae930c525acec5, type: 3}
   - _name: Calmar entier
     _price: 400
     _value: 1.4
     _value2: 0.35
+    _icon: {fileID: 21300000, guid: 07955a39006ac8e4ba32c6c486d1d296, type: 3}

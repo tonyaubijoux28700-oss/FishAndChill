@@ -20,6 +20,7 @@ namespace FishAndChill.Fishing
         private readonly GameObject _root;
         private readonly RectTransform _panel;
         private readonly Image _glow;
+        private float _sideScale = 1f;
         private readonly Text _title;
         private readonly Image _fish;
         private readonly RectTransform _fishRect;
@@ -140,6 +141,11 @@ namespace FishAndChill.Fishing
             }
 
             string bag = bagCount >= 0 ? $"  (sac {bagCount}/{bagCapacity})" : string.Empty;
+            // Sac plein : la carte passe à gauche, la fenêtre du sac s'ouvre à droite pour choisir quoi relâcher.
+            _sideScale = bagFull ? 0.82f : 1f;
+            Vector2 place = bagFull ? new Vector2(-500f, 0f) : Vector2.zero;
+            _panel.anchoredPosition = place;
+            _glow.rectTransform.anchoredPosition = place;
             if (bagFull)
             {
                 _footer.text = "Sac plein ! Relâche une prise pour la garder";
@@ -176,7 +182,7 @@ namespace FishAndChill.Fishing
             _age += deltaTime;
             float t = Mathf.Clamp01(_age / PopDuration);
             float overshoot = 1f + Mathf.Sin(t * Mathf.PI) * 0.10f;
-            _panel.localScale = Vector3.one * Mathf.Lerp(0.6f, 1f, t) * overshoot;
+            _panel.localScale = Vector3.one * Mathf.Lerp(0.6f, 1f, t) * overshoot * _sideScale;
 
             _fishRect.anchoredPosition = new Vector2(Mathf.Sin(_age * 1.3f) * 8f, Mathf.Sin(_age * 3f) * 6f);
             _fishRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_age * 5f) * 2.5f);
@@ -184,7 +190,7 @@ namespace FishAndChill.Fishing
             Color glow = _glowColor;
             glow.a *= 0.75f + 0.25f * Mathf.Sin(_age * 2.5f);
             _glow.color = glow;
-            _glow.rectTransform.localScale = Vector3.one * (Mathf.Lerp(0.6f, 1f, t) + 0.03f * Mathf.Sin(_age * 2.5f));
+            _glow.rectTransform.localScale = Vector3.one * (Mathf.Lerp(0.6f, 1f, t) + 0.03f * Mathf.Sin(_age * 2.5f)) * _sideScale;
         }
 
         private static float GlowStrength(Rarity rarity)

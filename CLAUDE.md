@@ -167,9 +167,13 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   Les poissons nagent dans le bassin (`AquariumTank`) avec leur petite version `FishSpecies.MiniSprite`
   (≈ 32 px, réduite au tiers du grand dessin par `FishArt.GenerateMini` → `Art/Fish/Mini/`), entre le fond (ordre -5) et
   la vitre (`Aquarium_Vitre.png`, ordre -3). L'index des poissons indique les espèces exposées.
-- `UI/InventoryHud` : **icône de sac** en bas à gauche (compteur « 2/3 », `UiArt.BagIcon`), **E** ouvre la fenêtre
-  d'inventaire (joueur `Locked`, E/Échap ferme) ; devant le comptoir, E parle au marchand à la place. Quand le sac
-  est plein après une prise, la fenêtre s'ouvre seule (places 1/2/3 qui clignotent). Pièces en haut à droite.
+- `UI/InventoryHud` (canvas ordre 11) : **icône de sac** en bas à gauche (compteur « 2/3 », `UiArt.BagIcon`), **E** ouvre la
+  **grande fenêtre « Mon inventaire »** au centre (joueur `Locked`, E/Échap ferme) : à gauche **« Mon matériel »** (canne,
+  hameçon, appât, sac : icône de l'objet `GearLevel.Icon`, nom, effet `ShopMenu.EffectText`, niveau en pierres), à
+  droite **« Mes poissons »** en grille de 3 colonnes (dessins à l'échelle, places pas encore achetées verrouillées,
+  6 cases affichées). Une icône 32×32 par objet (`GearArt`, `Art/UI/Materiel/`, posée par `GearSetup` via
+  `GearLevel.WithIcon`). Devant le comptoir, E parle au marchand à la place. Sac plein après une prise : la carte de
+  prise passe à gauche (×0,82) et la fenêtre s'ouvre réduite (×0,6) à droite, places qui clignotent. Pièces en haut à droite.
   Icônes de la boutique et de l'aquarium sur la minimap (`Minimap._landmarks`).
 - **Index des espèces = carnet du pêcheur** (`UI/FishIndex`, objet « Partie », canvas ordre 12) : icône de livre à
   droite du sac (compteur « 12/29 », `UiArt.BookIcon`), **Tab** (ou Y manette, `IndexInput`) ouvre un carnet sur deux pages

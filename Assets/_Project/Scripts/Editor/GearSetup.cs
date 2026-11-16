@@ -22,33 +22,36 @@ namespace FishAndChill.Editor
             Sprite baitIcon = PixelArt.Save($"{IconFolder}/IconeAppat.png", UiArt.BaitIcon(), 16, new Vector2(0.5f, 0.5f));
             Sprite bagIcon = PixelArt.Save($"{IconFolder}/IconeSac.png", UiArt.BagIcon(), 16, new Vector2(0.5f, 0.5f));
 
+            // Une icône 32×32 par objet (inventaire, marchand).
+            Sprite Item(string file, Color[,] pixels) => PixelArt.Save($"{IconFolder}/Materiel/{file}.png", pixels, 16, new Vector2(0.5f, 0.5f));
+
             // Canne : Value = zone de réussite plus large (0,15 = +15 %), le curseur ralentit en proportion.
             GearLine rod = Line("Canne", GearCategory.Rod, "Canne", rodIcon,
-                new GearLevel("Canne en bambou", 0, 0f),
-                new GearLevel("Canne en fibre de verre", 60, 0.15f),
-                new GearLevel("Canne en carbone", 180, 0.30f),
-                new GearLevel("Canne de compétition", 450, 0.45f));
+                new GearLevel("Canne en bambou", 0, 0f).WithIcon(Item("Canne_0", GearArt.Rod(0))),
+                new GearLevel("Canne en fibre de verre", 60, 0.15f).WithIcon(Item("Canne_1", GearArt.Rod(1))),
+                new GearLevel("Canne en carbone", 180, 0.30f).WithIcon(Item("Canne_2", GearArt.Rod(2))),
+                new GearLevel("Canne de compétition", 450, 0.45f).WithIcon(Item("Canne_3", GearArt.Rod(3))));
 
             // Hameçon : Value = ratés tolérés en plus.
             GearLine hook = Line("Hamecon", GearCategory.Hook, "Hameçon", hookIcon,
-                new GearLevel("Hameçon simple", 0, 0f),
-                new GearLevel("Hameçon renforcé", 45, 1f),
-                new GearLevel("Hameçon triple", 150, 2f),
-                new GearLevel("Hameçon en acier forgé", 380, 3f));
+                new GearLevel("Hameçon simple", 0, 0f).WithIcon(Item("Hamecon_0", GearArt.Hook(0))),
+                new GearLevel("Hameçon renforcé", 45, 1f).WithIcon(Item("Hamecon_1", GearArt.Hook(1))),
+                new GearLevel("Hameçon triple", 150, 2f).WithIcon(Item("Hamecon_2", GearArt.Hook(2))),
+                new GearLevel("Hameçon en acier forgé", 380, 3f).WithIcon(Item("Hamecon_3", GearArt.Hook(3))));
 
             // Appât : Value = bonus de rareté, Value2 = touches plus rapides.
             GearLine bait = Line("Appat", GearCategory.Bait, "Appât", baitIcon,
-                new GearLevel("Mie de pain", 0, 0f, 0f),
-                new GearLevel("Crevettes fraîches", 50, 0.4f, 0.15f),
-                new GearLevel("Leurre brillant", 160, 0.8f, 0.25f),
-                new GearLevel("Calmar entier", 400, 1.4f, 0.35f));
+                new GearLevel("Mie de pain", 0, 0f, 0f).WithIcon(Item("Appat_0", GearArt.Bait(0))),
+                new GearLevel("Crevettes fraîches", 50, 0.4f, 0.15f).WithIcon(Item("Appat_1", GearArt.Bait(1))),
+                new GearLevel("Leurre brillant", 160, 0.8f, 0.25f).WithIcon(Item("Appat_2", GearArt.Bait(2))),
+                new GearLevel("Calmar entier", 400, 1.4f, 0.35f).WithIcon(Item("Appat_3", GearArt.Bait(3))));
 
             // Sac : Value = nombre de places.
             GearLine bag = Line("Sac", GearCategory.Bag, "Sac", bagIcon,
-                new GearLevel("Sacoche", 0, 3f),
-                new GearLevel("Besace", 70, 4f),
-                new GearLevel("Glacière", 200, 5f),
-                new GearLevel("Grande glacière", 480, 6f));
+                new GearLevel("Sacoche", 0, 3f).WithIcon(Item("Sac_0", GearArt.Bag(0))),
+                new GearLevel("Besace", 70, 4f).WithIcon(Item("Sac_1", GearArt.Bag(1))),
+                new GearLevel("Glacière", 200, 5f).WithIcon(Item("Sac_2", GearArt.Bag(2))),
+                new GearLevel("Grande glacière", 480, 6f).WithIcon(Item("Sac_3", GearArt.Bag(3))));
 
             var catalog = LoadOrCreate<GearCatalog>($"{Folder}/CatalogueMateriel.asset");
             catalog.Configure(new[] { rod, hook, bait, bag });
