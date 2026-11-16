@@ -3138,6 +3138,9 @@ MonoBehaviour:
   _showcaseBack: {fileID: 21300000, guid: db5df83aab0f02d4ca0de5d3dc4a9fef, type: 3}
   _peg: {fileID: 21300000, guid: 8d8e4f5751ebaee45bad037a006c8aa6, type: 3}
   _tag: {fileID: 21300000, guid: 7bf5b043295e34a47ba840bdbfea0f7e, type: 3}
+  _roundTag: {fileID: 21300000, guid: ad14f35180b5721408810e5627ac7ba4, type: 3}
+  _roundCard: {fileID: 21300000, guid: c86e2c7787262ba4aaa7bd70707427ab, type: 3}
+  _roundRim: {fileID: 21300000, guid: ec648ab03d09a984da275798787c2951, type: 3}
   _toastSeconds: 5
 --- !u!4 &332295273
 Transform:

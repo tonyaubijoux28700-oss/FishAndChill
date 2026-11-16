@@ -80,6 +80,9 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Fond en bois de la vitrine.")] private Sprite _showcaseBack;
         [SerializeField, Tooltip("Support en laiton sous la canne.")] private Sprite _peg;
         [SerializeField, Tooltip("Étiquette en papier (étirable).")] private Sprite _tag;
+        [SerializeField, Tooltip("Étiquette en papier à coins arrondis.")] private Sprite _roundTag;
+        [SerializeField, Tooltip("Case sombre à coins arrondis (poissons, vitrine).")] private Sprite _roundCard;
+        [SerializeField, Tooltip("Liseré doré à coins arrondis, posé sur la vitrine.")] private Sprite _roundRim;
 
         [SerializeField, Min(1f)] private float _toastSeconds = 5f;
 
@@ -246,8 +249,8 @@ namespace FishAndChill.UI
 
             _windowTitle.text = Choosing ? "Quel poisson relâcher ?" : "Mon inventaire";
             // Pendant le choix, la carte de la prise est à gauche : la fenêtre se fait plus petite, à droite.
-            _windowRect.anchoredPosition = Choosing ? new Vector2(470f, 10f) : new Vector2(0f, 10f);
-            _windowRect.localScale = Vector3.one * (Choosing ? 0.6f : 1f);
+            _windowRect.anchoredPosition = Choosing ? new Vector2(440f, 10f) : new Vector2(0f, 10f);
+            _windowRect.localScale = Vector3.one * (Choosing ? 0.55f : 1.08f);
             string baitKey = Keyboard.current != null ? Keyboard.current.qKey.displayName : "Q";
             _windowHelp.text = Choosing
                 ? $"1 à {_progress.Bag.Capacity} : relâcher   •   Espace : relâcher le nouveau"
@@ -522,9 +525,20 @@ namespace FishAndChill.UI
             UiFactory.Center(panel.rectTransform, new Vector2(-530f, -10f), new Vector2(600f, 640f));
             RectTransform rect = panel.rectTransform;
 
+            // Le fond en bois est découpé aux coins arrondis du cadre, puis un liseré doré arrondi passe par-dessus.
+            if (_roundCard != null)
+            {
+                panel.sprite = _roundCard;
+                panel.type = Image.Type.Sliced;
+                panel.gameObject.AddComponent<Mask>().showMaskGraphic = true;
+            }
+
             Image back = UiFactory.Plain(rect, "Présentoir", _showcaseBack != null ? Color.white : new Color(0.40f, 0.26f, 0.16f));
             back.sprite = _showcaseBack;
-            UiFactory.Stretch(back.rectTransform, 14f);
+            UiFactory.Stretch(back.rectTransform, 4f);
+            Image rim = UiFactory.Sliced(rect, "Liseré", _roundRim, Color.white);
+            UiFactory.Stretch(rim.rectTransform);
+            rim.enabled = _roundRim != null;
 
             // Titre sur un bandeau doré, vissé en haut du présentoir.
             UiFactory.TitlePlaque(rect, _skin, "Mon matériel", 30, new Vector2(0f, 284f), new Vector2(320f, 56f), out _);
@@ -564,7 +578,7 @@ namespace FishAndChill.UI
         /// </summary>
         private GearLabel BuildLabel(RectTransform parent, string family, Vector2 position, bool levels, float width = 286f, float height = 150f)
         {
-            Image tag = UiFactory.Sliced(parent, $"Étiquette {family}", _tag, _tag != null ? Color.white : new Color(0.92f, 0.86f, 0.70f));
+            Image tag = UiFactory.Sliced(parent, $"Étiquette {family}", _roundTag != null ? _roundTag : _tag, _tag != null ? Color.white : new Color(0.92f, 0.86f, 0.70f));
             RectTransform rect = tag.rectTransform;
             UiFactory.Center(rect, position, new Vector2(width, height));
 
@@ -625,7 +639,7 @@ namespace FishAndChill.UI
                 int column = i % SlotColumns;
                 int row = i / SlotColumns;
                 var position = new Vector2(gridLeft + SlotWidth * 0.5f + column * (SlotWidth + SlotGap), 135f - row * (SlotHeight + SlotGap));
-                Image frame = UiFactory.Sliced(_windowRect, $"Place {i + 1}", SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+                Image frame = UiFactory.Sliced(_windowRect, $"Place {i + 1}", _roundCard != null ? _roundCard : SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
                 UiFactory.Center(frame.rectTransform, position, new Vector2(SlotWidth, SlotHeight));
 
                 // Fond d'eau avec le poisson (à l'échelle de sa taille).
@@ -654,8 +668,8 @@ namespace FishAndChill.UI
                 number.fontSize = UiFactory.Size(22);
 
                 // Place pas encore achetée : voile sombre et explication.
-                Image lockVeil = UiFactory.Plain(frame.rectTransform, "Verrou", new Color(0.03f, 0.05f, 0.08f, 0.72f));
-                UiFactory.Stretch(lockVeil.rectTransform, 8f);
+                Image lockVeil = UiFactory.Sliced(frame.rectTransform, "Verrou", _roundCard, new Color(0.25f, 0.28f, 0.34f, 0.85f));
+                UiFactory.Stretch(lockVeil.rectTransform, 6f);
                 Text lockText = UiFactory.Label(lockVeil.rectTransform, "Texte", 22, TextAnchor.MiddleCenter, Muted);
                 lockText.horizontalOverflow = HorizontalWrapMode.Wrap;
                 lockText.text = "Place verrouillée\n\nUn sac plus grand\nchez le marchand";

@@ -103,6 +103,40 @@ namespace FishAndChill.Editor
             return p;
         }
 
+        /// <summary>
+        /// Cadre étirable à coins bien arrondis (24×24, rayon 7 px, bords de 9) : liseré foncé, filet clair à l'intérieur,
+        /// fond légèrement plus clair en haut (éclairé). Sert aux étiquettes et aux cases de l'inventaire.
+        /// </summary>
+        public static Color[,] RoundedFrame(Color fill, Color rim, Color highlight)
+        {
+            const int s = 24;
+            const float r = 7f;
+            var p = new Color[s, s];
+            for (int x = 0; x < s; x++)
+            {
+                for (int y = 0; y < s; y++)
+                {
+                    // Distance au bord en tenant compte des coins arrondis.
+                    float cx = Mathf.Clamp(x + 0.5f, r, s - r);
+                    float cy = Mathf.Clamp(y + 0.5f, r, s - r);
+                    float d = r - Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(cx, cy));
+                    if (d < 0f)
+                    {
+                        continue;
+                    }
+
+                    Color c;
+                    if (d < 1.2f) c = rim;
+                    else if (d < 2.2f) c = highlight;
+                    else if (fill.a <= 0f) continue; // liseré seul : l'intérieur reste transparent
+                    else c = Color.Lerp(fill, DetailedFish.Shade(fill, 1.08f), y / (float)s);
+                    p[x, y] = c;
+                }
+            }
+
+            return p;
+        }
+
         /// <summary>Onglet marque-page 20×28 (bords 6/6/6/10), blanc pour être teinté : haut arrondi, ombre en bas.</summary>
         public static Color[,] Ribbon()
         {

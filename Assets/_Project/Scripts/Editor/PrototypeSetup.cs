@@ -509,6 +509,10 @@ namespace FishAndChill.Editor
             hudSo.FindProperty("_showcaseBack").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Materiel/Vitrine_Fond.png", GearArt.ShowcaseBack(), 25, new Vector2(0.5f, 0.5f));
             hudSo.FindProperty("_peg").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Materiel/Vitrine_Support.png", GearArt.Peg(), 16, new Vector2(0.5f, 0.5f));
             hudSo.FindProperty("_tag").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Carnet/Case.png", BookArt.Cell(), UiSkinArt.PixelsPerUnit, new Vector2(0.5f, 0.5f), new Vector4(5, 5, 5, 5), FilterMode.Point);
+            Sprite Round(string file, Color[,] pixels) => PixelArt.Save($"Assets/_Project/Art/UI/Materiel/{file}.png", pixels, UiSkinArt.PixelsPerUnit, new Vector2(0.5f, 0.5f), new Vector4(9, 9, 9, 9), FilterMode.Point);
+            hudSo.FindProperty("_roundTag").objectReferenceValue = Round("Cadre_Etiquette", BookArt.RoundedFrame(new Color(0.95f, 0.89f, 0.74f), new Color(0.42f, 0.28f, 0.16f), new Color(1f, 0.97f, 0.88f)));
+            hudSo.FindProperty("_roundCard").objectReferenceValue = Round("Cadre_Case", BookArt.RoundedFrame(new Color(0.10f, 0.15f, 0.22f), new Color(0.40f, 0.52f, 0.64f), new Color(0.18f, 0.26f, 0.36f)));
+            hudSo.FindProperty("_roundRim").objectReferenceValue = Round("Cadre_Lisere", BookArt.RoundedFrame(new Color(0f, 0f, 0f, 0f), new Color(0.86f, 0.68f, 0.30f), new Color(1f, 0.90f, 0.60f)));
             var skinMenuSo = new SerializedObject(shopMenu);
             skinMenuSo.FindProperty("_skin").objectReferenceValue = skin;
             skinMenuSo.ApplyModifiedPropertiesWithoutUndo();
