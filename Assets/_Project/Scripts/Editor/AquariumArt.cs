@@ -682,7 +682,65 @@ namespace FishAndChill.Editor
             }
 
             // Grand poisson doré au centre.
-            DrawFish(p, Mathf.RoundToInt(cx), Mathf.RoundToInt(cy), Brass, 3, false);
+            // Ronds dans l'eau autour du poisson, puis le poisson lui-même, incrusté en or.
+            foreach (float ring in new[] { radius * 0.55f, radius * 0.75f })
+            {
+                for (int k = 0; k < 160; k++)
+                {
+                    float a = k / 160f * Mathf.PI * 2f;
+                    if (Mathf.Sin(a * 5f) < -0.3f) continue; // anneau en pointillés
+                    PixelArt.Set(p, Mathf.RoundToInt(cx + Mathf.Cos(a) * ring), Mathf.RoundToInt(cy + Mathf.Sin(a) * ring * 0.9f), C(0.55f, 0.80f, 0.86f));
+                }
+            }
+
+            DrawGoldFish(p, Mathf.RoundToInt(cx), Mathf.RoundToInt(cy));
+        }
+
+        /// <summary>
+        /// Poisson du médaillon, incrusté en or : dessiné par le même moteur que les poissons du jeu (corps arrondi éclairé,
+        /// écailles, nageoires à rayons, queue fourchue), dans des tons d'or et de laiton, puis posé au centre.
+        /// </summary>
+        private static void DrawGoldFish(Color[,] p, int cx, int cy)
+        {
+            Color gold = C(0.94f, 0.76f, 0.32f);
+            Color goldDark = C(0.60f, 0.42f, 0.12f);
+            Color goldLight = C(1f, 0.92f, 0.62f);
+            var fish = new DetailedFish
+            {
+                Width = 62, Height = 34, CenterY = 16.5f,
+                Upper = new[] { new Vector2(12, 2.5f), new Vector2(18, 5f), new Vector2(27, 9f), new Vector2(38, 10.5f), new Vector2(48, 9.5f), new Vector2(54, 7f), new Vector2(58, 4f), new Vector2(61, 1.5f) },
+                Lower = new[] { new Vector2(12, 2.5f), new Vector2(18, 4.5f), new Vector2(27, 8f), new Vector2(38, 9.5f), new Vector2(48, 8.5f), new Vector2(54, 6f), new Vector2(58, 3.5f), new Vector2(61, 1f) },
+                Back = C(0.70f, 0.50f, 0.16f), Flank = gold, Belly = goldLight,
+                FlankStart = 0.3f,
+                Caudal = new DetailedFish.Tail { Shape = DetailedFish.TailShape.Forked, XTip = 1, XBase = 13, Span = 11f, Base = gold, Ray = goldDark, Edge = goldLight },
+                EyeX = 55, EyeYOffset = 2.5f, EyeRadius = 2, Iris = C(0.20f, 0.50f, 0.62f), Pupil = C(0.06f, 0.06f, 0.08f),
+                GillX = 50, GillStrength = 0.45f, MouthXStart = 59, MouthXEnd = 61, MouthYOffset = -0.5f,
+                OutlineColor = C(0.30f, 0.18f, 0.04f),
+                Seed = 91,
+            };
+            fish.Fins.Add(new DetailedFish.Fin { Side = DetailedFish.FinSide.Up, XRear = 26, XFront = 42, HeightRear = 4f, HeightFront = 8f, Shape = DetailedFish.FinShape.Falcate, Base = gold, Ray = goldDark, Edge = goldLight });
+            fish.Fins.Add(new DetailedFish.Fin { Side = DetailedFish.FinSide.Down, XRear = 22, XFront = 30, HeightRear = 2f, HeightFront = 5f, Base = gold, Ray = goldDark, Edge = goldLight });
+            fish.Fins.Add(new DetailedFish.Fin { Side = DetailedFish.FinSide.Down, XRear = 38, XFront = 43, HeightRear = 1f, HeightFront = 5f, Base = gold, Ray = goldDark, Edge = goldLight });
+            fish.PectoralFins.Add(new DetailedFish.Pectoral { BaseX = 48, BaseYOffset = -2f, Length = 7, Width = 2.5f, Slope = 0.3f, Base = goldLight, Ray = gold, Edge = C(1f, 0.97f, 0.82f) });
+
+            Color[,] drawn = fish.Draw();
+            int w = drawn.GetLength(0);
+            int h = drawn.GetLength(1);
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    if (drawn[x, y].a > 0.5f)
+                    {
+                        PixelArt.Set(p, cx - w / 2 + x, cy - h / 2 + y, drawn[x, y]);
+                    }
+                }
+            }
+
+            // Trois petites bulles dorées devant la bouche.
+            PixelArt.Set(p, cx + w / 2 + 2, cy + 3, goldLight);
+            PixelArt.Set(p, cx + w / 2 + 4, cy + 7, goldLight);
+            PixelArt.Set(p, cx + w / 2 + 3, cy + 11, gold);
         }
 
         /// <summary>Le bassin géant : cadre, eau, sable, rochers, coraux, algues, coffre, bulles.</summary>
