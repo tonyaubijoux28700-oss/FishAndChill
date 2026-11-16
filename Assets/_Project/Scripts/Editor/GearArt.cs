@@ -67,6 +67,80 @@ namespace FishAndChill.Editor
             return Finish(p, C(0.12f, 0.09f, 0.08f));
         }
 
+        public const int RodWidth = 96;
+        public const int RodHeight = 160;
+
+        /// <summary>Bout du fil de la grande canne (là où pendent l'hameçon et l'appât), en pixels du dessin.</summary>
+        public static readonly Vector2Int RodLineEnd = new Vector2Int(86, 62);
+
+        /// <summary>
+        /// Grande canne pour la vitrine de l'inventaire, 96×160 : poignée en bas à gauche, moulinet, brin qui monte en
+        /// se courbant légèrement vers la droite, anneaux, scion, et le fil qui pend du scion jusqu'à
+        /// <see cref="RodLineEnd"/> (l'hameçon et l'appât y sont posés en jeu).
+        /// </summary>
+        public static Color[,] RodLarge(int level)
+        {
+            var p = new Color[RodWidth, RodHeight];
+            Color blank;
+            Color wrap;
+            Color grip;
+            Color reel;
+            switch (level)
+            {
+                case 0: blank = C(0.86f, 0.74f, 0.44f); wrap = C(0.56f, 0.40f, 0.20f); grip = C(0.62f, 0.44f, 0.24f); reel = C(0.52f, 0.52f, 0.56f); break;
+                case 1: blank = C(0.96f, 0.82f, 0.30f); wrap = C(0.20f, 0.46f, 0.80f); grip = C(0.30f, 0.30f, 0.32f); reel = C(0.70f, 0.72f, 0.76f); break;
+                case 2: blank = C(0.18f, 0.18f, 0.20f); wrap = C(0.86f, 0.22f, 0.20f); grip = C(0.52f, 0.36f, 0.22f); reel = C(0.78f, 0.80f, 0.84f); break;
+                default: blank = C(0.14f, 0.26f, 0.56f); wrap = C(0.98f, 0.80f, 0.30f); grip = C(0.82f, 0.62f, 0.32f); reel = C(0.96f, 0.80f, 0.36f); break;
+            }
+
+            // Le brin : une courbe de la poignée (8, 8) au scion (84, 152), qui s'affine vers le bout.
+            Vector2 Point(float t) => new Vector2(8f + t * 70f + t * t * 6f, 8f + t * 144f);
+            const int steps = 120;
+            for (int i = 0; i <= steps; i++)
+            {
+                float t = i / (float)steps;
+                Vector2 a = Point(t);
+                float radius = t < 0.22f ? 3.2f : Mathf.Lerp(1.7f, 0.6f, (t - 0.22f) / 0.78f);
+                Color c = t < 0.22f ? grip : blank;
+                if (t < 0.22f && i % 4 == 0) c = DetailedFish.Shade(grip, 0.8f);                   // grain de la poignée
+                if (level == 0 && t > 0.22f && i % 18 == 0) c = DetailedFish.Shade(blank, 0.7f);   // nœuds du bambou
+                CreatureArt.Blob(p, a.x, a.y, radius, radius, c);
+                CreatureArt.Blob(p, a.x - radius * 0.35f, a.y + radius * 0.2f, radius * 0.4f, radius * 0.4f, DetailedFish.Shade(c, 1.25f)); // reflet
+            }
+
+            // Talon, ligatures et anneaux le long du brin.
+            CreatureArt.Blob(p, Point(0f).x, Point(0f).y, 3.6f, 3.6f, DetailedFish.Shade(grip, 0.7f));
+            foreach (float t in new[] { 0.22f, 0.36f, 0.5f, 0.64f, 0.78f, 0.9f })
+            {
+                Vector2 a = Point(t);
+                CreatureArt.Blob(p, a.x, a.y, 2.2f, 1.2f, wrap);
+                CreatureArt.Blob(p, a.x + 2.6f, a.y - 1f, 1.3f, 1.3f, C(0.78f, 0.80f, 0.84f));    // anneau
+                PixelArt.Set(p, Mathf.RoundToInt(a.x + 2.6f), Mathf.RoundToInt(a.y - 1f), C(0f, 0f, 0f, 0f));
+            }
+
+            // Moulinet sous la poignée, avec sa manivelle.
+            Vector2 seat = Point(0.17f);
+            CreatureArt.Blob(p, seat.x + 7f, seat.y - 3f, 6f, 5.5f, reel);
+            CreatureArt.Blob(p, seat.x + 7f, seat.y - 3f, 3.2f, 3f, DetailedFish.Shade(reel, 0.75f));
+            CreatureArt.Blob(p, seat.x + 5f, seat.y - 1f, 1.8f, 1.4f, DetailedFish.Shade(reel, 1.3f));
+            CreatureArt.Limb(p, seat.x + 7f, seat.y - 3f, seat.x + 13f, seat.y - 8f, 0.7f, C(0.30f, 0.30f, 0.34f));
+            CreatureArt.Blob(p, seat.x + 13.5f, seat.y - 8.5f, 1.6f, 1.6f, C(0.86f, 0.30f, 0.24f));
+            CreatureArt.Limb(p, seat.x + 2f, seat.y, seat.x + 7f, seat.y - 3f, 0.8f, DetailedFish.Shade(reel, 0.6f)); // pied du moulinet
+
+            PixelArt.SelectiveOutline(p, C(0.12f, 0.09f, 0.08f), 0.55f);
+
+            // Le fil : du scion, il retombe droit jusqu'à l'hameçon (dessiné après le contour, il reste fin et clair).
+            Vector2 tip = Point(1f);
+            for (int y = Mathf.RoundToInt(tip.y) - 1; y >= RodLineEnd.y; y--)
+            {
+                float sway = Mathf.Sin((tip.y - y) * 0.05f) * 1.5f;
+                int x = Mathf.RoundToInt(Mathf.Lerp(tip.x + 1f, RodLineEnd.x, (tip.y - y) / (tip.y - RodLineEnd.y)) + sway);
+                PixelArt.Set(p, x, y, C(0.92f, 0.95f, 0.98f, 0.95f));
+            }
+
+            return p;
+        }
+
         // ---------- Hameçons ----------
 
         /// <summary>Hameçon en J (renforcé : plus épais ; triple : trois pointes ; forgé : acier sombre à œillet doré).</summary>

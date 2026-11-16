@@ -24,13 +24,14 @@ namespace FishAndChill.Editor
 
             // Une icône 32×32 par objet (inventaire, marchand).
             Sprite Item(string file, Color[,] pixels) => PixelArt.Save($"{IconFolder}/Materiel/{file}.png", pixels, 16, new Vector2(0.5f, 0.5f));
+            Sprite Big(int level) => PixelArt.Save($"{IconFolder}/Materiel/CanneGrande_{level}.png", GearArt.RodLarge(level), 16, Vector2.zero);
 
             // Canne : Value = zone de réussite plus large (0,15 = +15 %), le curseur ralentit en proportion.
             GearLine rod = Line("Canne", GearCategory.Rod, "Canne", rodIcon,
-                new GearLevel("Canne en bambou", 0, 0f).WithIcon(Item("Canne_0", GearArt.Rod(0))),
-                new GearLevel("Canne en fibre de verre", 60, 0.15f).WithIcon(Item("Canne_1", GearArt.Rod(1))),
-                new GearLevel("Canne en carbone", 180, 0.30f).WithIcon(Item("Canne_2", GearArt.Rod(2))),
-                new GearLevel("Canne de compétition", 450, 0.45f).WithIcon(Item("Canne_3", GearArt.Rod(3))));
+                new GearLevel("Canne en bambou", 0, 0f).WithIcon(Item("Canne_0", GearArt.Rod(0))).WithIllustration(Big(0)),
+                new GearLevel("Canne en fibre de verre", 60, 0.15f).WithIcon(Item("Canne_1", GearArt.Rod(1))).WithIllustration(Big(1)),
+                new GearLevel("Canne en carbone", 180, 0.30f).WithIcon(Item("Canne_2", GearArt.Rod(2))).WithIllustration(Big(2)),
+                new GearLevel("Canne de compétition", 450, 0.45f).WithIcon(Item("Canne_3", GearArt.Rod(3))).WithIllustration(Big(3)));
 
             // Hameçon : Value = ratés tolérés en plus.
             GearLine hook = Line("Hamecon", GearCategory.Hook, "Hameçon", hookIcon,

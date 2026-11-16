@@ -21,18 +21,22 @@ MonoBehaviour:
     _value: 0
     _value2: 0
     _icon: {fileID: 21300000, guid: 93eee584bcf3b40409a596b5211ae23d, type: 3}
+    _illustration: {fileID: 0}
   - _name: "Hame\xE7on renforc\xE9"
     _price: 45
     _value: 1
     _value2: 0
     _icon: {fileID: 21300000, guid: 044ee12baf96f7e4182a1f78358c5447, type: 3}
+    _illustration: {fileID: 0}
   - _name: "Hame\xE7on triple"
     _price: 150
     _value: 2
     _value2: 0
     _icon: {fileID: 21300000, guid: e622fd96288be574ab289d038d80b887, type: 3}
+    _illustration: {fileID: 0}
   - _name: "Hame\xE7on en acier forg\xE9"
     _price: 380
     _value: 3
     _value2: 0
     _icon: {fileID: 21300000, guid: 9566451c85823e949bcbe4e77d8763fa, type: 3}
+    _illustration: {fileID: 0}

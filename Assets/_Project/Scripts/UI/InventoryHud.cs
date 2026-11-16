@@ -34,18 +34,27 @@ namespace FishAndChill.UI
         private const float WindowHeight = 760f;
         private static readonly Color Ink = new Color(0.90f, 0.93f, 0.96f);
 
-        private static readonly GearCategory[] GearOrder = { GearCategory.Rod, GearCategory.Hook, GearCategory.Bait, GearCategory.Bag };
-        private static readonly string[] GearLabels = { "CANNE", "HAMEÇON", "APPÂT", "SAC" };
+        // Vitrine du matériel : la grande canne (dessin 96×160 affiché ×3), le fil finit au pixel (86, 62) du dessin.
+        private const float ShowcaseScale = 3f;
+        private static readonly Vector2 RodSize = new Vector2(96f, 160f) * ShowcaseScale;
+        private static readonly Vector2 RodCenter = new Vector2(-98f, 24f);
+        private static readonly Vector2 RodLineEnd = new Vector2(86f, 62f);
 
-        private sealed class GearView
+        private sealed class GearLabel
         {
-            public Image Icon;
             public Text Name;
             public Text Effect;
             public readonly List<Image> Levels = new List<Image>();
         }
 
-        private readonly List<GearView> _gear = new List<GearView>();
+        private Image _rodImage;
+        private Image _hookImage;
+        private Image _baitImage;
+        private Image _bagImage;
+        private GearLabel _rodLabel;
+        private GearLabel _hookLabel;
+        private GearLabel _baitLabel;
+        private GearLabel _bagLabel;
         private Text _fishTitle;
 
         [SerializeField] private PlayerProgress _progress;
@@ -328,49 +337,59 @@ namespace FishAndChill.UI
             _coins.text = $"{_progress.Wallet.Coins} pièces";
         }
 
-        /// <summary>L'appât accroché : icône, nom, ce qu'il attire, combien il en reste.</summary>
-        private void RefreshBait(GearView view)
-        {
-            Bait bait = _progress.EquippedBait;
-            view.Icon.sprite = bait != null ? bait.Icon : null;
-            view.Icon.enabled = view.Icon.sprite != null;
-            int left = bait != null ? _progress.Baits.Count(bait.Id) : 0;
-            view.Name.text = bait == null ? "—" : left == BaitBag.Unlimited ? bait.DisplayName : $"{bait.DisplayName}  ×{left}";
-            view.Effect.text = bait != null ? bait.Description : string.Empty;
-            foreach (Image gem in view.Levels)
-            {
-                gem.gameObject.SetActive(false);
-            }
-        }
-
-        /// <summary>Le matériel utilisé : icône, nom, effet et niveau (pierres allumées) de chaque famille.</summary>
+        /// <summary>
+        /// La vitrine : grande canne du niveau actuel, hameçon pendu au bout du fil, appât accroché dessus, sac ;
+        /// avec leurs noms, effets, niveaux (pierres allumées) et ce qu'il reste d'appât.
+        /// </summary>
         private void RefreshGear()
         {
             GearCatalog catalog = _progress.GearCatalog;
-            for (int i = 0; i < _gear.Count; i++)
+            GearLevel Item(GearCategory category, out int level, out int max)
             {
-                GearView view = _gear[i];
-                GearCategory category = GearOrder[i];
-                if (category == GearCategory.Bait)
-                {
-                    RefreshBait(view);
-                    continue;
-                }
-
                 GearLine line = catalog != null ? catalog.Line(category) : null;
-                int level = _progress.Gear.Level(category);
-                GearLevel item = line != null ? line.At(level) : null;
-                view.Icon.sprite = item != null && item.Icon != null ? item.Icon : line != null ? line.Icon : null;
-                view.Icon.enabled = view.Icon.sprite != null;
-                view.Name.text = item != null ? item.Name : "—";
-                view.Effect.text = item == null ? string.Empty
-                    : level == 0 && category != GearCategory.Bag ? "Matériel de départ" : ShopMenu.EffectText(category, item);
-                int max = line != null ? line.MaxLevel : 0;
-                for (int k = 0; k < view.Levels.Count; k++)
-                {
-                    view.Levels[k].gameObject.SetActive(k <= max);
-                    view.Levels[k].color = k <= level ? Gold : new Color(0.32f, 0.36f, 0.42f);
-                }
+                level = _progress.Gear.Level(category);
+                max = line != null ? line.MaxLevel : 0;
+                return line != null ? line.At(level) : null;
+            }
+
+            GearLevel rod = Item(GearCategory.Rod, out int rodLevel, out int rodMax);
+            _rodImage.sprite = rod != null ? rod.Illustration : null;
+            _rodImage.enabled = _rodImage.sprite != null;
+            FillLabel(_rodLabel, rod?.Name, rod == null ? string.Empty : rodLevel == 0 ? "Matériel de départ" : ShopMenu.EffectText(GearCategory.Rod, rod), rodLevel, rodMax);
+
+            // L'hameçon pend au bout du fil, accroché par son œillet ; l'appât est piqué dans sa courbure.
+            GearLevel hook = Item(GearCategory.Hook, out int hookLevel, out int hookMax);
+            _hookImage.sprite = hook?.Icon;
+            _hookImage.enabled = _hookImage.sprite != null;
+            Vector2 lineEnd = RodCenter - RodSize * 0.5f + RodLineEnd * ShowcaseScale;
+            float hookSize = _hookImage.rectTransform.sizeDelta.x;
+            float eyeX = hookLevel == 2 ? 16f : 11f;
+            Vector2 hookCenter = lineEnd + new Vector2((16f - eyeX) / 32f * hookSize, -(28.5f - 16f) / 32f * hookSize);
+            _hookImage.rectTransform.anchoredPosition = hookCenter;
+            _baitImage.rectTransform.anchoredPosition = hookCenter + new Vector2((hookLevel == 2 ? 0f : 13.5f - 16f) / 32f * hookSize, -9f / 32f * hookSize);
+            FillLabel(_hookLabel, hook?.Name, hook == null ? string.Empty : hookLevel == 0 ? "Matériel de départ" : ShopMenu.EffectText(GearCategory.Hook, hook), hookLevel, hookMax);
+
+            Bait bait = _progress.EquippedBait;
+            _baitImage.sprite = bait != null ? bait.Icon : null;
+            _baitImage.enabled = _baitImage.sprite != null;
+            int left = bait != null ? _progress.Baits.Count(bait.Id) : 0;
+            string baitName = bait == null ? "—" : left == BaitBag.Unlimited ? bait.DisplayName : $"{bait.DisplayName}  ×{left}";
+            FillLabel(_baitLabel, baitName, bait != null ? bait.Description : string.Empty, -1, -1);
+
+            GearLevel bag = Item(GearCategory.Bag, out int bagLevel, out int bagMax);
+            _bagImage.sprite = bag?.Icon;
+            _bagImage.enabled = _bagImage.sprite != null;
+            FillLabel(_bagLabel, bag?.Name, bag != null ? ShopMenu.EffectText(GearCategory.Bag, bag) : string.Empty, bagLevel, bagMax);
+        }
+
+        private static void FillLabel(GearLabel label, string name, string effect, int level, int max)
+        {
+            label.Name.text = string.IsNullOrEmpty(name) ? "—" : name;
+            label.Effect.text = effect;
+            for (int k = 0; k < label.Levels.Count; k++)
+            {
+                label.Levels[k].gameObject.SetActive(k <= max);
+                label.Levels[k].color = k <= level ? Gold : new Color(0.32f, 0.36f, 0.42f);
             }
         }
 
@@ -478,58 +497,84 @@ namespace FishAndChill.UI
             _toast.SetActive(false);
         }
 
-        /// <summary>Panneau « Mon matériel » à gauche : une rangée par famille (icône, nom, effet, niveau).</summary>
+        /// <summary>
+        /// Vitrine « Mon matériel » à gauche : sur un fond de feutre, la canne entière en grand, le fil, l'hameçon et
+        /// l'appât au bout, le sac en bas ; une étiquette à côté de chacun.
+        /// </summary>
         private void BuildGearPanel()
         {
             Image panel = UiFactory.Sliced(_windowRect, "Matériel", SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
-            UiFactory.Center(panel.rectTransform, new Vector2(-480f, -10f), new Vector2(440f, 640f));
+            UiFactory.Center(panel.rectTransform, new Vector2(-455f, -10f), new Vector2(500f, 640f));
             RectTransform rect = panel.rectTransform;
+
+            // Feutre vert sombre de la vitrine, avec un léger halo au centre.
+            Image felt = UiFactory.Plain(rect, "Feutre", new Color(0.09f, 0.20f, 0.17f));
+            UiFactory.Stretch(felt.rectTransform, 14f);
+            Image halo = UiFactory.Plain(rect, "Halo", new Color(0.30f, 0.55f, 0.45f, 0.18f));
+            halo.sprite = SkinSprite(s => s.Glow);
+            UiFactory.Center(halo.rectTransform, new Vector2(-20f, 10f), new Vector2(460f, 520f));
 
             Text title = UiFactory.Label(rect, "Titre", 28, TextAnchor.MiddleCenter, Gold);
             UiFactory.Bold(title);
             title.text = "Mon matériel";
-            UiFactory.Center(title.rectTransform, new Vector2(0f, 284f), new Vector2(400f, 40f));
+            UiFactory.Center(title.rectTransform, new Vector2(0f, 290f), new Vector2(440f, 40f));
 
-            for (int i = 0; i < GearOrder.Length; i++)
+            _rodImage = UiFactory.Plain(rect, "Canne", Color.white);
+            UiFactory.Center(_rodImage.rectTransform, RodCenter, RodSize);
+            _hookImage = UiFactory.Plain(rect, "Hameçon", Color.white);
+            _hookImage.preserveAspect = true;
+            UiFactory.Center(_hookImage.rectTransform, Vector2.zero, new Vector2(100f, 100f));
+            _baitImage = UiFactory.Plain(rect, "Appât", Color.white);
+            _baitImage.preserveAspect = true;
+            UiFactory.Center(_baitImage.rectTransform, Vector2.zero, new Vector2(70f, 70f));
+
+            _rodLabel = BuildLabel(rect, "CANNE", new Vector2(152f, 200f), true);
+            _hookLabel = BuildLabel(rect, "HAMEÇON", new Vector2(152f, 40f), true);
+            _baitLabel = BuildLabel(rect, "APPÂT", new Vector2(152f, -100f), false);
+
+            // Le sac, en bas de la vitrine.
+            Image bagBox = UiFactory.Sliced(rect, "Sac", SkinSprite(s => s.WaterBackdrop), _skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
+            UiFactory.Center(bagBox.rectTransform, new Vector2(-170f, -255f), new Vector2(84f, 84f));
+            _bagImage = UiFactory.Plain(bagBox.rectTransform, "Icône", Color.white);
+            _bagImage.preserveAspect = true;
+            UiFactory.Center(_bagImage.rectTransform, Vector2.zero, new Vector2(70f, 70f));
+            _bagLabel = BuildLabel(rect, "SAC", new Vector2(40f, -255f), true, 300f);
+        }
+
+        /// <summary>Étiquette : famille en doré, nom, effet sur deux lignes, et niveau en pierres.</summary>
+        private GearLabel BuildLabel(RectTransform parent, string family, Vector2 position, bool levels, float width = 176f)
+        {
+            var root = new GameObject($"Étiquette {family}", typeof(RectTransform));
+            var rect = root.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            UiFactory.Center(rect, position, new Vector2(width, 110f));
+
+            Text label = UiFactory.Label(rect, "Famille", 17, TextAnchor.MiddleLeft, Gold);
+            label.text = family;
+            UiFactory.Place(label.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 0f), new Vector2(0f, 22f));
+
+            Text name = UiFactory.Label(rect, "Nom", 20, TextAnchor.UpperLeft, Ink);
+            UiFactory.Bold(name);
+            name.horizontalOverflow = HorizontalWrapMode.Overflow; // une seule ligne
+            UiFactory.Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -22f), new Vector2(0f, 28f));
+
+            Text effect = UiFactory.Label(rect, "Effet", 15, TextAnchor.UpperLeft, Muted);
+            effect.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiFactory.Place(effect.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -52f), new Vector2(0f, 60f));
+
+            var gearLabel = new GearLabel { Name = name, Effect = effect };
+            if (levels)
             {
-                float y = 175f - i * 132f;
-                Image row = UiFactory.Sliced(rect, $"Matériel {i + 1}", SkinSprite(s => s.Panel), _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
-                UiFactory.Center(row.rectTransform, new Vector2(0f, y), new Vector2(404f, 120f));
-                RectTransform r = row.rectTransform;
-
-                Image iconBox = UiFactory.Sliced(r, "Case", SkinSprite(s => s.WaterBackdrop), _skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
-                UiFactory.Center(iconBox.rectTransform, new Vector2(-142f, 0f), new Vector2(92f, 92f));
-                Image icon = UiFactory.Plain(iconBox.rectTransform, "Icône", Color.white);
-                icon.preserveAspect = true;
-                UiFactory.Center(icon.rectTransform, Vector2.zero, new Vector2(76f, 76f));
-
-                Text label = UiFactory.Label(r, "Famille", 17, TextAnchor.MiddleLeft, Gold);
-                label.text = GearLabels[i];
-                UiFactory.Center(label.rectTransform, new Vector2(52f, 35f), new Vector2(270f, 22f));
-
-                Text name = UiFactory.Label(r, "Nom", 23, TextAnchor.MiddleLeft, Ink);
-                UiFactory.Bold(name);
-                UiFactory.Center(name.rectTransform, new Vector2(52f, 12f), new Vector2(270f, 30f));
-
-                Text effect = UiFactory.Label(r, "Effet", 15, TextAnchor.UpperLeft, Muted);
-                effect.horizontalOverflow = HorizontalWrapMode.Wrap;
-                UiFactory.Center(effect.rectTransform, new Vector2(52f, -22f), new Vector2(270f, 40f));
-
-                var view = new GearView { Icon = icon, Name = name, Effect = effect };
                 for (int k = 0; k < 4; k++)
                 {
-                    Image gem = UiFactory.Plain(r, $"Niveau {k}", Color.white);
+                    Image gem = UiFactory.Plain(rect, $"Niveau {k}", Color.white);
                     gem.sprite = SkinSprite(s => s.Gem);
-                    UiFactory.Center(gem.rectTransform, new Vector2(104f + k * 20f, 35f), new Vector2(16f, 16f));
-                    view.Levels.Add(gem);
+                    UiFactory.Place(gem.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-(3 - k) * 18f, -2f), new Vector2(15f, 15f));
+                    gearLabel.Levels.Add(gem);
                 }
-
-                _gear.Add(view);
             }
 
-            Text hint = UiFactory.Label(rect, "Conseil", 17, TextAnchor.MiddleCenter, Muted);
-            hint.text = "Améliore ton matériel chez le marchand";
-            UiFactory.Center(hint.rectTransform, new Vector2(0f, -296f), new Vector2(400f, 26f));
+            return gearLabel;
         }
 
         /// <summary>Cases des poissons (3 colonnes) : les places achetées, puis les places encore verrouillées.</summary>
