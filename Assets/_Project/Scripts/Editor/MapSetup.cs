@@ -280,7 +280,7 @@ namespace FishAndChill.Editor
             var set = new TileSet { Deep = new Tile[2], Shallow = new Tile[2], Sand = new Tile[3], Grass = new Tile[3] };
             for (int i = 0; i < 2; i++)
             {
-                set.Deep[i] = SaveTile($"Lac_Eau_{i}", LakeArt.Water(TileArt.DeepWater(i)), Vector2.one * 0.5f, TileArt.Size);
+                set.Deep[i] = SaveAnimatedWater($"Lac_Eau_{i}", f => LakeArt.Water(TileArt.DeepWater(i, f)));
                 set.Shallow[i] = set.Deep[i];
             }
 
@@ -431,6 +431,7 @@ namespace FishAndChill.Editor
         /// <summary>La nuit : lucioles qui clignotent et reflet de la lune, en matériau non éclairé (ils brillent dans le noir).</summary>
         private static void SetNightLife(SerializedObject so, System.Func<string, int, System.Func<int, Color[,]>, Sprite[]> frames)
         {
+            SetSprites(so.FindProperty("_glint"), frames("Reflet", 3, LakeLifeArt.Glint));
             SetSprites(so.FindProperty("_firefly"), frames("Luciole", 2, NightLifeArt.Firefly));
             SetSprites(so.FindProperty("_moonGlint"), frames("RefletLune", 3, NightLifeArt.MoonGlint));
             so.FindProperty("_glowMaterial").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Material>(
@@ -826,9 +827,9 @@ namespace FishAndChill.Editor
 
             for (int i = 0; i < 2; i++)
             {
-                set.Deep[i] = SaveTile($"Eau_{i}", TileArt.DeepWater(i), Vector2.one * 0.5f, TileArt.Size);
+                set.Deep[i] = SaveAnimatedWater($"Eau_{i}", f => TileArt.DeepWater(i, f));
                 // Le lagon est dessiné par les transitions : sa tuile logique a l'aspect du large en dessous.
-                set.Shallow[i] = SaveTile($"Lagon_{i}", TileArt.DeepWater(i), Vector2.one * 0.5f, TileArt.Size);
+                set.Shallow[i] = SaveAnimatedWater($"Lagon_{i}", f => TileArt.DeepWater(i, f)); // tuile distincte : couleur du lagon sur la minimap
             }
 
             for (int i = 0; i < 3; i++)
@@ -996,6 +997,30 @@ namespace FishAndChill.Editor
                 var center = new Vector2(bounds.xMin + placement.Cell.x + 0.5f, bounds.yMin + placement.Cell.y + 0.5f);
                 obstacles.Add(TownLayout.Footprint(placement.Kind, center));
             }
+        }
+
+        /// <summary>Tuile d'eau animée (4 images de houle), qui reste une Tile pour la logique et la minimap.</summary>
+        private static Tile SaveAnimatedWater(string tileName, System.Func<int, Color[,]> frame)
+        {
+            var sprites = new Sprite[4];
+            for (int f = 0; f < sprites.Length; f++)
+            {
+                sprites[f] = PixelArt.Save($"{TilesFolder}/{tileName}_f{f}.png", frame(f), TileArt.Size, Vector2.one * 0.5f);
+            }
+
+            string tilePath = $"{TilesFolder}/{tileName}.asset";
+            var tile = AssetDatabase.LoadAssetAtPath<AnimatedWaterTile>(tilePath);
+            if (tile == null)
+            {
+                AssetDatabase.DeleteAsset(tilePath); // ancienne tuile fixe
+                tile = ScriptableObject.CreateInstance<AnimatedWaterTile>();
+                AssetDatabase.CreateAsset(tile, tilePath);
+            }
+
+            tile.Setup(sprites, 2.5f);
+            tile.colliderType = Tile.ColliderType.None;
+            EditorUtility.SetDirty(tile);
+            return tile;
         }
 
         private static Tile SaveTile(string tileName, Color[,] pixels, Vector2 pivot, int pixelsPerUnit)

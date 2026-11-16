@@ -16,7 +16,10 @@ namespace FishAndChill.Editor
         // ---------- Eau ----------
 
         /// <summary>Eau du large : bandes de houle ondulées, crêtes claires, quelques reflets.</summary>
-        public static Color[,] DeepWater(int variant)
+        public static Color[,] DeepWater(int variant) => DeepWater(variant, 0);
+
+        /// <summary>Image <paramref name="frame"/> (0 à 3) de la houle qui avance : les bandes glissent de 2 pixels par image.</summary>
+        public static Color[,] DeepWater(int variant, int frame)
         {
             Color deep = C(0.12f, 0.50f, 0.64f);
             Color mid = C(0.16f, 0.58f, 0.70f);
@@ -31,9 +34,9 @@ namespace FishAndChill.Editor
                 float wave = Mathf.Sin((x + phase) * Mathf.PI * 2f / Size) * 1.5f;
                 for (int y = 0; y < Size; y++)
                 {
-                    float band = Mathf.Repeat(y + wave + phase, 8f);
+                    float band = Mathf.Repeat(y + wave + phase - frame * 2, 8f);
                     Color c = band < 3.5f ? deep : mid;
-                    if (band >= 6.5f && band < 7.5f && ((x + phase) % 8) < 5)
+                    if (band >= 6.5f && band < 7.5f && ((x + phase + frame * 2) % 8) < 5)
                     {
                         c = crest;
                     }
@@ -42,8 +45,15 @@ namespace FishAndChill.Editor
                 }
             }
 
-            p[(3 + phase) % Size, (12 + variant) % Size] = sparkle;
-            p[(11 + phase) % Size, (5 + variant * 3) % Size] = sparkle;
+            // Reflets qui s'allument tour à tour.
+            if (frame % 2 == 0)
+            {
+                p[(3 + phase) % Size, (12 + variant) % Size] = sparkle;
+            }
+            else
+            {
+                p[(11 + phase) % Size, (5 + variant * 3) % Size] = sparkle;
+            }
             return p;
         }
 

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace FishAndChill.World
@@ -50,6 +50,10 @@ namespace FishAndChill.World
         [SerializeField, Min(0)] private int _clouds = 4;
         [SerializeField] private Vector2 _wind = new Vector2(0.55f, 0.12f);
 
+        [SerializeField, Tooltip("Reflet qui scintille sur l'eau autour du joueur (point, petite étoile, grande étoile).")]
+        private Sprite[] _glint = new Sprite[0];
+        [SerializeField, Min(0)] private int _glints = 10;
+
         [SerializeField, Tooltip("Luciole (allumée, à demi éteinte) : la nuit, autour du joueur.")]
         private Sprite[] _firefly = new Sprite[0];
         [SerializeField, Min(0)] private int _fireflies = 12;
@@ -79,6 +83,8 @@ namespace FishAndChill.World
         private readonly List<Critter> _glowFlies = new List<Critter>();
         private readonly List<UnityEngine.Rendering.Universal.Light2D> _glowLights = new List<UnityEngine.Rendering.Universal.Light2D>();
         private readonly List<float> _glowPhases = new List<float>();
+        private readonly List<Critter> _sparkles = new List<Critter>();
+        private static readonly int[] GlintSequence = { 0, 1, 2, 1, 0 };
         private Critter _moon;
         private Vector2 _moonTarget;
         private Vector2 _moonPosition;
@@ -187,6 +193,15 @@ namespace FishAndChill.World
                 _glowPhases.Add(Range(0f, 10f));
             }
 
+            for (int i = 0; i < _glints && _glint.Length > 0; i++)
+            {
+                Critter sparkle = Spawn("Reflet sur l'eau", _glint, Region.center, -17); // sous le sable : seulement sur l'eau
+                sparkle.Renderer.enabled = false;
+                sparkle.Wait = Range(0f, 2f);
+                sparkle.Frame = -1;
+                _sparkles.Add(sparkle);
+            }
+
             if (_moonGlint.Length > 0)
             {
                 _moon = Spawn("Reflet de la lune", _moonGlint, Region.center, -17); // sous le sable : seulement sur l'eau
@@ -242,6 +257,10 @@ namespace FishAndChill.World
             }
 
             UpdateNight(1f - daylight, dt);
+            foreach (Critter sparkle in _sparkles)
+            {
+                UpdateSparkle(sparkle, dt);
+            }
 
             foreach (Critter crawler in _crawlers)
             {
@@ -296,6 +315,44 @@ namespace FishAndChill.World
             {
                 bird.Renderer.flipX = step.x < 0f;
             }
+        }
+
+        // ---------- Reflets qui scintillent sur l'eau ----------
+
+        private void UpdateSparkle(Critter sparkle, float dt)
+        {
+            if (sparkle.Frame < 0)
+            {
+                // Éteint : attend, puis s'allume sur un coin d'eau libre près du joueur.
+                sparkle.Wait -= dt;
+                if (sparkle.Wait > 0f || _player == null)
+                {
+                    return;
+                }
+
+                if (!TryPickWater(_player.position, 7f, out Vector2 at, 8))
+                {
+                    sparkle.Wait = Range(0.5f, 1.5f);
+                    return;
+                }
+
+                sparkle.Renderer.transform.position = new Vector3(Mathf.Round(at.x * 16f) / 16f, Mathf.Round(at.y * 16f) / 16f, 0f);
+                sparkle.Frame = 0;
+                sparkle.FrameTime = 0f;
+                sparkle.Renderer.enabled = true;
+            }
+
+            sparkle.FrameTime += dt;
+            int step = Mathf.FloorToInt(sparkle.FrameTime / 0.13f);
+            if (step >= GlintSequence.Length)
+            {
+                sparkle.Renderer.enabled = false;
+                sparkle.Frame = -1;
+                sparkle.Wait = Range(0.1f, 0.9f);
+                return;
+            }
+
+            sparkle.Renderer.sprite = sparkle.Frames[Mathf.Min(GlintSequence[step], sparkle.Frames.Length - 1)];
         }
 
         // ---------- La nuit : lucioles et reflet de la lune ----------

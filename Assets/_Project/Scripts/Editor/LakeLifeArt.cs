@@ -123,6 +123,25 @@ namespace FishAndChill.Editor
             return p;
         }
 
+        /// <summary>Reflet de soleil sur l'eau 7×7, 3 images : point, petite étoile, grande étoile en croix.</summary>
+        public static Color[,] Glint(int frame)
+        {
+            var p = new Color[7, 7];
+            Color core = C(1f, 1f, 1f, 0.95f);
+            Color arm = C(0.85f, 0.97f, 1f, 0.8f);
+            PixelArt.Set(p, 3, 3, core);
+            for (int k = 1; k <= frame; k++)
+            {
+                Color c = k == frame && frame == 2 ? C(0.80f, 0.94f, 1f, 0.5f) : arm;
+                PixelArt.Set(p, 3 + k, 3, c);
+                PixelArt.Set(p, 3 - k, 3, c);
+                PixelArt.Set(p, 3, 3 + k, c);
+                PixelArt.Set(p, 3, 3 - k, c);
+            }
+
+            return p;
+        }
+
         /// <summary>Ombre de nuage 96×56 : tache sombre aux bords tramés, très transparente.</summary>
         public static Color[,] CloudShadow()
         {
