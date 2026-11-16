@@ -206,6 +206,8 @@ namespace FishAndChill.UI
                 bool known = log != null && log.IsDiscovered(species.Id);
                 card.Number.text = $"{number + 1}";
                 card.Fish.sprite = species.Sprite;
+                // À l'échelle de la taille adulte maximale de l'espèce : une ablette paraît petite, une carangue remplit la case.
+                card.Fish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(CardWidth - 50f, 92f), SpritePixels(species), species.SizeRangeCm.y);
                 card.Fish.color = known ? (species.Sprite != null ? Color.white : species.PlaceholderColor) : Silhouette;
                 card.Name.text = known ? species.CommonName : "???";
                 card.Name.color = known ? Color.white : Muted;
@@ -214,6 +216,8 @@ namespace FishAndChill.UI
 
             RefreshDetail(log);
         }
+
+        private static Vector2 SpritePixels(FishSpecies species) => species.Sprite != null ? species.Sprite.rect.size : new Vector2(2f, 1f);
 
         private void RefreshDetail(CatchLog log)
         {
@@ -230,6 +234,7 @@ namespace FishAndChill.UI
             bool known = log != null && log.IsDiscovered(species.Id);
             _detailFish.gameObject.SetActive(true);
             _detailFish.sprite = species.Sprite;
+            _detailFish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(206f, 92f), SpritePixels(species), species.SizeRangeCm.y);
             _detailFish.color = known ? Color.white : Silhouette;
 
             if (!known)
