@@ -35,9 +35,9 @@ namespace FishAndChill.UI
         private static readonly Color Ink = new Color(0.90f, 0.93f, 0.96f);
 
         // Vitrine du matériel : la grande canne (dessin 96×160 affiché ×3), le fil finit au pixel (86, 62) du dessin.
-        private const float ShowcaseScale = 3f;
+        private const float ShowcaseScale = 2.6f;
         private static readonly Vector2 RodSize = new Vector2(96f, 160f) * ShowcaseScale;
-        private static readonly Vector2 RodCenter = new Vector2(-98f, 24f);
+        private static readonly Vector2 RodCenter = new Vector2(-112f, 30f);
         private static readonly Vector2 RodLineEnd = new Vector2(86f, 62f);
 
         private sealed class GearLabel
@@ -469,12 +469,12 @@ namespace FishAndChill.UI
             _windowTitle = UiFactory.TitlePlaque(_windowRect, _skin, string.Empty, 30, Vector2.zero, new Vector2(460f, 64f), out RectTransform titlePlaque);
             UiFactory.Place(titlePlaque, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(460f, 64f));
 
-            _windowHelp = UiFactory.Label(_windowRect, "Aide", 21, TextAnchor.MiddleCenter, Muted);
+            _windowHelp = UiFactory.Label(_windowRect, "Aide", 25, TextAnchor.MiddleCenter, Muted);
             UiFactory.Place(_windowHelp.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(-30f, 30f));
 
             BuildGearPanel();
 
-            _fishTitle = UiFactory.Label(_windowRect, "Titre poissons", 28, TextAnchor.MiddleLeft, Gold);
+            _fishTitle = UiFactory.Label(_windowRect, "Titre poissons", 32, TextAnchor.MiddleLeft, Gold);
             UiFactory.Bold(_fishTitle);
             UiFactory.Center(_fishTitle.rectTransform, new Vector2(245f, 300f), new Vector2(860f, 40f));
 
@@ -514,7 +514,7 @@ namespace FishAndChill.UI
             halo.sprite = SkinSprite(s => s.Glow);
             UiFactory.Center(halo.rectTransform, new Vector2(-20f, 10f), new Vector2(460f, 520f));
 
-            Text title = UiFactory.Label(rect, "Titre", 28, TextAnchor.MiddleCenter, Gold);
+            Text title = UiFactory.Label(rect, "Titre", 32, TextAnchor.MiddleCenter, Gold);
             UiFactory.Bold(title);
             title.text = "Mon matériel";
             UiFactory.Center(title.rectTransform, new Vector2(0f, 290f), new Vector2(440f, 40f));
@@ -528,9 +528,9 @@ namespace FishAndChill.UI
             _baitImage.preserveAspect = true;
             UiFactory.Center(_baitImage.rectTransform, Vector2.zero, new Vector2(70f, 70f));
 
-            _rodLabel = BuildLabel(rect, "CANNE", new Vector2(152f, 200f), true);
-            _hookLabel = BuildLabel(rect, "HAMEÇON", new Vector2(152f, 40f), true);
-            _baitLabel = BuildLabel(rect, "APPÂT", new Vector2(152f, -100f), false);
+            _rodLabel = BuildLabel(rect, "CANNE", new Vector2(138f, 205f), true);
+            _hookLabel = BuildLabel(rect, "HAMEÇON", new Vector2(138f, 50f), true);
+            _baitLabel = BuildLabel(rect, "APPÂT", new Vector2(138f, -100f), false);
 
             // Le sac, en bas de la vitrine.
             Image bagBox = UiFactory.Sliced(rect, "Sac", SkinSprite(s => s.WaterBackdrop), _skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
@@ -542,25 +542,25 @@ namespace FishAndChill.UI
         }
 
         /// <summary>Étiquette : famille en doré, nom, effet sur deux lignes, et niveau en pierres.</summary>
-        private GearLabel BuildLabel(RectTransform parent, string family, Vector2 position, bool levels, float width = 176f)
+        private GearLabel BuildLabel(RectTransform parent, string family, Vector2 position, bool levels, float width = 214f)
         {
             var root = new GameObject($"Étiquette {family}", typeof(RectTransform));
             var rect = root.GetComponent<RectTransform>();
             rect.SetParent(parent, false);
             UiFactory.Center(rect, position, new Vector2(width, 110f));
 
-            Text label = UiFactory.Label(rect, "Famille", 17, TextAnchor.MiddleLeft, Gold);
+            Text label = UiFactory.Label(rect, "Famille", 20, TextAnchor.MiddleLeft, Gold);
             label.text = family;
-            UiFactory.Place(label.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 0f), new Vector2(0f, 22f));
+            UiFactory.Place(label.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 0f), new Vector2(0f, 26f));
 
-            Text name = UiFactory.Label(rect, "Nom", 20, TextAnchor.UpperLeft, Ink);
+            Text name = UiFactory.Label(rect, "Nom", 24, TextAnchor.UpperLeft, Ink);
             UiFactory.Bold(name);
             name.horizontalOverflow = HorizontalWrapMode.Overflow; // une seule ligne
-            UiFactory.Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -22f), new Vector2(0f, 28f));
+            UiFactory.Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -26f), new Vector2(0f, 34f));
 
-            Text effect = UiFactory.Label(rect, "Effet", 15, TextAnchor.UpperLeft, Muted);
+            Text effect = UiFactory.Label(rect, "Effet", 19, TextAnchor.UpperLeft, Muted);
             effect.horizontalOverflow = HorizontalWrapMode.Wrap;
-            UiFactory.Place(effect.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -52f), new Vector2(0f, 60f));
+            UiFactory.Place(effect.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -62f), new Vector2(0f, 70f));
 
             var gearLabel = new GearLabel { Name = name, Effect = effect };
             if (levels)
@@ -569,7 +569,7 @@ namespace FishAndChill.UI
                 {
                     Image gem = UiFactory.Plain(rect, $"Niveau {k}", Color.white);
                     gem.sprite = SkinSprite(s => s.Gem);
-                    UiFactory.Place(gem.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-(3 - k) * 18f, -2f), new Vector2(15f, 15f));
+                    UiFactory.Place(gem.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-(3 - k) * 20f, -3f), new Vector2(18f, 18f));
                     gearLabel.Levels.Add(gem);
                 }
             }
@@ -604,12 +604,12 @@ namespace FishAndChill.UI
                 fish.preserveAspect = true;
                 UiFactory.Center(fish.rectTransform, Vector2.zero, new Vector2(SlotWidth - 40f, 100f));
 
-                Text name = UiFactory.Label(frame.rectTransform, "Nom", 22, TextAnchor.MiddleCenter, Color.white);
+                Text name = UiFactory.Label(frame.rectTransform, "Nom", 26, TextAnchor.MiddleCenter, Color.white);
                 UiFactory.Bold(name);
                 name.horizontalOverflow = HorizontalWrapMode.Wrap;
                 UiFactory.Place(name.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 50f), new Vector2(SlotWidth - 16f, 52f));
 
-                Text details = UiFactory.Label(frame.rectTransform, "Détails", 17, TextAnchor.MiddleCenter, Color.white);
+                Text details = UiFactory.Label(frame.rectTransform, "Détails", 21, TextAnchor.MiddleCenter, Color.white);
                 details.horizontalOverflow = HorizontalWrapMode.Overflow;
                 UiFactory.Place(details.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(SlotWidth - 10f, 30f));
 
@@ -625,7 +625,7 @@ namespace FishAndChill.UI
                 // Place pas encore achetée : voile sombre et explication.
                 Image lockVeil = UiFactory.Plain(frame.rectTransform, "Verrou", new Color(0.03f, 0.05f, 0.08f, 0.72f));
                 UiFactory.Stretch(lockVeil.rectTransform, 8f);
-                Text lockText = UiFactory.Label(lockVeil.rectTransform, "Texte", 19, TextAnchor.MiddleCenter, Muted);
+                Text lockText = UiFactory.Label(lockVeil.rectTransform, "Texte", 22, TextAnchor.MiddleCenter, Muted);
                 lockText.horizontalOverflow = HorizontalWrapMode.Wrap;
                 lockText.text = "Place verrouillée\n\nUn sac plus grand\nchez le marchand";
                 UiFactory.Stretch(lockText.rectTransform, 12f);
