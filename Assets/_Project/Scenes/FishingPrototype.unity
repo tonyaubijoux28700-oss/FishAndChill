@@ -71694,6 +71694,16 @@ MonoBehaviour:
   _cloud: {fileID: 21300000, guid: 90834ea7bb0c08c408fdf1e97a221676, type: 3}
   _clouds: 4
   _wind: {x: 0.55, y: 0.12}
+  _firefly:
+  - {fileID: 21300000, guid: 2e448e12fd5b03e4d8e27ecc1c6016d4, type: 3}
+  - {fileID: 21300000, guid: 2e7dd753494f8fb40b2292db2c0577d1, type: 3}
+  _fireflies: 12
+  _moonGlint:
+  - {fileID: 21300000, guid: 2941c637d19849f4aad3ae0366eb69ba, type: 3}
+  - {fileID: 21300000, guid: e475f131b524b9f4bbd3f4a0339ba158, type: 3}
+  - {fileID: 21300000, guid: 1f1e9b4d21038634cb6d8eca481f396a, type: 3}
+  _moonOffset: {x: 4, y: 1.5}
+  _glowMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -397875,6 +397885,16 @@ MonoBehaviour:
   _cloud: {fileID: 21300000, guid: 90834ea7bb0c08c408fdf1e97a221676, type: 3}
   _clouds: 5
   _wind: {x: 0.55, y: 0.12}
+  _firefly:
+  - {fileID: 21300000, guid: 2e448e12fd5b03e4d8e27ecc1c6016d4, type: 3}
+  - {fileID: 21300000, guid: 2e7dd753494f8fb40b2292db2c0577d1, type: 3}
+  _fireflies: 12
+  _moonGlint:
+  - {fileID: 21300000, guid: 2941c637d19849f4aad3ae0366eb69ba, type: 3}
+  - {fileID: 21300000, guid: e475f131b524b9f4bbd3f4a0339ba158, type: 3}
+  - {fileID: 21300000, guid: 1f1e9b4d21038634cb6d8eca481f396a, type: 3}
+  _moonOffset: {x: 4, y: 1.5}
+  _glowMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
 --- !u!1 &2040948407
 GameObject:
   m_ObjectHideFlags: 0

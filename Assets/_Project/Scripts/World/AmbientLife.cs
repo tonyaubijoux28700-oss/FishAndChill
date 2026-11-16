@@ -50,6 +50,18 @@ namespace FishAndChill.World
         [SerializeField, Min(0)] private int _clouds = 4;
         [SerializeField] private Vector2 _wind = new Vector2(0.55f, 0.12f);
 
+        [SerializeField, Tooltip("Luciole (allumée, à demi éteinte) : la nuit, autour du joueur.")]
+        private Sprite[] _firefly = new Sprite[0];
+        [SerializeField, Min(0)] private int _fireflies = 12;
+
+        [SerializeField, Tooltip("Reflet de la lune sur l'eau (images qui scintillent), la nuit.")]
+        private Sprite[] _moonGlint = new Sprite[0];
+        [SerializeField, Tooltip("Place du reflet par rapport au centre de l'écran (la lune est très loin : il suit la caméra).")]
+        private Vector2 _moonOffset = new Vector2(4f, 1.5f);
+
+        [SerializeField, Tooltip("Matériau non éclairé : lucioles et reflet de lune brillent dans le noir.")]
+        private Material _glowMaterial;
+
         private sealed class Critter
         {
             public SpriteRenderer Renderer;
@@ -64,6 +76,15 @@ namespace FishAndChill.World
         private readonly List<Critter> _birds = new List<Critter>();
         private readonly List<Critter> _flies = new List<Critter>();
         private DayNightCycle _cycle;
+        private readonly List<Critter> _glowFlies = new List<Critter>();
+        private readonly List<UnityEngine.Rendering.Universal.Light2D> _glowLights = new List<UnityEngine.Rendering.Universal.Light2D>();
+        private readonly List<float> _glowPhases = new List<float>();
+        private Critter _moon;
+        private Vector2 _moonTarget;
+        private Vector2 _moonPosition;
+        private bool _moonHasTarget;
+        private bool _moonPlaced;
+        private float _moonSearch;
         private readonly List<Critter> _crawlers = new List<Critter>();
         private Critter _bird;
         private SpriteRenderer _birdShadow;
@@ -145,6 +166,36 @@ namespace FishAndChill.World
                 _cloudShadows.Add(shadow.transform);
             }
 
+            for (int i = 0; i < _fireflies && _firefly.Length > 0; i++)
+            {
+                Critter glow = Spawn("Luciole", _firefly, Region.center, 31);
+                if (_glowMaterial != null)
+                {
+                    glow.Renderer.sharedMaterial = _glowMaterial;
+                }
+
+                glow.Speed = Range(0.25f, 0.55f);
+                glow.Target = Region.center;
+                var light = glow.Renderer.gameObject.AddComponent<UnityEngine.Rendering.Universal.Light2D>();
+                light.lightType = UnityEngine.Rendering.Universal.Light2D.LightType.Point;
+                light.color = new Color(0.80f, 1f, 0.45f);
+                light.pointLightInnerRadius = 0.1f;
+                light.pointLightOuterRadius = 1.4f;
+                light.intensity = 0f;
+                _glowFlies.Add(glow);
+                _glowLights.Add(light);
+                _glowPhases.Add(Range(0f, 10f));
+            }
+
+            if (_moonGlint.Length > 0)
+            {
+                _moon = Spawn("Reflet de la lune", _moonGlint, Region.center, -17); // sous le sable : seulement sur l'eau
+                if (_glowMaterial != null)
+                {
+                    _moon.Renderer.sharedMaterial = _glowMaterial;
+                }
+            }
+
             _jumper = Spawn("Poisson qui saute", _jumpingFish, Region.center, -6).Renderer;
             _splash = Spawn("Rond dans l'eau", _ring, Region.center, -7).Renderer;
             _jumper.enabled = false;
@@ -189,6 +240,8 @@ namespace FishAndChill.World
                 tint.a = daylight;
                 fly.Renderer.color = tint;
             }
+
+            UpdateNight(1f - daylight, dt);
 
             foreach (Critter crawler in _crawlers)
             {
@@ -243,6 +296,112 @@ namespace FishAndChill.World
             {
                 bird.Renderer.flipX = step.x < 0f;
             }
+        }
+
+        // ---------- La nuit : lucioles et reflet de la lune ----------
+
+        private void UpdateNight(float night, float dt)
+        {
+            bool dark = night > 0.01f;
+            for (int i = 0; i < _glowFlies.Count; i++)
+            {
+                Critter glow = _glowFlies[i];
+                glow.Renderer.enabled = dark;
+                _glowLights[i].enabled = dark;
+                if (!dark || _player == null)
+                {
+                    continue;
+                }
+
+                // Dérive lente autour du joueur, en restant à l'écran ; elle revient près de lui si elle s'éloigne.
+                Vector2 position = glow.Renderer.transform.position;
+                Vector2 player = _player.position;
+                if ((position - player).sqrMagnitude > 64f)
+                {
+                    position = player + Random2(6f);
+                    glow.Target = position;
+                }
+
+                Vector2 toTarget = glow.Target - position;
+                if (toTarget.magnitude < 0.05f)
+                {
+                    glow.Target = player + Random2(6f);
+                }
+                else
+                {
+                    position += toTarget.normalized * Mathf.Min(glow.Speed * dt, toTarget.magnitude);
+                }
+
+                position.y += Mathf.Sin(Time.time * 2.3f + _glowPhases[i]) * 0.004f;
+                glow.Renderer.transform.position = position;
+
+                // Clignotement : chacune à son rythme, avec de longues phases éteintes.
+                float pulse = Mathf.Clamp01(Mathf.Sin(Time.time * 1.7f + _glowPhases[i] * 2.1f) * 1.6f - 0.2f);
+                glow.Frame = pulse > 0.5f ? 0 : 1;
+                glow.Renderer.sprite = glow.Frames[glow.Frame];
+                glow.Renderer.color = new Color(1f, 1f, 1f, night * Mathf.Max(0.12f, pulse));
+                _glowLights[i].intensity = night * pulse * 0.9f;
+            }
+
+            if (_moon == null)
+            {
+                return;
+            }
+
+            _moon.Renderer.enabled = dark;
+            Camera view = Camera.main;
+            if (!dark || view == null)
+            {
+                return;
+            }
+
+            // La lune est très loin : son reflet suit la caméra, posé sur la grande étendue d'eau visible la plus proche
+            // de sa place idéale, et glisse doucement quand on se déplace (aligné sur la grille de pixels).
+            _moonSearch -= dt;
+            if (_moonSearch <= 0f)
+            {
+                _moonSearch = 0.5f;
+                _moonHasTarget = TryFindMoonWater(view, out _moonTarget);
+            }
+
+            if (!_moonHasTarget)
+            {
+                _moon.Renderer.enabled = false;
+                _moonPlaced = false;
+                return;
+            }
+
+            _moonPosition = _moonPlaced ? Vector2.MoveTowards(_moonPosition, _moonTarget, 2.5f * dt) : _moonTarget;
+            _moonPlaced = true;
+            _moon.Renderer.transform.position = new Vector3(Mathf.Round(_moonPosition.x * 16f) / 16f, Mathf.Round(_moonPosition.y * 16f) / 16f, 0f);
+            Animate(_moon, dt, 0.35f);
+            _moon.Renderer.color = new Color(1f, 1f, 1f, night * 0.9f);
+        }
+
+        /// <summary>Point d'eau libre à l'écran, assez grand pour le reflet, le plus proche de sa place idéale.</summary>
+        private bool TryFindMoonWater(Camera view, out Vector2 best)
+        {
+            Vector2 center = view.transform.position;
+            Vector2 ideal = center + _moonOffset;
+            float halfHeight = view.orthographicSize - 2f;
+            float halfWidth = view.orthographicSize * view.aspect - 1.5f;
+            best = ideal;
+            float bestDistance = float.MaxValue;
+            for (float x = -halfWidth; x <= halfWidth; x += 1f)
+            {
+                for (float y = -halfHeight; y <= halfHeight; y += 1f)
+                {
+                    Vector2 p = center + new Vector2(x, y);
+                    float distance = (p - ideal).sqrMagnitude;
+                    if (distance < bestDistance && IsOpenWater(p) && IsOpenWater(p + new Vector2(0f, 1.4f)) && IsOpenWater(p - new Vector2(0f, 1.4f)))
+                    {
+                        best = p;
+                        bestDistance = distance;
+                    }
+                }
+            }
+
+            return bestDistance < float.MaxValue;
         }
 
         // ---------- Libellules ----------

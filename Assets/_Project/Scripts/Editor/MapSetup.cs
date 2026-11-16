@@ -384,6 +384,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_passerShadow").objectReferenceValue = PixelArt.Save($"{folder}/Fregate_Ombre.png", MahanaLifeArt.FrigatebirdShadow(), TileArt.Size, Vector2.one * 0.5f);
             so.FindProperty("_cloud").objectReferenceValue = PixelArt.Save($"{folder}/OmbreNuage.png", LakeLifeArt.CloudShadow(), TileArt.Size, Vector2.one * 0.5f);
             so.FindProperty("_clouds").intValue = 5;
+            SetNightLife(so, Frames);
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -423,7 +424,17 @@ namespace FishAndChill.Editor
             SetSprites(so.FindProperty("_jumpingFish"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
             SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
             so.FindProperty("_cloud").objectReferenceValue = PixelArt.Save($"{folder}/OmbreNuage.png", LakeLifeArt.CloudShadow(), TileArt.Size, Vector2.one * 0.5f);
+            SetNightLife(so, Frames);
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>La nuit : lucioles qui clignotent et reflet de la lune, en matériau non éclairé (ils brillent dans le noir).</summary>
+        private static void SetNightLife(SerializedObject so, System.Func<string, int, System.Func<int, Color[,]>, Sprite[]> frames)
+        {
+            SetSprites(so.FindProperty("_firefly"), frames("Luciole", 2, NightLifeArt.Firefly));
+            SetSprites(so.FindProperty("_moonGlint"), frames("RefletLune", 3, NightLifeArt.MoonGlint));
+            so.FindProperty("_glowMaterial").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Material>(
+                "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat");
         }
 
         private static void SetSwimmer(SerializedProperty entry, Sprite[] frames, int count, float speed)
