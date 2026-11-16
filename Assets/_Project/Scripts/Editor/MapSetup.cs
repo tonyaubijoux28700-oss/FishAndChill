@@ -788,7 +788,12 @@ namespace FishAndChill.Editor
             BuildTank(room.transform, "Poissons du bassin du lac", aquarium, annecy, AquariumBuilding.LakeTank);
 
             BuildTankLife(room.transform, aquarium, folder);
-            BuildVisitors(room.transform, aquarium);
+            // Visiteurs mis de côté pour l'instant (AquariumVisitors et BuildVisitors restent prêts à resservir).
+            Transform oldVisitors = room.transform.Find("Visiteurs");
+            if (oldVisitors != null)
+            {
+                Object.DestroyImmediate(oldVisitors.gameObject);
+            }
             return aquarium;
         }
 
