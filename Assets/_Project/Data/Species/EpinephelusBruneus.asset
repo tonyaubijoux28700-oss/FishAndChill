@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: EpinephelusBruneus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: epinephelus-bruneus
+  _commonName: "M\xE9rou kue"
+  _scientificName: Epinephelus bruneus
+  _rarity: 3
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.8
+    _zoneWidth: 0.13
+    _requiredHits: 5
+    _maxMisses: 1
+  _fightStyle: 4
+  _sizeRangeCm: {x: 50, y: 130}
+  _basePrice: 100
+  _placeholderColor: {r: 0.56, g: 0.44, b: 0.4, a: 1}
+  _description: "Grand m\xE9rou solitaire des rochers profonds, tr\xE8s rare et tr\xE8s recherch\xE9. Il peut vivre plus de 50 ans."
+  _activeTime: 0
+  _sprite: {fileID: 21300000, guid: 99e0636b35640ce4daf5e536e4b1e3a6, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 5a3c55a05fdcb9c439eaf1a8fada6009, type: 3}

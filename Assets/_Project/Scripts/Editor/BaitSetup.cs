@@ -42,25 +42,25 @@ namespace FishAndChill.Editor
             Sprite Icon(string file, Color[,] pixels) => PixelArt.Save($"{IconFolder}/{file}.png", pixels, 16, new Vector2(0.5f, 0.5f));
 
             Bait bread = Make("MieDePain", "Mie de pain", "Gratuite et toujours dans ta poche. Les poissons blancs l'adorent.",
-                0, 0, Pick("rutilus-rutilus", "alburnus-alburnus", "squalius-cephalus", "cyprinus-carpio", "abudefduf-vaigiensis", "colossoma-macropomum", "astronotus-ocellatus"),
+                0, 0, Pick("rutilus-rutilus", "alburnus-alburnus", "squalius-cephalus", "cyprinus-carpio", "abudefduf-vaigiensis", "colossoma-macropomum", "astronotus-ocellatus", "acanthopagrus-schlegelii"),
                 icon: Icon("Appat_0", GearArt.Bait(0)));
             Bait worm = Make("VerDeTerre", "Ver de terre", "Le classique : tout le monde mord un peu plus vite.",
                 20, 15, Pick("perca-fluviatilis", "salmo-trutta", "tinca-tinca", "rutilus-rutilus", "coregonus-lavaretus",
-                    "pelophylax-ridibundus", "mulloidichthys-flavolineatus", "pterygoplichthys-pardalis", "symphysodon-aequifasciatus"),
+                    "pelophylax-ridibundus", "mulloidichthys-flavolineatus", "pterygoplichthys-pardalis", "symphysodon-aequifasciatus", "anguilla-japonica", "sebastiscus-marmoratus", "trachurus-japonicus"),
                 biteWait: 0.85f, icon: Icon("Appat_Ver", GearArt.Worm()));
             Bait shrimp = Make("Crevette", "Crevette", "Crustacés et poissons du récif ne lui résistent pas.",
                 35, 12, Pick("scylla-serrata", "panulirus-versicolor", "pacifastacus-leniusculus", "cephalopholis-argus",
-                    "lutjanus-kasmira", "rhinecanthus-aculeatus", "chaetodon-auriga", "albula-glossodonta", "pseudoplatystoma-fasciatum", "phractocephalus-hemioliopterus"),
+                    "lutjanus-kasmira", "rhinecanthus-aculeatus", "chaetodon-auriga", "albula-glossodonta", "pseudoplatystoma-fasciatum", "phractocephalus-hemioliopterus", "pagrus-major", "oplegnathus-fasciatus", "takifugu-rubripes"),
                 biteWait: 0.9f, icon: Icon("Appat_1", GearArt.Bait(1)));
             Bait lure = Make("LeurreBrillant", "Leurre brillant", "Réutilisable. Les chasseurs foncent dessus, les autres l'ignorent.",
                 140, 0, Pick("esox-lucius", "sphyraena-barracuda", "caranx-melampygus", "caranx-ignobilis", "salvelinus-umbla",
-                    "salmo-trutta", "perca-fluviatilis", "cichla-ocellaris", "hydrolycus-scomberoides", "osteoglossum-bicirrhosum", "pygocentrus-nattereri"),
+                    "salmo-trutta", "perca-fluviatilis", "cichla-ocellaris", "hydrolycus-scomberoides", "osteoglossum-bicirrhosum", "pygocentrus-nattereri", "seriola-quinqueradiata", "lateolabrax-japonicus", "scomber-japonicus"),
                 favoritesOnly: true, icon: Icon("Appat_2", GearArt.Bait(2)));
             Bait glow = Make("AppatLumineux", "Appât lumineux", "La nuit, les espèces nocturnes le repèrent de loin.",
-                45, 10, Pick("lota-lota", "tinca-tinca", "pterois-radiata", "electrophorus-electricus", "macrobrachium-amazonicum"),
+                45, 10, Pick("lota-lota", "tinca-tinca", "pterois-radiata", "electrophorus-electricus", "macrobrachium-amazonicum", "sebastes-inermis", "macrocheira-kaempferi"),
                 nightBonus: 3f, biteWait: 0.9f, icon: Icon("Appat_Lumineux", GearArt.GlowBait()));
             Bait squid = Make("Calmar", "Calmar entier", "Un gros morceau pour les gros poissons rares.",
-                90, 6, Pick("caranx-ignobilis", "chelonia-mydas", "sphyraena-barracuda", "cephalopholis-argus", "arapaima-gigas", "chelus-fimbriata"),
+                90, 6, Pick("caranx-ignobilis", "chelonia-mydas", "sphyraena-barracuda", "cephalopholis-argus", "arapaima-gigas", "chelus-fimbriata", "thunnus-orientalis", "epinephelus-bruneus"),
                 rareBonus: 2.2f, icon: Icon("Appat_3", GearArt.Bait(3)));
 
             var catalog = AssetDatabase.LoadAssetAtPath<BaitCatalog>($"{Folder}/CatalogueAppats.asset");

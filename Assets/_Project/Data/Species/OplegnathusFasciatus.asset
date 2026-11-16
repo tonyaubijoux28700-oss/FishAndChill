@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: OplegnathusFasciatus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: oplegnathus-fasciatus
+  _commonName: "Perroquet ray\xE9"
+  _scientificName: Oplegnathus fasciatus
+  _rarity: 2
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 4
+  _sizeRangeCm: {x: 30, y: 60}
+  _basePrice: 50
+  _placeholderColor: {r: 0.86, g: 0.86, b: 0.82, a: 1}
+  _description: "Ses dents soud\xE9es en bec cassent les oursins et les coquillages. Ses bandes s'effacent avec l'\xE2ge."
+  _activeTime: 0
+  _sprite: {fileID: 21300000, guid: 08e9b659e8edf914c916f4bb1b85db7a, type: 3}
+  _miniSprite: {fileID: 21300000, guid: ea18e1ffae536b341922435426d55a5d, type: 3}

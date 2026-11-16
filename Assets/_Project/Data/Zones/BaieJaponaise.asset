@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d1726b683e3a34cb42cf076922ab57, type: 3}
+  m_Name: BaieJaponaise
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
+  _displayName: Baie d'Izu
+  _description: "Baie de la c\xF4te japonaise : plage de sable gris, cerisiers en fleurs, pins tordus et torii dans l'eau."
+  _waterColor: {r: 0.1, g: 0.36, b: 0.56, a: 1}
+  _species:
+  - _species: {fileID: 11400000, guid: 5e36bcd09bcaacb4583b01cca4905d21, type: 2}
+    _weight: 32
+  - _species: {fileID: 11400000, guid: bf4974018a0baaa45b7e36b21e8dac1a, type: 2}
+    _weight: 32
+  - _species: {fileID: 11400000, guid: 20e3b310d063e8d4db18fe8a4b0fe121, type: 2}
+    _weight: 25
+  - _species: {fileID: 11400000, guid: 7919e3888b6e58344925d08146c70b1e, type: 2}
+    _weight: 22
+  - _species: {fileID: 11400000, guid: 8d1424d5454044c41b77ca72349099cd, type: 2}
+    _weight: 14
+  - _species: {fileID: 11400000, guid: 73c1256c5945f374285071c127578971, type: 2}
+    _weight: 12
+  - _species: {fileID: 11400000, guid: 3d74f9dfddd37b04b9e0c405baa199eb, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 1b8747df31a7e2f4890b8e4c2ec51473, type: 2}
+    _weight: 11
+  - _species: {fileID: 11400000, guid: 658821b559c50a1498763806e8ad2d74, type: 2}
+    _weight: 8
+  - _species: {fileID: 11400000, guid: 11f5eb8493a3e5f42ad0a2f0ebaa22b9, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 0015a09c0a3359a4cb9b42880cd35789, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 718cfea9e9cab274ca9c32251902b502, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 8979b331b10bca745b9dade50a554136, type: 2}
+    _weight: 1.5
+  - _species: {fileID: 11400000, guid: c5e09989912d91e4e9e43cfb8b64ea95, type: 2}
+    _weight: 3
+  _mapPosition: {x: 0.85, y: 0.67}
+  _region: Shizuoka, Japon

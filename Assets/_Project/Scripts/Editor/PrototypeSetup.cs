@@ -19,6 +19,7 @@ namespace FishAndChill.Editor
         private const string ZonesFolder = Root + "/Data/Zones";
         private const string LakeZonePath = ZonesFolder + "/LacAnnecy.asset";
         private const string AmazonZonePath = ZonesFolder + "/FleuveAmazone.asset";
+        private const string JapanZonePath = ZonesFolder + "/BaieJaponaise.asset";
         private const string ScenesFolder = Root + "/Scenes";
         private const string ScenePath = ScenesFolder + "/FishingPrototype.unity";
         private const string TemplateScenePath = "Assets/Scenes/SampleScene.unity";
@@ -176,6 +177,42 @@ namespace FishAndChill.Editor
                 CreatureKind.Crustacean, BodyShape.Lobster),
         };
 
+        // Baie de la péninsule d'Izu (Japon) : vraies espèces des côtes japonaises, pêchées depuis le rivage.
+        private static readonly SpeciesData[] JapanSpecies =
+        {
+            new SpeciesData("scomber-japonicus", "Maquereau du Pacifique", "Scomber japonicus", Rarity.Common,
+                0.9f, 0.28f, 2, 2, new Vector2(20f, 45f), 5, new Color(0.20f, 0.46f, 0.50f), 32f),
+            new SpeciesData("trachurus-japonicus", "Chinchard du Japon", "Trachurus japonicus", Rarity.Common,
+                0.85f, 0.29f, 2, 2, new Vector2(15f, 35f), 5, new Color(0.82f, 0.84f, 0.70f), 32f),
+            new SpeciesData("sebastes-inermis", "Sébaste japonais", "Sebastes inermis", Rarity.Common,
+                0.8f, 0.30f, 2, 2, new Vector2(15f, 30f), 6, new Color(0.50f, 0.44f, 0.36f), 25f),
+            new SpeciesData("sebastiscus-marmoratus", "Rascasse marbrée", "Sebastiscus marmoratus", Rarity.Common,
+                0.85f, 0.28f, 2, 2, new Vector2(15f, 30f), 7, new Color(0.64f, 0.30f, 0.20f), 22f),
+            new SpeciesData("pagrus-major", "Pagre japonais", "Pagrus major", Rarity.Uncommon,
+                1.2f, 0.22f, 3, 2, new Vector2(25f, 80f), 20, new Color(0.94f, 0.56f, 0.52f), 14f),
+            new SpeciesData("takifugu-rubripes", "Fugu tigre", "Takifugu rubripes", Rarity.Uncommon,
+                1.1f, 0.23f, 3, 2, new Vector2(25f, 70f), 22, new Color(0.36f, 0.36f, 0.38f), 12f),
+            new SpeciesData("acanthopagrus-schlegelii", "Pagre noir", "Acanthopagrus schlegelii", Rarity.Uncommon,
+                1.2f, 0.22f, 3, 2, new Vector2(25f, 50f), 18, new Color(0.58f, 0.62f, 0.64f), 13f),
+            new SpeciesData("anguilla-japonica", "Anguille du Japon", "Anguilla japonica", Rarity.Uncommon,
+                1.1f, 0.22f, 3, 2, new Vector2(40f, 90f), 20, new Color(0.38f, 0.40f, 0.24f), 11f),
+            new SpeciesData("lateolabrax-japonicus", "Bar japonais", "Lateolabrax japonicus", Rarity.Rare,
+                1.5f, 0.17f, 4, 2, new Vector2(40f, 100f), 45, new Color(0.80f, 0.84f, 0.84f), 8f),
+            new SpeciesData("seriola-quinqueradiata", "Sériole du Japon", "Seriola quinqueradiata", Rarity.Rare,
+                1.6f, 0.16f, 4, 2, new Vector2(50f, 120f), 50, new Color(0.74f, 0.80f, 0.80f), 7f),
+            new SpeciesData("oplegnathus-fasciatus", "Perroquet rayé", "Oplegnathus fasciatus", Rarity.Rare,
+                1.5f, 0.17f, 4, 2, new Vector2(30f, 60f), 50, new Color(0.86f, 0.86f, 0.82f), 7f),
+            new SpeciesData("epinephelus-bruneus", "Mérou kue", "Epinephelus bruneus", Rarity.Epic,
+                1.8f, 0.13f, 5, 1, new Vector2(50f, 130f), 100, new Color(0.56f, 0.44f, 0.40f), 3f),
+            new SpeciesData("thunnus-orientalis", "Thon rouge du Pacifique", "Thunnus orientalis", Rarity.Legendary,
+                2.3f, 0.10f, 5, 1, new Vector2(100f, 300f), 280, new Color(0.10f, 0.14f, 0.28f), 1.5f),
+
+            // Pas que des poissons : le plus grand crabe du monde.
+            new SpeciesData("macrocheira-kaempferi", "Crabe-araignée géant", "Macrocheira kaempferi", Rarity.Epic,
+                1.6f, 0.14f, 5, 1, new Vector2(100f, 370f), 110, new Color(0.90f, 0.46f, 0.20f), 3f,
+                CreatureKind.Crustacean, BodyShape.Crab),
+        };
+
         private static readonly Color MahanaWater = new Color(0.20f, 0.68f, 0.75f);
 
         [MenuItem("FishAndChill/Prototype/Générer données et scène de pêche")]
@@ -210,6 +247,11 @@ namespace FishAndChill.Editor
             CreateOrUpdateZone(AmazonZonePath, "Fleuve Amazone",
                 "Fleuve immense aux eaux brunes, bordé de jungle, de nénuphars géants et de dauphins roses.", new Color(0.46f, 0.36f, 0.20f), AmazonSpecies,
                 new Vector2(0.35f, 0.44f), "Amazonas, Brésil");
+
+            // Quatrième zone : une baie de la côte japonaise.
+            CreateOrUpdateZone(JapanZonePath, "Baie d'Izu",
+                "Baie de la côte japonaise : plage de sable gris, cerisiers en fleurs, pins tordus et torii dans l'eau.", new Color(0.10f, 0.36f, 0.56f), JapanSpecies,
+                new Vector2(0.85f, 0.67f), "Shizuoka, Japon");
 
             string startPath = ZonesFolder + "/IleMahana.asset";
             CreateOrUpdateZone(startPath, "Île Mahana",
@@ -282,6 +324,13 @@ namespace FishAndChill.Editor
                 { "electrophorus-electricus", ActiveTime.Night },
                 { "chelus-fimbriata", ActiveTime.Night },
                 { "macrobrachium-amazonicum", ActiveTime.Night },
+                { "scomber-japonicus", ActiveTime.Day },
+                { "trachurus-japonicus", ActiveTime.Day },
+                { "sebastes-inermis", ActiveTime.Night },
+                { "sebastiscus-marmoratus", ActiveTime.Night },
+                { "lateolabrax-japonicus", ActiveTime.Night },
+                { "anguilla-japonica", ActiveTime.Night },
+                { "macrocheira-kaempferi", ActiveTime.Night },
             };
 
         /// <summary>
@@ -327,6 +376,18 @@ namespace FishAndChill.Editor
                 { "phractocephalus-hemioliopterus", FightStyle.Heavy },
                 { "arapaima-gigas", FightStyle.Heavy },
                 { "chelus-fimbriata", FightStyle.Heavy },
+                { "scomber-japonicus", FightStyle.Nervous },
+                { "trachurus-japonicus", FightStyle.Nervous },
+                { "takifugu-rubripes", FightStyle.Nervous },
+                { "pagrus-major", FightStyle.Drifting },
+                { "acanthopagrus-schlegelii", FightStyle.Drifting },
+                { "anguilla-japonica", FightStyle.Drifting },
+                { "lateolabrax-japonicus", FightStyle.Rusher },
+                { "seriola-quinqueradiata", FightStyle.Rusher },
+                { "oplegnathus-fasciatus", FightStyle.Heavy },
+                { "epinephelus-bruneus", FightStyle.Heavy },
+                { "thunnus-orientalis", FightStyle.Heavy },
+                { "macrocheira-kaempferi", FightStyle.Heavy },
             };
 
         /// <summary>Une ou deux phrases vraies sur chaque espèce, affichées dans la fiche de l'index.</summary>
@@ -381,6 +442,22 @@ namespace FishAndChill.Editor
                 { "arapaima-gigas", "Un des plus grands poissons d'eau douce du monde. Il remonte respirer en surface toutes les 15 minutes." },
                 { "chelus-fimbriata", "Tortue camouflée en tas de feuilles mortes. Elle aspire les poissons d'un coup en ouvrant grand la bouche." },
                 { "macrobrachium-amazonicum", "Crevette d'eau douce aux pinces très longues. Elle sort la nuit fouiller le fond des berges." },
+
+                // Baie d'Izu
+                { "scomber-japonicus", "Nage en immenses bancs rapides près de la surface. Le saba grillé est un grand classique au Japon." },
+                { "trachurus-japonicus", "Une rangée de petites plaques osseuses court le long de son flanc. On le mange frit ou séché." },
+                { "sebastes-inermis", "Ses grands yeux lui servent à chasser la nuit. Il attend souvent tête en haut près des rochers." },
+                { "sebastiscus-marmoratus", "Rascasse des rochers aux épines venimeuses. Les femelles donnent naissance à des petits déjà formés." },
+                { "pagrus-major", "Le « roi des poissons » au Japon : sa couleur rouge porte bonheur, on le sert pour les fêtes." },
+                { "takifugu-rubripes", "Il se gonfle d'eau quand on le menace. Son foie contient un poison mortel : seuls des chefs diplômés le préparent." },
+                { "acanthopagrus-schlegelii", "Il naît mâle puis devient souvent femelle en grandissant. Très méfiant, il fouille les rochers du bord." },
+                { "anguilla-japonica", "Elle naît en plein océan, près des îles Mariannes, puis remonte les rivières du Japon." },
+                { "lateolabrax-japonicus", "Il change de nom en grandissant au Japon. Il chasse la nuit dans l'écume, près des rochers." },
+                { "seriola-quinqueradiata", "Chasseur des grands bancs. Lui aussi change de nom avec l'âge : on l'appelle buri quand il est adulte." },
+                { "oplegnathus-fasciatus", "Ses dents soudées en bec cassent les oursins et les coquillages. Ses bandes s'effacent avec l'âge." },
+                { "epinephelus-bruneus", "Grand mérou solitaire des rochers profonds, très rare et très recherché. Il peut vivre plus de 50 ans." },
+                { "thunnus-orientalis", "Un géant de 300 cm qui traverse le Pacifique. Son corps reste plus chaud que l'eau, comme le nôtre." },
+                { "macrocheira-kaempferi", "Le plus grand crabe du monde : près de 4 m d'une patte à l'autre ! Il vit en profondeur et remonte la nuit." },
             };
 
         private static FishSpecies CreateOrUpdateSpecies(SpeciesData data)
@@ -629,10 +706,12 @@ namespace FishAndChill.Editor
             var lakeZone = AssetDatabase.LoadAssetAtPath<FishingZone>(LakeZonePath);
             SerializedProperty zones = indexSo.FindProperty("_zones");
             var amazonZone = AssetDatabase.LoadAssetAtPath<FishingZone>(AmazonZonePath);
-            zones.arraySize = 3;
+            var japanZone = AssetDatabase.LoadAssetAtPath<FishingZone>(JapanZonePath);
+            zones.arraySize = 4;
             zones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             zones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
             zones.GetArrayElementAtIndex(2).objectReferenceValue = amazonZone;
+            zones.GetArrayElementAtIndex(3).objectReferenceValue = japanZone;
             indexSo.FindProperty("_fishing").objectReferenceValue = controller;
             indexSo.FindProperty("_player").objectReferenceValue = movement;
             indexSo.FindProperty("_bookIcon").objectReferenceValue = bookIcon;
@@ -669,10 +748,11 @@ namespace FishAndChill.Editor
             saveSo.FindProperty("_progress").objectReferenceValue = progress;
             saveSo.FindProperty("_fishing").objectReferenceValue = controller;
             SerializedProperty saveZones = saveSo.FindProperty("_zones");
-            saveZones.arraySize = 3;
+            saveZones.arraySize = 4;
             saveZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             saveZones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
             saveZones.GetArrayElementAtIndex(2).objectReferenceValue = amazonZone;
+            saveZones.GetArrayElementAtIndex(3).objectReferenceValue = japanZone;
 
             // Voyage entre les zones : un ponton par zone, E ouvre la carte du monde.
             var travel = partie.GetComponent<ZoneTravel>();
@@ -683,10 +763,11 @@ namespace FishAndChill.Editor
 
             var travelSo = new SerializedObject(travel);
             SerializedProperty destinations = travelSo.FindProperty("_destinations");
-            destinations.arraySize = 3;
+            destinations.arraySize = 4;
             SetDestination(destinations.GetArrayElementAtIndex(0), zone, 0, buildings.IslandDock);
             SetDestination(destinations.GetArrayElementAtIndex(1), lakeZone, 1, buildings.LakeDock);
             SetDestination(destinations.GetArrayElementAtIndex(2), amazonZone, 2, buildings.AmazonDock);
+            SetDestination(destinations.GetArrayElementAtIndex(3), japanZone, 3, buildings.JapanDock);
             travelSo.FindProperty("_player").objectReferenceValue = movement;
             travelSo.FindProperty("_fishing").objectReferenceValue = controller;
             travelSo.FindProperty("_map").objectReferenceValue = Object.FindAnyObjectByType<WorldMap>();
@@ -738,7 +819,7 @@ namespace FishAndChill.Editor
             GameObject decorObject = GameObject.Find("Décor");
             cycleSo.FindProperty("_decor").objectReferenceValue = decorObject != null ? decorObject.GetComponent<UnityEngine.Tilemaps.Tilemap>() : null;
             SerializedProperty lanterns = cycleSo.FindProperty("_lanterns");
-            MapSetup.DockInfo[] docks = { buildings.IslandDock, buildings.LakeDock, buildings.AmazonDock };
+            MapSetup.DockInfo[] docks = { buildings.IslandDock, buildings.LakeDock, buildings.AmazonDock, buildings.JapanDock };
             lanterns.arraySize = docks.Length;
             for (int i = 0; i < docks.Length; i++)
             {
@@ -767,10 +848,11 @@ namespace FishAndChill.Editor
             titleSo.FindProperty("_minimap").objectReferenceValue = minimap;
             titleSo.FindProperty("_skin").objectReferenceValue = skin;
             SerializedProperty titleZones = titleSo.FindProperty("_zones");
-            titleZones.arraySize = 3;
+            titleZones.arraySize = 4;
             titleZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             titleZones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
             titleZones.GetArrayElementAtIndex(2).objectReferenceValue = amazonZone;
+            titleZones.GetArrayElementAtIndex(3).objectReferenceValue = japanZone;
             titleSo.ApplyModifiedPropertiesWithoutUndo();
 
             if (zone == null)

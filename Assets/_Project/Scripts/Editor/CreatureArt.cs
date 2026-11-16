@@ -24,6 +24,7 @@ namespace FishAndChill.Editor
                 case "pelophylax-ridibundus": pixels = FreshwaterCreatureArt.MarshFrog(); return true;
                 case "chelus-fimbriata": pixels = AmazonCreatureArt.Matamata(); return true;
                 case "macrobrachium-amazonicum": pixels = AmazonCreatureArt.AmazonPrawn(); return true;
+                case "macrocheira-kaempferi": pixels = JapanCreatureArt.SpiderCrab(); return true;
                 default: pixels = null; return false;
             }
         }

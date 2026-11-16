@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ScomberJaponicus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: scomber-japonicus
+  _commonName: Maquereau du Pacifique
+  _scientificName: Scomber japonicus
+  _rarity: 0
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 0.9
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 20, y: 45}
+  _basePrice: 5
+  _placeholderColor: {r: 0.2, g: 0.46, b: 0.5, a: 1}
+  _description: "Nage en immenses bancs rapides pr\xE8s de la surface. Le saba grill\xE9 est un grand classique au Japon."
+  _activeTime: 1
+  _sprite: {fileID: 21300000, guid: 6bca4c9110d381b44b1f181120ca34f3, type: 3}
+  _miniSprite: {fileID: 21300000, guid: f7a07e1fe2d3c7742a9572ca7b55e9e6, type: 3}

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PagrusMajor
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: pagrus-major
+  _commonName: Pagre japonais
+  _scientificName: Pagrus major
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.2
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 2
+  _sizeRangeCm: {x: 25, y: 80}
+  _basePrice: 20
+  _placeholderColor: {r: 0.94, g: 0.56, b: 0.52, a: 1}
+  _description: "Le \xAB roi des poissons \xBB au Japon : sa couleur rouge porte bonheur, on le sert pour les f\xEAtes."
+  _activeTime: 0
+  _sprite: {fileID: 21300000, guid: 25ede37464fbf804582a23e7ecde13df, type: 3}
+  _miniSprite: {fileID: 21300000, guid: b2737ff67c1371d4199b2a27437a8fa3, type: 3}

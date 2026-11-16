@@ -73,6 +73,8 @@ namespace FishAndChill.Editor
             public DockInfo LakeDock;
             public Rect AmazonRegion;
             public DockInfo AmazonDock;
+            public Rect JapanRegion;
+            public DockInfo JapanDock;
         }
 
         /// <summary>Un ponton : sol praticable au-dessus de l'eau, point d'arrivée au bout, regard vers le large.</summary>
@@ -105,6 +107,16 @@ namespace FishAndChill.Editor
 
         /// <summary>Écart (en cases) entre le bord est du lac et le fleuve.</summary>
         private const int AmazonGap = 20;
+
+        /// <summary>La baie japonaise : la mer au sud qui s'enfonce dans des collines boisées, à l'est du fleuve.</summary>
+        private static readonly IslandGenerator.Settings BaySettings = new IslandGenerator.Settings
+        {
+            Width = 90,
+            Height = 64,
+            Seed = 8080,
+        };
+
+        private const int JapanGap = 20;
 
         private const int DockLength = 5;
 
@@ -232,6 +244,11 @@ namespace FishAndChill.Editor
             var amazonBounds = new BoundsInt(lakeBounds.xMax + AmazonGap, -RiverSettings.Height / 2, 0, RiverSettings.Width, RiverSettings.Height, 1);
             DockInfo amazonDock = BuildAmazon(mapObject.transform, amazonBounds, amazonTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, decorMap, staticObstacles);
 
+            // La baie japonaise, à l'est du fleuve.
+            TileSet japanTiles = CreateJapanTiles();
+            var japanBounds = new BoundsInt(amazonBounds.xMax + JapanGap, -BaySettings.Height / 2, 0, BaySettings.Width, BaySettings.Height, 1);
+            DockInfo japanDock = BuildJapan(mapObject.transform, japanBounds, japanTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, decorMap, staticObstacles);
+
             var worldMap = mapObject.GetComponent<WorldMap>();
             if (worldMap == null)
             {
@@ -244,7 +261,9 @@ namespace FishAndChill.Editor
             var islandRegion = new Rect(bounds.xMin, bounds.yMin, width, height);
             var lakeRegion = new Rect(lakeBounds.xMin, lakeBounds.yMin, lakeBounds.size.x, lakeBounds.size.y);
             var amazonRegion = new Rect(amazonBounds.xMin, amazonBounds.yMin, amazonBounds.size.x, amazonBounds.size.y);
-            worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion }, new[] { islandDock.Area, lakeDock.Area, amazonDock.Area });
+            var japanRegion = new Rect(japanBounds.xMin, japanBounds.yMin, japanBounds.size.x, japanBounds.size.y);
+            worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion }, new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area });
+            BuildJapanLife(mapObject.transform, worldMap, player.transform, japanDock.Area);
             BuildAmazonLife(mapObject.transform, worldMap, player.transform, amazonDock.Area);
             BuildLakeLife(mapObject.transform, worldMap, player.transform, lakeDock.Area);
             BuildIslandLife(mapObject.transform, worldMap, player.transform, islandDock.Area);
@@ -255,10 +274,12 @@ namespace FishAndChill.Editor
             var spotsSo = new SerializedObject(controller);
             SerializedProperty spotList = spotsSo.FindProperty("_spots");
             FishingSpots amazonSpots = BuildSpots(mapObject.transform, "Coins de pêche du fleuve", worldMap, 2, amazonDock.Area);
-            spotList.arraySize = 3;
+            FishingSpots japanSpots = BuildSpots(mapObject.transform, "Coins de pêche de la baie", worldMap, 3, japanDock.Area);
+            spotList.arraySize = 4;
             spotList.GetArrayElementAtIndex(0).objectReferenceValue = islandSpots;
             spotList.GetArrayElementAtIndex(1).objectReferenceValue = lakeSpots;
             spotList.GetArrayElementAtIndex(2).objectReferenceValue = amazonSpots;
+            spotList.GetArrayElementAtIndex(3).objectReferenceValue = japanSpots;
             spotsSo.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(worldMap);
 
@@ -295,13 +316,14 @@ namespace FishAndChill.Editor
             var aquariumInterior = new Vector2(bounds.xMax + 40f, bounds.yMin);
             AquariumBuilding aquarium = BuildAquarium(aquariumPosition, aquariumInterior, worldMap, player.GetComponent<PlayerMovement>(), follow, controller);
 
-            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, shop, aquarium, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker });
+            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, shop, aquarium, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker });
             return new Buildings
             {
                 Shop = shop, Aquarium = aquarium,
                 IslandRegion = islandRegion, IslandDock = islandDock,
                 LakeRegion = lakeRegion, LakeDock = lakeDock,
                 AmazonRegion = amazonRegion, AmazonDock = amazonDock,
+                JapanRegion = japanRegion, JapanDock = japanDock,
             };
         }
 
@@ -794,6 +816,235 @@ namespace FishAndChill.Editor
             }
 
             return dock;
+        }
+
+        /// <summary>Tuiles de la baie : celles de l'île recolorées (mer profonde, sable gris, mousse), arbres et décor japonais.</summary>
+        private static TileSet CreateJapanTiles()
+        {
+            var set = new TileSet { Deep = new Tile[2], Shallow = new Tile[2], Sand = new Tile[3], Grass = new Tile[3] };
+            for (int i = 0; i < 2; i++)
+            {
+                set.Deep[i] = SaveAnimatedWater($"Baie_Eau_{i}", f => JapanArt.Water(TileArt.DeepWater(i, f)));
+                set.Shallow[i] = set.Deep[i];
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                set.Sand[i] = SaveTile($"Baie_Sable_{i}", JapanArt.Sand(TileArt.Sand(i)), Vector2.one * 0.5f, TileArt.Size);
+                set.Grass[i] = SaveTile($"Baie_Mousse_{i}", JapanArt.Moss(TileArt.Grass(i)), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            set.Palm = SaveTile("Sakura", JapanArt.Sakura(), JapanArt.TreePivot, TileArt.Size);
+            set.Rocks = new[]
+            {
+                SaveTile("PinNoir", JapanArt.Pine(), JapanArt.TreePivot, TileArt.Size),
+                SaveTile("Decor/Bambous", JapanArt.Bamboo(), new Vector2(0.5f, 2.5f / 40f), TileArt.Size),
+            };
+            // Lanterne de pierre : son nom contient « Lampadaire », elle s'allume la nuit (DayNightCycle).
+            set.Reeds = new[] { SaveTile("Decor/Lampadaire_Toro", JapanArt.StoneLantern(), new Vector2(0.5f, 2f / 28f), TileArt.Size) };
+            set.Lilies = new[] { SaveTile("Decor/Torii", JapanArt.Torii(), new Vector2(0.5f, 2f / 48f), TileArt.Size) };
+
+            var shallow = new TransitionArt.Style
+            {
+                Fill = JapanArt.Water(TileArt.ShallowWater(0)),
+                InnerBand = 0.06f, InnerColor = JapanArt.Water(new Color(0.40f, 0.82f, 0.84f)), InnerBlend = 0.6f,
+                OuterBand = 0.07f, OuterColor = JapanArt.Water(new Color(0.24f, 0.66f, 0.74f)), DitherOuter = true,
+            };
+            var sand = new TransitionArt.Style
+            {
+                Fill = JapanArt.Sand(TileArt.Sand(0)),
+                InnerBand = 0.07f, InnerColor = new Color(0.40f, 0.40f, 0.40f), InnerBlend = 1f,      // sable mouillé
+                OuterBand = 0.07f, OuterColor = new Color(0.90f, 0.94f, 0.96f), DitherOuter = false,  // écume
+            };
+            var moss = new TransitionArt.Style
+            {
+                Fill = JapanArt.Moss(TileArt.Grass(0)),
+                InnerBand = 0.06f, InnerColor = JapanArt.Moss(new Color(0.24f, 0.50f, 0.24f)), InnerBlend = 1f,
+                OuterBand = 0.06f, OuterColor = JapanArt.Moss(new Color(0.40f, 0.68f, 0.34f)), DitherOuter = true,
+            };
+
+            set.LagoonEdges = SaveEdges("BaieEau", shallow);
+            set.SandEdges = SaveEdges("BaieSable", sand);
+            set.GrassEdges = SaveEdges("BaieMousse", moss);
+            set.LagoonFull = new[] { set.LagoonEdges[15], SaveTile("Bords/BaieEau_15b", JapanArt.Water(TileArt.ShallowWater(1)), Vector2.one * 0.5f, TileArt.Size) };
+            set.SandFull = new[]
+            {
+                set.SandEdges[15],
+                SaveTile("Bords/BaieSable_15b", JapanArt.Sand(TileArt.Sand(0)), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/BaieSable_15c", JapanArt.Sand(TileArt.Sand(1)), Vector2.one * 0.5f, TileArt.Size),
+            };
+            set.GrassFull = new[]
+            {
+                set.GrassEdges[15],
+                SaveTile("Bords/BaieMousse_15b", JapanArt.PetalGrass(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/BaieMousse_15c", JapanArt.PetalGrass(1), Vector2.one * 0.5f, TileArt.Size),
+            };
+            return set;
+        }
+
+        /// <summary>Dessine la baie (sans effacer le reste) : plage, collines de cerisiers, pins et bambous, lanternes, torii.</summary>
+        private static DockInfo BuildJapan(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap decorMap, List<Rect> obstacles)
+        {
+            TerrainType[,] terrain = BayGenerator.Generate(BaySettings);
+            int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
+            int width = terrain.GetLength(0);
+            int height = terrain.GetLength(1);
+            int seed = BaySettings.Seed;
+
+            var waterTiles = new TileBase[width * height];
+            var landTiles = new TileBase[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = x + y * width;
+                    float hash = IslandGenerator.CellHash(x, y, seed);
+                    waterTiles[index] = tiles.Deep[hash < 0.5f ? 0 : 1];
+                    if (terrain[x, y] == TerrainType.Sand)
+                    {
+                        landTiles[index] = tiles.Sand[hash < 0.9f ? 0 : hash < 0.96f ? 1 : 2];
+                    }
+                    else if (terrain[x, y] == TerrainType.Grass)
+                    {
+                        landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
+                    }
+                }
+            }
+
+            waterMap.SetTilesBlock(bounds, waterTiles);
+            landMap.SetTilesBlock(bounds, landTiles);
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance, tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
+            FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
+            FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
+
+            // Ponton au fond de la baie, vers le sud (la mer).
+            int cx = width / 2;
+            int cy = 0;
+            while (cy < height - 2 && terrain[cx, cy] == TerrainType.Water)
+            {
+                cy++;
+            }
+
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Baie japonaise", terrain, bounds, new Vector2Int(cx, cy + 1), Vector2Int.down);
+            Vector2 dockCell = dock.Area.center - new Vector2(bounds.xMin, bounds.yMin);
+            var taken = new bool[width, height];
+            void Put(int x, int y, Tile tile)
+            {
+                taken[x, y] = true;
+                decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tile);
+            }
+
+            void Solid(int x, int y, float w, float h)
+            {
+                obstacles.Add(new Rect(bounds.xMin + x + 0.5f - w * 0.5f, bounds.yMin + y + 0.1f, w, h));
+            }
+
+            // Deux lanternes de pierre de part et d'autre du pied du ponton, puis d'autres le long de la plage.
+            int lanternY = Mathf.RoundToInt(dock.Area.yMax - bounds.yMin) + 1;
+            foreach (int lx in new[] { Mathf.RoundToInt(dockCell.x) - 3, Mathf.RoundToInt(dockCell.x) + 2 })
+            {
+                if (lx > 0 && lx < width && lanternY < height && terrain[lx, lanternY] != TerrainType.Water)
+                {
+                    Put(lx, lanternY, tiles.Reeds[0]);
+                    Solid(lx, lanternY, 0.7f, 0.4f);
+                }
+            }
+
+            // Le torii, planté dans l'eau de la baie, à côté du ponton.
+            int tx = cx + 9;
+            int ty = Mathf.FloorToInt(BayGenerator.ShoreAt(BaySettings, tx + 0.5f)) - 6;
+            if (tx < width && ty > 0 && terrain[tx, ty] == TerrainType.Water)
+            {
+                Put(tx, ty, tiles.Lilies[0]);
+            }
+
+            for (int y = 1; y < height - 1; y++)
+            {
+                for (int x = 1; x < width - 1; x++)
+                {
+                    float hash = IslandGenerator.CellHash(x, y, seed + 7);
+                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 5 && Mathf.Abs(y - dockCell.y) <= 8;
+                    if (taken[x, y] || nearDock) continue;
+                    bool besideWater = terrain[x, y - 1] == TerrainType.Water || terrain[x, y + 1] == TerrainType.Water;
+                    if (terrain[x, y] == TerrainType.Sand && !besideWater && terrain[x, y + 1] == TerrainType.Grass && hash < 0.06f
+                        && !taken[x - 1, y] && !taken[x + 1, y] && !taken[x - 2, y] && !taken[x + 2, y])
+                    {
+                        Put(x, y, tiles.Reeds[0]);
+                        Solid(x, y, 0.7f, 0.4f);
+                    }
+                }
+            }
+
+            // Collines boisées : cerisiers, pins noirs et touffes de bambous.
+            var trees = new List<Vector2Int>();
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 9;
+                    if (terrain[x, y] != TerrainType.Grass || nearDock || taken[x, y] || IslandGenerator.CellHash(x, y, seed + 1) > 0.075f)
+                    {
+                        continue;
+                    }
+
+                    if (trees.Exists(other => Mathf.Abs(other.x - x) < 3 && Mathf.Abs(other.y - y) < 2))
+                    {
+                        continue;
+                    }
+
+                    trees.Add(new Vector2Int(x, y));
+                    obstacles.Add(TownLayout.PalmFootprint(new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f)));
+                    float pick = IslandGenerator.CellHash(x, y, seed + 3);
+                    decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), pick < 0.45f ? tiles.Palm : pick < 0.8f ? tiles.Rocks[0] : tiles.Rocks[1]);
+                }
+            }
+
+            return dock;
+        }
+
+        /// <summary>La vie de la baie : canards mandarins, pétales de cerisier, poissons qui sautent, grues dans le ciel.</summary>
+        private static void BuildJapanLife(Transform root, WorldMap map, Transform player, Rect dock)
+        {
+            const string folder = "Assets/_Project/Art/Ambient";
+            PixelArt.EnsureFolder(folder);
+            Sprite[] Frames(string name, int count, System.Func<int, Color[,]> draw)
+            {
+                var sprites = new Sprite[count];
+                for (int i = 0; i < count; i++)
+                {
+                    sprites[i] = PixelArt.Save($"{folder}/{name}_{i}.png", draw(i), TileArt.Size, Vector2.one * 0.5f);
+                }
+
+                return sprites;
+            }
+
+            GameObject go = EnsureObject("Vie de la baie", root);
+            var life = go.GetComponent<AmbientLife>();
+            if (life == null)
+            {
+                life = go.AddComponent<AmbientLife>();
+            }
+
+            var so = new SerializedObject(life);
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_region").intValue = 3;
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 1.5f, dock.yMin - 1f, dock.width + 4f, dock.height + 2f);
+            SerializedProperty swimmers = so.FindProperty("_swimmers");
+            swimmers.arraySize = 1;
+            SetSwimmer(swimmers.GetArrayElementAtIndex(0), Frames("CanardMandarin", 2, JapanLifeArt.MandarinDuck), 5, 0.5f);
+            so.FindProperty("_walkers").arraySize = 0;
+            SetSprites(so.FindProperty("_dragonfly"), Frames("PetaleSakura", 2, JapanLifeArt.Petal));
+            so.FindProperty("_dragonflies").intValue = 5;
+            SetSprites(so.FindProperty("_jumpingFish"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
+            SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
+            SetSprites(so.FindProperty("_passer"), Frames("Grue", 2, JapanLifeArt.Crane));
+            so.FindProperty("_passerShadow").objectReferenceValue = PixelArt.Save($"{folder}/Grue_Ombre.png", JapanLifeArt.CraneShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_cloud").objectReferenceValue = PixelArt.Save($"{folder}/OmbreNuage.png", LakeLifeArt.CloudShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_clouds").intValue = 5;
+            SetNightLife(so, Frames);
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         /// <summary>La faune du fleuve : dauphins roses, caïmans, morphos, poissons qui sautent, aras et nuages.</summary>
@@ -1564,7 +1815,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform[] docks)
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform[] docks)
         {
             Sprite shopIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeBoutique.png", ShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
             Sprite aquariumIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeAquarium.png", AquariumArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
@@ -1595,6 +1846,13 @@ namespace FishAndChill.Editor
             foreach (Tile t in amazonTiles.Grass) entries.Add((t, new Color(0.16f, 0.40f, 0.16f)));
             entries.Add((amazonTiles.Palm, new Color(0.08f, 0.26f, 0.08f)));
             entries.Add((amazonTiles.Rocks[0], new Color(0.08f, 0.26f, 0.08f)));
+            foreach (Tile t in japanTiles.Deep) entries.Add((t, new Color(0.10f, 0.36f, 0.56f)));
+            foreach (Tile t in japanTiles.Sand) entries.Add((t, new Color(0.70f, 0.68f, 0.62f)));
+            foreach (Tile t in japanTiles.Grass) entries.Add((t, new Color(0.36f, 0.56f, 0.30f)));
+            entries.Add((japanTiles.Palm, new Color(0.92f, 0.66f, 0.76f)));
+            entries.Add((japanTiles.Rocks[0], new Color(0.14f, 0.30f, 0.18f)));
+            entries.Add((japanTiles.Rocks[1], new Color(0.30f, 0.50f, 0.22f)));
+            entries.Add((japanTiles.Lilies[0], new Color(0.86f, 0.22f, 0.14f)));
             Sprite dockIcon = PixelArt.Save("Assets/_Project/Art/UI/IconePonton.png", LakeArt.BoatIcon(), TileArt.Size, Vector2.one * 0.5f);
 
             var so = new SerializedObject(minimap);

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ThunnusOrientalis
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: thunnus-orientalis
+  _commonName: Thon rouge du Pacifique
+  _scientificName: Thunnus orientalis
+  _rarity: 4
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 2.3
+    _zoneWidth: 0.1
+    _requiredHits: 5
+    _maxMisses: 1
+  _fightStyle: 4
+  _sizeRangeCm: {x: 100, y: 300}
+  _basePrice: 280
+  _placeholderColor: {r: 0.1, g: 0.14, b: 0.28, a: 1}
+  _description: "Un g\xE9ant de 300 cm qui traverse le Pacifique. Son corps reste plus chaud que l'eau, comme le n\xF4tre."
+  _activeTime: 0
+  _sprite: {fileID: 21300000, guid: 5e9c9506d1abacb41888f1bb204946a3, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 6ba0ed02c6ed5904699268dfabf0a06a, type: 3}

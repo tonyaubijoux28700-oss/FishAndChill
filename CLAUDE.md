@@ -116,6 +116,13 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   avec leur ombre. 14 espèces (`PrototypeSetup.AmazonSpecies`) : 12 poissons (`AmazonFishArt` : piranha, oscar, pléco,
   discus, tucunaré, tambaqui, arowana, surubim, payara, pirarara, gymnote électrique, arapaïma légendaire), matamata et
   crevette d'Amazonie (`AmazonCreatureArt`). Salle Amazonie à l'aquarium (voir Aquarium).
+- **Baie d'Izu** (4e zone, région 3, Japon) : `BayGenerator` (mer au sud qui s'enfonce en arrondi, plage de sable gris,
+  collines ; testé), 90×64 cases, à `JapanGap` = 20 cases à l'est du fleuve, `MapSetup.BuildJapan` (tuiles `JapanArt` : mer
+  profonde, sable volcanique, mousse et pétales ; cerisiers, pins noirs tordus et bambous solides ; lanternes de pierre
+  solides nommées `Lampadaire_Toro`, donc allumées la nuit ; torii rouge dans l'eau). Ponton au fond de la baie, vers
+  le sud. Vie (`BuildJapanLife`, `JapanLifeArt`) : canards mandarins, pétales de cerisier, grues du Japon. 14 espèces
+  (`PrototypeSetup.JapanSpecies`, dessins `JapanFishArt`, crabe-araignée géant dans `JapanCreatureArt`), thon rouge
+  légendaire. **Pas encore de salle à l'aquarium** pour cette zone.
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`, barque amarrée). Sur le ponton, **E** ouvre
   la **carte du monde** (←/→, Espace part, Échap ferme ; le sac ne s'ouvre pas sur le ponton) : fondu au noir, arrivée
