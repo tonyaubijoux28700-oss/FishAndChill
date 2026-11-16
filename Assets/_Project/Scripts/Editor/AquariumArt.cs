@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FishAndChill.Editor
 {
@@ -562,7 +562,7 @@ namespace FishAndChill.Editor
             PixelArt.Rect(p, InteriorWidth - 10, 0, InteriorWidth - 10, StandBottom, Metal);
 
             // Passage voûté vers la salle du lac, dans le mur de droite (sol de 3,2 à 6 cases de haut).
-            PixelArt.Rect(p, InteriorWidth - 10, 51, InteriorWidth - 1, 96, C(0.78f, 0.84f, 0.86f));
+            PixelArt.Rect(p, InteriorWidth - 10, 51, InteriorWidth - 1, 96, C(0.11f, 0.16f, 0.27f));
             PixelArt.Rect(p, InteriorWidth - 10, 51, InteriorWidth - 1, 52, C(0.60f, 0.68f, 0.72f));
             PixelArt.Rect(p, InteriorWidth - 11, 50, InteriorWidth - 11, 100, Brass);
             PixelArt.Rect(p, InteriorWidth - 11, 97, InteriorWidth - 1, 100, Brass);
@@ -574,36 +574,71 @@ namespace FishAndChill.Editor
             return p;
         }
 
-        /// <summary>Grand dallage clair, allée en mosaïque vers le bassin et grand médaillon au poisson.</summary>
+        private static float Hash(int x, int y, int seed)
+        {
+            unchecked
+            {
+                int h = x * 73856093 ^ y * 19349663 ^ seed * 83492791;
+                h = (h << 13) ^ h;
+                return ((h * (h * h * 15731 + 789221) + 1376312589) & 0x7fffffff) / 2147483647f;
+            }
+        }
+
+        /// <summary>
+        /// Marbre sombre : damier de dalles bleu nuit et turquoise profond veinées de clair, joints dorés, allée de marbre
+        /// plus foncé bordée de laiton jusqu'au bassin, reflets bleus du bassin sur le sol poli, grand médaillon au poisson.
+        /// </summary>
         private static void DrawFloor(Color[,] p)
         {
-            Color tileA = C(0.82f, 0.87f, 0.89f);
-            Color tileB = C(0.75f, 0.82f, 0.86f);
-            Color grout = C(0.60f, 0.68f, 0.72f);
+            Color navy = C(0.11f, 0.16f, 0.27f);
+            Color teal = C(0.10f, 0.29f, 0.34f);
+            Color vein = C(0.62f, 0.74f, 0.80f);
+            Color joint = C(0.72f, 0.56f, 0.24f);
+            Color runner = C(0.07f, 0.11f, 0.19f);
             for (int x = 0; x < InteriorWidth; x++)
             {
                 for (int y = 0; y < StandBottom; y++)
                 {
-                    Color c = ((x / 32) + (y / 32)) % 2 == 0 ? tileA : tileB;
-                    if (x % 32 == 0 || y % 32 == 0)
+                    int tx = x / 32;
+                    int ty = y / 32;
+                    Color c = (tx + ty) % 2 == 0 ? navy : teal;
+
+                    // Veines du marbre : fines lignes claires qui serpentent en biais, différentes sur chaque dalle.
+                    float seed = Hash(tx, ty, 3) * 20f;
+                    float wave = Mathf.Sin((x + y * 0.6f) * 0.11f + seed) * 4f + Mathf.Sin(y * 0.23f + seed * 2f) * 2f;
+                    float line = Mathf.Repeat(x - y * 0.8f + wave + seed * 7f, 23f);
+                    if (line < 0.9f)
                     {
-                        c = grout;
+                        c = Color.Lerp(c, vein, 0.35f);
+                    }
+                    else if (line < 1.8f || Hash(x, y, 7) > 0.97f)
+                    {
+                        c = Color.Lerp(c, vein, 0.14f);
                     }
 
-                    // Allée centrale en mosaïque bleue, motif de vagues.
+                    // Léger dégradé dans chaque dalle : le marbre poli accroche la lumière vers le haut.
+                    c = DetailedFish.Shade(c, 0.94f + Step((y % 32) / 32f, 3f) * 0.1f);
+
+                    // Joints dorés.
+                    if (x % 32 == 0 || y % 32 == 0)
+                    {
+                        c = (x % 32 == 0 && y % 32 == 0) ? C(0.95f, 0.82f, 0.42f) : joint;
+                    }
+
+                    // Allée centrale de marbre noir bordée de laiton, avec une fine vague dorée incrustée.
                     if (x >= 216 && x <= 263)
                     {
                         bool border = x <= 218 || x >= 261;
-                        int wave = Mathf.RoundToInt(Mathf.Sin((x - 216) * 0.26f) * 2f);
-                        c = border ? Brass : ((y + wave) % 10 < 2 ? C(0.86f, 0.94f, 0.96f) : (y + wave) % 10 < 5 ? Tile : TileDark);
+                        int inlay = Mathf.RoundToInt(240f + Mathf.Sin(y * 0.18f) * 9f);
+                        c = border ? Brass : (x == inlay || x == inlay + 1) ? BrassDark : DetailedFish.Shade(runner, 0.95f + Hash(x / 3, y / 3, 5) * 0.1f);
                     }
 
-                    // Lueur bleue du bassin et reflets mouvants de l'eau (caustiques).
-                    float glow = Mathf.InverseLerp(90f, StandBottom, y);
-                    c = Color.Lerp(c, C(0.50f, 0.80f, 0.92f), Step(glow, 4f) * 0.35f);
-                    if (y > 110 && (x * 3 + y * 5) % 29 == 0)
+                    // Le bassin se reflète sur le sol poli : lueur bleue qui monte vers la vitre.
+                    float glow = Mathf.InverseLerp(70f, StandBottom, y);
+                    c = Color.Lerp(c, C(0.30f, 0.62f, 0.80f), Step(glow, 5f) * 0.32f);
+                    if (y > 120 && Hash(x / 2, y / 2, 11) > 0.985f)
                     {
-                        c = Color.Lerp(c, Color.white, 0.35f);
+                        c = Color.Lerp(c, Color.white, 0.4f); // éclats de lumière
                     }
 
                     p[x, y] = c;
