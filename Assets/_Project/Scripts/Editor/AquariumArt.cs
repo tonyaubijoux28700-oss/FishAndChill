@@ -957,6 +957,147 @@ namespace FishAndChill.Editor
         // Mobilier
         // ======================================================================
 
+        private const int ColumnWidth = 48;
+        private const int ColumnHeight = 104;
+        private const float ColumnCenter = 23.5f;
+
+        /// <summary>
+        /// Colonne à méduses 48×104, pivot au pied : socle en laiton à trois étages et rivets, épais cylindre de verre
+        /// rempli d'une eau violette à bleue éclairée par l'arrière (plancton, surface qui miroite), chapeau en dôme avec
+        /// une lampe qui éclaire l'eau par le haut. Les méduses et les bulles sont animées en jeu, la vitre passe devant.
+        /// </summary>
+        public static Color[,] JellyfishColumnV2()
+        {
+            var p = new Color[ColumnWidth, ColumnHeight];
+            for (int x = 0; x < ColumnWidth; x++)
+            {
+                for (int y = 0; y < ColumnHeight; y++)
+                {
+                    float dx = x + 0.5f - ColumnCenter;
+                    float light = Step(1.1f - (dx / 22f + 1f) * 0.28f, 5f); // éclairé par la gauche
+
+                    // Socle : trois étages de laiton, du plus large au plus étroit, liseré clair sur chaque marche.
+                    float baseRadius = y <= 4 ? 23.5f : y <= 10 ? 21.5f : y <= 15 ? 22.5f : 0f;
+                    if (baseRadius > 0f && Mathf.Abs(dx) <= baseRadius)
+                    {
+                        bool lip = y == 4 || y == 10 || y == 15;
+                        Color brass = y <= 4 ? BrassDark : Brass;
+                        Color c = DetailedFish.Shade(brass, lip ? 1.25f : light);
+                        if (y >= 6 && y <= 8 && Mathf.Abs(dx) < 19f && Mathf.RoundToInt(dx + 40f) % 7 == 0)
+                        {
+                            c = C(1f, 0.92f, 0.62f); // rivets
+                        }
+
+                        p[x, y] = c;
+                        continue;
+                    }
+
+                    // Chapeau : anneau, dôme qui se resserre, lampe chaude et pointe.
+                    if (y >= 89)
+                    {
+                        float capRadius = y <= 92 ? 22.5f : y <= 100 ? Mathf.Lerp(20f, 9f, (y - 93) / 7f) : y <= 102 ? 2.5f : 1.2f;
+                        if (Mathf.Abs(dx) <= capRadius)
+                        {
+                            bool ring = y == 92 || y == 89;
+                            p[x, y] = DetailedFish.Shade(Brass, ring ? 1.25f : light);
+                            if (y >= 95 && y <= 97 && Mathf.Abs(dx) < 3f)
+                            {
+                                p[x, y] = C(1f, 0.95f, 0.70f); // lampe
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    // Cylindre de verre.
+                    float u = dx / 20.5f;
+                    if (y < 16 || y > 88 || Mathf.Abs(u) > 1f)
+                    {
+                        continue;
+                    }
+
+                    Color water;
+                    if (y > 84)
+                    {
+                        water = C(0.12f, 0.16f, 0.24f); // air sous le chapeau
+                    }
+                    else
+                    {
+                        float t = Mathf.InverseLerp(16f, 84f, y);
+                        water = t < 0.5f
+                            ? Color.Lerp(C(0.20f, 0.10f, 0.38f), C(0.10f, 0.24f, 0.54f), Step(t * 2f, 4f))
+                            : Color.Lerp(C(0.10f, 0.24f, 0.54f), C(0.22f, 0.54f, 0.80f), Step((t - 0.5f) * 2f, 4f));
+
+                        // Lumière de l'arrière au centre, et cône de la lampe qui descend du haut.
+                        float back = (1f - u * u) * 0.22f;
+                        float cone = Mathf.Clamp01((y - 60f) / 24f) * Mathf.Clamp01(1f - Mathf.Abs(u) / (0.3f + (84f - y) / 60f));
+                        water = Color.Lerp(water, C(0.70f, 0.86f, 1f), Step(back + cone * 0.35f, 5f));
+
+                        if (y == 84 || (y == 83 && (x % 6) < 3))
+                        {
+                            water = Color.Lerp(water, Color.white, 0.45f); // surface qui miroite
+                        }
+
+                        if (Hash(x, y, 21) > 0.975f)
+                        {
+                            water = Color.Lerp(water, C(0.86f, 0.94f, 1f), 0.6f); // plancton
+                        }
+                    }
+
+                    // Épaisseur du verre sur les bords.
+                    if (Mathf.Abs(u) > 0.9f)
+                    {
+                        water = Color.Lerp(water, C(0.06f, 0.10f, 0.20f), 0.55f);
+                    }
+
+                    p[x, y] = water;
+                }
+            }
+
+            PixelArt.SelectiveOutline(p, Outline, 0.6f);
+            return p;
+        }
+
+        /// <summary>
+        /// Vitre de la colonne, posée devant les méduses : reflets verticaux, liserés du verre en haut et en bas
+        /// (ellipses vues de trois quarts), bord droit à peine éclairé. Même taille et même pivot que la colonne.
+        /// </summary>
+        public static Color[,] JellyfishColumnGlass()
+        {
+            var p = new Color[ColumnWidth, ColumnHeight];
+            for (int x = 0; x < ColumnWidth; x++)
+            {
+                float u = (x + 0.5f - ColumnCenter) / 20.5f;
+                if (Mathf.Abs(u) > 1f)
+                {
+                    continue;
+                }
+
+                for (int y = 16; y <= 88; y++)
+                {
+                    if (Mathf.Abs(u + 0.62f) < 0.07f)
+                    {
+                        p[x, y] = C(1f, 1f, 1f, 0.42f);
+                    }
+                    else if (Mathf.Abs(u + 0.42f) < 0.035f)
+                    {
+                        p[x, y] = C(1f, 1f, 1f, 0.22f);
+                    }
+                    else if (Mathf.Abs(u - 0.8f) < 0.04f)
+                    {
+                        p[x, y] = C(0.86f, 0.94f, 1f, 0.16f);
+                    }
+                }
+
+                // Bords du verre en haut et en bas : une ellipse claire.
+                int rim = Mathf.RoundToInt(Mathf.Sqrt(Mathf.Max(0f, 1f - u * u)) * 2.5f);
+                PixelArt.Set(p, x, 18 - rim, C(0.86f, 0.94f, 1f, 0.45f));
+                PixelArt.Set(p, x, 86 - rim, C(0.86f, 0.94f, 1f, 0.35f));
+            }
+
+            return p;
+        }
+
         /// <summary>Colonne à méduses 48×88 : cylindre de verre cerclé de laiton, eau bleue, méduses roses. Pivot au pied.</summary>
         public static Color[,] JellyfishColumn()
         {

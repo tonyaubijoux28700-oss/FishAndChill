@@ -808,13 +808,25 @@ namespace FishAndChill.Editor
             SetSprite(lakeGlassObject, lakeGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
             // Mobilier de la salle (triés par les pieds, comme le joueur) : colonnes à méduses et bancs.
-            Sprite column = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses.png", AquariumArt.JellyfishColumn(), TileArt.Size, new Vector2(0.5f, 0f));
+            Sprite column = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses.png", AquariumArt.JellyfishColumnV2(), TileArt.Size, new Vector2(0.5f, 0f));
+            Sprite columnGlass = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses_Vitre.png", AquariumArt.JellyfishColumnGlass(), TileArt.Size, new Vector2(0.5f, 0f));
             Sprite bench = PixelArt.Save($"{folder}/Aquarium_Banc.png", AquariumArt.Bench(), TileArt.Size, new Vector2(0.5f, 0f));
             for (int i = 0; i < AquariumBuilding.JellyfishColumns.Length; i++)
             {
                 GameObject item = EnsureObject($"Colonne à méduses {i + 1}", room.transform);
                 item.transform.position = interiorOrigin + AquariumBuilding.JellyfishColumns[i];
-                SetSprite(item, column, 10);
+                // Groupe de tri : colonne (0), méduses et bulles (1), vitre (2), triés ensemble avec le joueur par le pied.
+                SetSprite(item, column, 0);
+                var group = item.GetComponent<UnityEngine.Rendering.SortingGroup>();
+                if (group == null)
+                {
+                    group = item.AddComponent<UnityEngine.Rendering.SortingGroup>();
+                }
+
+                group.sortingOrder = 10;
+                GameObject glassFront = EnsureObject("Vitre", item.transform);
+                glassFront.transform.localPosition = Vector3.zero;
+                SetSprite(glassFront, columnGlass, 2);
             }
 
             for (int i = 0; i < AquariumBuilding.Benches.Length; i++)
@@ -881,9 +893,20 @@ namespace FishAndChill.Editor
             Sprite[] seagrass = Frames("Herbier", 3, f => AquariumLifeArt.Plant(f, 18, 20, 5, new Color(0.30f, 0.72f, 0.42f), new Color(0.18f, 0.52f, 0.30f), new Color(0.56f, 0.86f, 0.56f), false, 7), bottom);
             Sprite[] anthias = Frames("Anthias", 2, f => AquariumLifeArt.TinyFish(f, new Color(1f, 0.52f, 0.30f), new Color(1f, 0.78f, 0.62f), new Color(0.96f, 0.36f, 0.50f)), center);
             Sprite[] lagoonCaustics = Frames("Reflets_Lagon", 3, f => AquariumLifeArt.Caustics(f, new Color(0.70f, 0.95f, 1f)), center);
-            Sprite[] jelly = Frames("Meduse", 2, f => AquariumLifeArt.Jelly(f, new Color(0.96f, 0.56f, 0.70f)), center);
+            var columns = new Transform[AquariumBuilding.JellyfishColumns.Length];
+            for (int i = 0; i < columns.Length; i++)
+            {
+                columns[i] = room.Find($"Colonne à méduses {i + 1}");
+            }
+
+            Sprite[][] jelly =
+            {
+                Frames("Meduse_Aurelie", 3, f => AquariumLifeArt.JellyDetailed(f, 0), center),
+                Frames("Meduse_Pelagie", 3, f => AquariumLifeArt.JellyDetailed(f, 1), center),
+                Frames("Meduse_Mauve", 3, f => AquariumLifeArt.JellyDetailed(f, 2), center),
+            };
             BuildLife(room, "Vie du bassin", aquarium, AquariumBuilding.HallTank, 11, new[] { (kelp, 7, false), (seagrass, 6, true) },
-                bubble, 4, ray, 4, anthias, 2, 8, lagoonCaustics, jelly, AquariumBuilding.JellyfishColumns);
+                bubble, 4, ray, 4, anthias, 2, 8, lagoonCaustics, jelly, columns);
 
             // Lac : potamots, élodées devant, vairons argentés, reflets verts.
             Sprite[] pondweed = Frames("Potamot", 3, f => AquariumLifeArt.Plant(f, 16, 44, 2, new Color(0.36f, 0.54f, 0.24f), new Color(0.24f, 0.38f, 0.16f), new Color(0.52f, 0.68f, 0.32f), true, 11), bottom);
@@ -891,12 +914,12 @@ namespace FishAndChill.Editor
             Sprite[] minnow = Frames("Vairon", 2, f => AquariumLifeArt.TinyFish(f, new Color(0.56f, 0.58f, 0.46f), new Color(0.86f, 0.86f, 0.80f), new Color(0.80f, 0.40f, 0.30f)), center);
             Sprite[] lakeCaustics = Frames("Reflets_Lac", 3, f => AquariumLifeArt.Caustics(f, new Color(0.75f, 1f, 0.82f)), center);
             BuildLife(room, "Vie du bassin du lac", aquarium, AquariumBuilding.LakeTank, 23, new[] { (pondweed, 6, false), (elodea, 5, true) },
-                bubble, 3, ray, 3, minnow, 2, 9, lakeCaustics, new Sprite[0], new Vector2[0]);
+                bubble, 3, ray, 3, minnow, 2, 9, lakeCaustics, new Sprite[0][], new Transform[0]);
         }
 
         private static void BuildLife(Transform room, string name, AquariumBuilding aquarium, Rect area, int seed,
             (Sprite[] frames, int count, bool front)[] plants, Sprite bubble, int bubbleSources, Sprite ray, int rays,
-            Sprite[] school, int schools, int schoolSize, Sprite[] caustics, Sprite[] jelly, Vector2[] jellyColumns)
+            Sprite[] school, int schools, int schoolSize, Sprite[] caustics, Sprite[][] jellyLooks, Transform[] jellyColumns)
         {
             GameObject go = EnsureObject(name, room);
             go.transform.localPosition = Vector3.zero;
@@ -928,12 +951,18 @@ namespace FishAndChill.Editor
             so.FindProperty("_schools").intValue = schools;
             so.FindProperty("_schoolSize").intValue = schoolSize;
             SetSprites(so.FindProperty("_caustics"), caustics);
-            SetSprites(so.FindProperty("_jelly"), jelly);
-            SerializedProperty columns = so.FindProperty("_jellyColumns");
-            columns.arraySize = jellyColumns.Length;
+            SerializedProperty looks = so.FindProperty("_jellyLooks");
+            looks.arraySize = jellyLooks.Length;
+            for (int i = 0; i < jellyLooks.Length; i++)
+            {
+                SetSprites(looks.GetArrayElementAtIndex(i).FindPropertyRelative("Frames"), jellyLooks[i]);
+            }
+
+            SerializedProperty columnList = so.FindProperty("_jellyColumns");
+            columnList.arraySize = jellyColumns.Length;
             for (int i = 0; i < jellyColumns.Length; i++)
             {
-                columns.GetArrayElementAtIndex(i).vector2Value = jellyColumns[i];
+                columnList.GetArrayElementAtIndex(i).objectReferenceValue = jellyColumns[i];
             }
 
             so.ApplyModifiedPropertiesWithoutUndo();

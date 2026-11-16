@@ -39,8 +39,17 @@ namespace FishAndChill.World
 
         [SerializeField, Tooltip("Reflets d'eau sur le sol devant la vitre (images qui s'enchaînent).")] private Sprite[] _caustics = new Sprite[0];
 
-        [SerializeField, Tooltip("Méduse (2 images : ouverte, contractée).")] private Sprite[] _jelly = new Sprite[0];
-        [SerializeField, Tooltip("Pied des colonnes à méduses, relatif au coin de la salle.")] private Vector2[] _jellyColumns = new Vector2[0];
+        [System.Serializable]
+        public sealed class SpriteSet
+        {
+            public Sprite[] Frames;
+        }
+
+        [SerializeField, Tooltip("Sortes de méduses (3 images chacune : ouverte, mi-course, contractée).")] private List<SpriteSet> _jellyLooks = new List<SpriteSet>();
+        [SerializeField, Tooltip("Colonnes à méduses (groupes de tri) : méduses et bulles y sont ajoutées en enfants.")] private Transform[] _jellyColumns = new Transform[0];
+
+        private readonly List<Bubble> _columnBubbles = new List<Bubble>();
+        private readonly List<float> _columnBubbleBase = new List<float>();
 
         private sealed class Animated
         {
@@ -155,15 +164,37 @@ namespace FishAndChill.World
                 }
             }
 
-            foreach (Vector2 column in _jellyColumns)
+            // Méduses et bulles dans chaque colonne (en enfants : triées avec la colonne, derrière sa vitre).
+            int look = 0;
+            foreach (Transform column in _jellyColumns)
             {
-                for (int k = 0; k < 2 && _jelly.Length > 0; k++)
+                for (int k = 0; k < 3 && _jellyLooks.Count > 0; k++)
                 {
-                    var home = _building.InteriorOrigin + column + new Vector2(Range(-0.35f, 0.35f), 2.2f + k * 1.4f);
-                    SpriteRenderer r = Make("Méduse", _jelly[0], 11, home);
-                    _jellyViews.Add(new Animated { Renderer = r, Frames = _jelly, Phase = Range(0f, 10f), Speed = Range(1.2f, 1.8f), Home = home });
+                    Sprite[] frames = _jellyLooks[look++ % _jellyLooks.Count].Frames;
+                    var home = new Vector2(Range(-0.35f, 0.35f), 1.8f + k * 1.1f);
+                    SpriteRenderer r = MakeIn(column, "Méduse", frames[0], 1, home);
+                    _jellyViews.Add(new Animated { Renderer = r, Frames = frames, Phase = Range(0f, 10f), Speed = Range(1.1f, 1.7f), Home = home });
+                }
+
+                for (int k = 0; k < 4 && _bubble != null; k++)
+                {
+                    var start = new Vector2(0.6f, 1.1f + k * 1.0f);
+                    SpriteRenderer r = MakeIn(column, "Bulle", _bubble, 1, start);
+                    r.transform.localScale = new Vector3(0.75f, 0.75f, 1f);
+                    _columnBubbles.Add(new Bubble { Renderer = r, Position = start, Speed = Range(0.5f, 0.8f), Phase = Range(0f, 6f) });
                 }
             }
+        }
+
+        private SpriteRenderer MakeIn(Transform parent, string name, Sprite sprite, int order, Vector2 localPosition)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPosition;
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
+            renderer.sortingOrder = order;
+            return renderer;
         }
 
         private Vector2 RandomPoint(Rect area) => new Vector2(Range(area.xMin + 1f, area.xMax - 1f), Range(area.yMin + 0.8f, area.yMax - 0.5f));
@@ -251,8 +282,23 @@ namespace FishAndChill.World
             foreach (Animated jelly in _jellyViews)
             {
                 float beat = Mathf.Sin(time * jelly.Speed + jelly.Phase);
-                jelly.Renderer.sprite = jelly.Frames[beat > 0.3f ? Mathf.Min(1, jelly.Frames.Length - 1) : 0];
-                jelly.Renderer.transform.position = Snap(jelly.Home + new Vector2(Mathf.Sin(time * 0.4f + jelly.Phase) * 0.15f, beat * 0.35f));
+                int frame = beat > 0.45f ? 2 : beat > -0.1f ? 1 : 0;
+                jelly.Renderer.sprite = jelly.Frames[Mathf.Min(frame, jelly.Frames.Length - 1)];
+                Vector2 local = jelly.Home + new Vector2(Mathf.Sin(time * 0.4f + jelly.Phase) * 0.15f, beat * 0.25f);
+                jelly.Renderer.transform.localPosition = new Vector3(Mathf.Round(local.x * 16f) / 16f, Mathf.Round(local.y * 16f) / 16f, 0f);
+            }
+
+            // Bulles des colonnes : montent du socle jusqu'à la surface, puis repartent d'en bas.
+            foreach (Bubble bubble in _columnBubbles)
+            {
+                bubble.Position.y += bubble.Speed * dt;
+                if (bubble.Position.y > 5.1f)
+                {
+                    bubble.Position.y = 1.1f;
+                }
+
+                float x = bubble.Position.x + Mathf.Sin(time * 3f + bubble.Phase) * 0.08f;
+                bubble.Renderer.transform.localPosition = new Vector3(Mathf.Round(x * 16f) / 16f, Mathf.Round(bubble.Position.y * 16f) / 16f, 0f);
             }
         }
 

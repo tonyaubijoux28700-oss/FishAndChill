@@ -407,6 +407,89 @@ namespace FishAndChill.Editor
             return p;
         }
 
+        /// <summary>
+        /// Méduse détaillée 20×26, 3 images (ouverte, à mi-course, contractée), 3 sortes : 0 = aurélie (ombrelle laiteuse
+        /// aux quatre anneaux orangés, frange courte), 1 = pélagie (rose tachetée, longs tentacules et bras frisés),
+        /// 2 = mauve (bord lumineux, bras en rubans). Translucide, bord de l'ombrelle plus clair.
+        /// </summary>
+        public static Color[,] JellyDetailed(int frame, int kind)
+        {
+            var p = new Color[20, 26];
+            Color bell = kind == 0 ? C(0.86f, 0.92f, 1f) : kind == 1 ? C(0.98f, 0.52f, 0.70f) : C(0.74f, 0.56f, 0.98f);
+            Color rim = kind == 2 ? C(0.96f, 0.86f, 1f) : Color.Lerp(bell, Color.white, 0.5f);
+            Color arm = kind == 0 ? C(0.96f, 0.70f, 0.56f) : Color.Lerp(bell, Color.white, 0.25f);
+            float rx = frame == 0 ? 8f : frame == 1 ? 7f : 5.6f;
+            float ry = frame == 0 ? 5f : frame == 1 ? 5.6f : 6.6f;
+            const float cx = 9.5f;
+            const float cy = 17f;
+
+            // Ombrelle : dôme translucide, plus dense au sommet, bord clair en bas.
+            for (int x = 0; x < 20; x++)
+            {
+                for (int y = 0; y < 26; y++)
+                {
+                    float u = (x + 0.5f - cx) / rx;
+                    float v = (y + 0.5f - cy) / ry;
+                    if (v < -0.25f || u * u + v * v > 1f)
+                    {
+                        continue;
+                    }
+
+                    float d = u * u + v * v;
+                    Color c = d > 0.72f || v < -0.05f ? rim : Color.Lerp(bell, Color.white, Mathf.Round(v * 3f) / 3f * 0.35f);
+                    p[x, y] = new Color(c.r, c.g, c.b, d > 0.72f ? 0.92f : 0.62f + v * 0.2f);
+                }
+            }
+
+            int top = Mathf.RoundToInt(cy);
+            if (kind == 0)
+            {
+                // Les quatre anneaux de l'aurélie, en trèfle.
+                foreach (Vector2 o in new[] { new Vector2(-2.2f, 1.5f), new Vector2(2.2f, 1.5f), new Vector2(-1f, 3.5f), new Vector2(1f, 3.5f) })
+                {
+                    for (int a = 0; a < 8; a++)
+                    {
+                        float ang = a * Mathf.PI / 4f;
+                        PixelArt.Set(p, Mathf.RoundToInt(cx - 0.5f + o.x + Mathf.Cos(ang) * 1.2f), Mathf.RoundToInt(top + o.y + Mathf.Sin(ang) * 1.2f), C(0.98f, 0.62f, 0.46f, 0.9f));
+                    }
+                }
+            }
+            else if (kind == 1)
+            {
+                foreach (Vector2Int s in new[] { new Vector2Int(7, 19), new Vector2Int(11, 20), new Vector2Int(9, 18), new Vector2Int(12, 18), new Vector2Int(6, 18) })
+                {
+                    PixelArt.Set(p, s.x, s.y, C(0.80f, 0.20f, 0.40f, 0.9f)); // taches
+                }
+            }
+
+            // Tentacules fins tout autour du bord, et bras plus épais au centre ; plus longs quand elle s'ouvre.
+            int tentacleLength = kind == 1 ? (frame == 2 ? 11 : 15) : kind == 0 ? 5 : 9;
+            for (int t = -3; t <= 3; t++)
+            {
+                for (int k = 1; k <= tentacleLength; k++)
+                {
+                    float x = cx - 0.5f + t * rx / 3.4f + Mathf.Sin(k * 0.7f + t + frame) * 0.9f;
+                    PixelArt.Set(p, Mathf.RoundToInt(x), top - 1 - k, new Color(rim.r, rim.g, rim.b, 0.55f - k * 0.02f));
+                }
+            }
+
+            int armLength = kind == 0 ? 6 : 12 - frame * 2;
+            for (int side = -1; side <= 1; side += 2)
+            {
+                for (int k = 1; k <= armLength; k++)
+                {
+                    float x = cx - 0.5f + side * 1.2f + Mathf.Sin(k * 0.55f + side + frame * 0.8f) * 1.3f;
+                    PixelArt.Set(p, Mathf.RoundToInt(x), top - 1 - k, new Color(arm.r, arm.g, arm.b, 0.85f));
+                    if (kind != 0 && k % 2 == 0)
+                    {
+                        PixelArt.Set(p, Mathf.RoundToInt(x) + side, top - 1 - k, new Color(arm.r, arm.g, arm.b, 0.6f)); // frisures
+                    }
+                }
+            }
+
+            return p;
+        }
+
         // ======================================================================
         // Visiteurs
         // ======================================================================
