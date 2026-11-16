@@ -232,6 +232,39 @@ namespace FishAndChill.Editor
                 { "lota-lota", ActiveTime.Night },
             };
 
+        /// <summary>
+        /// Façon de se battre une fois ferré, d'après le vrai comportement (les autres : calmes). Nerveux : petits
+        /// poissons vifs ; fuyants : ceux qui filent en longues courses ; rushs : chasseurs qui démarrent d'un coup, et
+        /// crustacés qui s'échappent d'un coup de queue ; lourds : gros poissons et créatures qui tirent vers le fond.
+        /// </summary>
+        private static readonly System.Collections.Generic.Dictionary<string, FightStyle> FightStyles =
+            new System.Collections.Generic.Dictionary<string, FightStyle>
+            {
+                { "abudefduf-vaigiensis", FightStyle.Nervous },
+                { "acanthurus-triostegus", FightStyle.Nervous },
+                { "chaetodon-auriga", FightStyle.Nervous },
+                { "scarus-psittacus", FightStyle.Drifting },
+                { "albula-glossodonta", FightStyle.Drifting },
+                { "lutjanus-kasmira", FightStyle.Drifting },
+                { "caranx-melampygus", FightStyle.Rusher },
+                { "sphyraena-barracuda", FightStyle.Rusher },
+                { "panulirus-versicolor", FightStyle.Rusher },
+                { "cephalopholis-argus", FightStyle.Heavy },
+                { "caranx-ignobilis", FightStyle.Heavy },
+                { "scylla-serrata", FightStyle.Heavy },
+                { "chelonia-mydas", FightStyle.Heavy },
+                { "perca-fluviatilis", FightStyle.Nervous },
+                { "alburnus-alburnus", FightStyle.Nervous },
+                { "pelophylax-ridibundus", FightStyle.Nervous },
+                { "salmo-trutta", FightStyle.Drifting },
+                { "salvelinus-umbla", FightStyle.Drifting },
+                { "squalius-cephalus", FightStyle.Drifting },
+                { "esox-lucius", FightStyle.Rusher },
+                { "pacifastacus-leniusculus", FightStyle.Rusher },
+                { "tinca-tinca", FightStyle.Heavy },
+                { "cyprinus-carpio", FightStyle.Heavy },
+            };
+
         /// <summary>Une ou deux phrases vraies sur chaque espèce, affichées dans la fiche de l'index.</summary>
         private static readonly System.Collections.Generic.Dictionary<string, string> Descriptions =
             new System.Collections.Generic.Dictionary<string, string>
@@ -290,6 +323,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_basePrice").intValue = data.Price;
             so.FindProperty("_placeholderColor").colorValue = data.Color;
             so.FindProperty("_description").stringValue = Descriptions.TryGetValue(data.Id, out string description) ? description : string.Empty;
+            so.FindProperty("_fightStyle").enumValueIndex = (int)(FightStyles.TryGetValue(data.Id, out FightStyle fight) ? fight : FightStyle.Calm);
             so.FindProperty("_activeTime").enumValueIndex =
                 (int)(ActiveTimes.TryGetValue(data.Id, out ActiveTime time) ? time : ActiveTime.Always);
             so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color);

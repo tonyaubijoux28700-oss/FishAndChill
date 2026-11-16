@@ -36,6 +36,14 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   arme puis fouette au lancer, le fil pend plus ou moins, ronds dans l'eau (plouf, titillements, touche,
   éclaboussures du combat). Jauge du QTE avec la charte (cadre, bandeau « Ferre-le ! », barre d'eau, zone verte,
   aiguille, pastilles réussites/ratés, flash et secousse), placée du côté opposé au bouchon.
+- **Combats par espèce** (`FishSpecies.FightStyle`, `Fishing/Core/FightStyle`, logique dans `QteChallenge`, testée) :
+  `Calm` (jauge simple), `Nervous` (curseur entre 0,5 et 1,5× sa vitesse, `TimingGauge.SpeedMultiplier`), `Drifting`
+  (la zone glisse, `DriftSpeed`), `Rusher` (la zone saute loin toutes les 1,6-3 s, annoncée 0,45 s avant : zone qui
+  clignote en rouge, puis secousse), `Heavy` (tension +0,12/s, -0,3 par réussite, +0,22 par raté ; pleine = ligne
+  cassée, `QteFailReason.LineBroke` ; la canne ralentit la tension). Titre de la jauge selon le style (« Il est lourd ! »),
+  conseil au début (`FishingController.FightHint`), barre « Tension » entre les pastilles. Styles réglés par
+  `PrototypeSetup.FightStyles` d'après le vrai comportement (barracuda, brochet, crustacés : rushs ; carpe, tanche,
+  carangue géante, mérou, crabe, tortue : lourds ; truites, banane de mer : fuyants ; petits poissons : nerveux).
 - Le poisson sous l'eau : silhouette vue de dessus (`FishShadowSprites` : tête ronde, pectorales, queue fourchue qui
   ondule), dessinée d'avance en 16 directions × 3 positions de queue × 3 tailles (18/26/36 px), jamais tournée.
 - **On ne pêche pas que des poissons** : `FishSpecies` (nom de classe gardé) a un `Kind` (`CreatureKind` : poisson,

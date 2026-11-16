@@ -223,6 +223,11 @@ namespace FishAndChill.Fishing
 
                 case FishingState.Reeling:
                     Challenge.Tick(deltaTime);
+                    if (Challenge.Status == QteStatus.Failed)
+                    {
+                        Lose();
+                    }
+
                     break;
 
                 case FishingState.Result:
@@ -255,8 +260,10 @@ namespace FishAndChill.Fishing
 
                 case FishingState.Bite:
                     // Le matériel (canne, hameçon) rend le combat plus facile.
-                    Challenge = new QteChallenge(GearEffects.Apply(HookedSpecies.Difficulty), _random);
-                    StartPhase(FishingState.Reeling, 0f, "Appuie quand le curseur est dans la zone verte !");
+                    // La canne aide aussi à tenir la tension des gros poissons.
+                    float tensionRate = Mathf.Max(0.4f, 1f - GearEffects.ZoneBonus * 0.6f);
+                    Challenge = new QteChallenge(GearEffects.Apply(HookedSpecies.Difficulty), _random, HookedSpecies.FightStyle, tensionRate);
+                    StartPhase(FishingState.Reeling, 0f, FightHint(HookedSpecies.FightStyle));
                     break;
 
                 case FishingState.Reeling:
@@ -363,7 +370,28 @@ namespace FishAndChill.Fishing
             }
             else if (Challenge.Status == QteStatus.Failed)
             {
-                Finish($"Le fil s'est détendu… ta prise ({HookedSpecies.CommonName.ToLowerInvariant()}) s'est échappée !");
+                Lose();
+            }
+        }
+
+        private void Lose()
+        {
+            string name = HookedSpecies.CommonName.ToLowerInvariant();
+            Finish(Challenge.FailReason == QteFailReason.LineBroke
+                ? $"Crac ! La ligne a cassé : trop de tension, ta prise ({name}) est repartie."
+                : $"Le fil s'est détendu… ta prise ({name}) s'est échappée !");
+        }
+
+        /// <summary>Conseil affiché au début du combat, selon la façon dont le poisson se bat.</summary>
+        public static string FightHint(FightStyle style)
+        {
+            switch (style)
+            {
+                case FightStyle.Nervous: return "Il est nerveux : le curseur s'emballe, garde ton calme !";
+                case FightStyle.Drifting: return "Il file sur le côté : suis la zone verte qui glisse !";
+                case FightStyle.Rusher: return "Attention aux rushs : quand la jauge clignote, la zone va sauter !";
+                case FightStyle.Heavy: return "Il est lourd : ferre souvent pour garder la tension basse !";
+                default: return "Appuie quand le curseur est dans la zone verte !";
             }
         }
 

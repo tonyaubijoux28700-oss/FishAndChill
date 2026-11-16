@@ -31,6 +31,9 @@ namespace FishAndChill.Fishing
 
         public float Position { get; private set; }
         public float Speed { get; }
+
+        /// <summary>Multiplicateur de vitesse du moment (poisson nerveux) : 1 = vitesse normale.</summary>
+        public float SpeedMultiplier { get; set; } = 1f;
         public float ZoneWidth { get; }
         public float ZoneCenter { get; private set; }
 
@@ -41,7 +44,7 @@ namespace FishAndChill.Fishing
         /// <summary>Fait avancer le curseur, avec rebond aux extrémités.</summary>
         public void Tick(float deltaTime)
         {
-            float remaining = Speed * Mathf.Max(0f, deltaTime);
+            float remaining = Speed * Mathf.Max(0f, SpeedMultiplier) * Mathf.Max(0f, deltaTime);
             while (remaining > 0f)
             {
                 float target = _direction > 0 ? 1f : 0f;

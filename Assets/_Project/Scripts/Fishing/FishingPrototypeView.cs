@@ -549,6 +549,12 @@ namespace FishAndChill.Fishing
         private float _flashTimer;
         private float _shakeTimer;
         private float _zonePop;
+        private Text _qteTitle;
+        private Image _zoneImage;
+        private GameObject _tensionGroup;
+        private Image _tensionFill;
+        private int _seenRushes;
+        private static readonly Color RushColor = new Color(1f, 0.36f, 0.30f, 0.95f);
 
         private void BuildQte(RectTransform root)
         {
@@ -557,7 +563,7 @@ namespace FishAndChill.Fishing
             _qteRect = frame.rectTransform;
             UI.UiFactory.Place(_qteRect, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 300f), new Vector2(980f, 170f));
 
-            UI.UiFactory.TitlePlaque(_qteRect, _skin, "Ferre-le !", 28, new Vector2(0f, 84f), new Vector2(300f, 56f), out _);
+            _qteTitle = UI.UiFactory.TitlePlaque(_qteRect, _skin, "Ferre-le !", 28, new Vector2(0f, 84f), new Vector2(360f, 56f), out _);
 
             // La barre : un fond d'eau creusé.
             Image bar = UI.UiFactory.Sliced(_qteRect, "Barre", _skin != null ? _skin.WaterBackdrop : null, _skin != null ? Color.white : BarColor);
@@ -566,6 +572,7 @@ namespace FishAndChill.Fishing
 
             // Zone de réussite : vert vif, liseré clair en haut et sombre en bas, bords marqués.
             Image zone = CreateImage(_barRect, "Zone de réussite", ZoneFill);
+            _zoneImage = zone;
             _zoneRect = zone.rectTransform;
             AddEdge(_zoneRect, "Haut", ZoneLight, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 6f));
             AddEdge(_zoneRect, "Bas", ZoneDark, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 6f));
@@ -585,8 +592,21 @@ namespace FishAndChill.Fishing
             _cursorRect.sizeDelta = new Vector2(28f, 84f);
 
             // Pastilles : réussites à gauche, ratés à droite.
-            _hitPips = AddPipRow(_qteRect, "Réussites", new Vector2(-230f, -52f));
-            _missPips = AddPipRow(_qteRect, "Ratés", new Vector2(230f, -52f));
+            _hitPips = AddPipRow(_qteRect, "Réussites", new Vector2(-300f, -52f));
+            _missPips = AddPipRow(_qteRect, "Ratés", new Vector2(300f, -52f));
+
+            // Tension de la ligne (poissons lourds) : au milieu, sous la barre.
+            Image tension = UI.UiFactory.Sliced(_qteRect, "Tension", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : BarColor);
+            UI.UiFactory.Center(tension.rectTransform, new Vector2(0f, -52f), new Vector2(230f, 34f));
+            _tensionGroup = tension.gameObject;
+            _tensionFill = CreateImage(tension.rectTransform, "Niveau", PipHit);
+            _tensionFill.rectTransform.anchorMin = new Vector2(0f, 0f);
+            _tensionFill.rectTransform.anchorMax = new Vector2(0f, 1f);
+            _tensionFill.rectTransform.offsetMin = new Vector2(6f, 6f);
+            _tensionFill.rectTransform.offsetMax = new Vector2(-6f, -6f);
+            Text tensionLabel = UI.UiFactory.Label(tension.rectTransform, "Légende", 18, TextAnchor.MiddleCenter, Color.white);
+            tensionLabel.text = "Tension";
+            UI.UiFactory.Stretch(tensionLabel.rectTransform);
         }
 
         private static void AddEdge(RectTransform parent, string name, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 size)
@@ -669,6 +689,31 @@ namespace FishAndChill.Fishing
             for (int i = 0; i < _missPipImages.Count; i++)
             {
                 _missPipImages[i].color = i < challenge.Misses ? PipMiss : PipEmpty;
+            }
+
+            // Façon de se battre : titre de la jauge, tension des poissons lourds, rushs annoncés.
+            _qteTitle.text = FightTitle(challenge.Style);
+            _tensionGroup.SetActive(challenge.UsesTension);
+            if (challenge.UsesTension)
+            {
+                float tension = challenge.Tension;
+                _tensionFill.rectTransform.anchorMax = new Vector2(tension, 1f);
+                Color level = tension < 0.5f ? Color.Lerp(PipHit, new Color(1f, 0.86f, 0.30f), tension * 2f) : Color.Lerp(new Color(1f, 0.86f, 0.30f), PipMiss, (tension - 0.5f) * 2f);
+                level.a = tension > 0.75f ? 0.6f + 0.4f * Mathf.Abs(Mathf.Sin(Time.time * 12f)) : 1f;
+                _tensionFill.color = level;
+                _tensionFill.enabled = tension > 0.06f;
+            }
+
+            _zoneImage.color = challenge.RushWarning && Mathf.Sin(Time.time * 40f) > 0f ? RushColor : ZoneFill;
+            if (challenge.Rushes != _seenRushes)
+            {
+                // Le poisson fonce : la jauge tremble et la barre flashe en rouge.
+                _seenRushes = challenge.Rushes;
+                Color rush = MissFlash;
+                rush.a = 0f;
+                _flash.color = rush;
+                _flashTimer = 0.2f;
+                _shakeTimer = 0.3f;
             }
 
             // Flash qui s'éteint, secousse de la jauge après un raté, zone qui « saute » après une réussite.
@@ -765,6 +810,11 @@ namespace FishAndChill.Fishing
 
         private void OnStateChanged()
         {
+            if (_controller.State == FishingState.Reeling)
+            {
+                _seenRushes = 0; // nouveau combat
+            }
+
             if (_header == null)
             {
                 return;
@@ -798,6 +848,18 @@ namespace FishAndChill.Fishing
             }
 
             RefreshHeader();
+        }
+
+        private static string FightTitle(FightStyle style)
+        {
+            switch (style)
+            {
+                case FightStyle.Nervous: return "Il est nerveux !";
+                case FightStyle.Drifting: return "Il file !";
+                case FightStyle.Rusher: return "Il fonce !";
+                case FightStyle.Heavy: return "Il est lourd !";
+                default: return "Ferre-le !";
+            }
         }
 
         private void OnQtePressed(QtePressResult result)

@@ -23,6 +23,7 @@ MonoBehaviour:
     _zoneWidth: 0.3
     _requiredHits: 2
     _maxMisses: 2
+  _fightStyle: 0
   _sizeRangeCm: {x: 10, y: 30}
   _basePrice: 5
   _placeholderColor: {r: 0.75, g: 0.78, b: 0.8, a: 1}

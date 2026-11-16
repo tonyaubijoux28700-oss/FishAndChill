@@ -25,6 +25,9 @@ namespace FishAndChill.Collection
 
         [SerializeField] private QteDifficulty _difficulty = new QteDifficulty();
 
+        [SerializeField, Tooltip("Façon de se battre au QTE : calme, nerveux, fuyant, rushs, lourd (tension).")]
+        private FightStyle _fightStyle;
+
         [SerializeField, Tooltip("Taille minimale et maximale, en centimètres.")]
         private Vector2 _sizeRangeCm = new Vector2(10f, 30f);
 
@@ -51,6 +54,7 @@ namespace FishAndChill.Collection
         public CreatureKind Kind => _kind;
         public BodyShape BodyShape => _bodyShape;
         public QteDifficulty Difficulty => _difficulty;
+        public FightStyle FightStyle => _fightStyle;
         public Vector2 SizeRangeCm => _sizeRangeCm;
         public int BasePrice => _basePrice;
         public Color PlaceholderColor => _placeholderColor;
