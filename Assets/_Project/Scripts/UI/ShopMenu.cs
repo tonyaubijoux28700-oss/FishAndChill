@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FishAndChill.Collection;
 using FishAndChill.Fishing;
 using FishAndChill.Gear;
@@ -31,7 +31,7 @@ namespace FishAndChill.UI
         private const string Greeting = "« Bienvenue ! Je rachète tes doublons. Le plus gros de chaque nouvelle espèce, garde-le pour l'aquarium ! »";
         private const string GearGreeting = "« Du bon matériel, ça change tout ! Chaque achat remplace l'ancien. »";
         private const string BaitGreeting = "« Chaque appât a ses amateurs : regarde le carnet pour savoir qui aime quoi ! »";
-        private const float RowsAreaHeight = 320f;
+        private const float RowsAreaHeight = 560f;
 
         [SerializeField] private PlayerProgress _progress;
         [SerializeField] private ShopBuilding _shop;
@@ -415,7 +415,7 @@ namespace FishAndChill.UI
             if (_baitRows.Count != count)
             {
                 ClearRows(_baitRows);
-                float rowHeight = Mathf.Min(80f, RowsAreaHeight / Mathf.Max(1, count));
+                float rowHeight = Mathf.Min(120f, RowsAreaHeight / Mathf.Max(1, count));
                 for (int i = 0; i < count; i++)
                 {
                     _baitRows.Add(BuildRow(_baitRoot, $"Appât {i + 1}", i, count, rowHeight, withDetail: true));
@@ -469,7 +469,7 @@ namespace FishAndChill.UI
             canvasObject.transform.SetParent(transform, false);
             var canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 9;
+            canvas.sortingOrder = 13; // devant l'en-tête du jeu, la minimap et le carnet ; sous la pause (20)
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
@@ -486,31 +486,31 @@ namespace FishAndChill.UI
 
             Image panel = UiFactory.Sliced(root, "Menu du marchand", _skin != null ? _skin.Panel : null, _skin != null ? Color.white : PanelColor);
             _panel = panel.gameObject;
-            UiFactory.Center(panel.rectTransform, new Vector2(0f, 20f), new Vector2(1040f, 700f));
+            UiFactory.Center(panel.rectTransform, new Vector2(0f, 0f), new Vector2(1520f, 940f));
 
-            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Boutique de Mahana", 36, new Vector2(0f, 342f), new Vector2(520f, 76f), out _);
+            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Boutique de Mahana", 42, new Vector2(0f, 462f), new Vector2(620f, 88f), out _);
 
             // Onglets.
-            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Vendre", 24, new Vector2(-230f, 272f), new Vector2(200f, 44f), out RectTransform sellTab);
-            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Matériel", 24, new Vector2(0f, 272f), new Vector2(200f, 44f), out RectTransform gearTab);
-            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Appâts", 24, new Vector2(230f, 272f), new Vector2(200f, 44f), out RectTransform baitTab);
+            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Vendre", 30, new Vector2(-300f, 384f), new Vector2(260f, 56f), out RectTransform sellTab);
+            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Matériel", 30, new Vector2(0f, 384f), new Vector2(260f, 56f), out RectTransform gearTab);
+            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Appâts", 30, new Vector2(300f, 384f), new Vector2(260f, 56f), out RectTransform baitTab);
             _sellTab = sellTab.GetComponent<Image>();
             _gearTab = gearTab.GetComponent<Image>();
             _baitTab = baitTab.GetComponent<Image>();
 
-            _feedback = AddText(panel.rectTransform, "Marchand", 24, TextAnchor.MiddleCenter);
+            _feedback = AddText(panel.rectTransform, "Marchand", 28, TextAnchor.MiddleCenter);
             _feedback.horizontalOverflow = HorizontalWrapMode.Wrap;
-            Place(_feedback.rectTransform, new Vector2(0f, 212f), new Vector2(940f, 64f));
+            Place(_feedback.rectTransform, new Vector2(0f, 312f), new Vector2(1380f, 70f));
 
             _sellRoot = AddArea(panel.rectTransform, "Poissons");
             _gearRoot = AddArea(panel.rectTransform, "Matériel");
             _baitRoot = AddArea(panel.rectTransform, "Appâts");
 
-            _coins = UiFactory.TitlePlaque(panel.rectTransform, _skin, "Tes pièces : 0", 26, new Vector2(0f, -232f), new Vector2(300f, 52f), out _);
+            _coins = UiFactory.TitlePlaque(panel.rectTransform, _skin, "Tes pièces : 0", 30, new Vector2(0f, -352f), new Vector2(360f, 60f), out _);
 
-            _help = AddText(panel.rectTransform, "Aide", 20, TextAnchor.MiddleCenter);
+            _help = AddText(panel.rectTransform, "Aide", 24, TextAnchor.MiddleCenter);
             _help.color = Muted;
-            Place(_help.rectTransform, new Vector2(0f, -292f), new Vector2(980f, 34f));
+            Place(_help.rectTransform, new Vector2(0f, -418f), new Vector2(1400f, 40f));
         }
 
         private static RectTransform AddArea(RectTransform parent, string name)
@@ -518,7 +518,7 @@ namespace FishAndChill.UI
             var area = new GameObject(name, typeof(RectTransform));
             var rect = area.GetComponent<RectTransform>();
             rect.SetParent(parent, false);
-            Place(rect, new Vector2(0f, 2f), new Vector2(940f, RowsAreaHeight));
+            Place(rect, new Vector2(0f, -16f), new Vector2(1380f, RowsAreaHeight));
             return rect;
         }
 
@@ -530,7 +530,7 @@ namespace FishAndChill.UI
             }
 
             ClearRows(_sellRows);
-            float rowHeight = Mathf.Min(86f, RowsAreaHeight / Mathf.Max(1, count));
+            float rowHeight = Mathf.Min(120f, RowsAreaHeight / Mathf.Max(1, count));
             for (int i = 0; i < count; i++)
             {
                 _sellRows.Add(BuildRow(_sellRoot, $"Place {i + 1}", i, count, rowHeight, withDetail: false));
@@ -545,7 +545,7 @@ namespace FishAndChill.UI
             }
 
             ClearRows(_gearRows);
-            float rowHeight = Mathf.Min(80f, RowsAreaHeight / Mathf.Max(1, count));
+            float rowHeight = Mathf.Min(120f, RowsAreaHeight / Mathf.Max(1, count));
             for (int i = 0; i < count; i++)
             {
                 _gearRows.Add(BuildRow(_gearRoot, $"Matériel {i + 1}", i, count, rowHeight, withDetail: true));
@@ -567,32 +567,32 @@ namespace FishAndChill.UI
         {
             float top = (count - 1) * rowHeight * 0.5f;
             Image background = UiFactory.Sliced(parent, name, _skin != null ? _skin.Slot : null, _skin != null ? Color.white : RowColor);
-            Place(background.rectTransform, new Vector2(0f, top - index * rowHeight), new Vector2(920f, rowHeight - 6f));
+            Place(background.rectTransform, new Vector2(0f, top - index * rowHeight), new Vector2(1360f, rowHeight - 8f));
 
             float pictureHeight = rowHeight - 18f;
             Image backdrop = UiFactory.Sliced(background.rectTransform, "Fond d'eau", _skin != null ? _skin.WaterBackdrop : null, _skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
-            Place(backdrop.rectTransform, new Vector2(-380f, 0f), new Vector2(pictureHeight * 2.1f, pictureHeight));
+            Place(backdrop.rectTransform, new Vector2(-570f, 0f), new Vector2(pictureHeight * 2.1f, pictureHeight));
             Image picture = AddImage(backdrop.rectTransform, "Image", Color.white);
             picture.preserveAspect = true;
             Place(picture.rectTransform, Vector2.zero, new Vector2(pictureHeight * 1.9f, pictureHeight - 8f));
 
-            int labelSize = rowHeight >= 70f ? 23 : 19;
+            int labelSize = rowHeight >= 100f ? 30 : 27;
             Text label = AddText(background.rectTransform, "Nom", labelSize, TextAnchor.MiddleLeft);
             Text detail = null;
             if (withDetail)
             {
-                Place(label.rectTransform, new Vector2(10f, rowHeight * 0.17f), new Vector2(560f, rowHeight * 0.45f));
-                detail = AddText(background.rectTransform, "Détail", 17, TextAnchor.MiddleLeft);
+                Place(label.rectTransform, new Vector2(20f, rowHeight * 0.18f), new Vector2(860f, rowHeight * 0.45f));
+                detail = AddText(background.rectTransform, "Détail", 22, TextAnchor.MiddleLeft);
                 detail.horizontalOverflow = HorizontalWrapMode.Overflow;
-                Place(detail.rectTransform, new Vector2(10f, -rowHeight * 0.2f), new Vector2(560f, rowHeight * 0.4f));
+                Place(detail.rectTransform, new Vector2(20f, -rowHeight * 0.2f), new Vector2(860f, rowHeight * 0.4f));
             }
             else
             {
-                Place(label.rectTransform, new Vector2(10f, 0f), new Vector2(560f, rowHeight - 10f));
+                Place(label.rectTransform, new Vector2(20f, 0f), new Vector2(860f, rowHeight - 10f));
             }
 
             Text price = AddText(background.rectTransform, "Prix", labelSize - 1, TextAnchor.MiddleRight);
-            Place(price.rectTransform, new Vector2(330f, 0f), new Vector2(220f, rowHeight - 10f));
+            Place(price.rectTransform, new Vector2(520f, 0f), new Vector2(260f, rowHeight - 10f));
             return new RowView { Background = background, Picture = picture, Label = label, Detail = detail, Price = price };
         }
 
