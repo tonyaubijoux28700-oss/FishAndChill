@@ -63,6 +63,7 @@ namespace FishAndChill.World
 
         private readonly List<Critter> _birds = new List<Critter>();
         private readonly List<Critter> _flies = new List<Critter>();
+        private DayNightCycle _cycle;
         private readonly List<Critter> _crawlers = new List<Critter>();
         private Critter _bird;
         private SpriteRenderer _birdShadow;
@@ -174,9 +175,19 @@ namespace FishAndChill.World
                 UpdateBird(bird, dt);
             }
 
+            // Papillons et libellules se posent pour la nuit : ils s'effacent quand les lampadaires s'allument.
+            if (_cycle == null)
+            {
+                _cycle = FindAnyObjectByType<DayNightCycle>();
+            }
+
+            float daylight = _cycle != null ? 1f - DayCycleMath.LampLevel(_cycle.Hour) : 1f;
             foreach (Critter fly in _flies)
             {
                 UpdateFly(fly, dt);
+                Color tint = fly.Renderer.color;
+                tint.a = daylight;
+                fly.Renderer.color = tint;
             }
 
             foreach (Critter crawler in _crawlers)

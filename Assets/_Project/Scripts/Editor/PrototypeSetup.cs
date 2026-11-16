@@ -186,6 +186,25 @@ namespace FishAndChill.Editor
             EditorUtility.SetDirty(zone);
         }
 
+        /// <summary>
+        /// Espèces qui ne mordent que le jour ou la nuit, d'après leur comportement réel (les autres : à toute heure).
+        /// Le perroquet dort la nuit dans un cocon de mucus ; crabe, langouste et écrevisse sortent la nuit ;
+        /// le mérou paon chasse surtout au crépuscule ; le brochet et la perche chassent à vue, de jour.
+        /// </summary>
+        private static readonly System.Collections.Generic.Dictionary<string, ActiveTime> ActiveTimes =
+            new System.Collections.Generic.Dictionary<string, ActiveTime>
+            {
+                { "scarus-psittacus", ActiveTime.Day },
+                { "acanthurus-triostegus", ActiveTime.Day },
+                { "abudefduf-vaigiensis", ActiveTime.Day },
+                { "cephalopholis-argus", ActiveTime.Night },
+                { "scylla-serrata", ActiveTime.Night },
+                { "panulirus-versicolor", ActiveTime.Night },
+                { "esox-lucius", ActiveTime.Day },
+                { "perca-fluviatilis", ActiveTime.Day },
+                { "pacifastacus-leniusculus", ActiveTime.Night },
+            };
+
         private static FishSpecies CreateOrUpdateSpecies(SpeciesData data)
         {
             string fileName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(data.Id.Replace('-', ' ')).Replace(" ", string.Empty);
@@ -205,6 +224,8 @@ namespace FishAndChill.Editor
             so.FindProperty("_sizeRangeCm").vector2Value = data.SizeCm;
             so.FindProperty("_basePrice").intValue = data.Price;
             so.FindProperty("_placeholderColor").colorValue = data.Color;
+            so.FindProperty("_activeTime").enumValueIndex =
+                (int)(ActiveTimes.TryGetValue(data.Id, out ActiveTime time) ? time : ActiveTime.Always);
             so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color);
             so.FindProperty("_miniSprite").objectReferenceValue = FishArt.GenerateMini(data.Id);
             so.ApplyModifiedPropertiesWithoutUndo();
@@ -475,6 +496,32 @@ namespace FishAndChill.Editor
             pauseSo.FindProperty("_save").objectReferenceValue = saveManager;
             pauseSo.FindProperty("_skin").objectReferenceValue = skin;
             pauseSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Cycle jour/nuit : lumière globale teintée selon l'heure, lampadaires et lanternes des barques la nuit.
+            var cycle = partie.GetComponent<DayNightCycle>();
+            if (cycle == null)
+            {
+                cycle = partie.AddComponent<DayNightCycle>();
+            }
+
+            var cycleSo = new SerializedObject(cycle);
+            GameObject decorObject = GameObject.Find("Décor");
+            cycleSo.FindProperty("_decor").objectReferenceValue = decorObject != null ? decorObject.GetComponent<UnityEngine.Tilemaps.Tilemap>() : null;
+            SerializedProperty lanterns = cycleSo.FindProperty("_lanterns");
+            MapSetup.DockInfo[] docks = { buildings.IslandDock, buildings.LakeDock };
+            lanterns.arraySize = docks.Length;
+            for (int i = 0; i < docks.Length; i++)
+            {
+                Vector2 at = docks[i] == null ? Vector2.zero : docks[i].Marker != null ? (Vector2)docks[i].Marker.position : docks[i].Arrival;
+                lanterns.GetArrayElementAtIndex(i).vector2Value = at;
+            }
+
+            cycleSo.ApplyModifiedPropertiesWithoutUndo();
+            saveSo.FindProperty("_cycle").objectReferenceValue = cycle;
+            saveSo.ApplyModifiedPropertiesWithoutUndo();
+            var controllerCycleSo = new SerializedObject(controller);
+            controllerCycleSo.FindProperty("_cycle").objectReferenceValue = cycle;
+            controllerCycleSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Écran titre (3 emplacements de sauvegarde), posé sur l'île tant qu'aucune partie n'est choisie.
             var titleScreen = partie.GetComponent<UI.TitleScreen>();

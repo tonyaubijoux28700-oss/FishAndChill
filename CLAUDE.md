@@ -175,6 +175,22 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   `SaveManager.ReturnToTitle`), Quitter. La police n'a ni ↑ ↓ ni ▼ : écrire « Haut / Bas ». Options dans `PlayerPrefs`. Calculs dans
   `PauseMenuLogic` (testés), touches dans `PauseInput`.
 
+## Cycle jour/nuit
+
+- `World/DayNightCycle` (objet « Partie ») : horloge 0-24 h, une journée = `_secondsPerDay` (840 s = 14 min), nouvelle
+  partie à 8 h. Avance seulement en partie (`SaveManager.InGame`) et pas en pause (`Time.deltaTime`). Heure sauvegardée
+  (`SaveData.Hour`, 8 h par défaut pour une ancienne sauvegarde) et affichée dans l'en-tête (« Île Mahana   22h30 »).
+- Rendu : tous les sprites sont *Sprite-Lit-Default* ; la **Global Light 2D** de la scène prend la teinte de l'heure
+  (`DayCycleMath.SkyColor` : nuit bleu nuit, aube rosée, jour blanc, crépuscule orangé). La nuit
+  (`LampLevel`, allumage 18 h-19 h 30, extinction 5 h 30-7 h), lumières 2D ponctuelles qui vacillent : chaque tuile
+  `Lampadaire` de `Décor`, une lueur devant chaque `InteriorBuilding`, une lanterne près de chaque barque (`_lanterns`).
+  Dans un intérieur, lumière de pièce éclairée. Papillons et libellules s'effacent la nuit (`AmbientLife`).
+  Assembly `FishAndChill` : références URP (`Universal.2D.Runtime` pour `Light2D`).
+- **Espèces de jour / de nuit** : `FishSpecies.ActiveTime` (`Always`, `Day` 6 h-20 h, `Night` 19 h-7 h), réglé par
+  `PrototypeSetup.ActiveTimes` d'après le vrai comportement (perroquet, chirurgien, sergent-major, brochet, perche le
+  jour ; mérou paon, crabe, langouste, écrevisse la nuit). Le tirage ignore les espèces inactives
+  (`FishingController`), l'index affiche « Mord le jour / la nuit ». Calculs dans `DayCycleMath` (testés).
+
 ## Minimap
 
 - Petite carte **toujours visible en bas à droite** ; **M** ouvre la grande carte au centre (la petite se masque).

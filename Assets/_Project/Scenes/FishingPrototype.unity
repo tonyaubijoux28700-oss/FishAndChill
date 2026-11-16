@@ -3012,6 +3012,7 @@ GameObject:
   - component: {fileID: 332295279}
   - component: {fileID: 332295278}
   - component: {fileID: 332295280}
+  - component: {fileID: 332295281}
   m_Layer: 0
   m_Name: Partie
   m_TagString: Untagged
@@ -3121,6 +3122,7 @@ MonoBehaviour:
   _progress: {fileID: 332295271}
   _fishing: {fileID: 1235020156}
   _travel: {fileID: 332295279}
+  _cycle: {fileID: 332295281}
   _zones:
   - {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
   - {fileID: 11400000, guid: e71143147af136242879c044a37974a4, type: 2}
@@ -3221,6 +3223,29 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
   - {fileID: 11400000, guid: e71143147af136242879c044a37974a4, type: 2}
   _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
+--- !u!114 &332295281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332295270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d7b27d7ce2cf3e40b67656ced0229ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.DayNightCycle
+  _globalLight: {fileID: 0}
+  _decor: {fileID: 875151901}
+  _lampTileName: Lampadaire
+  _lampHeight: 1.6
+  _lanterns:
+  - {x: 4, y: -29}
+  - {x: 192, y: -16}
+  _secondsPerDay: 840
+  _startHour: 8
+  _lampColor: {r: 1, g: 0.78, b: 0.42, a: 1}
+  _indoorColor: {r: 1, g: 0.97, b: 0.92, a: 1}
 --- !u!1 &343519370
 GameObject:
   m_ObjectHideFlags: 0
@@ -312358,6 +312383,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FishAndChill::FishAndChill.Fishing.FishingController
   _zone: {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
+  _cycle: {fileID: 332295281}
   _progress: {fileID: 332295271}
   _angler: {fileID: 1141459283}
   _map: {fileID: 1254510490}

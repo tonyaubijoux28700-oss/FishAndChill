@@ -252,7 +252,8 @@ namespace FishAndChill.UI
                 $"<color=#{ColorUtility.ToHtmlStringRGB(rarity)}>{species.Rarity.DisplayName()}</color>" +
                 $"   •   Prises : {log.CountOf(species.Id)}" +
                 $"   •   Record : {log.BestSizeOf(species.Id):0} cm" +
-                $"   •   Taille : {range.x:0} à {range.y:0} cm";
+                $"   •   Taille : {range.x:0} à {range.y:0} cm" +
+                (species.ActiveTime != ActiveTime.Always ? $"   •   {World.DayCycleMath.ActiveText(species.ActiveTime)}" : string.Empty);
             _detailStats.color = Color.white;
         }
 

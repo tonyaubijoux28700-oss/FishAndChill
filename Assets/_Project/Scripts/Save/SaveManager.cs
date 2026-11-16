@@ -21,6 +21,7 @@ namespace FishAndChill.Save
         [SerializeField] private PlayerProgress _progress;
         [SerializeField] private FishingController _fishing;
         [SerializeField] private ZoneTravel _travel;
+        [SerializeField] private DayNightCycle _cycle;
 
         [SerializeField, Tooltip("Zones dont les espèces peuvent figurer dans la sauvegarde.")]
         private FishingZone[] _zones = new FishingZone[0];
@@ -231,6 +232,7 @@ namespace FishAndChill.Save
             data.Zone = _travel != null ? _travel.CurrentZoneId : null;
             data.PlaySeconds = _playSeconds;
             data.SavedAtTicks = System.DateTime.Now.Ticks;
+            data.Hour = _cycle != null ? _cycle.Hour : 8f;
             try
             {
                 string temporary = SavePath + ".tmp";
@@ -301,6 +303,10 @@ namespace FishAndChill.Save
             Loaded = true;
             SavedZone = data.Zone;
             _playSeconds = data.PlaySeconds;
+            if (_cycle != null)
+            {
+                _cycle.SetHour(data.Hour);
+            }
         }
     }
 }

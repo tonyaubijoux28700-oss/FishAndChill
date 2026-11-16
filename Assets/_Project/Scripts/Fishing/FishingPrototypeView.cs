@@ -97,8 +97,21 @@ namespace FishAndChill.Fishing
             OnStateChanged();
         }
 
+        private int _shownClock = -1;
+
         private void Update()
         {
+            // Horloge de l'en-tête : mise à jour toutes les 10 minutes du jeu.
+            if (_header != null && _controller.Cycle != null)
+            {
+                int clock = Mathf.FloorToInt(_controller.Cycle.Hour * 6f);
+                if (clock != _shownClock)
+                {
+                    _shownClock = clock;
+                    RefreshHeader();
+                }
+            }
+
             UpdateWorld();
             UpdateQte();
             _catchCard.Animate(Time.deltaTime);
@@ -740,6 +753,11 @@ namespace FishAndChill.Fishing
             CatchLog log = _controller.CatchLog;
             PlayerProgress progress = _controller.Progress;
             int inAquarium = progress != null && progress.Aquarium != null ? progress.Aquarium.SpeciesCount : log.SpeciesCount;
+            if (_controller.Cycle != null)
+            {
+                zone += "      " + World.DayCycleMath.TimeText(Mathf.Floor(_controller.Cycle.Hour * 6f) / 6f);
+            }
+
             _header.text = $"{zone}\nAquarium : {inAquarium} espèce{(inAquarium > 1 ? "s" : string.Empty)}     Captures : {log.TotalCatches}";
         }
 

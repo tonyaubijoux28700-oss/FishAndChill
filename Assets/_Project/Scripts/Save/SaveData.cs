@@ -51,5 +51,8 @@ namespace FishAndChill.Save
 
         /// <summary>Date de la dernière sauvegarde (ticks de DateTime, heure locale) ; 0 = inconnue.</summary>
         public long SavedAtTicks;
+
+        /// <summary>Heure de la journée (0 à 24) ; 8 h pour une ancienne sauvegarde.</summary>
+        public float Hour = 8f;
     }
 }

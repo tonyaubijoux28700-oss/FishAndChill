@@ -26,5 +26,6 @@ MonoBehaviour:
   _sizeRangeCm: {x: 20, y: 40}
   _basePrice: 55
   _placeholderColor: {r: 0.13, g: 0.42, b: 0.5, a: 1}
+  _activeTime: 2
   _sprite: {fileID: 21300000, guid: e338dd2fae6847246bd82f5c40928576, type: 3}
   _miniSprite: {fileID: 21300000, guid: 4b5e48e16329f1d45b0287a6283de8c4, type: 3}

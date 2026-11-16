@@ -33,6 +33,9 @@ namespace FishAndChill.Fishing
 
         [SerializeField] private FishingZone _zone;
 
+        [SerializeField, Tooltip("Horloge : certaines espèces ne mordent que le jour ou la nuit.")]
+        private DayNightCycle _cycle;
+
         [SerializeField, Tooltip("Sac, aquarium et pièces du joueur. Sans lui, les prises ne sont pas conservées.")]
         private PlayerProgress _progress;
 
@@ -84,6 +87,9 @@ namespace FishAndChill.Fishing
         public event Action<CaughtFish, bool, bool> FishCaught;
 
         public FishingState State { get; private set; } = FishingState.Idle;
+        /// <summary>Horloge du jeu (null sans cycle jour/nuit).</summary>
+        public DayNightCycle Cycle => _cycle;
+
         public FishingZone Zone => _zone;
 
         /// <summary>Le joueur a changé de zone (voyage) : les espèces qui mordent ne sont plus les mêmes.</summary>
@@ -305,7 +311,13 @@ namespace FishAndChill.Fishing
             CastPoint = castPoint;
             // L'appât attire plus souvent les espèces rares et fait mordre plus vite.
             GearEffects gear = GearEffects;
-            HookedSpecies = _zone.PickSpecies(_random, species => gear.RarityMultiplier(species.Rarity));
+            float hour = _cycle != null ? _cycle.Hour : 12f;
+            HookedSpecies = _zone.PickSpecies(_random, species =>
+                DayCycleMath.IsActive(species.ActiveTime, hour) ? gear.RarityMultiplier(species.Rarity) : 0f);
+            if (HookedSpecies == null)
+            {
+                HookedSpecies = _zone.PickSpecies(_random, species => gear.RarityMultiplier(species.Rarity));
+            }
             if (HookedSpecies == null)
             {
                 Finish($"Rien à pêcher dans la zone « {_zone.DisplayName} ».");
