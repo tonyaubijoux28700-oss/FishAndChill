@@ -23,6 +23,7 @@ namespace FishAndChill.Fishing
         private readonly Text _title;
         private readonly Image _fish;
         private readonly RectTransform _fishRect;
+        private static readonly Vector2 FishBox = new Vector2(560f, 210f);
         private readonly Text _name;
         private readonly Text _scientificName;
         private readonly Text _size;
@@ -60,7 +61,7 @@ namespace FishAndChill.Fishing
             _fish = UiFactory.Plain(backdrop.rectTransform, "Poisson", Color.white);
             _fish.preserveAspect = true;
             _fishRect = _fish.rectTransform;
-            UiFactory.Center(_fishRect, Vector2.zero, new Vector2(560f, 210f));
+            UiFactory.Center(_fishRect, Vector2.zero, FishBox);
 
             // Bandeau du titre, à cheval sur le haut du cadre.
             _title = UiFactory.TitlePlaque(_panel, skin, string.Empty, 36, new Vector2(0f, 318f), new Vector2(460f, 72f), out _);
@@ -113,6 +114,9 @@ namespace FishAndChill.Fishing
 
             _fish.sprite = species.Sprite;
             _fish.color = species.Sprite != null ? Color.white : species.PlaceholderColor;
+            // Taille du dessin selon la vraie taille de la prise : une ablette paraît petite, une carangue remplit la carte.
+            Vector2 pixels = species.Sprite != null ? species.Sprite.rect.size : new Vector2(2f, 1f);
+            _fishRect.sizeDelta = FishDisplayScale.Fit(FishBox, pixels, fish.SizeCm);
 
             _name.text = species.CommonName;
             _scientificName.text = species.ScientificName;

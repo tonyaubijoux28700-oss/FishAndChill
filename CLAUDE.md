@@ -232,7 +232,9 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   - Nouvelle espèce = ajouter une fiche `DetailedFish` d'après l'anatomie réelle du poisson (dessin original,
     ne jamais recopier une illustration existante).
 - Pour remplacer un dessin par un vrai, utiliser un autre nom de fichier, sinon il sera écrasé.
-- Carte de prise : `CatchCard` (dessin du poisson, nom, nom scientifique, taille, rareté en couleur).
+- Carte de prise : `CatchCard` (dessin du poisson, nom, nom scientifique, taille, rareté en couleur). Le dessin est
+  **à l'échelle de la vraie taille de la prise** (`FishDisplayScale`, testé : échelle logarithmique de 8 cm = 32 % à
+  150 cm = toute la largeur, proportions gardées, hauteur du cadre jamais dépassée).
 - **Charte d'interface** (`UiSkin`, asset `Data/UiSkin.asset`, sprites de `UiSkinArt.cs` générés par `UiSkinSetup`) :
   cadre doré à coins arrondis, case creusée, bandeau de titre, fond d'eau, pierre de rareté, halo. Sprites
   étirables en 9 parties, 25 px/unité (1 pixel = 4 unités d'interface). Construire l'interface avec `UiFactory`
