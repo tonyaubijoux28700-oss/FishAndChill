@@ -52,6 +52,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   conseil au début (`FishingController.FightHint`), barre « Tension » entre les pastilles. Styles réglés par
   `PrototypeSetup.FightStyles` d'après le vrai comportement (barracuda, brochet, crustacés : rushs ; carpe, tanche,
   carangue géante, mérou, crabe, tortue : lourds ; truites, banane de mer : fuyants ; petits poissons : nerveux).
+- **Touche rare** (`Fishing/RareBiteEffect`, sur l'objet du `FishingController`) : quand une espèce rare ou mieux mord,
+  étincelles de la couleur de la rareté qui jaillissent du bouchon (7 / 14 / 18, deux gerbes pour une légendaire) ;
+  épique et légendaire : bandeau en haut (« Quelque chose de gros a mordu ! », « Une prise LÉGENDAIRE a mordu ! »),
+  effacé dès que le combat commence ; flash doré pour une légendaire. L'espèce reste secrète jusqu'à la prise.
 - Le poisson sous l'eau : silhouette vue de dessus (`FishShadowSprites` : tête ronde, pectorales, queue fourchue qui
   ondule), dessinée d'avance en 16 directions × 3 positions de queue × 3 tailles (18/26/36 px), jamais tournée.
 - **On ne pêche pas que des poissons** : `FishSpecies` (nom de classe gardé) a un `Kind` (`CreatureKind` : poisson,

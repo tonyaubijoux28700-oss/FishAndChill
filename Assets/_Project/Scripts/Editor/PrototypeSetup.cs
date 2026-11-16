@@ -510,6 +510,17 @@ namespace FishAndChill.Editor
             var skinViewSo = new SerializedObject(view);
             skinViewSo.FindProperty("_skin").objectReferenceValue = skin;
             skinViewSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Étincelles et bandeau quand une espèce rare, épique ou légendaire mord.
+            var rareBite = view.GetComponent<RareBiteEffect>();
+            if (rareBite == null)
+            {
+                rareBite = view.gameObject.AddComponent<RareBiteEffect>();
+            }
+
+            var rareSo = new SerializedObject(rareBite);
+            rareSo.FindProperty("_skin").objectReferenceValue = skin;
+            rareSo.ApplyModifiedPropertiesWithoutUndo();
             var minimap = Object.FindAnyObjectByType<UI.Minimap>();
             if (minimap != null)
             {

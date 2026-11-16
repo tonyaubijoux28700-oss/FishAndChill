@@ -441817,6 +441817,7 @@ GameObject:
   - component: {fileID: 1235020157}
   - component: {fileID: 1235020156}
   - component: {fileID: 1235020155}
+  - component: {fileID: 1235020158}
   m_Layer: 0
   m_Name: "P\xEAche (prototype)"
   m_TagString: Untagged
@@ -441882,6 +441883,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1235020158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1235020154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d432fee31971283478ba88ecf86953b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Fishing.RareBiteEffect
+  _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
+  _bannerSeconds: 1.8
 --- !u!1 &1244758329
 GameObject:
   m_ObjectHideFlags: 0
