@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: MacrobrachiumAmazonicum
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: macrobrachium-amazonicum
+  _commonName: Crevette d'Amazonie
+  _scientificName: Macrobrachium amazonicum
+  _rarity: 0
+  _kind: 1
+  _bodyShape: 2
+  _difficulty:
+    _cursorSpeed: 0.9
+    _zoneWidth: 0.27
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 6, y: 15}
+  _basePrice: 5
+  _placeholderColor: {r: 0.62, g: 0.7, b: 0.66, a: 1}
+  _description: "Crevette d'eau douce aux pinces tr\xE8s longues. Elle sort la nuit fouiller le fond des berges."
+  _activeTime: 2
+  _sprite: {fileID: 21300000, guid: ec1b0a6c71517b6449623447dc7e62de, type: 3}
+  _miniSprite: {fileID: 21300000, guid: db41be341df8e3c43a0f60429cee4763, type: 3}

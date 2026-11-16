@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PterygoplichthysPardalis
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: pterygoplichthys-pardalis
+  _commonName: "Pl\xE9co l\xE9opard"
+  _scientificName: Pterygoplichthys pardalis
+  _rarity: 0
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 0.8
+    _zoneWidth: 0.3
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 20, y: 45}
+  _basePrice: 5
+  _placeholderColor: {r: 0.7, g: 0.58, b: 0.38, a: 1}
+  _description: "Couvert de plaques osseuses, il r\xE2pe les algues avec sa bouche en ventouse et sort la nuit."
+  _activeTime: 2
+  _sprite: {fileID: 21300000, guid: 9e21d19cab2558a46a0f2c2365644994, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 364207e39381e1b41bd6ae17537332a8, type: 3}

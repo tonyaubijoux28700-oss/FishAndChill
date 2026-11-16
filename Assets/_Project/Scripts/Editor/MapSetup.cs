@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FishAndChill.Fishing;
 using FishAndChill.Player;
 using FishAndChill.World;
@@ -71,6 +71,8 @@ namespace FishAndChill.Editor
             public DockInfo IslandDock;
             public Rect LakeRegion;
             public DockInfo LakeDock;
+            public Rect AmazonRegion;
+            public DockInfo AmazonDock;
         }
 
         /// <summary>Un ponton : sol praticable au-dessus de l'eau, point d'arrivée au bout, regard vers le large.</summary>
@@ -92,6 +94,17 @@ namespace FishAndChill.Editor
 
         /// <summary>Écart (en cases) entre le bord est de l'île et le lac : la place des intérieurs de bâtiments.</summary>
         private const int LakeGap = 100;
+
+        /// <summary>Le fleuve amazonien : un tronçon de fleuve qui serpente dans la jungle, à l'est du lac.</summary>
+        private static readonly IslandGenerator.Settings RiverSettings = new IslandGenerator.Settings
+        {
+            Width = 90,
+            Height = 64,
+            Seed = 7070,
+        };
+
+        /// <summary>Écart (en cases) entre le bord est du lac et le fleuve.</summary>
+        private const int AmazonGap = 20;
 
         private const int DockLength = 5;
 
@@ -214,6 +227,11 @@ namespace FishAndChill.Editor
             var lakeBounds = new BoundsInt(bounds.xMax + LakeGap, -LakeSettings.Height / 2, 0, LakeSettings.Width, LakeSettings.Height, 1);
             DockInfo lakeDock = BuildLake(mapObject.transform, lakeBounds, lakeTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, decorMap, staticObstacles);
 
+            // Le fleuve amazonien, encore plus à l'est, avec son ponton.
+            TileSet amazonTiles = CreateAmazonTiles();
+            var amazonBounds = new BoundsInt(lakeBounds.xMax + AmazonGap, -RiverSettings.Height / 2, 0, RiverSettings.Width, RiverSettings.Height, 1);
+            DockInfo amazonDock = BuildAmazon(mapObject.transform, amazonBounds, amazonTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, decorMap, staticObstacles);
+
             var worldMap = mapObject.GetComponent<WorldMap>();
             if (worldMap == null)
             {
@@ -225,7 +243,9 @@ namespace FishAndChill.Editor
             worldMap.SetStaticObstacles(staticObstacles);
             var islandRegion = new Rect(bounds.xMin, bounds.yMin, width, height);
             var lakeRegion = new Rect(lakeBounds.xMin, lakeBounds.yMin, lakeBounds.size.x, lakeBounds.size.y);
-            worldMap.SetRegions(new[] { islandRegion, lakeRegion }, new[] { islandDock.Area, lakeDock.Area });
+            var amazonRegion = new Rect(amazonBounds.xMin, amazonBounds.yMin, amazonBounds.size.x, amazonBounds.size.y);
+            worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion }, new[] { islandDock.Area, lakeDock.Area, amazonDock.Area });
+            BuildAmazonLife(mapObject.transform, worldMap, player.transform, amazonDock.Area);
             BuildLakeLife(mapObject.transform, worldMap, player.transform, lakeDock.Area);
             BuildIslandLife(mapObject.transform, worldMap, player.transform, islandDock.Area);
 
@@ -234,9 +254,11 @@ namespace FishAndChill.Editor
             FishingSpots lakeSpots = BuildSpots(mapObject.transform, "Coins de pêche du lac", worldMap, 1, lakeDock.Area);
             var spotsSo = new SerializedObject(controller);
             SerializedProperty spotList = spotsSo.FindProperty("_spots");
-            spotList.arraySize = 2;
+            FishingSpots amazonSpots = BuildSpots(mapObject.transform, "Coins de pêche du fleuve", worldMap, 2, amazonDock.Area);
+            spotList.arraySize = 3;
             spotList.GetArrayElementAtIndex(0).objectReferenceValue = islandSpots;
             spotList.GetArrayElementAtIndex(1).objectReferenceValue = lakeSpots;
+            spotList.GetArrayElementAtIndex(2).objectReferenceValue = amazonSpots;
             spotsSo.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(worldMap);
 
@@ -273,12 +295,13 @@ namespace FishAndChill.Editor
             var aquariumInterior = new Vector2(bounds.xMax + 40f, bounds.yMin);
             AquariumBuilding aquarium = BuildAquarium(aquariumPosition, aquariumInterior, worldMap, player.GetComponent<PlayerMovement>(), follow, controller);
 
-            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, shop, aquarium, new[] { islandDock.Marker, lakeDock.Marker });
+            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, shop, aquarium, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker });
             return new Buildings
             {
                 Shop = shop, Aquarium = aquarium,
                 IslandRegion = islandRegion, IslandDock = islandDock,
                 LakeRegion = lakeRegion, LakeDock = lakeDock,
+                AmazonRegion = amazonRegion, AmazonDock = amazonDock,
             };
         }
 
@@ -603,6 +626,221 @@ namespace FishAndChill.Editor
             }
 
             return dock;
+        }
+
+        /// <summary>Tuiles du fleuve : celles de l'île recolorées (eau brune, vase, jungle), grands arbres et décor.</summary>
+        private static TileSet CreateAmazonTiles()
+        {
+            var set = new TileSet { Deep = new Tile[2], Shallow = new Tile[2], Sand = new Tile[3], Grass = new Tile[3] };
+            for (int i = 0; i < 2; i++)
+            {
+                set.Deep[i] = SaveAnimatedWater($"Fleuve_Eau_{i}", f => AmazonArt.Water(TileArt.DeepWater(i, f)));
+                set.Shallow[i] = set.Deep[i];
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                set.Sand[i] = SaveTile($"Fleuve_Vase_{i}", AmazonArt.Mud(TileArt.Sand(0)) /* sans coquillages */, Vector2.one * 0.5f, TileArt.Size);
+                set.Grass[i] = SaveTile($"Fleuve_Jungle_{i}", AmazonArt.Jungle(TileArt.Grass(i)), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            set.Palm = SaveTile("ArbreJungle_0", AmazonArt.Tree(0), AmazonArt.TreePivot, TileArt.Size);
+            // Deuxième arbre (autre vert), rangé dans Rocks pour le poser comme le premier.
+            set.Rocks = new[] { SaveTile("ArbreJungle_1", AmazonArt.Tree(1), AmazonArt.TreePivot, TileArt.Size) };
+
+            var shallow = new TransitionArt.Style
+            {
+                Fill = AmazonArt.Water(TileArt.ShallowWater(0)),
+                InnerBand = 0.06f, InnerColor = AmazonArt.Water(new Color(0.40f, 0.82f, 0.84f)), InnerBlend = 0.6f,
+                OuterBand = 0.07f, OuterColor = AmazonArt.Water(new Color(0.24f, 0.66f, 0.74f)), DitherOuter = true,
+            };
+            var mud = new TransitionArt.Style
+            {
+                Fill = AmazonArt.Mud(TileArt.Sand(0)),
+                InnerBand = 0.07f, InnerColor = new Color(0.24f, 0.14f, 0.10f), InnerBlend = 1f,     // vase mouillée
+                OuterBand = 0.07f, OuterColor = new Color(0.78f, 0.70f, 0.52f), DitherOuter = false, // écume brune
+            };
+            var jungle = new TransitionArt.Style
+            {
+                Fill = AmazonArt.Jungle(TileArt.Grass(0)),
+                InnerBand = 0.06f, InnerColor = AmazonArt.Jungle(new Color(0.24f, 0.50f, 0.24f)), InnerBlend = 1f,
+                OuterBand = 0.06f, OuterColor = AmazonArt.Jungle(new Color(0.40f, 0.68f, 0.34f)), DitherOuter = true,
+            };
+
+            set.LagoonEdges = SaveEdges("FleuveEau", shallow);
+            set.SandEdges = SaveEdges("FleuveVase", mud);
+            set.GrassEdges = SaveEdges("FleuveJungle", jungle);
+            set.LagoonFull = new[] { set.LagoonEdges[15], SaveTile("Bords/FleuveEau_15b", AmazonArt.Water(TileArt.ShallowWater(1)), Vector2.one * 0.5f, TileArt.Size) };
+            set.SandFull = new[]
+            {
+                set.SandEdges[15],
+                SaveTile("Bords/FleuveVase_15b", AmazonArt.Mud(TileArt.Sand(0)), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/FleuveVase_15c", AmazonArt.Mud(TileArt.Sand(0)), Vector2.one * 0.5f, TileArt.Size),
+            };
+            set.GrassFull = new[]
+            {
+                set.GrassEdges[15],
+                SaveTile("Bords/FleuveJungle_15b", AmazonArt.FlowerJungle(0), Vector2.one * 0.5f, TileArt.Size), // héliconias
+                SaveTile("Bords/FleuveJungle_15c", AmazonArt.FlowerJungle(1), Vector2.one * 0.5f, TileArt.Size), // orchidées
+            };
+
+            set.Reeds = new[] { SaveTile("Decor/Fougere_0", AmazonArt.Fern(0), new Vector2(0.5f, 0.1f), TileArt.Size), SaveTile("Decor/Fougere_1", AmazonArt.Fern(1), new Vector2(0.5f, 0.1f), TileArt.Size) };
+            set.Lilies = new[] { SaveTile("Decor/Victoria_0", AmazonArt.GiantLily(0), Vector2.one * 0.5f, TileArt.Size), SaveTile("Decor/Victoria_1", AmazonArt.GiantLily(1), Vector2.one * 0.5f, TileArt.Size), SaveTile("Decor/Victoria_2", AmazonArt.GiantLily(2), Vector2.one * 0.5f, TileArt.Size) };
+            return set;
+        }
+
+        /// <summary>Dessine le fleuve dans les couches de la carte (sans effacer le reste), sa jungle et son ponton.</summary>
+        private static DockInfo BuildAmazon(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap decorMap, List<Rect> obstacles)
+        {
+            TerrainType[,] terrain = RiverGenerator.Generate(RiverSettings);
+            int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
+            int width = terrain.GetLength(0);
+            int height = terrain.GetLength(1);
+            int seed = RiverSettings.Seed;
+
+            var waterTiles = new TileBase[width * height];
+            var landTiles = new TileBase[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = x + y * width;
+                    float hash = IslandGenerator.CellHash(x, y, seed);
+                    waterTiles[index] = tiles.Deep[hash < 0.5f ? 0 : 1];
+                    if (terrain[x, y] == TerrainType.Sand)
+                    {
+                        landTiles[index] = tiles.Sand[hash < 0.88f ? 0 : hash < 0.95f ? 1 : 2];
+                    }
+                    else if (terrain[x, y] == TerrainType.Grass)
+                    {
+                        landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
+                    }
+                }
+            }
+
+            waterMap.SetTilesBlock(bounds, waterTiles);
+            landMap.SetTilesBlock(bounds, landTiles);
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance, tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
+            FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
+            FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
+
+            // Ponton sur la rive sud, au milieu, vers le nord (le fleuve).
+            int cx = width / 2;
+            int cy = Mathf.FloorToInt(RiverGenerator.CenterAt(RiverSettings, cx + 0.5f));
+            while (cy > 1 && terrain[cx, cy] == TerrainType.Water)
+            {
+                cy--;
+            }
+
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Fleuve Amazone", terrain, bounds, new Vector2Int(cx, cy - 1), Vector2Int.up);
+            Vector2 dockCell = dock.Area.center - new Vector2(bounds.xMin, bounds.yMin);
+            int ford = RiverGenerator.FordX(RiverSettings);
+            var taken = new bool[width, height];
+            bool NearDock(int x, int y, int margin) => Mathf.Abs(x - dockCell.x) <= 3 + margin && Mathf.Abs(y - dockCell.y) <= 5 + margin;
+            void Put(int x, int y, Tile tile)
+            {
+                taken[x, y] = true;
+                decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tile);
+            }
+
+            for (int y = 1; y < height - 1; y++)
+            {
+                for (int x = 1; x < width - 1; x++)
+                {
+                    float hash = IslandGenerator.CellHash(x, y, seed + 7);
+                    bool besideWater = terrain[x + 1, y] == TerrainType.Water || terrain[x - 1, y] == TerrainType.Water
+                        || terrain[x, y + 1] == TerrainType.Water || terrain[x, y - 1] == TerrainType.Water;
+                    bool onFord = Mathf.Abs(x - ford) <= 2;
+                    if (terrain[x, y] == TerrainType.Grass && hash < 0.10f && !NearDock(x, y, 1) && !onFord)
+                    {
+                        // Fougères dans les sous-bois (on passe à travers : décor bas).
+                        Put(x, y, tiles.Reeds[hash < 0.05f ? 0 : 1]);
+                    }
+                    else if (terrain[x, y] == TerrainType.Water && distance[x, y] >= 2 && distance[x, y] <= 3 && hash < 0.08f && !NearDock(x, y, 3))
+                    {
+                        // Nénuphars géants près des rives, là où le courant est faible.
+                        Put(x, y, tiles.Lilies[Mathf.FloorToInt(hash / 0.08f * 3f) % 3]);
+                    }
+                    else if (terrain[x, y] == TerrainType.Sand && besideWater && hash > 0.93f && !NearDock(x, y, 1) && !onFord)
+                    {
+                        Put(x, y, tiles.Reeds[1]);
+                    }
+                }
+            }
+
+            // Forêt dense de grands arbres sur la jungle, jamais près du ponton ni du banc de sable.
+            var trees = new List<Vector2Int>();
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 7;
+                    if (terrain[x, y] != TerrainType.Grass || nearDock || taken[x, y] || Mathf.Abs(x - ford) <= 2
+                        || IslandGenerator.CellHash(x, y, seed + 1) > 0.11f)
+                    {
+                        continue;
+                    }
+
+                    if (trees.Exists(other => Mathf.Abs(other.x - x) < 3 && Mathf.Abs(other.y - y) < 2))
+                    {
+                        continue;
+                    }
+
+                    trees.Add(new Vector2Int(x, y));
+                    obstacles.Add(TownLayout.PalmFootprint(new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f)));
+                    decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), IslandGenerator.CellHash(x, y, seed + 3) < 0.5f ? tiles.Palm : tiles.Rocks[0]);
+                }
+            }
+
+            return dock;
+        }
+
+        /// <summary>La faune du fleuve : dauphins roses, caïmans, morphos, poissons qui sautent, aras et nuages.</summary>
+        private static void BuildAmazonLife(Transform root, WorldMap map, Transform player, Rect dock)
+        {
+            const string folder = "Assets/_Project/Art/Ambient";
+            PixelArt.EnsureFolder(folder);
+            Sprite[] Frames(string name, int count, System.Func<int, Color[,]> draw)
+            {
+                var sprites = new Sprite[count];
+                for (int i = 0; i < count; i++)
+                {
+                    sprites[i] = PixelArt.Save($"{folder}/{name}_{i}.png", draw(i), TileArt.Size, Vector2.one * 0.5f);
+                }
+
+                return sprites;
+            }
+
+            GameObject go = EnsureObject("Vie du fleuve", root);
+            var life = go.GetComponent<AmbientLife>();
+            if (life == null)
+            {
+                life = go.AddComponent<AmbientLife>();
+            }
+
+            var so = new SerializedObject(life);
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_region").intValue = 2;
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 1.5f, dock.yMin - 1f, dock.width + 4f, dock.height + 2f);
+            SerializedProperty swimmers = so.FindProperty("_swimmers");
+            swimmers.arraySize = 2;
+            SetSwimmer(swimmers.GetArrayElementAtIndex(0), Frames("DauphinRose", 2, AmazonLifeArt.RiverDolphin), 3, 0.7f);
+            SetSwimmer(swimmers.GetArrayElementAtIndex(1), Frames("Caiman", 2, AmazonLifeArt.Caiman), 4, 0.25f);
+            swimmers.GetArrayElementAtIndex(0).FindPropertyRelative("Order").intValue = -16;
+            swimmers.GetArrayElementAtIndex(1).FindPropertyRelative("Order").intValue = -16;
+            so.FindProperty("_walkers").arraySize = 0;
+            SetSprites(so.FindProperty("_dragonfly"), Frames("Morpho", 2, AmazonLifeArt.Morpho));
+            so.FindProperty("_dragonflies").intValue = 3;
+            SetSprites(so.FindProperty("_jumpingFish"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
+            SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
+            SetSprites(so.FindProperty("_passer"), Frames("Ara", 2, AmazonLifeArt.Macaw));
+            so.FindProperty("_passerShadow").objectReferenceValue = PixelArt.Save($"{folder}/Ara_Ombre.png", AmazonLifeArt.MacawShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_cloud").objectReferenceValue = PixelArt.Save($"{folder}/OmbreNuage.png", LakeLifeArt.CloudShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_clouds").intValue = 4;
+            SetNightLife(so, Frames);
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         /// <summary>
@@ -1303,7 +1541,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform[] docks)
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform[] docks)
         {
             Sprite shopIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeBoutique.png", ShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
             Sprite aquariumIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeAquarium.png", AquariumArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
@@ -1329,6 +1567,11 @@ namespace FishAndChill.Editor
             foreach (Tile t in lakeTiles.Sand) entries.Add((t, new Color(0.66f, 0.66f, 0.64f)));
             foreach (Tile t in lakeTiles.Grass) entries.Add((t, new Color(0.30f, 0.56f, 0.30f)));
             entries.Add((lakeTiles.Palm, new Color(0.10f, 0.30f, 0.20f)));
+            foreach (Tile t in amazonTiles.Deep) entries.Add((t, new Color(0.46f, 0.36f, 0.20f)));
+            foreach (Tile t in amazonTiles.Sand) entries.Add((t, new Color(0.62f, 0.40f, 0.24f)));
+            foreach (Tile t in amazonTiles.Grass) entries.Add((t, new Color(0.16f, 0.40f, 0.16f)));
+            entries.Add((amazonTiles.Palm, new Color(0.08f, 0.26f, 0.08f)));
+            entries.Add((amazonTiles.Rocks[0], new Color(0.08f, 0.26f, 0.08f)));
             Sprite dockIcon = PixelArt.Save("Assets/_Project/Art/UI/IconePonton.png", LakeArt.BoatIcon(), TileArt.Size, Vector2.one * 0.5f);
 
             var so = new SerializedObject(minimap);

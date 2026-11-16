@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: HydrolycusScomberoides
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: hydrolycus-scomberoides
+  _commonName: Payara
+  _scientificName: Hydrolycus scomberoides
+  _rarity: 3
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.8
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 3
+  _sizeRangeCm: {x: 40, y: 100}
+  _basePrice: 90
+  _placeholderColor: {r: 0.84, g: 0.86, b: 0.88, a: 1}
+  _description: "Le \xAB poisson-vampire \xBB : deux crocs de 10 cm sortent de sa m\xE2choire du bas pour embrocher ses proies."
+  _activeTime: 0
+  _sprite: {fileID: 21300000, guid: 3e45505908e84a345a3e7ed5e2028803, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 6fa304e811811de4b978dd6a6fb0442c, type: 3}

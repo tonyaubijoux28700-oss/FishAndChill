@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ChelusFimbriata
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: chelus-fimbriata
+  _commonName: Matamata
+  _scientificName: Chelus fimbriata
+  _rarity: 2
+  _kind: 2
+  _bodyShape: 3
+  _difficulty:
+    _cursorSpeed: 1.3
+    _zoneWidth: 0.18
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 4
+  _sizeRangeCm: {x: 30, y: 45}
+  _basePrice: 50
+  _placeholderColor: {r: 0.44, g: 0.3, b: 0.18, a: 1}
+  _description: "Tortue camoufl\xE9e en tas de feuilles mortes. Elle aspire les poissons d'un coup en ouvrant grand la bouche."
+  _activeTime: 2
+  _sprite: {fileID: 21300000, guid: ac443d9abb8cce440882d4eb434b6dc6, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 24367ff037f0a5e4e878be7bd7312275, type: 3}

@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using FishAndChill.Collection;
 using FishAndChill.Fishing;
 using FishAndChill.World;
@@ -18,6 +18,7 @@ namespace FishAndChill.Editor
         private const string SpeciesFolder = Root + "/Data/Species";
         private const string ZonesFolder = Root + "/Data/Zones";
         private const string LakeZonePath = ZonesFolder + "/LacAnnecy.asset";
+        private const string AmazonZonePath = ZonesFolder + "/FleuveAmazone.asset";
         private const string ScenesFolder = Root + "/Scenes";
         private const string ScenePath = ScenesFolder + "/FishingPrototype.unity";
         private const string TemplateScenePath = "Assets/Scenes/SampleScene.unity";
@@ -138,6 +139,43 @@ namespace FishAndChill.Editor
                 CreatureKind.Reptile, BodyShape.Turtle),
         };
 
+        // Fleuve amazonien (Brésil) : vraies espèces du bassin de l'Amazone, des petits piranhas à l'arapaïma géant.
+        private static readonly SpeciesData[] AmazonSpecies =
+        {
+            new SpeciesData("pygocentrus-nattereri", "Piranha à ventre rouge", "Pygocentrus nattereri", Rarity.Common,
+                0.9f, 0.28f, 2, 2, new Vector2(15f, 33f), 6, new Color(0.70f, 0.72f, 0.70f), 32f),
+            new SpeciesData("astronotus-ocellatus", "Oscar", "Astronotus ocellatus", Rarity.Common,
+                0.85f, 0.28f, 2, 2, new Vector2(18f, 35f), 6, new Color(0.36f, 0.32f, 0.22f), 28f),
+            new SpeciesData("pterygoplichthys-pardalis", "Pléco léopard", "Pterygoplichthys pardalis", Rarity.Common,
+                0.8f, 0.30f, 2, 2, new Vector2(20f, 45f), 5, new Color(0.70f, 0.58f, 0.38f), 25f),
+            new SpeciesData("symphysodon-aequifasciatus", "Discus", "Symphysodon aequifasciatus", Rarity.Uncommon,
+                1.1f, 0.23f, 3, 2, new Vector2(12f, 20f), 16, new Color(0.70f, 0.40f, 0.22f), 14f),
+            new SpeciesData("cichla-ocellaris", "Tucunaré", "Cichla ocellaris", Rarity.Uncommon,
+                1.3f, 0.20f, 3, 2, new Vector2(30f, 75f), 22, new Color(0.84f, 0.80f, 0.30f), 13f),
+            new SpeciesData("colossoma-macropomum", "Tambaqui", "Colossoma macropomum", Rarity.Uncommon,
+                1.2f, 0.22f, 3, 2, new Vector2(40f, 100f), 20, new Color(0.62f, 0.58f, 0.30f), 12f),
+            new SpeciesData("osteoglossum-bicirrhosum", "Arowana argenté", "Osteoglossum bicirrhosum", Rarity.Rare,
+                1.5f, 0.17f, 4, 2, new Vector2(50f, 100f), 45, new Color(0.82f, 0.84f, 0.82f), 8f),
+            new SpeciesData("pseudoplatystoma-fasciatum", "Surubim", "Pseudoplatystoma fasciatum", Rarity.Rare,
+                1.4f, 0.17f, 4, 2, new Vector2(50f, 130f), 45, new Color(0.60f, 0.62f, 0.58f), 7f),
+            new SpeciesData("hydrolycus-scomberoides", "Payara", "Hydrolycus scomberoides", Rarity.Epic,
+                1.8f, 0.13f, 4, 1, new Vector2(40f, 100f), 90, new Color(0.84f, 0.86f, 0.88f), 4f),
+            new SpeciesData("phractocephalus-hemioliopterus", "Pirarara", "Phractocephalus hemioliopterus", Rarity.Epic,
+                1.6f, 0.14f, 5, 1, new Vector2(60f, 130f), 100, new Color(0.94f, 0.36f, 0.14f), 3f),
+            new SpeciesData("electrophorus-electricus", "Gymnote électrique", "Electrophorus electricus", Rarity.Epic,
+                1.7f, 0.13f, 4, 1, new Vector2(80f, 200f), 110, new Color(0.34f, 0.30f, 0.24f), 3f),
+            new SpeciesData("arapaima-gigas", "Arapaïma", "Arapaima gigas", Rarity.Legendary,
+                2.2f, 0.11f, 5, 1, new Vector2(150f, 300f), 260, new Color(0.80f, 0.20f, 0.14f), 2f),
+
+            // Pas que des poissons : la tortue matamata et la crevette d'Amazonie.
+            new SpeciesData("chelus-fimbriata", "Matamata", "Chelus fimbriata", Rarity.Rare,
+                1.3f, 0.18f, 4, 2, new Vector2(30f, 45f), 50, new Color(0.44f, 0.30f, 0.18f), 6f,
+                CreatureKind.Reptile, BodyShape.Turtle),
+            new SpeciesData("macrobrachium-amazonicum", "Crevette d'Amazonie", "Macrobrachium amazonicum", Rarity.Common,
+                0.9f, 0.27f, 2, 2, new Vector2(6f, 15f), 5, new Color(0.62f, 0.70f, 0.66f), 20f,
+                CreatureKind.Crustacean, BodyShape.Lobster),
+        };
+
         private static readonly Color MahanaWater = new Color(0.20f, 0.68f, 0.75f);
 
         [MenuItem("FishAndChill/Prototype/Générer données et scène de pêche")]
@@ -167,6 +205,11 @@ namespace FishAndChill.Editor
             CreateOrUpdateZone(LakeZonePath, "Lac d'Annecy",
                 "Lac alpin aux eaux très claires, entouré de prés et de forêts de sapins.", new Color(0.12f, 0.34f, 0.44f), AnnecySpecies,
                 new Vector2(0.52f, 0.74f), "Haute-Savoie, France");
+
+            // Troisième zone : un tronçon du fleuve Amazone, en pleine jungle.
+            CreateOrUpdateZone(AmazonZonePath, "Fleuve Amazone",
+                "Fleuve immense aux eaux brunes, bordé de jungle, de nénuphars géants et de dauphins roses.", new Color(0.46f, 0.36f, 0.20f), AmazonSpecies,
+                new Vector2(0.35f, 0.44f), "Amazonas, Brésil");
 
             string startPath = ZonesFolder + "/IleMahana.asset";
             CreateOrUpdateZone(startPath, "Île Mahana",
@@ -230,6 +273,15 @@ namespace FishAndChill.Editor
                 { "alburnus-alburnus", ActiveTime.Day },
                 { "tinca-tinca", ActiveTime.Night },
                 { "lota-lota", ActiveTime.Night },
+                { "astronotus-ocellatus", ActiveTime.Day },
+                { "pterygoplichthys-pardalis", ActiveTime.Night },
+                { "symphysodon-aequifasciatus", ActiveTime.Day },
+                { "cichla-ocellaris", ActiveTime.Day },
+                { "pseudoplatystoma-fasciatum", ActiveTime.Night },
+                { "phractocephalus-hemioliopterus", ActiveTime.Night },
+                { "electrophorus-electricus", ActiveTime.Night },
+                { "chelus-fimbriata", ActiveTime.Night },
+                { "macrobrachium-amazonicum", ActiveTime.Night },
             };
 
         /// <summary>
@@ -263,6 +315,18 @@ namespace FishAndChill.Editor
                 { "pacifastacus-leniusculus", FightStyle.Rusher },
                 { "tinca-tinca", FightStyle.Heavy },
                 { "cyprinus-carpio", FightStyle.Heavy },
+                { "pygocentrus-nattereri", FightStyle.Nervous },
+                { "symphysodon-aequifasciatus", FightStyle.Nervous },
+                { "cichla-ocellaris", FightStyle.Rusher },
+                { "osteoglossum-bicirrhosum", FightStyle.Rusher },
+                { "hydrolycus-scomberoides", FightStyle.Rusher },
+                { "macrobrachium-amazonicum", FightStyle.Rusher },
+                { "electrophorus-electricus", FightStyle.Drifting },
+                { "colossoma-macropomum", FightStyle.Heavy },
+                { "pseudoplatystoma-fasciatum", FightStyle.Heavy },
+                { "phractocephalus-hemioliopterus", FightStyle.Heavy },
+                { "arapaima-gigas", FightStyle.Heavy },
+                { "chelus-fimbriata", FightStyle.Heavy },
             };
 
         /// <summary>Une ou deux phrases vraies sur chaque espèce, affichées dans la fiche de l'index.</summary>
@@ -301,6 +365,22 @@ namespace FishAndChill.Editor
                 { "lota-lota", "Le seul cousin de la morue en eau douce. Elle vit au fond, dans le froid, et ne sort que la nuit." },
                 { "pacifastacus-leniusculus", "Venue d'Amérique, elle a envahi le lac. Une tache claire à la jointure des pinces lui donne son nom." },
                 { "pelophylax-ridibundus", "Son chant ressemble à un rire moqueur. Elle passe l'hiver enfouie dans la vase." },
+
+                // Fleuve Amazone
+                { "pygocentrus-nattereri", "Chasse en bancs. Sa réputation est exagérée : il mange surtout des poissons faibles ou blessés et des restes." },
+                { "astronotus-ocellatus", "La tache en forme d'oeil sur sa queue trompe les prédateurs, qui attaquent le mauvais bout." },
+                { "pterygoplichthys-pardalis", "Couvert de plaques osseuses, il râpe les algues avec sa bouche en ventouse et sort la nuit." },
+                { "symphysodon-aequifasciatus", "Les parents nourrissent leurs petits avec un mucus qu'ils produisent sur leur peau." },
+                { "cichla-ocellaris", "Chasseur redoutable qui attaque tout ce qui bouge : le préféré des pêcheurs sportifs d'Amazonie." },
+                { "colossoma-macropomum", "Pendant les crues, il nage dans la forêt inondée et broie les fruits et les graines qui tombent des arbres." },
+                { "osteoglossum-bicirrhosum", "Le « singe d'eau » : il bondit hors de l'eau pour attraper insectes et petits oiseaux sur les branches." },
+                { "pseudoplatystoma-fasciatum", "Grand poisson-chat rayé comme un tigre. Il chasse la nuit en sentant ses proies avec ses barbillons." },
+                { "hydrolycus-scomberoides", "Le « poisson-vampire » : deux crocs de 10 cm sortent de sa mâchoire du bas pour embrocher ses proies." },
+                { "phractocephalus-hemioliopterus", "Énorme poisson-chat à la queue rouge vif. Il avale presque tout ce qui passe, même des fruits." },
+                { "electrophorus-electricus", "Pas une vraie anguille ! Il produit des décharges de plus de 600 volts et respire de l'air en surface." },
+                { "arapaima-gigas", "Un des plus grands poissons d'eau douce du monde. Il remonte respirer en surface toutes les 15 minutes." },
+                { "chelus-fimbriata", "Tortue camouflée en tas de feuilles mortes. Elle aspire les poissons d'un coup en ouvrant grand la bouche." },
+                { "macrobrachium-amazonicum", "Crevette d'eau douce aux pinces très longues. Elle sort la nuit fouiller le fond des berges." },
             };
 
         private static FishSpecies CreateOrUpdateSpecies(SpeciesData data)
@@ -548,9 +628,11 @@ namespace FishAndChill.Editor
             var indexSo = new SerializedObject(fishIndex);
             var lakeZone = AssetDatabase.LoadAssetAtPath<FishingZone>(LakeZonePath);
             SerializedProperty zones = indexSo.FindProperty("_zones");
-            zones.arraySize = 2;
+            var amazonZone = AssetDatabase.LoadAssetAtPath<FishingZone>(AmazonZonePath);
+            zones.arraySize = 3;
             zones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             zones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
+            zones.GetArrayElementAtIndex(2).objectReferenceValue = amazonZone;
             indexSo.FindProperty("_fishing").objectReferenceValue = controller;
             indexSo.FindProperty("_player").objectReferenceValue = movement;
             indexSo.FindProperty("_bookIcon").objectReferenceValue = bookIcon;
@@ -587,9 +669,10 @@ namespace FishAndChill.Editor
             saveSo.FindProperty("_progress").objectReferenceValue = progress;
             saveSo.FindProperty("_fishing").objectReferenceValue = controller;
             SerializedProperty saveZones = saveSo.FindProperty("_zones");
-            saveZones.arraySize = 2;
+            saveZones.arraySize = 3;
             saveZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             saveZones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
+            saveZones.GetArrayElementAtIndex(2).objectReferenceValue = amazonZone;
 
             // Voyage entre les zones : un ponton par zone, E ouvre la carte du monde.
             var travel = partie.GetComponent<ZoneTravel>();
@@ -600,9 +683,10 @@ namespace FishAndChill.Editor
 
             var travelSo = new SerializedObject(travel);
             SerializedProperty destinations = travelSo.FindProperty("_destinations");
-            destinations.arraySize = 2;
+            destinations.arraySize = 3;
             SetDestination(destinations.GetArrayElementAtIndex(0), zone, 0, buildings.IslandDock);
             SetDestination(destinations.GetArrayElementAtIndex(1), lakeZone, 1, buildings.LakeDock);
+            SetDestination(destinations.GetArrayElementAtIndex(2), amazonZone, 2, buildings.AmazonDock);
             travelSo.FindProperty("_player").objectReferenceValue = movement;
             travelSo.FindProperty("_fishing").objectReferenceValue = controller;
             travelSo.FindProperty("_map").objectReferenceValue = Object.FindAnyObjectByType<WorldMap>();
@@ -654,7 +738,7 @@ namespace FishAndChill.Editor
             GameObject decorObject = GameObject.Find("Décor");
             cycleSo.FindProperty("_decor").objectReferenceValue = decorObject != null ? decorObject.GetComponent<UnityEngine.Tilemaps.Tilemap>() : null;
             SerializedProperty lanterns = cycleSo.FindProperty("_lanterns");
-            MapSetup.DockInfo[] docks = { buildings.IslandDock, buildings.LakeDock };
+            MapSetup.DockInfo[] docks = { buildings.IslandDock, buildings.LakeDock, buildings.AmazonDock };
             lanterns.arraySize = docks.Length;
             for (int i = 0; i < docks.Length; i++)
             {
@@ -683,9 +767,10 @@ namespace FishAndChill.Editor
             titleSo.FindProperty("_minimap").objectReferenceValue = minimap;
             titleSo.FindProperty("_skin").objectReferenceValue = skin;
             SerializedProperty titleZones = titleSo.FindProperty("_zones");
-            titleZones.arraySize = 2;
+            titleZones.arraySize = 3;
             titleZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             titleZones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
+            titleZones.GetArrayElementAtIndex(2).objectReferenceValue = amazonZone;
             titleSo.ApplyModifiedPropertiesWithoutUndo();
 
             if (zone == null)

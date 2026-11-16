@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FishAndChill.Editor
 {
@@ -22,6 +22,8 @@ namespace FishAndChill.Editor
                 case "chelonia-mydas": pixels = GreenTurtle(); return true;
                 case "pacifastacus-leniusculus": pixels = FreshwaterCreatureArt.SignalCrayfish(); return true;
                 case "pelophylax-ridibundus": pixels = FreshwaterCreatureArt.MarshFrog(); return true;
+                case "chelus-fimbriata": pixels = AmazonCreatureArt.Matamata(); return true;
+                case "macrobrachium-amazonicum": pixels = AmazonCreatureArt.AmazonPrawn(); return true;
                 default: pixels = null; return false;
             }
         }
