@@ -13,6 +13,9 @@ namespace FishAndChill.Collection
         [SerializeField, Tooltip("Le matériel vendu par le marchand (canne, hameçon, appât, sac).")]
         private GearCatalog _gearCatalog;
 
+        [SerializeField, Tooltip("Les appâts vendus par le marchand (le premier est celui du départ, gratuit et illimité).")]
+        private BaitCatalog _baitCatalog;
+
         public event Action Changed;
 
         public Inventory Bag { get; private set; }
@@ -20,6 +23,19 @@ namespace FishAndChill.Collection
         public Wallet Wallet { get; private set; }
         public GearLoadout Gear { get; private set; }
         public GearCatalog GearCatalog => _gearCatalog;
+        public BaitCatalog BaitCatalog => _baitCatalog;
+        public BaitBag Baits { get; private set; }
+
+        /// <summary>Appât accroché à la ligne (l'appât de départ si rien d'autre).</summary>
+        public Bait EquippedBait
+        {
+            get
+            {
+                EnsureCreated();
+                Bait bait = _baitCatalog != null ? _baitCatalog.Find(Baits.Equipped) : null;
+                return bait != null ? bait : _baitCatalog != null ? _baitCatalog.Default : null;
+            }
+        }
 
         /// <summary>Ce que le matériel actuel change à la pêche.</summary>
         public GearEffects GearEffects => GearEffects.From(_gearCatalog, Gear);
@@ -41,10 +57,16 @@ namespace FishAndChill.Collection
             Aquarium = new AquariumCollection();
             Wallet = new Wallet();
             Gear = new GearLoadout();
+            Baits = new BaitBag();
+            if (_baitCatalog != null && _baitCatalog.Default != null)
+            {
+                Baits.Add(_baitCatalog.Default.Id, 0); // l'appât de départ, toujours là
+            }
             Bag.Changed += RaiseChanged;
             Aquarium.Changed += RaiseChanged;
             Wallet.Changed += RaiseChanged;
             Gear.Changed += RaiseChanged;
+            Baits.Changed += RaiseChanged;
         }
 
         public DepositResult DepositBag() => Aquarium.Deposit(Bag);
@@ -63,6 +85,30 @@ namespace FishAndChill.Collection
             }
 
             return result;
+        }
+
+        /// <summary>Achète un paquet de cet appât (il est accroché tout de suite).</summary>
+        public bool BuyBait(Bait bait)
+        {
+            EnsureCreated();
+            if (bait == null || !Wallet.TrySpend(bait.Price))
+            {
+                return false;
+            }
+
+            Baits.Add(bait.Id, bait.Uses);
+            Baits.Equip(bait.Id);
+            return true;
+        }
+
+        /// <summary>Après un chargement : l'appât de départ est toujours possédé.</summary>
+        public void EnsureDefaultBait()
+        {
+            EnsureCreated();
+            if (_baitCatalog != null && _baitCatalog.Default != null && !Baits.Owns(_baitCatalog.Default.Id))
+            {
+                Baits.Add(_baitCatalog.Default.Id, 0);
+            }
         }
 
         private readonly System.Collections.Generic.HashSet<string> _claimedRewards = new System.Collections.Generic.HashSet<string>();

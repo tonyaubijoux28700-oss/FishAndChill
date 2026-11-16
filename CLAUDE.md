@@ -142,12 +142,23 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - **Marchand** (`UI/ShopMenu`) : E devant le comptoir ouvre le menu (joueur `Locked`), deux onglets (**Tab** ou ←/→) :
   « Vendre » (1, 2, 3… vend un poisson, V vend tout) et « Matériel » (1 à 4 achète le niveau suivant). Échap/E ferme. Règles dans `FishShop` (testées) : il n'achète que les doublons (espèce déjà dans
   l'aquarium, ou exemplaires en trop : il laisse le plus gros), prix de 80 % à 130 % du `BasePrice` selon la taille.
-- **Matériel** (`Scripts/Gear`, données dans `Data/Gear/`, générées par `GearSetup`) : 4 familles (`GearLine`,
-  ScriptableObjects) réunies dans `GearCatalog`, chacune avec un niveau 0 gratuit puis 3 améliorations :
+- **Matériel** (`Scripts/Gear`, données dans `Data/Gear/`, générées par `GearSetup`) : 3 familles (`GearLine`,
+  ScriptableObjects) réunies dans `GearCatalog` (l'appât a son propre système, voir Appâts), chacune avec un niveau 0 gratuit puis 3 améliorations :
   canne (zone de réussite +15/30/45 %, curseur plus lent), hameçon (+1/2/3 ratés tolérés), appât (espèces rares plus
   fréquentes, touches plus rapides), sac (4/5/6 places). Prix 45 à 480 pièces. Niveaux du joueur dans
   `PlayerProgress.Gear` (`GearLoadout`), achat par `PlayerProgress.BuyGear` / `GearShop` (testés). Effets calculés par
   `GearEffects` (testé) et appliqués par `FishingController` (QTE, tirage de l'espèce, attente de la touche).
+- **Appâts** (`Scripts/Gear` : `Bait` et `BaitCatalog`, ScriptableObjects dans `Data/Gear/Appats/`, générés par `BaitSetup`) :
+  ils ne sont plus du matériel à niveaux. Six appâts, chacun avec ses **espèces favorites** (×3) d'après leur vrai régime :
+  mie de pain (départ, gratuite, illimitée : poissons blancs), ver de terre (20 p. ×15, touches ×0,85), crevette (35 p.
+  ×12 : crustacés, récif), leurre brillant (140 p., réutilisable : chasseurs ; les autres ×0,5), appât lumineux (45 p.
+  ×10 : espèces de nuit ×3 la nuit), calmar entier (90 p. ×6 : rares ×2,2). Possédés et accroché dans
+  `PlayerProgress.Baits` (`BaitBag`, testé ; sauvegardé : `SaveData.Baits`, `EquippedBait`) ; **un lancer consomme une
+  utilisation**, le dernier parti on revient à la mie de pain (message). Effet au tirage et à l'attente dans
+  `FishingController.Cast`. Marchand : 3ᵉ onglet **« Appâts »** (Tab/←/→ font tourner les onglets, 1 à 6 achète un paquet,
+  accroché tout de suite). Inventaire : la rangée Appât montre l'appât accroché et ce qu'il en reste ; touche physique
+  Q (A en AZERTY) ou X manette pour changer. Carnet : « Appât préféré : … » sur chaque fiche (indice même pour les
+  « ??? », `BaitCatalog.FavoriteOf`).
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).

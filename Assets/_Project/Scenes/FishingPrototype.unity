@@ -3114,6 +3114,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.PlayerProgress
   _startingBagCapacity: 3
   _gearCatalog: {fileID: 11400000, guid: b80ceee97379132469132946d853edeb, type: 2}
+  _baitCatalog: {fileID: 11400000, guid: e9db892b3be59334a8a1a7a06f093408, type: 2}
 --- !u!114 &332295272
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -182,6 +182,47 @@ namespace FishAndChill.Editor
             }
         }
 
+        /// <summary>Ver de terre : corps rose annelé en S, un peu plus foncé au bout.</summary>
+        public static Color[,] Worm()
+        {
+            var p = Canvas();
+            for (int k = 0; k <= 24; k++)
+            {
+                float t = k / 24f;
+                float x = 5f + t * 22f;
+                float y = 16f + Mathf.Sin(t * Mathf.PI * 2.2f) * 6f;
+                Color c = k % 3 == 0 ? C(0.80f, 0.42f, 0.46f) : C(0.92f, 0.56f, 0.58f);
+                if (k > 8 && k < 12) c = C(0.96f, 0.68f, 0.62f); // collier
+                CreatureArt.Blob(p, x, y, 2.2f, 2.2f, c);
+            }
+
+            PixelArt.Set(p, 26, 22, C(1f, 0.86f, 0.86f));
+            return Finish(p, C(0.40f, 0.14f, 0.18f));
+        }
+
+        /// <summary>Appât lumineux de nuit : bâton qui brille en vert, avec son halo.</summary>
+        public static Color[,] GlowBait()
+        {
+            var p = Canvas();
+            for (int x = 0; x < Size; x++)
+            {
+                for (int y = 0; y < Size; y++)
+                {
+                    float d = Mathf.Abs((x - y) / 1.414f);
+                    float along = (x + y) / 2f;
+                    if (d < 6f && along > 5f && along < 27f)
+                    {
+                        p[x, y] = C(0.60f, 1f, 0.50f, Mathf.Lerp(0.35f, 0f, d / 6f));
+                    }
+                }
+            }
+
+            Line(p, 9f, 9f, 23f, 23f, 2.2f, C(0.55f, 0.96f, 0.45f));
+            Line(p, 10f, 11f, 21f, 22f, 0.7f, C(0.92f, 1f, 0.86f));         // cœur très lumineux
+            CreatureArt.Blob(p, 24.5f, 24.5f, 2f, 2f, C(0.30f, 0.30f, 0.34f)); // embout
+            return Finish(p, C(0.08f, 0.30f, 0.10f));
+        }
+
         // ---------- Sacs ----------
 
         public static Color[,] Bag(int level)

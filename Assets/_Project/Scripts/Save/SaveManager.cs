@@ -234,6 +234,12 @@ namespace FishAndChill.Save
             data.SavedAtTicks = System.DateTime.Now.Ticks;
             data.Hour = _cycle != null ? _cycle.Hour : 8f;
             data.Rewards = new List<string>(_progress.ClaimedRewards);
+            foreach (string id in _progress.Baits.Owned)
+            {
+                data.Baits.Add(new SaveData.BaitStock { Id = id, Count = _progress.Baits.Count(id) });
+            }
+
+            data.EquippedBait = _progress.Baits.Equipped;
             try
             {
                 string temporary = SavePath + ".tmp";
@@ -305,6 +311,18 @@ namespace FishAndChill.Save
             SavedZone = data.Zone;
             _playSeconds = data.PlaySeconds;
             _progress.RestoreClaimedRewards(data.Rewards);
+            if (data.Baits != null && data.Baits.Count > 0)
+            {
+                var stocks = new List<KeyValuePair<string, int>>();
+                foreach (SaveData.BaitStock stock in data.Baits)
+                {
+                    stocks.Add(new KeyValuePair<string, int>(stock.Id, stock.Count));
+                }
+
+                _progress.Baits.Restore(stocks, data.EquippedBait);
+            }
+
+            _progress.EnsureDefaultBait();
             if (_cycle != null)
             {
                 _cycle.SetHour(data.Hour);

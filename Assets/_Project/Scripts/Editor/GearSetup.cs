@@ -39,13 +39,6 @@ namespace FishAndChill.Editor
                 new GearLevel("Hameçon triple", 150, 2f).WithIcon(Item("Hamecon_2", GearArt.Hook(2))),
                 new GearLevel("Hameçon en acier forgé", 380, 3f).WithIcon(Item("Hamecon_3", GearArt.Hook(3))));
 
-            // Appât : Value = bonus de rareté, Value2 = touches plus rapides.
-            GearLine bait = Line("Appat", GearCategory.Bait, "Appât", baitIcon,
-                new GearLevel("Mie de pain", 0, 0f, 0f).WithIcon(Item("Appat_0", GearArt.Bait(0))),
-                new GearLevel("Crevettes fraîches", 50, 0.4f, 0.15f).WithIcon(Item("Appat_1", GearArt.Bait(1))),
-                new GearLevel("Leurre brillant", 160, 0.8f, 0.25f).WithIcon(Item("Appat_2", GearArt.Bait(2))),
-                new GearLevel("Calmar entier", 400, 1.4f, 0.35f).WithIcon(Item("Appat_3", GearArt.Bait(3))));
-
             // Sac : Value = nombre de places.
             GearLine bag = Line("Sac", GearCategory.Bag, "Sac", bagIcon,
                 new GearLevel("Sacoche", 0, 3f).WithIcon(Item("Sac_0", GearArt.Bag(0))),
@@ -54,7 +47,9 @@ namespace FishAndChill.Editor
                 new GearLevel("Grande glacière", 480, 6f).WithIcon(Item("Sac_3", GearArt.Bag(3))));
 
             var catalog = LoadOrCreate<GearCatalog>($"{Folder}/CatalogueMateriel.asset");
-            catalog.Configure(new[] { rod, hook, bait, bag });
+            // Les appâts ne sont plus du matériel à niveaux : ils ont leur propre catalogue (BaitSetup).
+            catalog.Configure(new[] { rod, hook, bag });
+            AssetDatabase.DeleteAsset($"{Folder}/Appat.asset");
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssets();
             return catalog;

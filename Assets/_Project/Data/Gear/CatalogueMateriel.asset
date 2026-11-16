@@ -15,5 +15,4 @@ MonoBehaviour:
   _lines:
   - {fileID: 11400000, guid: 4200395da5b3de34ba8351eb64ffe648, type: 2}
   - {fileID: 11400000, guid: 65b1de46963234d46a28dc4a251322c9, type: 2}
-  - {fileID: 11400000, guid: 33a2d8651cdb2e74c9ed0e36a8483e21, type: 2}
   - {fileID: 11400000, guid: e0f22bc6533d0d84faa35ed09a2345de, type: 2}

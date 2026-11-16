@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b729c5ebdbd7c4fb75cdff2acb7630, type: 3}
+  m_Name: AppatLumineux
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Gear.Bait
+  _displayName: "App\xE2t lumineux"
+  _icon: {fileID: 21300000, guid: cb06321958252ca439454febb54e002b, type: 3}
+  _description: "La nuit, les esp\xE8ces nocturnes le rep\xE8rent de loin."
+  _price: 45
+  _uses: 10
+  _favorites:
+  - {fileID: 11400000, guid: 4dacdd7d548e8d94689ca284bab03318, type: 2}
+  - {fileID: 11400000, guid: 65f65a3b906d3fa42b8f7646940ec7ac, type: 2}
+  - {fileID: 11400000, guid: e20d9612efca99446bf0bb7223f91ccb, type: 2}
+  _favoriteBonus: 3
+  _rareBonus: 1
+  _nightBonus: 3
+  _favoritesOnly: 0
+  _biteWaitFactor: 0.9

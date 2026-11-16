@@ -57,5 +57,16 @@ namespace FishAndChill.Save
 
         /// <summary>Récompenses de collection encaissées (« zone:palier »).</summary>
         public List<string> Rewards = new List<string>();
+
+        [Serializable]
+        public sealed class BaitStock
+        {
+            public string Id;
+            public int Count;   // -1 = illimité
+        }
+
+        /// <summary>Appâts possédés et appât accroché à la ligne.</summary>
+        public List<BaitStock> Baits = new List<BaitStock>();
+        public string EquippedBait;
     }
 }

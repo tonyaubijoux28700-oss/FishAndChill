@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using FishAndChill.Collection;
 using FishAndChill.Fishing;
+using FishAndChill.Gear;
 using FishAndChill.Player;
 using FishAndChill.World;
 using UnityEngine;
@@ -452,7 +453,7 @@ namespace FishAndChill.UI
                 _detailName.text = "???";
                 _detailScientific.text = "Espèce pas encore pêchée";
                 _description.text = $"Indice : {LowerFirst(_timeText.text)}, {s.Rarity.DisplayName().ToLowerInvariant()}, " +
-                    $"de {s.SizeRangeCm.x:0} à {s.SizeRangeCm.y:0} cm.\nPêche-la pour en savoir plus !";
+                    $"de {s.SizeRangeCm.x:0} à {s.SizeRangeCm.y:0} cm.{FavoriteBaitText(s)}\nPêche-la pour en savoir plus !";
                 _stats[0].text = "Prises\n—";
                 _stats[1].text = "Record\n—";
                 _stats[2].text = "Taille\n?";
@@ -463,13 +464,26 @@ namespace FishAndChill.UI
             Vector2 range = s.SizeRangeCm;
             _detailName.text = s.CommonName;
             _detailScientific.text = $"{s.ScientificName}  •  {s.Kind.DisplayName()}";
-            _description.text = string.IsNullOrEmpty(s.Description) ? "—" : s.Description;
+            _description.text = (string.IsNullOrEmpty(s.Description) ? "—" : s.Description) + FavoriteBaitText(s, true);
             _stats[0].text = $"Prises\n{log.CountOf(s.Id)}";
             _stats[1].text = $"Record\n{log.BestSizeOf(s.Id):0} cm";
             _stats[2].text = $"Taille\n{range.x:0} à {range.y:0} cm";
             CaughtFish specimen = _progress != null && _progress.Aquarium != null ? _progress.Aquarium.SpecimenOf(s.Id) : null;
             _aquarium.text = specimen != null ? $"Exposé dans l'aquarium ({specimen.SizeCm:0} cm)" : "Pas encore dans l'aquarium";
             _aquarium.color = specimen != null ? new Color(0.22f, 0.50f, 0.18f) : InkSoft;
+        }
+
+        /// <summary>« Appât préféré : crevette » (en couleur), vide si l'espèce n'a pas d'appât préféré.</summary>
+        private string FavoriteBaitText(FishSpecies species, bool newLine = false)
+        {
+            Bait bait = _progress != null && _progress.BaitCatalog != null ? _progress.BaitCatalog.FavoriteOf(species) : null;
+            if (bait == null)
+            {
+                return string.Empty;
+            }
+
+            string text = $"<color=#2E6B2A>Appât préféré : {bait.DisplayName.ToLowerInvariant()}</color>";
+            return newLine ? "\n" + text : " " + text + ".";
         }
 
         private static string LowerFirst(string text) => string.IsNullOrEmpty(text) ? text : char.ToLowerInvariant(text[0]) + text.Substring(1);

@@ -141,6 +141,13 @@ namespace FishAndChill.UI
             if (!Choosing)
             {
                 bool closeKey = Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame;
+                bool baitKey = (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame)
+                    || (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
+                if (IsOpen && baitKey)
+                {
+                    _progress.Baits.Cycle(1); // appât suivant parmi ceux qu'on a
+                }
+
                 if (IsOpen && (closeKey || InteractInput.PressedThisFrame()))
                 {
                     Close();
@@ -227,7 +234,10 @@ namespace FishAndChill.UI
             // Pendant le choix, la carte de la prise est à gauche : la fenêtre se fait plus petite, à droite.
             _windowRect.anchoredPosition = Choosing ? new Vector2(470f, 10f) : new Vector2(0f, 10f);
             _windowRect.localScale = Vector3.one * (Choosing ? 0.6f : 1f);
-            _windowHelp.text = Choosing ? $"1 à {_progress.Bag.Capacity} : relâcher   •   Espace : relâcher le nouveau" : "E ou Échap : fermer";
+            string baitKey = Keyboard.current != null ? Keyboard.current.qKey.displayName : "Q";
+            _windowHelp.text = Choosing
+                ? $"1 à {_progress.Bag.Capacity} : relâcher   •   Espace : relâcher le nouveau"
+                : _progress.Baits.Owned.Count > 1 ? $"{baitKey} : changer d'appât   •   E ou Échap : fermer" : "E ou Échap : fermer";
             _windowHelp.color = Choosing ? Gold : Muted;
         }
 
@@ -318,6 +328,21 @@ namespace FishAndChill.UI
             _coins.text = $"{_progress.Wallet.Coins} pièces";
         }
 
+        /// <summary>L'appât accroché : icône, nom, ce qu'il attire, combien il en reste.</summary>
+        private void RefreshBait(GearView view)
+        {
+            Bait bait = _progress.EquippedBait;
+            view.Icon.sprite = bait != null ? bait.Icon : null;
+            view.Icon.enabled = view.Icon.sprite != null;
+            int left = bait != null ? _progress.Baits.Count(bait.Id) : 0;
+            view.Name.text = bait == null ? "—" : left == BaitBag.Unlimited ? bait.DisplayName : $"{bait.DisplayName}  ×{left}";
+            view.Effect.text = bait != null ? bait.Description : string.Empty;
+            foreach (Image gem in view.Levels)
+            {
+                gem.gameObject.SetActive(false);
+            }
+        }
+
         /// <summary>Le matériel utilisé : icône, nom, effet et niveau (pierres allumées) de chaque famille.</summary>
         private void RefreshGear()
         {
@@ -326,6 +351,12 @@ namespace FishAndChill.UI
             {
                 GearView view = _gear[i];
                 GearCategory category = GearOrder[i];
+                if (category == GearCategory.Bait)
+                {
+                    RefreshBait(view);
+                    continue;
+                }
+
                 GearLine line = catalog != null ? catalog.Line(category) : null;
                 int level = _progress.Gear.Level(category);
                 GearLevel item = line != null ? line.At(level) : null;

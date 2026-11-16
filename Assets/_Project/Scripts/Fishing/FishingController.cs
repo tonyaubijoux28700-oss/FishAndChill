@@ -42,6 +42,7 @@ namespace FishAndChill.Fishing
 
         /// <summary>Le bouchon est-il dans un coin de pêche, et lequel ?</summary>
         public bool InSpot { get; private set; }
+        private string _baitNotice;
         public SpotKind SpotKind { get; private set; }
 
         [SerializeField, Tooltip("Sac, aquarium et pièces du joueur. Sans lui, les prises ne sont pas conservées.")]
@@ -200,7 +201,8 @@ namespace FishAndChill.Fishing
                         // Le bouchon touche l'eau : l'attente commence, avec ses titillements.
                         _waited = 0f;
                         NibbleCount = 0;
-                        StartPhase(FishingState.Waiting, _biteTime, InSpot ? FishingSpotRules.Message(SpotKind) : "Patience… attends que ça morde vraiment.");
+                        StartPhase(FishingState.Waiting, _biteTime, (InSpot ? FishingSpotRules.Message(SpotKind) : "Patience… attends que ça morde vraiment.")
+                            + (_baitNotice != null ? "\n" + _baitNotice : string.Empty));
                     }
 
                     break;
@@ -334,9 +336,13 @@ namespace FishAndChill.Fishing
             float hour = _cycle != null ? _cycle.Hour : 12f;
             bool inSpot = InSpot;
             SpotKind spotKind = SpotKind;
+            // L'appât accroché attire ses espèces favorites (et selon lui les rares, ou celles de nuit).
+            Bait bait = _progress != null ? _progress.EquippedBait : null;
+            bool night = hour >= 20f || hour < 6f;
             HookedSpecies = _zone.PickSpecies(_random, species =>
                 DayCycleMath.IsActive(species.ActiveTime, hour)
                     ? gear.RarityMultiplier(species.Rarity) * (inSpot ? FishingSpotRules.SpeciesMultiplier(spotKind, species) : 1f)
+                        * (bait != null ? bait.Multiplier(species, night) : 1f)
                     : 0f);
             if (HookedSpecies == null)
             {
@@ -351,7 +357,15 @@ namespace FishAndChill.Fishing
             Vector2 range = HookedSpecies.SizeRangeCm;
             HookedSizeCm = Mathf.Lerp(range.x, range.y, (float)_random.NextDouble());
             float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble())
-                * gear.BiteWaitFactor * (InSpot ? FishingSpotRules.WaitFactor(SpotKind) : 1f);
+                * gear.BiteWaitFactor * (InSpot ? FishingSpotRules.WaitFactor(SpotKind) : 1f) * (bait != null ? bait.BiteWaitFactor : 1f);
+
+            // Une utilisation de l'appât part à chaque lancer ; le dernier parti, on revient à l'appât de départ.
+            _baitNotice = null;
+            if (bait != null && !bait.Unlimited && _progress.BaitCatalog != null && _progress.BaitCatalog.Default != null
+                && _progress.Baits.ConsumeEquipped(_progress.BaitCatalog.Default.Id))
+            {
+                _baitNotice = $"C'était ton dernier appât « {bait.DisplayName} » : retour à « {_progress.BaitCatalog.Default.DisplayName} ».";
+            }
 
             // 1 à 3 titillements avant la vraie touche : l'attente s'allonge au besoin pour les espacer.
             _biteTime = Mathf.Max(wait, NibblePlanner.MinimumWait(1) + 0.2f);

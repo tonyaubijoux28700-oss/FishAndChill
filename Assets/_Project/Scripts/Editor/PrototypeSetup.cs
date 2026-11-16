@@ -437,6 +437,7 @@ namespace FishAndChill.Editor
             // Le matériel vendu par le marchand (canne, hameçon, appât, sac).
             var progressSo = new SerializedObject(progress);
             progressSo.FindProperty("_gearCatalog").objectReferenceValue = GearSetup.CreateOrUpdate();
+            progressSo.FindProperty("_baitCatalog").objectReferenceValue = BaitSetup.CreateOrUpdate();
             progressSo.ApplyModifiedPropertiesWithoutUndo();
 
             so = new SerializedObject(controller);
