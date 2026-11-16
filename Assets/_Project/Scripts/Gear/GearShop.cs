@@ -5,6 +5,7 @@ namespace FishAndChill.Gear
     public enum GearPurchase
     {
         Bought,
+        AlreadyOwned,
         AlreadyMax,
         NotEnoughCoins,
         Unavailable,
@@ -40,6 +41,33 @@ namespace FishAndChill.Gear
             }
 
             return wallet.Coins >= next.Price ? GearPurchase.Bought : GearPurchase.NotEnoughCoins;
+        }
+
+        /// <summary>
+        /// Achète un objet précis de la famille (canne, hameçon) : dépense les pièces, l'ajoute à ce qu'on possède et
+        /// l'équipe. Déjà possédé : il est simplement équipé.
+        /// </summary>
+        public static GearPurchase TryBuyItem(GearLine line, int index, GearLoadout loadout, Wallet wallet)
+        {
+            if (line == null || loadout == null || wallet == null || index < 0 || index > line.MaxLevel)
+            {
+                return GearPurchase.Unavailable;
+            }
+
+            if (loadout.Owns(line.Category, index))
+            {
+                loadout.Equip(line.Category, index);
+                return GearPurchase.AlreadyOwned;
+            }
+
+            if (!wallet.TrySpend(line.At(index).Price))
+            {
+                return GearPurchase.NotEnoughCoins;
+            }
+
+            loadout.Own(line.Category, index);
+            loadout.Equip(line.Category, index);
+            return GearPurchase.Bought;
         }
 
         /// <summary>Achète le niveau suivant si possible : les pièces sont dépensées et le niveau monte.</summary>

@@ -87,6 +87,42 @@ namespace FishAndChill.Collection
             return result;
         }
 
+        /// <summary>Achète (ou, s'il est déjà à soi, équipe) l'objet <paramref name="index"/> de cette famille (canne, hameçon).</summary>
+        public GearPurchase BuyGearItem(GearCategory category, int index)
+        {
+            EnsureCreated();
+            GearLine line = _gearCatalog != null ? _gearCatalog.Line(category) : null;
+            return GearShop.TryBuyItem(line, index, Gear, Wallet);
+        }
+
+        /// <summary>Équipe l'objet suivant qu'on possède dans cette famille ; faux s'il n'y en a qu'un.</summary>
+        public bool CycleGear(GearCategory category)
+        {
+            EnsureCreated();
+            GearLine line = _gearCatalog != null ? _gearCatalog.Line(category) : null;
+            if (line == null)
+            {
+                return false;
+            }
+
+            int before = Gear.Level(category);
+            Gear.Cycle(category, line.Levels.Count);
+            return Gear.Level(category) != before;
+        }
+
+        /// <summary>Nombre d'objets possédés dans cette famille.</summary>
+        public int OwnedCount(GearCategory category)
+        {
+            GearLine line = _gearCatalog != null ? _gearCatalog.Line(category) : null;
+            int count = 0;
+            for (int i = 0; line != null && i < line.Levels.Count; i++)
+            {
+                if (Gear.Owns(category, i)) count++;
+            }
+
+            return count;
+        }
+
         /// <summary>Achète un paquet de cet appât (il est accroché tout de suite).</summary>
         public bool BuyBait(Bait bait)
         {

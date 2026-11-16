@@ -46,11 +46,15 @@ namespace FishAndChill.Fishing
 
         private readonly System.Random _random;
         private readonly float _tensionRate;
+        private readonly float _nervousFactor;
+        private readonly float _rushFactor;
+        private readonly float _driftFactor;
         private float _time;
         private float _drift = 1f;
         private float _rushTimer;
 
-        public QteChallenge(QteDifficulty difficulty, System.Random random, FightStyle style = FightStyle.Calm, float tensionRate = 1f)
+        public QteChallenge(QteDifficulty difficulty, System.Random random, FightStyle style = FightStyle.Calm, float tensionRate = 1f,
+            float nervousFactor = 1f, float rushFactor = 1f, float driftFactor = 1f)
         {
             if (difficulty == null)
             {
@@ -60,6 +64,9 @@ namespace FishAndChill.Fishing
             _random = random ?? throw new ArgumentNullException(nameof(random));
             Style = style;
             _tensionRate = Mathf.Max(0f, tensionRate);
+            _nervousFactor = Mathf.Max(0f, nervousFactor);
+            _rushFactor = Mathf.Max(0.1f, rushFactor);
+            _driftFactor = Mathf.Max(0f, driftFactor);
             RequiredHits = difficulty.RequiredHits;
             MaxMisses = difficulty.MaxMisses;
             Gauge = new TimingGauge(difficulty.CursorSpeed, difficulty.ZoneWidth, RandomCenter());
@@ -100,12 +107,12 @@ namespace FishAndChill.Fishing
             {
                 case FightStyle.Nervous:
                     // Le curseur s'emballe puis ralentit : entre 0,5 et 1,5 fois sa vitesse.
-                    Gauge.SpeedMultiplier = 1f + 0.5f * Mathf.Sin(_time * 6.5f);
+                    Gauge.SpeedMultiplier = 1f + 0.5f * _nervousFactor * Mathf.Sin(_time * 6.5f);
                     break;
 
                 case FightStyle.Drifting:
                     float half = Gauge.ZoneWidth * 0.5f;
-                    float center = Gauge.ZoneCenter + _drift * DriftSpeed * dt;
+                    float center = Gauge.ZoneCenter + _drift * DriftSpeed * _driftFactor * dt;
                     if (center <= half || center >= 1f - half)
                     {
                         _drift = -_drift;
@@ -201,7 +208,7 @@ namespace FishAndChill.Fishing
             _rushTimer = NextRushDelay();
         }
 
-        private float NextRushDelay() => Mathf.Lerp(RushIntervalMin, RushIntervalMax, (float)_random.NextDouble());
+        private float NextRushDelay() => Mathf.Lerp(RushIntervalMin, RushIntervalMax, (float)_random.NextDouble()) * _rushFactor;
 
         private float RandomCenter()
         {

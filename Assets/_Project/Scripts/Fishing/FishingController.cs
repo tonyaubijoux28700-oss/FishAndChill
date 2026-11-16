@@ -271,8 +271,12 @@ namespace FishAndChill.Fishing
                 case FishingState.Bite:
                     // Le matériel (canne, hameçon) rend le combat plus facile.
                     // La canne aide aussi à tenir la tension des gros poissons.
-                    float tensionRate = Mathf.Max(0.4f, 1f - GearEffects.ZoneBonus * 0.6f);
-                    Challenge = new QteChallenge(GearEffects.Apply(HookedSpecies.Difficulty), _random, HookedSpecies.FightStyle, tensionRate);
+                    // Canne et hameçon : chacun a sa spécialité (tension, rushs, nerveux, fuyants).
+                    GearEffects fightGear = GearEffects;
+                    float tensionRate = fightGear.TensionFactor > 0f ? fightGear.TensionFactor : 1f;
+                    Challenge = new QteChallenge(fightGear.Apply(HookedSpecies.Difficulty), _random, HookedSpecies.FightStyle, tensionRate,
+                        fightGear.NervousFactor > 0f ? fightGear.NervousFactor : 1f, fightGear.RushFactor > 0f ? fightGear.RushFactor : 1f,
+                        fightGear.DriftFactor > 0f ? fightGear.DriftFactor : 1f);
                     StartPhase(FishingState.Reeling, 0f, FightHint(HookedSpecies.FightStyle));
                     break;
 
@@ -402,7 +406,7 @@ namespace FishAndChill.Fishing
             if (spots != null)
             {
                 IList<Vector2> centers = spots.Centers;
-                int target = FishingSpotRules.Assist(origin, facing, centers, 1.5f, _castMaxDistance);
+                int target = FishingSpotRules.Assist(origin, facing, centers, 1.5f, _castMaxDistance + GearEffects.CastBonus);
                 if (target >= 0)
                 {
                     Vector2 jitter = new Vector2((float)_random.NextDouble() - 0.5f, (float)_random.NextDouble() - 0.5f) * 0.8f;
@@ -415,11 +419,13 @@ namespace FishAndChill.Fishing
                 }
             }
 
-            float desired = Mathf.Lerp(_castDistance.x, _castDistance.y, (float)_random.NextDouble());
+            // Une canne longue lance plus loin.
+            float reach = GearEffects.CastBonus;
+            float desired = Mathf.Lerp(_castDistance.x, _castDistance.y + reach, (float)_random.NextDouble());
             float side = Mathf.Lerp(-_castSpread, _castSpread, (float)_random.NextDouble());
             Func<Vector2, bool> isWater = _map != null ? _map.IsWater : (Func<Vector2, bool>)(_ => true);
 
-            Vector2? point = CastTargeting.FindCastPoint(origin, facing, desired, Mathf.Max(desired, _castMaxDistance), side, isWater);
+            Vector2? point = CastTargeting.FindCastPoint(origin, facing, desired, Mathf.Max(desired, _castMaxDistance + reach), side, isWater);
             castPoint = point ?? origin;
             return point.HasValue;
         }

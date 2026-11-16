@@ -21,22 +21,50 @@ MonoBehaviour:
     _value: 3
     _value2: 0
     _icon: {fileID: 21300000, guid: b730ba17cd180364688e82746030bc17, type: 3}
+    _cursorFactor: 1
+    _tensionFactor: 1
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1
+    _driftFactor: 1
+    _specialty: 
     _illustration: {fileID: 0}
   - _name: Besace
     _price: 70
     _value: 4
     _value2: 0
     _icon: {fileID: 21300000, guid: 6cbd59f39c3fe6c42993d77e2c1b4172, type: 3}
+    _cursorFactor: 1
+    _tensionFactor: 1
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1
+    _driftFactor: 1
+    _specialty: 
     _illustration: {fileID: 0}
   - _name: "Glaci\xE8re"
     _price: 200
     _value: 5
     _value2: 0
     _icon: {fileID: 21300000, guid: 400e28374884a5549862da6b91e0f179, type: 3}
+    _cursorFactor: 1
+    _tensionFactor: 1
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1
+    _driftFactor: 1
+    _specialty: 
     _illustration: {fileID: 0}
   - _name: "Grande glaci\xE8re"
     _price: 480
     _value: 6
     _value2: 0
     _icon: {fileID: 21300000, guid: bc399a75ca39eb8408578485bfb99163, type: 3}
+    _cursorFactor: 1
+    _tensionFactor: 1
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1
+    _driftFactor: 1
+    _specialty: 
     _illustration: {fileID: 0}

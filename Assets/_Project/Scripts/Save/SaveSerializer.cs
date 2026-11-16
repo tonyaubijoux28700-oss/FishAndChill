@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using FishAndChill.Collection;
 using FishAndChill.Gear;
 using UnityEngine;
@@ -39,6 +39,11 @@ namespace FishAndChill.Save
                 }
             }
 
+            foreach ((GearCategory category, int index) in gear.OwnedItems)
+            {
+                data.GearOwned.Add(new SaveData.GearLevel { Category = (int)category, Level = index });
+            }
+
             foreach (string id in log.SpeciesIds)
             {
                 data.CatchLog.Add(new SaveData.Catches { Id = id, Count = log.CountOf(id), BestSizeCm = log.BestSizeOf(id) });
@@ -64,6 +69,29 @@ namespace FishAndChill.Save
                 if (Enum.IsDefined(typeof(GearCategory), entry.Category))
                 {
                     gear.SetLevel((GearCategory)entry.Category, entry.Level);
+                }
+            }
+
+            bool legacy = data.GearOwned == null || data.GearOwned.Count == 0;
+            if (legacy)
+            {
+                // Ancienne sauvegarde (matériel à niveaux) : on garde tout ce qui était en dessous du niveau atteint.
+                foreach (SaveData.GearLevel entry in data.Gear)
+                {
+                    for (int i = 1; i <= entry.Level && entry.Category != (int)GearCategory.Bag; i++)
+                    {
+                        gear.Own((GearCategory)entry.Category, i);
+                    }
+                }
+            }
+            else
+            {
+                foreach (SaveData.GearLevel entry in data.GearOwned)
+                {
+                    if (Enum.IsDefined(typeof(GearCategory), entry.Category))
+                    {
+                        gear.Own((GearCategory)entry.Category, entry.Level);
+                    }
                 }
             }
 

@@ -165,6 +165,21 @@ namespace FishAndChill.UI
                     _progress.Baits.Cycle(1); // appât suivant parmi ceux qu'on a
                 }
 
+                // R : canne suivante, F : hameçon suivant (touches physiques ; gâchettes hautes à la manette).
+                bool rodKey = (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+                    || (Gamepad.current != null && Gamepad.current.leftShoulder.wasPressedThisFrame);
+                bool hookKey = (Keyboard.current != null && Keyboard.current.fKey.wasPressedThisFrame)
+                    || (Gamepad.current != null && Gamepad.current.rightShoulder.wasPressedThisFrame);
+                if (IsOpen && rodKey)
+                {
+                    _progress.CycleGear(GearCategory.Rod);
+                }
+
+                if (IsOpen && hookKey)
+                {
+                    _progress.CycleGear(GearCategory.Hook);
+                }
+
                 if (IsOpen && (closeKey || InteractInput.PressedThisFrame()))
                 {
                     Close();
@@ -251,11 +266,22 @@ namespace FishAndChill.UI
             // Pendant le choix, la carte de la prise est à gauche : la fenêtre se fait plus petite, à droite.
             _windowRect.anchoredPosition = Choosing ? new Vector2(440f, 10f) : new Vector2(0f, 10f);
             _windowRect.localScale = Vector3.one * (Choosing ? 0.55f : 1.08f);
-            string baitKey = Keyboard.current != null ? Keyboard.current.qKey.displayName : "Q";
             _windowHelp.text = Choosing
                 ? $"1 à {_progress.Bag.Capacity} : relâcher   •   Espace : relâcher le nouveau"
-                : _progress.Baits.Owned.Count > 1 ? $"{baitKey} : changer d'appât   •   E ou Échap : fermer" : "E ou Échap : fermer";
+                : ChangeHelp() + "E ou Échap : fermer";
             _windowHelp.color = Choosing ? Gold : Muted;
+        }
+
+        /// <summary>Les touches pour changer de canne, d'hameçon ou d'appât, seulement pour ce qu'on a en plusieurs.</summary>
+        private string ChangeHelp()
+        {
+            var keyboard = Keyboard.current;
+            string Key(UnityEngine.InputSystem.Controls.KeyControl key, string fallback) => key != null ? key.displayName.ToUpperInvariant() : fallback;
+            string help = string.Empty;
+            if (_progress.OwnedCount(GearCategory.Rod) > 1) help += $"{Key(keyboard?.rKey, "R")} : canne   •   ";
+            if (_progress.OwnedCount(GearCategory.Hook) > 1) help += $"{Key(keyboard?.fKey, "F")} : hameçon   •   ";
+            if (_progress.Baits.Owned.Count > 1) help += $"{Key(keyboard?.qKey, "Q")} : appât   •   ";
+            return help;
         }
 
         private void AnimateSlots()
@@ -363,7 +389,7 @@ namespace FishAndChill.UI
             GearLevel rod = Item(GearCategory.Rod, out int rodLevel, out int rodMax);
             _rodImage.sprite = rod != null ? rod.Illustration : null;
             _rodImage.enabled = _rodImage.sprite != null;
-            FillLabel(_rodLabel, rod?.Name, rod == null ? string.Empty : rodLevel == 0 ? "Matériel de départ" : ShopMenu.EffectText(GearCategory.Rod, rod), rodLevel, rodMax);
+            FillLabel(_rodLabel, rod?.Name, rod == null ? string.Empty : ShopMenu.EffectText(GearCategory.Rod, rod), -1, -1); // objets à choisir, pas des niveaux
 
             // L'hameçon pend au bout du fil, accroché par son œillet ; l'appât est piqué dans sa courbure.
             GearLevel hook = Item(GearCategory.Hook, out int hookLevel, out int hookMax);
@@ -371,11 +397,11 @@ namespace FishAndChill.UI
             _hookImage.enabled = _hookImage.sprite != null;
             Vector2 lineEnd = RodCenter - RodSize * 0.5f + RodLineEnd * ShowcaseScale;
             float hookSize = _hookImage.rectTransform.sizeDelta.x;
-            float eyeX = hookLevel == 2 ? 16f : 11f;
+            float eyeX = hookLevel == 1 ? 16f : 11f;
             Vector2 hookCenter = lineEnd + new Vector2((16f - eyeX) / 32f * hookSize, -(28.5f - 16f) / 32f * hookSize);
             _hookImage.rectTransform.anchoredPosition = hookCenter;
             _baitImage.rectTransform.anchoredPosition = hookCenter + new Vector2((hookLevel == 2 ? 0f : 13.5f - 16f) / 32f * hookSize, -9f / 32f * hookSize);
-            FillLabel(_hookLabel, hook?.Name, hook == null ? string.Empty : hookLevel == 0 ? "Matériel de départ" : ShopMenu.EffectText(GearCategory.Hook, hook), hookLevel, hookMax);
+            FillLabel(_hookLabel, hook?.Name, hook == null ? string.Empty : ShopMenu.EffectText(GearCategory.Hook, hook), -1, -1);
 
             Bait bait = _progress.EquippedBait;
             _baitImage.sprite = bait != null ? bait.Icon : null;

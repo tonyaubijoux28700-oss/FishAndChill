@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FishAndChill.Editor
 {
@@ -37,8 +37,9 @@ namespace FishAndChill.Editor
             switch (level)
             {
                 case 0: blank = C(0.86f, 0.74f, 0.44f); wrap = C(0.56f, 0.40f, 0.20f); grip = C(0.62f, 0.44f, 0.24f); break;  // bambou
-                case 1: blank = C(0.96f, 0.82f, 0.30f); wrap = C(0.20f, 0.46f, 0.80f); grip = C(0.30f, 0.30f, 0.32f); break;  // fibre de verre
-                case 2: blank = C(0.16f, 0.16f, 0.18f); wrap = C(0.86f, 0.22f, 0.20f); grip = C(0.52f, 0.36f, 0.22f); break;  // carbone
+                case 1: blank = C(0.92f, 0.94f, 0.98f); wrap = C(0.30f, 0.62f, 0.92f); grip = C(0.70f, 0.72f, 0.76f); break;  // légère
+                case 2: blank = C(0.24f, 0.48f, 0.32f); wrap = C(0.80f, 0.82f, 0.86f); grip = C(0.20f, 0.20f, 0.22f); break;  // longue
+                case 3: blank = C(0.30f, 0.20f, 0.14f); wrap = C(0.92f, 0.50f, 0.16f); grip = C(0.24f, 0.18f, 0.12f); break;  // lourde
                 default: blank = C(0.14f, 0.26f, 0.56f); wrap = C(0.98f, 0.80f, 0.30f); grip = C(0.82f, 0.62f, 0.32f); break; // compétition
             }
 
@@ -93,8 +94,9 @@ namespace FishAndChill.Editor
             switch (level)
             {
                 case 0: blank = C(0.86f, 0.74f, 0.44f); wrap = C(0.56f, 0.40f, 0.20f); reel = C(0.52f, 0.52f, 0.56f); break;
-                case 1: blank = C(0.96f, 0.82f, 0.30f); wrap = C(0.20f, 0.46f, 0.80f); reel = C(0.70f, 0.72f, 0.76f); break;
-                case 2: blank = C(0.20f, 0.20f, 0.23f); wrap = C(0.86f, 0.22f, 0.20f); reel = C(0.78f, 0.80f, 0.84f); break;
+                case 1: blank = C(0.92f, 0.94f, 0.98f); wrap = C(0.30f, 0.62f, 0.92f); reel = C(0.80f, 0.84f, 0.90f); break;  // légère
+                case 2: blank = C(0.24f, 0.48f, 0.32f); wrap = C(0.80f, 0.82f, 0.86f); reel = C(0.62f, 0.66f, 0.70f); break;  // longue
+                case 3: blank = C(0.30f, 0.20f, 0.14f); wrap = C(0.92f, 0.50f, 0.16f); reel = C(0.40f, 0.40f, 0.44f); break;  // lourde
                 default: blank = C(0.14f, 0.26f, 0.56f); wrap = C(0.98f, 0.80f, 0.30f); reel = C(0.96f, 0.80f, 0.36f); break;
             }
 
@@ -121,7 +123,9 @@ namespace FishAndChill.Editor
                 }
                 else
                 {
-                    radius = Mathf.Lerp(1.8f, 0.55f, (t - 0.21f) / 0.79f);
+                    // Épaisseur du brin : fin pour la légère, épais pour la lourde.
+                    float girth = level == 1 ? 0.8f : level == 3 ? 1.45f : level == 2 ? 0.9f : 1f;
+                    radius = Mathf.Lerp(1.8f, 0.55f, (t - 0.21f) / 0.79f) * girth;
                     c = blank;
                     if (level == 0 && i % 26 == 0) c = DetailedFish.Shade(blank, 0.68f); // nœuds du bambou
                 }
@@ -250,13 +254,13 @@ namespace FishAndChill.Editor
 
         // ---------- Hameçons ----------
 
-        /// <summary>Hameçon en J (renforcé : plus épais ; triple : trois pointes ; forgé : acier sombre à œillet doré).</summary>
+        /// <summary>Hameçons : 0 simple (J fin), 1 triple (trois pointes), 2 circulaire (pointe rentrée), 3 forgé (acier sombre à œillet doré).</summary>
         public static Color[,] Hook(int level)
         {
             var p = Canvas();
             Color metal = level == 3 ? C(0.36f, 0.40f, 0.48f) : C(0.78f, 0.82f, 0.88f);
             Color eye = level == 3 ? C(0.96f, 0.78f, 0.30f) : metal;
-            float thick = level == 0 ? 0.8f : 1.2f;
+            float thick = level == 0 ? 0.8f : level == 2 ? 1.0f : 1.2f;
 
             void JHook(float cx, float flip)
             {
@@ -275,6 +279,20 @@ namespace FishAndChill.Editor
 
             if (level == 2)
             {
+                // Circulaire : hampe courte, grande courbe presque fermée, pointe tournée vers la hampe.
+                Line(p, 11f, 27f, 11f, 16f, thick, metal);
+                for (int k = 0; k <= 20; k++)
+                {
+                    float a = Mathf.PI * 1.55f * k / 20f;
+                    float x = 16f - Mathf.Cos(a) * 5f;
+                    float y = 13f - Mathf.Sin(a) * 6.5f;
+                    CreatureArt.Blob(p, x, y, thick, thick, metal);
+                }
+
+                Line(p, 16f + Mathf.Cos(Mathf.PI * 0.45f) * 5f, 13f + Mathf.Sin(Mathf.PI * 0.45f) * 6.5f, 13.5f, 17f, 0.7f, metal);
+            }
+            else if (level == 1)
+            {
                 JHook(12f, 1f);
                 JHook(20f, -1f);
                 Line(p, 16f, 27f, 16f, 10f, thick, metal);
@@ -285,7 +303,7 @@ namespace FishAndChill.Editor
                 JHook(11f, 1f);
             }
 
-            float eyeX = level == 2 ? 16f : 11f;
+            float eyeX = level == 1 ? 16f : 11f;
             CreatureArt.Blob(p, eyeX, 28.5f, 2f, 2f, eye);
             PixelArt.Set(p, Mathf.RoundToInt(eyeX), 28, C(0f, 0f, 0f, 0f));
             PixelArt.Set(p, Mathf.RoundToInt(eyeX) - 1, 20, C(1f, 1f, 1f));                  // reflet

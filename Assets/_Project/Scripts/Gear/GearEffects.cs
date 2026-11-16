@@ -26,16 +26,36 @@ namespace FishAndChill.Gear
         /// <summary>Places du sac (0 = ne pas changer).</summary>
         public readonly int BagCapacity;
 
+        /// <summary>Spécialités de la canne et de l'hameçon (1 = sans effet).</summary>
+        public readonly float CursorFactor;
+        public readonly float TensionFactor;
+        public readonly float CastBonus;
+        public readonly float NervousFactor;
+        public readonly float RushFactor;
+        public readonly float DriftFactor;
+
         /// <summary>Aucun matériel amélioré.</summary>
         public static readonly GearEffects None = new GearEffects(0f, 0, 0f, 0f, 0);
 
         public GearEffects(float zoneBonus, int extraMisses, float rarityBonus, float fasterBites, int bagCapacity)
+            : this(zoneBonus, extraMisses, rarityBonus, fasterBites, bagCapacity, 1f, 1f, 0f, 1f, 1f, 1f)
+        {
+        }
+
+        public GearEffects(float zoneBonus, int extraMisses, float rarityBonus, float fasterBites, int bagCapacity,
+            float cursorFactor, float tensionFactor, float castBonus, float nervousFactor, float rushFactor, float driftFactor)
         {
             ZoneBonus = zoneBonus;
             ExtraMisses = extraMisses;
             RarityBonus = rarityBonus;
             FasterBites = fasterBites;
             BagCapacity = bagCapacity;
+            CursorFactor = cursorFactor;
+            TensionFactor = tensionFactor;
+            CastBonus = castBonus;
+            NervousFactor = nervousFactor;
+            RushFactor = rushFactor;
+            DriftFactor = driftFactor;
         }
 
         /// <summary>Effets du matériel actuel du joueur.</summary>
@@ -56,12 +76,20 @@ namespace FishAndChill.Gear
             GearLevel hook = Current(GearCategory.Hook);
             GearLevel bait = Current(GearCategory.Bait);
             GearLevel bag = Current(GearCategory.Bag);
+            // La canne et l'hameçon combinent leurs spécialités (les facteurs se multiplient).
+            float Both(System.Func<GearLevel, float> pick) => (rod != null ? pick(rod) : 1f) * (hook != null ? pick(hook) : 1f);
             return new GearEffects(
                 rod?.Value ?? 0f,
                 Mathf.RoundToInt(hook?.Value ?? 0f),
                 bait?.Value ?? 0f,
                 bait?.Value2 ?? 0f,
-                Mathf.RoundToInt(bag?.Value ?? 0f));
+                Mathf.RoundToInt(bag?.Value ?? 0f),
+                Both(g => g.CursorFactor),
+                Both(g => g.TensionFactor),
+                (rod?.CastBonus ?? 0f) + (hook?.CastBonus ?? 0f),
+                Both(g => g.NervousFactor),
+                Both(g => g.RushFactor),
+                Both(g => g.DriftFactor));
         }
 
         /// <summary>
@@ -76,7 +104,7 @@ namespace FishAndChill.Gear
             }
 
             float zone = Mathf.Min(0.6f, difficulty.ZoneWidth * (1f + ZoneBonus));
-            float speed = difficulty.CursorSpeed * Mathf.Max(0.5f, 1f - ZoneBonus * 0.45f);
+            float speed = difficulty.CursorSpeed * Mathf.Max(0.5f, 1f - ZoneBonus * 0.45f) * (CursorFactor <= 0f ? 1f : CursorFactor);
             return new QteDifficulty(speed, zone, difficulty.RequiredHits, difficulty.MaxMisses + ExtraMisses);
         }
 

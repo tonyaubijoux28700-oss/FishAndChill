@@ -1,4 +1,4 @@
-using FishAndChill.Gear;
+﻿using FishAndChill.Gear;
 using UnityEditor;
 using UnityEngine;
 
@@ -26,19 +26,25 @@ namespace FishAndChill.Editor
             Sprite Item(string file, Color[,] pixels) => PixelArt.Save($"{IconFolder}/Materiel/{file}.png", pixels, 16, new Vector2(0.5f, 0.5f));
             Sprite Big(int level) => PixelArt.Save($"{IconFolder}/Materiel/CanneGrande_{level}.png", GearArt.RodLarge(level), 16, Vector2.zero);
 
-            // Canne : Value = zone de réussite plus large (0,15 = +15 %), le curseur ralentit en proportion.
+            // Cannes : des objets à part, chacun avec sa spécialité (on les achète puis on choisit laquelle on tient).
+            // Value = zone de réussite plus large (0,15 = +15 %) ; WithStats = curseur, tension, portée, poissons nerveux / rushs.
+            GearLevel RodItem(int i, string name, int price, float value) =>
+                new GearLevel(name, price, value).WithIcon(Item($"Canne_{i}", GearArt.Rod(i))).WithIllustration(Big(i));
             GearLine rod = Line("Canne", GearCategory.Rod, "Canne", rodIcon,
-                new GearLevel("Canne en bambou", 0, 0f).WithIcon(Item("Canne_0", GearArt.Rod(0))).WithIllustration(Big(0)),
-                new GearLevel("Canne en fibre de verre", 60, 0.15f).WithIcon(Item("Canne_1", GearArt.Rod(1))).WithIllustration(Big(1)),
-                new GearLevel("Canne en carbone", 180, 0.30f).WithIcon(Item("Canne_2", GearArt.Rod(2))).WithIllustration(Big(2)),
-                new GearLevel("Canne de compétition", 450, 0.45f).WithIcon(Item("Canne_3", GearArt.Rod(3))).WithIllustration(Big(3)));
+                RodItem(0, "Canne en bambou", 0, 0f).WithStats("Simple et fiable."),
+                RodItem(1, "Canne légère", 80, 0.20f).WithStats("Calme les poissons nerveux, mais fragile face aux lourds.", tension: 1.25f, nervous: 0.5f),
+                RodItem(2, "Canne longue", 160, 0.10f).WithStats("Lance bien plus loin (+2,5 cases).", cast: 2.5f),
+                RodItem(3, "Canne lourde", 220, 0.05f).WithStats("Tient la tension des gros, rushs plus espacés.", cursor: 1.1f, tension: 0.5f, rush: 1.4f),
+                RodItem(4, "Canne de compétition", 480, 0.35f).WithStats("La meilleure en tout : zone large, curseur lent.", cursor: 0.85f, tension: 0.8f));
 
-            // Hameçon : Value = ratés tolérés en plus.
+            // Hameçons : Value = ratés tolérés en plus.
+            GearLevel HookItem(int i, string name, int price, float value) =>
+                new GearLevel(name, price, value).WithIcon(Item($"Hamecon_{i}", GearArt.Hook(i)));
             GearLine hook = Line("Hamecon", GearCategory.Hook, "Hameçon", hookIcon,
-                new GearLevel("Hameçon simple", 0, 0f).WithIcon(Item("Hamecon_0", GearArt.Hook(0))),
-                new GearLevel("Hameçon renforcé", 45, 1f).WithIcon(Item("Hamecon_1", GearArt.Hook(1))),
-                new GearLevel("Hameçon triple", 150, 2f).WithIcon(Item("Hamecon_2", GearArt.Hook(2))),
-                new GearLevel("Hameçon en acier forgé", 380, 3f).WithIcon(Item("Hamecon_3", GearArt.Hook(3))));
+                HookItem(0, "Hameçon simple", 0, 0f).WithStats("Rien de spécial."),
+                HookItem(1, "Hameçon triple", 60, 2f).WithStats("Tient mieux : 2 ratés de plus."),
+                HookItem(2, "Hameçon circulaire", 150, 1f).WithStats("Moins de tension, rushs plus rares.", tension: 0.8f, rush: 1.3f),
+                HookItem(3, "Hameçon forgé", 340, 3f).WithStats("3 ratés de plus, les fuyants glissent moins.", drift: 0.6f));
 
             // Sac : Value = nombre de places.
             GearLine bag = Line("Sac", GearCategory.Bag, "Sac", bagIcon,

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace FishAndChill.Save
@@ -40,6 +40,9 @@ namespace FishAndChill.Save
         public List<Specimen> Bag = new List<Specimen>();
         public List<Specimen> Aquarium = new List<Specimen>();
         public List<GearLevel> Gear = new List<GearLevel>();
+
+        /// <summary>Cannes et hameçons achetés (Level = numéro de l'objet), en plus de ceux du départ.</summary>
+        public List<GearLevel> GearOwned = new List<GearLevel>();
         public List<Catches> CatchLog = new List<Catches>();
         public int TotalCatches;
 

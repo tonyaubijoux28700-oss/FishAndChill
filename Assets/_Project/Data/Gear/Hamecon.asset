@@ -21,22 +21,50 @@ MonoBehaviour:
     _value: 0
     _value2: 0
     _icon: {fileID: 21300000, guid: 93eee584bcf3b40409a596b5211ae23d, type: 3}
-    _illustration: {fileID: 0}
-  - _name: "Hame\xE7on renforc\xE9"
-    _price: 45
-    _value: 1
-    _value2: 0
-    _icon: {fileID: 21300000, guid: 044ee12baf96f7e4182a1f78358c5447, type: 3}
+    _cursorFactor: 1
+    _tensionFactor: 1
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1
+    _driftFactor: 1
+    _specialty: "Rien de sp\xE9cial."
     _illustration: {fileID: 0}
   - _name: "Hame\xE7on triple"
-    _price: 150
+    _price: 60
     _value: 2
     _value2: 0
-    _icon: {fileID: 21300000, guid: e622fd96288be574ab289d038d80b887, type: 3}
+    _icon: {fileID: 21300000, guid: 044ee12baf96f7e4182a1f78358c5447, type: 3}
+    _cursorFactor: 1
+    _tensionFactor: 1
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1
+    _driftFactor: 1
+    _specialty: "Tient mieux : 2 rat\xE9s de plus."
     _illustration: {fileID: 0}
-  - _name: "Hame\xE7on en acier forg\xE9"
-    _price: 380
+  - _name: "Hame\xE7on circulaire"
+    _price: 150
+    _value: 1
+    _value2: 0
+    _icon: {fileID: 21300000, guid: e622fd96288be574ab289d038d80b887, type: 3}
+    _cursorFactor: 1
+    _tensionFactor: 0.8
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1.3
+    _driftFactor: 1
+    _specialty: Moins de tension, rushs plus rares.
+    _illustration: {fileID: 0}
+  - _name: "Hame\xE7on forg\xE9"
+    _price: 340
     _value: 3
     _value2: 0
     _icon: {fileID: 21300000, guid: 9566451c85823e949bcbe4e77d8763fa, type: 3}
+    _cursorFactor: 1
+    _tensionFactor: 1
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1
+    _driftFactor: 0.6
+    _specialty: "3 rat\xE9s de plus, les fuyants glissent moins."
     _illustration: {fileID: 0}

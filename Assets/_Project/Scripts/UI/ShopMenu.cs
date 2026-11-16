@@ -19,7 +19,8 @@ namespace FishAndChill.UI
     /// </summary>
     public sealed class ShopMenu : MonoBehaviour
     {
-        public enum Tab { Sell, Gear, Baits }
+        public enum Tab { Sell, Rods, Hooks, Baits, Bag }
+        private const int TabCount = 5;
 
         private static readonly Color PanelColor = new Color(0.07f, 0.10f, 0.14f, 1f);
         private static readonly Color RowColor = new Color(0.14f, 0.24f, 0.30f, 1f);
@@ -29,7 +30,9 @@ namespace FishAndChill.UI
         private static readonly Color TooExpensive = new Color(0.90f, 0.50f, 0.45f);
 
         private const string Greeting = "« Bienvenue ! Je rachète tes doublons. Le plus gros de chaque nouvelle espèce, garde-le pour l'aquarium ! »";
-        private const string GearGreeting = "« Du bon matériel, ça change tout ! Chaque achat remplace l'ancien. »";
+        private const string GearGreeting = "« Chaque canne a son caractère : achète celle qui te plaît, tu pourras changer quand tu veux ! »";
+        private const string HookGreeting = "« Un bon hameçon, c'est un poisson qui ne se décroche pas ! »";
+        private const string BagGreeting = "« Plus de place dans ton sac, moins d'allers-retours ! »";
         private const string BaitGreeting = "« Chaque appât a ses amateurs : regarde le carnet pour savoir qui aime quoi ! »";
         private const float RowsAreaHeight = 560f;
 
@@ -61,7 +64,9 @@ namespace FishAndChill.UI
         private RectTransform _sellRoot;
         private RectTransform _gearRoot;
         private Image _sellTab;
-        private Image _gearTab;
+        private Image _rodTab;
+        private Image _hookTab;
+        private Image _bagTab;
         private Text _prompt;
         private Text _coins;
         private Text _feedback;
@@ -115,7 +120,7 @@ namespace FishAndChill.UI
             int tabStep = TabStepPressed();
             if (tabStep != 0)
             {
-                ShowTab((Tab)(((int)CurrentTab + tabStep + 3) % 3));
+                ShowTab((Tab)(((int)CurrentTab + tabStep + TabCount) % TabCount));
                 return;
             }
 
@@ -126,9 +131,17 @@ namespace FishAndChill.UI
                 {
                     SellSlot(slot);
                 }
-                else if (CurrentTab == Tab.Gear)
+                else if (CurrentTab == Tab.Rods)
                 {
-                    BuyGear(slot);
+                    BuyItem(GearCategory.Rod, slot);
+                }
+                else if (CurrentTab == Tab.Hooks)
+                {
+                    BuyItem(GearCategory.Hook, slot);
+                }
+                else if (CurrentTab == Tab.Bag)
+                {
+                    if (slot == 0) BuyGear(GearCategory.Bag);
                 }
                 else
                 {
@@ -171,17 +184,23 @@ namespace FishAndChill.UI
         {
             CurrentTab = tab;
             _sellRoot.gameObject.SetActive(tab == Tab.Sell);
-            _gearRoot.gameObject.SetActive(tab == Tab.Gear);
+            _gearRoot.gameObject.SetActive(tab == Tab.Rods || tab == Tab.Hooks || tab == Tab.Bag);
             _baitRoot.gameObject.SetActive(tab == Tab.Baits);
-            _sellTab.color = tab == Tab.Sell ? Color.white : new Color(0.55f, 0.55f, 0.6f);
-            _gearTab.color = tab == Tab.Gear ? Color.white : new Color(0.55f, 0.55f, 0.6f);
-            _baitTab.color = tab == Tab.Baits ? Color.white : new Color(0.55f, 0.55f, 0.6f);
-            _help.text = tab == Tab.Sell
-                ? "1, 2, 3… : vendre ce poisson   •   V : tout vendre   •   Tab : onglet suivant   •   Échap : sortir"
-                : tab == Tab.Gear
-                    ? "1 à 3 : acheter   •   Tab : onglet suivant   •   Échap : sortir"
-                    : "1 à 6 : acheter un paquet   •   Tab : onglet suivant   •   Échap : sortir";
-            Say(tab == Tab.Sell ? Greeting : tab == Tab.Gear ? GearGreeting : BaitGreeting, Muted);
+            Color dim = new Color(0.55f, 0.55f, 0.6f);
+            _sellTab.color = tab == Tab.Sell ? Color.white : dim;
+            _rodTab.color = tab == Tab.Rods ? Color.white : dim;
+            _hookTab.color = tab == Tab.Hooks ? Color.white : dim;
+            _baitTab.color = tab == Tab.Baits ? Color.white : dim;
+            _bagTab.color = tab == Tab.Bag ? Color.white : dim;
+            const string end = "   •   Tab : onglet suivant   •   Échap : sortir";
+            switch (tab)
+            {
+                case Tab.Sell: _help.text = "1, 2, 3… : vendre ce poisson   •   V : tout vendre" + end; Say(Greeting, Muted); break;
+                case Tab.Rods: _help.text = "1 à 5 : acheter, ou prendre une canne déjà à toi" + end; Say(GearGreeting, Muted); break;
+                case Tab.Hooks: _help.text = "1 à 4 : acheter, ou prendre un hameçon déjà à toi" + end; Say(HookGreeting, Muted); break;
+                case Tab.Baits: _help.text = "1 à 6 : acheter un paquet" + end; Say(BaitGreeting, Muted); break;
+                default: _help.text = "1 : acheter le sac suivant" + end; Say(BagGreeting, Muted); break;
+            }
             Refresh();
         }
 
@@ -229,16 +248,43 @@ namespace FishAndChill.UI
 
         // ---------- Matériel ----------
 
-        /// <summary>Achète le niveau suivant de la famille numéro <paramref name="index"/> du catalogue (0 = canne).</summary>
-        public GearPurchase BuyGear(int index)
+        /// <summary>Achète (ou équipe, s'il est déjà à toi) l'objet numéro <paramref name="index"/> de cette famille.</summary>
+        public GearPurchase BuyItem(GearCategory category, int index)
         {
-            GearCatalog catalog = _progress.GearCatalog;
-            if (catalog == null || index < 0 || index >= catalog.Lines.Count)
+            GearLine line = _progress.GearCatalog != null ? _progress.GearCatalog.Line(category) : null;
+            GearLevel item = line != null ? line.At(index) : null;
+            if (item == null || index >= line.Levels.Count)
             {
                 return GearPurchase.Unavailable;
             }
 
-            GearLine line = catalog.Lines[index];
+            bool wasEquipped = _progress.Gear.Level(category) == index;
+            GearPurchase result = _progress.BuyGearItem(category, index);
+            switch (result)
+            {
+                case GearPurchase.Bought:
+                    Say($"« Excellent choix ! » {item.Name} : {EffectText(category, item)}", Good);
+                    break;
+                case GearPurchase.AlreadyOwned:
+                    Say(wasEquipped ? $"« Tu l'as déjà en main ! » ({item.Name})" : $"« C'est déjà à toi, tiens ! » {item.Name} en main.", Gold);
+                    break;
+                case GearPurchase.NotEnoughCoins:
+                    Say($"« Il te manque {item.Price - _progress.Wallet.Coins} pièces pour ça. Reviens avec des doublons ! »", TooExpensive);
+                    break;
+            }
+
+            return result;
+        }
+
+        /// <summary>Achète le niveau suivant de cette famille (le sac).</summary>
+        public GearPurchase BuyGear(GearCategory category)
+        {
+            GearLine line = _progress.GearCatalog != null ? _progress.GearCatalog.Line(category) : null;
+            if (line == null)
+            {
+                return GearPurchase.Unavailable;
+            }
+
             GearLevel next = GearShop.NextLevel(line, _progress.Gear);
             GearPurchase result = _progress.BuyGear(line.Category);
             switch (result)
@@ -263,8 +309,10 @@ namespace FishAndChill.UI
             switch (category)
             {
                 case GearCategory.Rod:
+                    if (!string.IsNullOrEmpty(level.Specialty)) return level.Specialty;
                     return $"zone de réussite +{level.Value * 100f:0} %, curseur plus lent";
                 case GearCategory.Hook:
+                    if (!string.IsNullOrEmpty(level.Specialty)) return level.Specialty;
                     int misses = Mathf.RoundToInt(level.Value);
                     return $"+{misses} raté{(misses > 1 ? "s" : "")} toléré{(misses > 1 ? "s" : "")}";
                 case GearCategory.Bait:
@@ -331,18 +379,31 @@ namespace FishAndChill.UI
         private void RefreshGear()
         {
             GearCatalog catalog = _progress.GearCatalog;
-            int count = catalog != null ? catalog.Lines.Count : 0;
-            EnsureGearRows(count);
+            GearCategory category = CurrentTab == Tab.Hooks ? GearCategory.Hook : CurrentTab == Tab.Bag ? GearCategory.Bag : GearCategory.Rod;
+            GearLine shown = catalog != null ? catalog.Line(category) : null;
+            if (shown == null)
+            {
+                EnsureGearRows(0);
+                return;
+            }
+
+            if (category != GearCategory.Bag)
+            {
+                RefreshItems(shown);
+                return;
+            }
+
+            EnsureGearRows(1);
             for (int i = 0; i < _gearRows.Count; i++)
             {
                 RowView row = _gearRows[i];
-                GearLine line = catalog.Lines[i];
+                GearLine line = shown;
                 int level = _progress.Gear.Level(line.Category);
                 GearLevel current = line.At(level);
                 GearLevel next = GearShop.NextLevel(line, _progress.Gear);
 
                 row.Picture.sprite = line.Icon;
-                row.Label.text = $"{i + 1}.   {current?.Name}   (niv. {level}/{line.MaxLevel})";
+                row.Label.text = $"1.   {current?.Name}   (niv. {level}/{line.MaxLevel})";
                 if (next == null)
                 {
                     row.Detail.text = $"Le meilleur ! {EffectText(line.Category, current)}";
@@ -356,6 +417,34 @@ namespace FishAndChill.UI
                 row.Detail.color = Muted;
                 row.Price.text = $"{next.Price} pièces";
                 row.Price.color = _progress.Wallet.Coins >= next.Price ? Gold : TooExpensive;
+            }
+        }
+
+        /// <summary>Une ligne par objet de la famille : possédé, en main, ou son prix.</summary>
+        private void RefreshItems(GearLine line)
+        {
+            EnsureGearRows(line.Levels.Count);
+            int equipped = _progress.Gear.Level(line.Category);
+            for (int i = 0; i < _gearRows.Count; i++)
+            {
+                RowView row = _gearRows[i];
+                GearLevel item = line.Levels[i];
+                bool owned = _progress.Gear.Owns(line.Category, i);
+                row.Picture.sprite = item.Icon != null ? item.Icon : line.Icon;
+                row.Label.text = $"{i + 1}.   {item.Name}{(i == equipped ? "   — en main" : string.Empty)}";
+                row.Label.color = i == equipped ? Gold : Color.white;
+                row.Detail.text = EffectText(line.Category, item);
+                row.Detail.color = Muted;
+                if (owned)
+                {
+                    row.Price.text = i == equipped ? "En main" : "À toi";
+                    row.Price.color = i == equipped ? Gold : Good;
+                }
+                else
+                {
+                    row.Price.text = $"{item.Price} pièces";
+                    row.Price.color = _progress.Wallet.Coins >= item.Price ? Gold : TooExpensive;
+                }
             }
         }
 
@@ -491,12 +580,17 @@ namespace FishAndChill.UI
             UiFactory.TitlePlaque(panel.rectTransform, _skin, "Boutique de Mahana", 42, new Vector2(0f, 462f), new Vector2(620f, 88f), out _);
 
             // Onglets.
-            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Vendre", 30, new Vector2(-300f, 384f), new Vector2(260f, 56f), out RectTransform sellTab);
-            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Matériel", 30, new Vector2(0f, 384f), new Vector2(260f, 56f), out RectTransform gearTab);
-            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Appâts", 30, new Vector2(300f, 384f), new Vector2(260f, 56f), out RectTransform baitTab);
-            _sellTab = sellTab.GetComponent<Image>();
-            _gearTab = gearTab.GetComponent<Image>();
-            _baitTab = baitTab.GetComponent<Image>();
+            Image TabPlaque(string title, float x)
+            {
+                UiFactory.TitlePlaque(panel.rectTransform, _skin, title, 30, new Vector2(x, 384f), new Vector2(240f, 56f), out RectTransform tab);
+                return tab.GetComponent<Image>();
+            }
+
+            _sellTab = TabPlaque("Vendre", -540f);
+            _rodTab = TabPlaque("Cannes", -270f);
+            _hookTab = TabPlaque("Hameçons", 0f);
+            _baitTab = TabPlaque("Appâts", 270f);
+            _bagTab = TabPlaque("Sacs", 540f);
 
             _feedback = AddText(panel.rectTransform, "Marchand", 28, TextAnchor.MiddleCenter);
             _feedback.horizontalOverflow = HorizontalWrapMode.Wrap;

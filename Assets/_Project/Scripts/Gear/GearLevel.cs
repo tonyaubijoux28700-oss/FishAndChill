@@ -17,6 +17,15 @@ namespace FishAndChill.Gear
         [SerializeField] private float _value;
         [SerializeField] private float _value2;
         [SerializeField, Tooltip("Icône de l'objet (inventaire, marchand).")] private Sprite _icon;
+
+        [Header("Spécialité (canne, hameçon)")]
+        [SerializeField, Tooltip("Vitesse du curseur (1 = normale, 0,8 = plus lent).")] private float _cursorFactor = 1f;
+        [SerializeField, Tooltip("Montée de la tension des poissons lourds (1 = normale, 0,5 = deux fois moins vite).")] private float _tensionFactor = 1f;
+        [SerializeField, Tooltip("Portée du lancer en plus, en cases.")] private float _castBonus;
+        [SerializeField, Tooltip("Emballement du curseur des poissons nerveux (1 = normal, 0,5 = moitié moins).")] private float _nervousFactor = 1f;
+        [SerializeField, Tooltip("Temps entre deux rushs (1 = normal, 1,5 = rushs plus rares).")] private float _rushFactor = 1f;
+        [SerializeField, Tooltip("Glissement de la zone des poissons fuyants (1 = normal, 0,6 = plus lent).")] private float _driftFactor = 1f;
+        [SerializeField, TextArea, Tooltip("Ce qui rend cet objet spécial, en une phrase.")] private string _specialty;
         [SerializeField, Tooltip("Grand dessin pour la vitrine de l'inventaire (la canne entière).")] private Sprite _illustration;
 
         public GearLevel()
@@ -36,6 +45,26 @@ namespace FishAndChill.Gear
         public float Value => _value;
         public float Value2 => _value2;
         public Sprite Icon => _icon;
+        public float CursorFactor => _cursorFactor <= 0f ? 1f : _cursorFactor;
+        public float TensionFactor => _tensionFactor <= 0f ? 1f : _tensionFactor;
+        public float CastBonus => _castBonus;
+        public float NervousFactor => _nervousFactor <= 0f ? 1f : _nervousFactor;
+        public float RushFactor => _rushFactor <= 0f ? 1f : _rushFactor;
+        public float DriftFactor => _driftFactor <= 0f ? 1f : _driftFactor;
+        public string Specialty => _specialty;
+
+        /// <summary>Donne sa spécialité à l'objet (génération des données et tests).</summary>
+        public GearLevel WithStats(string specialty, float cursor = 1f, float tension = 1f, float cast = 0f, float nervous = 1f, float rush = 1f, float drift = 1f)
+        {
+            _specialty = specialty;
+            _cursorFactor = cursor;
+            _tensionFactor = tension;
+            _castBonus = cast;
+            _nervousFactor = nervous;
+            _rushFactor = rush;
+            _driftFactor = drift;
+            return this;
+        }
         public Sprite Illustration => _illustration != null ? _illustration : _icon;
 
         /// <summary>Donne son grand dessin à l'objet (génération des données).</summary>

@@ -1,4 +1,4 @@
-# FishAndChill
+﻿# FishAndChill
 
 Jeu PC de collection de poissons par la pêche : le joueur pêche (QTE à jauge de timing),
 remplit un aquarium géant avec toutes les espèces, revend les doublons pour améliorer son
@@ -140,12 +140,19 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   `WorldMap.AddWalkableArea`), la caméra s'y cale (`CameraFollow.SetBoundsOverride`). **Pas de pêche dedans**
   (`FishingController.CanFishHere`).
 - **Marchand** (`UI/ShopMenu`) : grande fenêtre 1520×940 (canvas ordre 13, lignes jusqu'à 120 px, icônes et textes agrandis) ; E devant le comptoir ouvre le menu (joueur `Locked`), deux onglets (**Tab** ou ←/→) :
-  « Vendre » (1, 2, 3… vend un poisson, V vend tout) et « Matériel » (1 à 4 achète le niveau suivant). Échap/E ferme. Règles dans `FishShop` (testées) : il n'achète que les doublons (espèce déjà dans
+  « Vendre » (1, 2, 3… vend un poisson, V vend tout), « Cannes », « Hameçons », « Appâts », « Sacs ». Échap/E ferme. Règles dans `FishShop` (testées) : il n'achète que les doublons (espèce déjà dans
   l'aquarium, ou exemplaires en trop : il laisse le plus gros), prix de 80 % à 130 % du `BasePrice` selon la taille.
 - **Matériel** (`Scripts/Gear`, données dans `Data/Gear/`, générées par `GearSetup`) : 3 familles (`GearLine`,
   ScriptableObjects) réunies dans `GearCatalog` (l'appât a son propre système, voir Appâts), chacune avec un niveau 0 gratuit puis 3 améliorations :
-  canne (zone de réussite +15/30/45 %, curseur plus lent), hameçon (+1/2/3 ratés tolérés), appât (espèces rares plus
-  fréquentes, touches plus rapides), sac (4/5/6 places). Prix 45 à 480 pièces. Niveaux du joueur dans
+  sac (4/5/6 places, niveaux). **Cannes et hameçons = objets à choisir** (pas des niveaux) : on les achète puis on
+  équipe celui qu'on veut ; chacun a sa **spécialité** (`GearLevel.WithStats` : curseur, tension, portée du lancer,
+  poissons nerveux / rushs / fuyants ; `GearEffects` multiplie canne × hameçon, appliqué par `QteChallenge` et
+  `FishingController`). Cannes : bambou, légère (calme les nerveux, tension ×1,25), longue (+2,5 cases), lourde
+  (tension ×0,5, rushs espacés), compétition. Hameçons : simple, triple (+2 ratés), circulaire (tension ×0,8, rushs
+  rares), forgé (+3 ratés, fuyants ralentis). Possédés dans `GearLoadout` (`Owns`/`Own`/`Equip`/`Cycle`), achat par
+  `GearShop.TryBuyItem` / `PlayerProgress.BuyGearItem` (testés), sauvegardés dans `SaveData.GearOwned` (ancienne
+  sauvegarde : tout ce qui était sous le niveau atteint est gardé). Marchand : onglets Vendre / Cannes / Hameçons /
+  Appâts / Sacs. Inventaire : **R** (physique) change de canne, **F** d'hameçon (gâchettes hautes à la manette). Niveaux du joueur dans
   `PlayerProgress.Gear` (`GearLoadout`), achat par `PlayerProgress.BuyGear` / `GearShop` (testés). Effets calculés par
   `GearEffects` (testé) et appliqués par `FishingController` (QTE, tirage de l'espèce, attente de la touche).
 - **Appâts** (`Scripts/Gear` : `Bait` et `BaitCatalog`, ScriptableObjects dans `Data/Gear/Appats/`, générés par `BaitSetup`) :
