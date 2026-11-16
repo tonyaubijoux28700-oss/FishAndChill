@@ -65,6 +65,37 @@ namespace FishAndChill.Collection
             return result;
         }
 
+        private readonly System.Collections.Generic.HashSet<string> _claimedRewards = new System.Collections.Generic.HashSet<string>();
+
+        /// <summary>Récompenses de collection déjà encaissées (clés « zone:palier », voir <see cref="CollectionRewards"/>).</summary>
+        public System.Collections.Generic.ICollection<string> ClaimedRewards => _claimedRewards;
+
+        /// <summary>Encaisse une récompense de collection (une seule fois) : ajoute les pièces.</summary>
+        public bool ClaimReward(string key, int coins)
+        {
+            EnsureCreated();
+            if (string.IsNullOrEmpty(key) || !_claimedRewards.Add(key))
+            {
+                return false;
+            }
+
+            Wallet.Add(coins); // déclenche Changed : la sauvegarde suit
+            return true;
+        }
+
+        /// <summary>Remet les récompenses encaissées (chargement d'une sauvegarde), sans redonner les pièces.</summary>
+        public void RestoreClaimedRewards(System.Collections.Generic.IEnumerable<string> keys)
+        {
+            _claimedRewards.Clear();
+            if (keys != null)
+            {
+                foreach (string key in keys)
+                {
+                    _claimedRewards.Add(key);
+                }
+            }
+        }
+
         private void RaiseChanged() => Changed?.Invoke();
     }
 }

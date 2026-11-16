@@ -4,38 +4,54 @@ using FishAndChill.Fishing;
 using FishAndChill.Player;
 using FishAndChill.World;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace FishAndChill.UI
 {
     /// <summary>
-    /// L'index des poissons : une icône de livre en bas à gauche (à côté du sac, compteur « 3/8 »),
-    /// et un grand livre ouvert avec Tab (ou Y à la manette) qui montre toutes les espèces des zones :
-    /// les espèces découvertes avec leur dessin, les autres en silhouette « ??? ».
-    /// Flèches / ZQSD pour choisir une espèce et voir sa fiche ; Tab ou Échap pour fermer.
+    /// L'index des espèces, en carnet de pêcheur : une icône de livre en bas à gauche (compteur « 12/29 ») et, avec Tab
+    /// (ou Y à la manette), un carnet ouvert sur deux pages.
+    /// À gauche : un onglet par zone (Q/E ou gâchettes hautes pour changer), la progression de la zone avec ses paliers
+    /// de récompense (25 %, 50 %, 100 % : des pièces, et un tampon « Complet »), et la grille des espèces (dessins à
+    /// l'échelle de leur taille, silhouettes « ??? » pour les inconnues).
+    /// À droite : la fiche de l'espèce choisie (grand dessin, rareté, heure, zone, description réelle, prises, record),
+    /// ou un indice pour une espèce pas encore pêchée. Les paliers sont encaissés dès qu'ils sont atteints.
     /// </summary>
     public sealed class FishIndex : MonoBehaviour
     {
+        private static readonly Color Ink = new Color(0.26f, 0.16f, 0.08f);
+        private static readonly Color InkSoft = new Color(0.50f, 0.38f, 0.24f);
         private static readonly Color Gold = new Color(1.00f, 0.84f, 0.30f);
-        private static readonly Color Muted = new Color(0.66f, 0.72f, 0.78f);
-        private static readonly Color UnknownTint = new Color(0.70f, 0.74f, 0.80f);
+        private static readonly Color CellTint = new Color(0.86f, 0.80f, 0.66f);
         // Presque noir : la teinte multiplie les couleurs du dessin, il ne doit plus rien en rester (ni rayures, ni taches).
-        private static readonly Color Silhouette = new Color(0.02f, 0.06f, 0.09f, 0.88f);
+        private static readonly Color Silhouette = new Color(0.10f, 0.08f, 0.06f, 0.85f);
+
+        private static readonly Color[] ZoneColors =
+        {
+            new Color(0.22f, 0.70f, 0.70f),
+            new Color(0.36f, 0.52f, 0.86f),
+            new Color(0.86f, 0.52f, 0.30f),
+            new Color(0.62f, 0.40f, 0.78f),
+        };
 
         private const int Columns = 4;
-        private const int Rows = 2;
+        private const int Rows = 3;
         private const int PerPage = Columns * Rows;
-        private const float CardWidth = 250f;
-        private const float CardHeight = 200f;
-        private const float CardGap = 18f;
+        private const float CellWidth = 160f;
+        private const float CellHeight = 150f;
+        private const float CellGap = 12f;
         private const float IconSize = 112f;
+        private const float PageWidth = 740f;
+        private const float PageHeight = 810f;
+        private const float BarWidth = 500f;
 
-        [SerializeField, Tooltip("Zones dont les espèces figurent dans l'index, dans l'ordre d'affichage.")]
+        [SerializeField, Tooltip("Zones dont les espèces figurent dans l'index, dans l'ordre des onglets.")]
         private FishingZone[] _zones = new FishingZone[0];
 
         [SerializeField] private FishingController _fishing;
 
-        [SerializeField, Tooltip("Pour indiquer les espèces déjà exposées dans l'aquarium.")]
+        [SerializeField, Tooltip("Aquarium (espèces exposées) et porte-monnaie (récompenses).")]
         private PlayerProgress _progress;
         [SerializeField] private PlayerMovement _player;
 
@@ -45,7 +61,18 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Charte pixel art de l'interface.")]
         private UiSkin _skin;
 
-        private sealed class CardView
+        [Header("Carnet")]
+        [SerializeField] private Sprite _cover;
+        [SerializeField] private Sprite _page;
+        [SerializeField] private Sprite _cell;
+        [SerializeField] private Sprite _ribbon;
+        [SerializeField] private Sprite _spine;
+        [SerializeField] private Sprite _stamp;
+        [SerializeField] private Sprite _sun;
+        [SerializeField] private Sprite _moon;
+        [SerializeField] private Sprite _coin;
+
+        private sealed class CellView
         {
             public Image Frame;
             public Image Fish;
@@ -54,52 +81,96 @@ namespace FishAndChill.UI
             public Text Name;
         }
 
-        private readonly List<CardView> _cards = new List<CardView>();
+        private sealed class TabView
+        {
+            public RectTransform Rect;
+            public Image Ribbon;
+            public Text Label;
+        }
+
+        private sealed class MilestoneView
+        {
+            public Image Coin;
+            public Text Label;
+        }
+
+        private readonly List<CellView> _cells = new List<CellView>();
+        private readonly List<TabView> _tabs = new List<TabView>();
+        private readonly List<MilestoneView> _milestones = new List<MilestoneView>();
+        private readonly List<List<FishSpecies>> _zoneSpecies = new List<List<FishSpecies>>();
         private SpeciesIndex _index;
-        private RectTransform _iconRect;
         private Text _badge;
         private GameObject _window;
-        private Text _subtitle;
+        private Text _zoneName;
+        private Text _zoneRegion;
+        private Image _barFill;
+        private Text _barText;
+        private RectTransform _stampRect;
+        private Text _pageText;
         private Image _detailFish;
+        private Text _detailNumber;
         private Text _detailName;
         private Text _detailScientific;
-        private Text _detailStats;
-        private Text _page;
+        private Image _rarityGem;
+        private Text _rarityText;
+        private Image _timeIcon;
+        private Text _timeText;
+        private Text _zoneText;
+        private Text _description;
+        private readonly Text[] _stats = new Text[3];
+        private Text _aquarium;
+        private Text _help;
+        private RectTransform _bannerRect;
+        private Text _bannerText;
+        private float _bannerTime;
+        private int _zone;
         private int _selected;
 
         public bool IsOpen => _window != null && _window.activeSelf;
 
-        /// <summary>Espèce sélectionnée (numéro dans l'index).</summary>
+        /// <summary>Espèce sélectionnée (numéro dans la zone affichée).</summary>
         public int Selected => _selected;
+
+        /// <summary>Zone affichée (onglet).</summary>
+        public int Zone => _zone;
 
         public SpeciesIndex Index => _index;
 
         private CatchLog Log => _fishing != null ? _fishing.CatchLog : null;
 
+        private List<FishSpecies> Current => _zoneSpecies.Count > 0 ? _zoneSpecies[_zone] : new List<FishSpecies>();
+
         private void Start()
         {
-            var species = new List<FishSpecies>();
+            var all = new List<FishSpecies>();
             foreach (FishingZone zone in _zones)
             {
-                if (zone == null)
+                var list = new List<FishSpecies>();
+                var seen = new HashSet<string>();
+                if (zone != null)
                 {
-                    continue;
+                    foreach (FishingZone.SpeciesEntry entry in zone.Species)
+                    {
+                        if (entry.Species != null && seen.Add(entry.Species.Id))
+                        {
+                            list.Add(entry.Species);
+                            all.Add(entry.Species);
+                        }
+                    }
                 }
 
-                foreach (FishingZone.SpeciesEntry entry in zone.Species)
-                {
-                    species.Add(entry.Species);
-                }
+                _zoneSpecies.Add(list);
             }
 
-            _index = new SpeciesIndex(species);
+            _index = new SpeciesIndex(all);
             BuildUi();
             if (Log != null)
             {
-                Log.Changed += Refresh;
+                Log.Changed += OnLogChanged;
             }
 
             _window.SetActive(false);
+            ClaimRewards();
             Refresh();
         }
 
@@ -107,12 +178,19 @@ namespace FishAndChill.UI
         {
             if (Log != null)
             {
-                Log.Changed -= Refresh;
+                Log.Changed -= OnLogChanged;
             }
+        }
+
+        private void OnLogChanged()
+        {
+            ClaimRewards();
+            Refresh();
         }
 
         private void Update()
         {
+            UpdateBanner();
             if (IsOpen)
             {
                 if (IndexInput.TogglePressedThisFrame() || IndexInput.ClosePressedThisFrame())
@@ -121,18 +199,44 @@ namespace FishAndChill.UI
                     return;
                 }
 
+                int zoneStep = ZoneStepThisFrame();
+                if (zoneStep != 0 && _zoneSpecies.Count > 1)
+                {
+                    ShowZone((_zone + zoneStep + _zoneSpecies.Count) % _zoneSpecies.Count);
+                }
+
                 (int dx, int dy) = IndexInput.NavigationThisFrame();
                 if (dx != 0 || dy != 0)
                 {
-                    Select(SpeciesIndex.Move(_selected, dx, -dy, Columns, _index.Count));
+                    Select(SpeciesIndex.Move(_selected, dx, -dy, Columns, Current.Count));
                 }
 
-                AnimateCards();
+                Animate();
             }
             else if (IndexInput.TogglePressedThisFrame() && CanOpenNow())
             {
                 Open();
             }
+        }
+
+        private static int ZoneStepThisFrame()
+        {
+            var keyboard = Keyboard.current;
+            if (keyboard != null)
+            {
+                // Touches physiques Q et E (A et E sur un clavier AZERTY), juste au-dessus de ZQSD.
+                if (keyboard.qKey.wasPressedThisFrame) return -1;
+                if (keyboard.eKey.wasPressedThisFrame) return 1;
+            }
+
+            var gamepad = Gamepad.current;
+            if (gamepad != null)
+            {
+                if (gamepad.leftShoulder.wasPressedThisFrame) return -1;
+                if (gamepad.rightShoulder.wasPressedThisFrame) return 1;
+            }
+
+            return 0;
         }
 
         public void Open()
@@ -143,6 +247,7 @@ namespace FishAndChill.UI
                 _player.Locked = true;
             }
 
+            ClaimRewards();
             Refresh();
         }
 
@@ -155,10 +260,18 @@ namespace FishAndChill.UI
             }
         }
 
-        /// <summary>Sélectionne une espèce (et tourne la page si besoin).</summary>
+        /// <summary>Ouvre l'onglet d'une zone.</summary>
+        public void ShowZone(int zone)
+        {
+            _zone = Mathf.Clamp(zone, 0, Mathf.Max(0, _zoneSpecies.Count - 1));
+            _selected = 0;
+            Refresh();
+        }
+
+        /// <summary>Sélectionne une espèce de la zone affichée (et tourne la page si besoin).</summary>
         public void Select(int index)
         {
-            _selected = Mathf.Clamp(index, 0, Mathf.Max(0, _index.Count - 1));
+            _selected = Mathf.Clamp(index, 0, Mathf.Max(0, Current.Count - 1));
             Refresh();
         }
 
@@ -173,6 +286,61 @@ namespace FishAndChill.UI
             return _player == null || !_player.Locked;
         }
 
+        // ---------- Récompenses ----------
+
+        /// <summary>Encaisse les paliers atteints (25, 50, 100 % d'une zone) et l'annonce par un bandeau.</summary>
+        private void ClaimRewards()
+        {
+            if (_progress == null || Log == null || !Save.SaveManager.InGame)
+            {
+                return;
+            }
+
+            for (int z = 0; z < _zones.Length && z < _zoneSpecies.Count; z++)
+            {
+                if (_zones[z] == null)
+                {
+                    continue;
+                }
+
+                List<FishSpecies> species = _zoneSpecies[z];
+                int discovered = CollectionRewards.Discovered(species, Log);
+                foreach (int percent in CollectionRewards.Pending(_zones[z].Id, discovered, species.Count, _progress.ClaimedRewards))
+                {
+                    int coins = CollectionRewards.CoinsFor(percent);
+                    if (_progress.ClaimReward(CollectionRewards.Key(_zones[z].Id, percent), coins))
+                    {
+                        string what = percent == 100 ? "Zone complète" : $"{percent} % découverts";
+                        ShowBanner($"Carnet — {_zones[z].DisplayName} : {what} !   +{coins} pièces");
+                    }
+                }
+            }
+        }
+
+        private void ShowBanner(string text)
+        {
+            _bannerText.text = text;
+            _bannerTime = 4.5f;
+            _bannerRect.gameObject.SetActive(true);
+        }
+
+        private void UpdateBanner()
+        {
+            if (_bannerTime <= 0f)
+            {
+                return;
+            }
+
+            _bannerTime -= Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(Mathf.Min(4.5f - _bannerTime, _bannerTime) / 0.3f);
+            _bannerRect.localScale = Vector3.one * Mathf.Lerp(0.8f, 1f, t);
+            _bannerRect.anchoredPosition = new Vector2(0f, Mathf.Lerp(-20f, 0f, t) - 482f);
+            if (_bannerTime <= 0f)
+            {
+                _bannerRect.gameObject.SetActive(false);
+            }
+        }
+
         // ---------- Rafraîchissement ----------
 
         private void Refresh()
@@ -183,118 +351,141 @@ namespace FishAndChill.UI
             }
 
             CatchLog log = Log;
-            int discovered = _index.DiscoveredCount(log);
-            _badge.text = $"{discovered}/{_index.Count}";
-            _subtitle.text = $"{ZoneNames()}   —   {discovered} / {_index.Count} espèces découvertes";
+            _badge.text = $"{_index.DiscoveredCount(log)}/{_index.Count}";
+
+            for (int i = 0; i < _tabs.Count; i++)
+            {
+                bool active = i == _zone;
+                _tabs[i].Rect.anchoredPosition = new Vector2(_tabs[i].Rect.anchoredPosition.x, active ? 462f : 452f);
+                _tabs[i].Ribbon.color = active ? ZoneColors[i % ZoneColors.Length] : Color.Lerp(ZoneColors[i % ZoneColors.Length], new Color(0.4f, 0.36f, 0.3f), 0.55f);
+                _tabs[i].Label.color = active ? Color.white : new Color(0.86f, 0.84f, 0.8f);
+            }
+
+            List<FishSpecies> species = Current;
+            FishingZone zone = _zones.Length > _zone ? _zones[_zone] : null;
+            int discovered = CollectionRewards.Discovered(species, log);
+            _zoneName.text = zone != null ? zone.DisplayName : "Index";
+            _zoneRegion.text = zone != null ? zone.Region : string.Empty;
+            float ratio = species.Count > 0 ? (float)discovered / species.Count : 0f;
+            _barFill.rectTransform.sizeDelta = new Vector2(Mathf.Max(0f, (BarWidth - 12f) * ratio), 14f);
+            _barText.text = $"{discovered} / {species.Count}";
+            for (int m = 0; m < _milestones.Count; m++)
+            {
+                int percent = CollectionRewards.Percents[m];
+                bool claimed = zone != null && _progress != null && _progress.ClaimedRewards.Contains(CollectionRewards.Key(zone.Id, percent));
+                _milestones[m].Coin.color = claimed ? Color.white : new Color(0.55f, 0.50f, 0.42f, 0.55f);
+                _milestones[m].Label.text = claimed ? "Reçu" : $"+{CollectionRewards.CoinsFor(percent)}";
+                _milestones[m].Label.color = claimed ? new Color(0.22f, 0.50f, 0.18f) : InkSoft;
+            }
+
+            _stampRect.gameObject.SetActive(species.Count > 0 && discovered == species.Count);
 
             int page = SpeciesIndex.PageOf(_selected, PerPage);
-            int pages = _index.PageCount(PerPage);
-            _page.text = pages > 1 ? $"Page {page + 1} / {pages}" : string.Empty;
+            int pages = species.Count > 0 ? (species.Count + PerPage - 1) / PerPage : 1;
+            _pageText.text = pages > 1 ? $"Page {page + 1} / {pages}" : string.Empty;
 
-            for (int i = 0; i < _cards.Count; i++)
+            for (int i = 0; i < _cells.Count; i++)
             {
-                CardView card = _cards[i];
+                CellView cell = _cells[i];
                 int number = page * PerPage + i;
-                bool exists = number < _index.Count;
-                card.Frame.gameObject.SetActive(exists);
+                bool exists = number < species.Count;
+                cell.Frame.gameObject.SetActive(exists);
                 if (!exists)
                 {
                     continue;
                 }
 
-                FishSpecies species = _index.Species[number];
-                bool known = log != null && log.IsDiscovered(species.Id);
-                card.Number.text = $"{number + 1}";
-                card.Fish.sprite = species.Sprite;
+                FishSpecies s = species[number];
+                bool known = log != null && log.IsDiscovered(s.Id);
+                cell.Number.text = $"{number + 1}";
+                cell.Fish.sprite = s.Sprite;
                 // À l'échelle de la taille adulte maximale de l'espèce : une ablette paraît petite, une carangue remplit la case.
-                card.Fish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(CardWidth - 50f, 92f), SpritePixels(species), species.SizeRangeCm.y);
-                card.Fish.color = known ? (species.Sprite != null ? Color.white : species.PlaceholderColor) : Silhouette;
-                card.Name.text = known ? species.CommonName : "???";
-                card.Name.color = known ? Color.white : Muted;
-                card.Gem.color = known ? species.Rarity.DisplayColor() : new Color(0.3f, 0.34f, 0.4f);
+                cell.Fish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(CellWidth - 30f, 66f), SpritePixels(s), s.SizeRangeCm.y);
+                cell.Fish.color = known ? (s.Sprite != null ? Color.white : s.PlaceholderColor) : Silhouette;
+                cell.Name.text = known ? s.CommonName : "???";
+                cell.Name.color = known ? Ink : InkSoft;
+                cell.Gem.color = known ? s.Rarity.DisplayColor() : new Color(0.55f, 0.50f, 0.42f);
             }
 
-            RefreshDetail(log);
+            RefreshDetail(log, zone);
+            _help.text = _zoneSpecies.Count > 1
+                ? $"{ZoneKeys()} : changer de zone      Flèches : choisir      Tab : fermer"
+                : "Flèches : choisir      Tab : fermer";
+        }
+
+        private static string ZoneKeys()
+        {
+            var keyboard = Keyboard.current;
+            return keyboard != null ? $"{keyboard.qKey.displayName} / {keyboard.eKey.displayName}" : "Q / E";
         }
 
         private static Vector2 SpritePixels(FishSpecies species) => species.Sprite != null ? species.Sprite.rect.size : new Vector2(2f, 1f);
 
-        private void RefreshDetail(CatchLog log)
+        private void RefreshDetail(CatchLog log, FishingZone zone)
         {
-            if (_index.Count == 0)
+            List<FishSpecies> species = Current;
+            bool any = species.Count > 0;
+            _detailFish.gameObject.SetActive(any);
+            if (!any)
             {
-                _detailFish.gameObject.SetActive(false);
                 _detailName.text = "Aucune espèce";
-                _detailScientific.text = string.Empty;
-                _detailStats.text = string.Empty;
                 return;
             }
 
-            FishSpecies species = _index.Species[_selected];
-            bool known = log != null && log.IsDiscovered(species.Id);
-            _detailFish.gameObject.SetActive(true);
-            _detailFish.sprite = species.Sprite;
-            _detailFish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(206f, 92f), SpritePixels(species), species.SizeRangeCm.y);
+            FishSpecies s = species[Mathf.Clamp(_selected, 0, species.Count - 1)];
+            bool known = log != null && log.IsDiscovered(s.Id);
+            _detailFish.sprite = s.Sprite;
+            _detailFish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(560f, 200f), SpritePixels(s), s.SizeRangeCm.y);
             _detailFish.color = known ? Color.white : Silhouette;
+            _detailNumber.text = $"N° {_selected + 1}";
+
+            // Rareté, heure et zone : toujours visibles, ce sont aussi les indices d'une espèce inconnue.
+            _rarityGem.color = s.Rarity.DisplayColor();
+            _rarityText.text = s.Rarity.DisplayName();
+            _timeIcon.sprite = s.ActiveTime == ActiveTime.Night ? _moon : _sun;
+            _timeIcon.color = Color.white;
+            _timeText.text = s.ActiveTime == ActiveTime.Always ? "Toute la journée" : DayCycleMath.ActiveText(s.ActiveTime);
+            _zoneText.text = zone != null ? zone.DisplayName : string.Empty;
 
             if (!known)
             {
-                _detailName.text = $"N° {_selected + 1}   ???";
-                _detailScientific.text = "Espèce inconnue";
-                _detailStats.text = "Pêche-la pour la découvrir !";
-                _detailStats.color = Muted;
+                _detailName.text = "???";
+                _detailScientific.text = "Espèce pas encore pêchée";
+                _description.text = $"Indice : {LowerFirst(_timeText.text)}, {s.Rarity.DisplayName().ToLowerInvariant()}, " +
+                    $"de {s.SizeRangeCm.x:0} à {s.SizeRangeCm.y:0} cm.\nPêche-la pour en savoir plus !";
+                _stats[0].text = "Prises\n—";
+                _stats[1].text = "Record\n—";
+                _stats[2].text = "Taille\n?";
+                _aquarium.text = string.Empty;
                 return;
             }
 
-            Color rarity = species.Rarity.DisplayColor();
-            Vector2 range = species.SizeRangeCm;
-            _detailName.text = $"N° {_selected + 1}   {species.CommonName}";
-            CaughtFish specimen = _progress != null && _progress.Aquarium != null ? _progress.Aquarium.SpecimenOf(species.Id) : null;
-            _detailScientific.text = specimen != null
-                ? $"{species.ScientificName}   •  {species.Kind.DisplayName()}   <color=#FFD54D>•  Dans l'aquarium ({specimen.SizeCm:0} cm)</color>"
-                : $"{species.ScientificName}   •  {species.Kind.DisplayName()}   •  Pas encore dans l'aquarium";
-            _detailStats.text =
-                $"<color=#{ColorUtility.ToHtmlStringRGB(rarity)}>{species.Rarity.DisplayName()}</color>" +
-                $"   •   Prises : {log.CountOf(species.Id)}" +
-                $"   •   Record : {log.BestSizeOf(species.Id):0} cm" +
-                $"   •   Taille : {range.x:0} à {range.y:0} cm" +
-                (species.ActiveTime != ActiveTime.Always ? $"   •   {World.DayCycleMath.ActiveText(species.ActiveTime)}" : string.Empty);
-            _detailStats.color = Color.white;
+            Vector2 range = s.SizeRangeCm;
+            _detailName.text = s.CommonName;
+            _detailScientific.text = $"{s.ScientificName}  •  {s.Kind.DisplayName()}";
+            _description.text = string.IsNullOrEmpty(s.Description) ? "—" : s.Description;
+            _stats[0].text = $"Prises\n{log.CountOf(s.Id)}";
+            _stats[1].text = $"Record\n{log.BestSizeOf(s.Id):0} cm";
+            _stats[2].text = $"Taille\n{range.x:0} à {range.y:0} cm";
+            CaughtFish specimen = _progress != null && _progress.Aquarium != null ? _progress.Aquarium.SpecimenOf(s.Id) : null;
+            _aquarium.text = specimen != null ? $"Exposé dans l'aquarium ({specimen.SizeCm:0} cm)" : "Pas encore dans l'aquarium";
+            _aquarium.color = specimen != null ? new Color(0.22f, 0.50f, 0.18f) : InkSoft;
         }
 
-        private string ZoneNames()
-        {
-            var names = new List<string>();
-            foreach (FishingZone zone in _zones)
-            {
-                if (zone != null)
-                {
-                    names.Add(zone.DisplayName);
-                }
-            }
+        private static string LowerFirst(string text) => string.IsNullOrEmpty(text) ? text : char.ToLowerInvariant(text[0]) + text.Substring(1);
 
-            return names.Count > 0 ? string.Join(", ", names) : "Index";
-        }
-
-        private void AnimateCards()
+        private void Animate()
         {
             float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 6f);
             int first = SpeciesIndex.PageOf(_selected, PerPage) * PerPage;
-            CatchLog log = Log;
-            for (int i = 0; i < _cards.Count; i++)
+            for (int i = 0; i < _cells.Count; i++)
             {
-                int number = first + i;
-                if (number >= _index.Count)
-                {
-                    continue;
-                }
-
-                bool known = log != null && log.IsDiscovered(_index.Species[number].Id);
-                Color baseTint = known ? Color.white : UnknownTint;
-                bool selected = number == _selected;
-                _cards[i].Frame.color = selected ? Color.Lerp(Color.white, Gold, 0.5f + 0.5f * pulse) : baseTint;
-                _cards[i].Frame.rectTransform.localScale = Vector3.one * (selected ? 1.04f : 1f);
+                bool selected = first + i == _selected;
+                _cells[i].Frame.color = selected ? Color.Lerp(Color.white, Gold, 0.35f + 0.4f * pulse) : CellTint;
+                _cells[i].Frame.rectTransform.localScale = Vector3.one * (selected ? 1.05f : 1f);
             }
+
+            _detailFish.rectTransform.anchoredPosition = new Vector2(Mathf.Sin(Time.unscaledTime * 1.3f) * 6f, Mathf.Sin(Time.unscaledTime * 2.6f) * 4f);
         }
 
         // ---------- Construction ----------
@@ -303,6 +494,13 @@ namespace FishAndChill.UI
 
         private Color SkinTint(Color fallback) => _skin != null ? Color.white : fallback;
 
+        private Text InkLabel(RectTransform parent, string name, int size, TextAnchor anchor, Color color)
+        {
+            Text text = UiFactory.Label(parent, name, size, anchor, color, shadow: false);
+            text.supportRichText = true;
+            return text;
+        }
+
         private void BuildUi()
         {
             UiFactory.UseSkin(_skin);
@@ -310,7 +508,7 @@ namespace FishAndChill.UI
             canvasObject.transform.SetParent(transform, false);
             var canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 8;
+            canvas.sortingOrder = 12; // au-dessus de l'en-tête du jeu (10), sous la pause (20)
             var scaler = canvasObject.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
@@ -319,105 +517,201 @@ namespace FishAndChill.UI
 
             BuildIcon(root);
 
-            // Le livre ouvert, au centre de l'écran.
-            Image window = UiFactory.Sliced(root, "Index des espèces", SkinSprite(s => s.Panel), SkinTint(new Color(0.08f, 0.12f, 0.19f)));
-            _window = window.gameObject;
-            RectTransform panel = window.rectTransform;
-            UiFactory.Center(panel, new Vector2(0f, 20f), new Vector2(1200f, 790f));
+            // Le carnet : voile, onglets (derrière la couverture), couverture, deux pages et le pli.
+            Image veil = UiFactory.Plain(root, "Voile", new Color(0.02f, 0.04f, 0.06f, 0.55f));
+            UiFactory.Stretch(veil.rectTransform);
+            _window = veil.gameObject;
+            RectTransform book = veil.rectTransform;
 
-            UiFactory.TitlePlaque(panel, _skin, "Index des espèces", 36, new Vector2(0f, 387f), new Vector2(520f, 76f), out _);
+            for (int i = 0; i < _zones.Length; i++)
+            {
+                _tabs.Add(BuildTab(book, i));
+            }
 
-            _subtitle = UiFactory.Label(panel, "Zones", 24, TextAnchor.MiddleCenter, Muted);
-            UiFactory.Center(_subtitle.rectTransform, new Vector2(0f, 318f), new Vector2(1100f, 36f));
+            Image cover = UiFactory.Sliced(book, "Couverture", _cover, new Color(0.40f, 0.22f, 0.12f));
+            UiFactory.Center(cover.rectTransform, new Vector2(0f, 0f), new Vector2(1580f, 880f));
+            RectTransform left = BuildPage(book, "Page de gauche", -382f);
+            RectTransform right = BuildPage(book, "Page de droite", 382f);
+            Image spine = UiFactory.Plain(book, "Pli", Color.white);
+            spine.sprite = _spine;
+            UiFactory.Center(spine.rectTransform, Vector2.zero, new Vector2(70f, PageHeight));
 
-            float gridWidth = Columns * CardWidth + (Columns - 1) * CardGap;
+            UiFactory.TitlePlaque(book, _skin, "Carnet du pêcheur", 32, new Vector2(382f, 440f), new Vector2(440f, 70f), out _);
+
+            BuildLeftPage(left);
+            BuildRightPage(right);
+
+            // Bandeau des récompenses (visible même carnet fermé).
+            _bannerText = UiFactory.TitlePlaque(root, _skin, string.Empty, 28, new Vector2(0f, -482f), new Vector2(900f, 72f), out _bannerRect);
+            _bannerRect.gameObject.SetActive(false);
+        }
+
+        private RectTransform BuildPage(RectTransform book, string name, float x)
+        {
+            Image page = UiFactory.Sliced(book, name, _page, new Color(0.96f, 0.91f, 0.78f));
+            UiFactory.Center(page.rectTransform, new Vector2(x, 0f), new Vector2(PageWidth, PageHeight));
+            return page.rectTransform;
+        }
+
+        private TabView BuildTab(RectTransform book, int i)
+        {
+            Image ribbon = UiFactory.Sliced(book, $"Onglet {i + 1}", _ribbon, ZoneColors[i % ZoneColors.Length]);
+            RectTransform rect = ribbon.rectTransform;
+            UiFactory.Center(rect, new Vector2(-640f + i * 250f, 452f), new Vector2(230f, 84f));
+            Text label = UiFactory.Label(rect, "Zone", 24, TextAnchor.MiddleCenter, Color.white);
+            UiFactory.Bold(label);
+            label.text = _zones[i] != null ? _zones[i].DisplayName : "?";
+            UiFactory.Place(label.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -6f), new Vector2(-12f, 40f));
+            return new TabView { Rect = rect, Ribbon = ribbon, Label = label };
+        }
+
+        private void BuildLeftPage(RectTransform page)
+        {
+            _zoneName = InkLabel(page, "Zone", 38, TextAnchor.MiddleLeft, Ink);
+            UiFactory.Bold(_zoneName);
+            UiFactory.Center(_zoneName.rectTransform, new Vector2(-40f, 352f), new Vector2(580f, 50f));
+            _zoneRegion = InkLabel(page, "Pays", 21, TextAnchor.MiddleLeft, InkSoft);
+            UiFactory.Center(_zoneRegion.rectTransform, new Vector2(-40f, 316f), new Vector2(580f, 30f));
+
+            // Barre de progression de la zone, avec les paliers de récompense.
+            Image bar = UiFactory.Sliced(page, "Progression", _cell, CellTint);
+            UiFactory.Center(bar.rectTransform, new Vector2(-70f, 270f), new Vector2(BarWidth, 26f));
+            _barFill = UiFactory.Plain(bar.rectTransform, "Remplissage", new Color(0.36f, 0.64f, 0.30f));
+            UiFactory.Place(_barFill.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(6f, 0f), new Vector2(0f, 14f));
+            _barText = InkLabel(page, "Compteur", 26, TextAnchor.MiddleLeft, Ink);
+            UiFactory.Bold(_barText);
+            UiFactory.Center(_barText.rectTransform, new Vector2(270f, 270f), new Vector2(150f, 34f));
+            foreach (int percent in CollectionRewards.Percents)
+            {
+                float x = -70f - BarWidth * 0.5f + BarWidth * percent / 100f;
+                Image coin = UiFactory.Plain(page, $"Palier {percent}", Color.white);
+                coin.sprite = _coin;
+                UiFactory.Center(coin.rectTransform, new Vector2(Mathf.Min(x, -70f + BarWidth * 0.5f - 6f), 270f), new Vector2(30f, 30f));
+                Text label = InkLabel(page, $"Gain {percent}", 18, TextAnchor.MiddleCenter, InkSoft);
+                UiFactory.Center(label.rectTransform, new Vector2(Mathf.Min(x, -70f + BarWidth * 0.5f - 6f), 240f), new Vector2(90f, 24f));
+                _milestones.Add(new MilestoneView { Coin = coin, Label = label });
+            }
+
+            // Grille des espèces de la zone.
+            float gridWidth = Columns * CellWidth + (Columns - 1) * CellGap;
             for (int i = 0; i < PerPage; i++)
             {
                 int column = i % Columns;
                 int row = i / Columns;
-                var position = new Vector2(
-                    -gridWidth * 0.5f + CardWidth * 0.5f + column * (CardWidth + CardGap),
-                    188f - row * (CardHeight + CardGap));
-                _cards.Add(BuildCard(panel, i, position));
+                var position = new Vector2(-gridWidth * 0.5f + CellWidth * 0.5f + column * (CellWidth + CellGap), 140f - row * (CellHeight + CellGap));
+                _cells.Add(BuildCell(page, i, position));
             }
 
-            // Fiche de l'espèce sélectionnée.
-            Image detail = UiFactory.Sliced(panel, "Fiche", SkinSprite(s => s.Slot), SkinTint(new Color(0.12f, 0.2f, 0.27f)));
-            UiFactory.Center(detail.rectTransform, new Vector2(0f, -205f), new Vector2(1090f, 140f));
-            RectTransform detailRect = detail.rectTransform;
+            _pageText = InkLabel(page, "Page", 21, TextAnchor.MiddleRight, InkSoft);
+            UiFactory.Center(_pageText.rectTransform, new Vector2(230f, -362f), new Vector2(220f, 30f));
 
-            Image backdrop = UiFactory.Sliced(detailRect, "Fond d'eau", SkinSprite(s => s.WaterBackdrop), SkinTint(new Color(0.2f, 0.55f, 0.65f)));
-            UiFactory.Place(backdrop.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(14f, 0f), new Vector2(230f, 112f));
+            // Tampon « Complet », posé de travers quand toute la zone est découverte.
+            Image stamp = UiFactory.Plain(page, "Tampon", Color.white);
+            stamp.sprite = _stamp;
+            _stampRect = stamp.rectTransform;
+            UiFactory.Center(_stampRect, new Vector2(262f, 362f), new Vector2(128f, 128f));
+            _stampRect.localRotation = Quaternion.Euler(0f, 0f, 14f);
+            Text stampText = InkLabel(_stampRect, "Complet", 26, TextAnchor.MiddleCenter, new Color(0.80f, 0.16f, 0.12f, 0.9f));
+            UiFactory.Bold(stampText);
+            stampText.text = "COMPLET";
+            UiFactory.Stretch(stampText.rectTransform);
+        }
+
+        private CellView BuildCell(RectTransform parent, int i, Vector2 position)
+        {
+            Image frame = UiFactory.Sliced(parent, $"Espèce {i + 1}", _cell, CellTint);
+            UiFactory.Center(frame.rectTransform, position, new Vector2(CellWidth, CellHeight));
+            RectTransform rect = frame.rectTransform;
+
+            Image backdrop = UiFactory.Sliced(rect, "Fond d'eau", SkinSprite(s => s.WaterBackdrop), SkinTint(new Color(0.2f, 0.55f, 0.65f)));
+            UiFactory.Place(backdrop.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -10f), new Vector2(CellWidth - 18f, 86f));
+            Image fish = UiFactory.Plain(backdrop.rectTransform, "Poisson", Color.white);
+            fish.preserveAspect = true;
+            UiFactory.Center(fish.rectTransform, Vector2.zero, new Vector2(CellWidth - 30f, 66f));
+
+            Text number = InkLabel(rect, "Numéro", 16, TextAnchor.UpperLeft, Color.white);
+            UiFactory.Place(number.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(14f, -12f), new Vector2(40f, 22f));
+
+            Image gem = UiFactory.Plain(rect, "Pierre", Color.white);
+            gem.sprite = SkinSprite(s => s.Gem);
+            UiFactory.Place(gem.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-20f, -22f), new Vector2(20f, 20f));
+
+            Text name = InkLabel(rect, "Nom", 17, TextAnchor.MiddleCenter, Ink);
+            name.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiFactory.Place(name.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 6f), new Vector2(CellWidth - 12f, 46f));
+
+            return new CellView { Frame = frame, Fish = fish, Gem = gem, Number = number, Name = name };
+        }
+
+        private void BuildRightPage(RectTransform page)
+        {
+            _detailNumber = InkLabel(page, "Numéro", 22, TextAnchor.MiddleLeft, InkSoft);
+            UiFactory.Center(_detailNumber.rectTransform, new Vector2(-250f, 352f), new Vector2(160f, 30f));
+            _detailName = InkLabel(page, "Nom", 42, TextAnchor.MiddleCenter, Ink);
+            UiFactory.Bold(_detailName);
+            UiFactory.Center(_detailName.rectTransform, new Vector2(0f, 312f), new Vector2(680f, 54f));
+            _detailScientific = InkLabel(page, "Nom scientifique", 22, TextAnchor.MiddleCenter, InkSoft);
+            _detailScientific.fontStyle = FontStyle.Italic;
+            UiFactory.Center(_detailScientific.rectTransform, new Vector2(0f, 272f), new Vector2(680f, 30f));
+
+            Image backdrop = UiFactory.Sliced(page, "Fond d'eau", SkinSprite(s => s.WaterBackdrop), SkinTint(new Color(0.2f, 0.55f, 0.65f)));
+            UiFactory.Center(backdrop.rectTransform, new Vector2(0f, 120f), new Vector2(620f, 240f));
             _detailFish = UiFactory.Plain(backdrop.rectTransform, "Poisson", Color.white);
             _detailFish.preserveAspect = true;
-            UiFactory.Center(_detailFish.rectTransform, Vector2.zero, new Vector2(206f, 92f));
+            UiFactory.Center(_detailFish.rectTransform, Vector2.zero, new Vector2(560f, 200f));
 
-            _detailName = UiFactory.Label(detailRect, "Nom", 32, TextAnchor.MiddleLeft, Color.white);
-            UiFactory.Bold(_detailName);
-            UiFactory.Place(_detailName.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(268f, -10f), new Vector2(-290f, 42f));
+            // Ligne d'icônes : rareté, heure, zone.
+            _rarityGem = UiFactory.Plain(page, "Rareté", Color.white);
+            _rarityGem.sprite = SkinSprite(s => s.Gem);
+            UiFactory.Center(_rarityGem.rectTransform, new Vector2(-290f, -28f), new Vector2(26f, 26f));
+            _rarityText = InkLabel(page, "Rareté (texte)", 22, TextAnchor.MiddleLeft, Ink);
+            UiFactory.Center(_rarityText.rectTransform, new Vector2(-200f, -28f), new Vector2(150f, 30f));
+            _timeIcon = UiFactory.Plain(page, "Heure", Color.white);
+            UiFactory.Center(_timeIcon.rectTransform, new Vector2(-95f, -28f), new Vector2(30f, 30f));
+            _timeText = InkLabel(page, "Heure (texte)", 22, TextAnchor.MiddleLeft, Ink);
+            UiFactory.Center(_timeText.rectTransform, new Vector2(10f, -28f), new Vector2(180f, 30f));
+            _zoneText = InkLabel(page, "Zone", 22, TextAnchor.MiddleRight, InkSoft);
+            UiFactory.Center(_zoneText.rectTransform, new Vector2(220f, -28f), new Vector2(200f, 30f));
 
-            _detailScientific = UiFactory.Label(detailRect, "Nom scientifique", 22, TextAnchor.MiddleLeft, Muted);
-            _detailScientific.fontStyle = FontStyle.Italic;
-            UiFactory.Place(_detailScientific.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(268f, -52f), new Vector2(-290f, 30f));
+            _description = InkLabel(page, "Description", 23, TextAnchor.UpperCenter, Ink);
+            _description.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _description.lineSpacing = 1.05f;
+            UiFactory.Center(_description.rectTransform, new Vector2(0f, -110f), new Vector2(640f, 100f));
 
-            _detailStats = UiFactory.Label(detailRect, "Stats", 22, TextAnchor.MiddleLeft, Color.white);
-            _detailStats.supportRichText = true;
-            UiFactory.Place(_detailStats.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f), new Vector2(268f, -88f), new Vector2(-290f, 32f));
+            for (int i = 0; i < _stats.Length; i++)
+            {
+                Image box = UiFactory.Sliced(page, $"Chiffre {i + 1}", _cell, CellTint);
+                UiFactory.Center(box.rectTransform, new Vector2(-215f + i * 215f, -228f), new Vector2(200f, 78f));
+                _stats[i] = InkLabel(box.rectTransform, "Texte", 22, TextAnchor.MiddleCenter, Ink);
+                UiFactory.Stretch(_stats[i].rectTransform);
+            }
 
-            _page = UiFactory.Label(panel, "Page", 22, TextAnchor.MiddleRight, Gold);
-            UiFactory.Center(_page.rectTransform, new Vector2(420f, -325f), new Vector2(240f, 32f));
+            _aquarium = InkLabel(page, "Aquarium", 21, TextAnchor.MiddleCenter, InkSoft);
+            UiFactory.Center(_aquarium.rectTransform, new Vector2(0f, -298f), new Vector2(660f, 30f));
 
-            Text help = UiFactory.Label(panel, "Aide", 21, TextAnchor.MiddleCenter, Muted);
-            help.text = "Flèches ou ZQSD : choisir   •   Tab ou Échap : fermer";
-            UiFactory.Center(help.rectTransform, new Vector2(0f, -325f), new Vector2(700f, 32f));
+            _help = InkLabel(page, "Aide", 19, TextAnchor.MiddleCenter, InkSoft);
+            UiFactory.Center(_help.rectTransform, new Vector2(0f, -362f), new Vector2(700f, 28f));
         }
 
         /// <summary>Icône du livre, à droite de celle du sac, avec le compteur et la touche.</summary>
         private void BuildIcon(RectTransform root)
         {
             Image iconBase = UiFactory.Sliced(root, "Index", SkinSprite(s => s.Slot), SkinTint(new Color(0.12f, 0.2f, 0.27f)));
-            _iconRect = iconBase.rectTransform;
+            RectTransform iconRect = iconBase.rectTransform;
             float x = 24f + IconSize + 22f + IconSize * 0.5f;
-            UiFactory.Place(_iconRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(x, 24f + IconSize * 0.5f), new Vector2(IconSize, IconSize));
+            UiFactory.Place(iconRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(x, 24f + IconSize * 0.5f), new Vector2(IconSize, IconSize));
 
-            Image icon = UiFactory.Plain(_iconRect, "Icône", Color.white);
+            Image icon = UiFactory.Plain(iconRect, "Icône", Color.white);
             icon.sprite = _bookIcon;
             icon.preserveAspect = true;
             UiFactory.Center(icon.rectTransform, new Vector2(0f, 6f), new Vector2(IconSize - 26f, IconSize - 26f));
 
-            _badge = UiFactory.TitlePlaque(_iconRect, _skin, "0/0", 22, new Vector2(30f, -46f), new Vector2(64f, 34f), out _);
+            _badge = UiFactory.TitlePlaque(iconRect, _skin, "0/0", 22, new Vector2(30f, -46f), new Vector2(64f, 34f), out _);
 
-            Text key = UiFactory.Label(_iconRect, "Touche", 20, TextAnchor.UpperLeft, Gold);
+            Text key = UiFactory.Label(iconRect, "Touche", 20, TextAnchor.UpperLeft, Gold);
             key.text = "Tab";
             UiFactory.Bold(key);
             UiFactory.Place(key.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(8f, -6f), new Vector2(50f, 28f));
-        }
-
-        private CardView BuildCard(RectTransform parent, int i, Vector2 position)
-        {
-            Image frame = UiFactory.Sliced(parent, $"Espèce {i + 1}", SkinSprite(s => s.Slot), SkinTint(new Color(0.12f, 0.2f, 0.27f)));
-            UiFactory.Center(frame.rectTransform, position, new Vector2(CardWidth, CardHeight));
-            RectTransform rect = frame.rectTransform;
-
-            Image backdrop = UiFactory.Sliced(rect, "Fond d'eau", SkinSprite(s => s.WaterBackdrop), SkinTint(new Color(0.2f, 0.55f, 0.65f)));
-            UiFactory.Place(backdrop.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -12f), new Vector2(CardWidth - 24f, 124f));
-            Image fish = UiFactory.Plain(backdrop.rectTransform, "Poisson", Color.white);
-            fish.preserveAspect = true;
-            UiFactory.Center(fish.rectTransform, new Vector2(0f, -4f), new Vector2(CardWidth - 50f, 92f));
-
-            Text number = UiFactory.TitlePlaque(rect, _skin, (i + 1).ToString(), 20, Vector2.zero, new Vector2(40f, 32f), out RectTransform plaque);
-            UiFactory.Place(plaque, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0.5f, 0.5f), new Vector2(12f, -10f), new Vector2(40f, 32f));
-
-            Image gem = UiFactory.Plain(rect, "Pierre", Color.white);
-            gem.sprite = SkinSprite(s => s.Gem);
-            UiFactory.Place(gem.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-24f, -26f), new Vector2(26f, 26f));
-
-            Text name = UiFactory.Label(rect, "Nom", 21, TextAnchor.MiddleCenter, Color.white);
-            UiFactory.Bold(name);
-            name.horizontalOverflow = HorizontalWrapMode.Wrap;
-            UiFactory.Place(name.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 8f), new Vector2(CardWidth - 16f, 56f));
-
-            return new CardView { Frame = frame, Fish = fish, Gem = gem, Number = number, Name = name };
         }
     }
 }

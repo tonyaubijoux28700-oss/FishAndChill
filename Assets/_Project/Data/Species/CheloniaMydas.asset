@@ -26,6 +26,7 @@ MonoBehaviour:
   _sizeRangeCm: {x: 60, y: 120}
   _basePrice: 120
   _placeholderColor: {r: 0.42, g: 0.34, b: 0.18, a: 1}
+  _description: "Broute les herbiers du lagon. Elle revient pondre sur la plage o\xF9 elle est n\xE9e, des ann\xE9es apr\xE8s."
   _activeTime: 0
   _sprite: {fileID: 21300000, guid: 9b55d604bdc2bbe4d89271a6d3418958, type: 3}
   _miniSprite: {fileID: 21300000, guid: 0c3711d60eb9d5a4fb5bb736aa40299e, type: 3}

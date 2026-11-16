@@ -232,6 +232,44 @@ namespace FishAndChill.Editor
                 { "lota-lota", ActiveTime.Night },
             };
 
+        /// <summary>Une ou deux phrases vraies sur chaque espèce, affichées dans la fiche de l'index.</summary>
+        private static readonly System.Collections.Generic.Dictionary<string, string> Descriptions =
+            new System.Collections.Generic.Dictionary<string, string>
+            {
+                // Île Mahana
+                { "abudefduf-vaigiensis", "Vit en bancs près des récifs. Le mâle garde ses oeufs collés sur un rocher et les défend contre tous." },
+                { "acanthurus-triostegus", "Broute les algues en grands bancs. Ses rayures lui valent son surnom de « bagnard »." },
+                { "scarus-psittacus", "Croque le corail avec son bec et rejette du sable fin : une bonne part des plages vient de lui !" },
+                { "cephalopholis-argus", "Mérou couvert de points bleus. Chasse à l'affût au crépuscule, caché dans les failles du récif." },
+                { "caranx-melampygus", "Chasseur rapide aux reflets bleus. Il suit parfois les murènes pour attraper ce qu'elles délogent." },
+                { "albula-glossodonta", "Le « fantôme des flats » : très méfiant et d'une vitesse folle, le rêve des pêcheurs à la mouche." },
+                { "sphyraena-barracuda", "Longue torpille aux dents acérées. Il attaque d'un coup, attiré par tout ce qui brille." },
+                { "caranx-ignobilis", "La plus grande des carangues : elle peut dépasser 1,5 m et sauter sur les oiseaux de mer." },
+                { "chaetodon-auriga", "Vit en couple fidèle. La tache noire sur sa nageoire trompe les prédateurs, qui visent le mauvais côté." },
+                { "mulloidichthys-flavolineatus", "Fouille le sable avec ses deux barbillons pour trouver vers et petits crabes." },
+                { "lutjanus-kasmira", "Se repose en grands bancs le jour et part chasser la nuit sur le récif." },
+                { "rhinecanthus-aculeatus", "Son nom hawaïen, humuhumunukunukuapua'a, est l'un des plus longs du monde. Il grogne quand on l'attrape !" },
+                { "pterois-radiata", "Ses longues épines sont venimeuses. Il chasse la nuit en coinçant ses proies avec ses nageoires en éventail." },
+                { "scylla-serrata", "Vit dans la vase des mangroves. Ses pinces sont si puissantes qu'elles brisent les coquillages." },
+                { "panulirus-versicolor", "Langouste aux couleurs de porcelaine. Elle n'a pas de pinces et sort la nuit de son trou." },
+                { "chelonia-mydas", "Broute les herbiers du lagon. Elle revient pondre sur la plage où elle est née, des années après." },
+
+                // Lac d'Annecy
+                { "rutilus-rutilus", "Le poisson blanc le plus commun du lac. On le reconnaît à son oeil rouge." },
+                { "perca-fluviatilis", "Chasse en bandes près du bord. Les filets de perche sont la grande spécialité des lacs alpins." },
+                { "salmo-trutta", "Truite sauvage des eaux froides, piquetée de points rouges cerclés de blanc." },
+                { "esox-lucius", "Le grand prédateur du lac. Immobile dans les herbes, il fond sur sa proie en un éclair." },
+                { "salvelinus-umbla", "Poisson des eaux profondes et glacées. Son ventre devient rouge vif à la saison des amours." },
+                { "coregonus-lavaretus", "Vit en bancs au large, en pleine eau. Un des poissons les plus pêchés du lac d'Annecy." },
+                { "alburnus-alburnus", "Petit poisson argenté qui gobe les insectes en surface. Ses écailles servaient à fabriquer de fausses perles." },
+                { "squalius-cephalus", "Mange de tout, même des cerises tombées dans l'eau ! Très méfiant à l'approche du pêcheur." },
+                { "tinca-tinca", "Aime les fonds vaseux et la végétation. Son mucus passait autrefois pour soigner les autres poissons." },
+                { "cyprinus-carpio", "Peut vivre plus de 40 ans. Elle fouille la vase avec ses barbillons à la recherche de nourriture." },
+                { "lota-lota", "Le seul cousin de la morue en eau douce. Elle vit au fond, dans le froid, et ne sort que la nuit." },
+                { "pacifastacus-leniusculus", "Venue d'Amérique, elle a envahi le lac. Une tache claire à la jointure des pinces lui donne son nom." },
+                { "pelophylax-ridibundus", "Son chant ressemble à un rire moqueur. Elle passe l'hiver enfouie dans la vase." },
+            };
+
         private static FishSpecies CreateOrUpdateSpecies(SpeciesData data)
         {
             string fileName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(data.Id.Replace('-', ' ')).Replace(" ", string.Empty);
@@ -251,6 +289,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_sizeRangeCm").vector2Value = data.SizeCm;
             so.FindProperty("_basePrice").intValue = data.Price;
             so.FindProperty("_placeholderColor").colorValue = data.Color;
+            so.FindProperty("_description").stringValue = Descriptions.TryGetValue(data.Id, out string description) ? description : string.Empty;
             so.FindProperty("_activeTime").enumValueIndex =
                 (int)(ActiveTimes.TryGetValue(data.Id, out ActiveTime time) ? time : ActiveTime.Always);
             so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color);
@@ -452,6 +491,21 @@ namespace FishAndChill.Editor
             indexSo.FindProperty("_bookIcon").objectReferenceValue = bookIcon;
             indexSo.FindProperty("_skin").objectReferenceValue = skin;
             indexSo.FindProperty("_progress").objectReferenceValue = progress;
+
+            // Le carnet du pêcheur : couverture, pages, cases, onglets, pli, tampon et icônes.
+            const string bookFolder = "Assets/_Project/Art/UI/Carnet";
+            int bookPpu = UiSkinArt.PixelsPerUnit;
+            Sprite BookSprite(string file, Color[,] pixels, Vector4 border) =>
+                PixelArt.Save($"{bookFolder}/{file}.png", pixels, bookPpu, new Vector2(0.5f, 0.5f), border, FilterMode.Point);
+            indexSo.FindProperty("_cover").objectReferenceValue = BookSprite("Couverture", BookArt.Cover(), new Vector4(12, 12, 12, 12));
+            indexSo.FindProperty("_page").objectReferenceValue = BookSprite("Page", BookArt.Page(), new Vector4(8, 8, 8, 8));
+            indexSo.FindProperty("_cell").objectReferenceValue = BookSprite("Case", BookArt.Cell(), new Vector4(5, 5, 5, 5));
+            indexSo.FindProperty("_ribbon").objectReferenceValue = BookSprite("Onglet", BookArt.Ribbon(), new Vector4(6, 6, 6, 6));
+            indexSo.FindProperty("_spine").objectReferenceValue = BookSprite("Pli", BookArt.Spine(), Vector4.zero);
+            indexSo.FindProperty("_stamp").objectReferenceValue = BookSprite("Tampon", BookArt.Stamp(), Vector4.zero);
+            indexSo.FindProperty("_sun").objectReferenceValue = BookSprite("Soleil", BookArt.Sun(), Vector4.zero);
+            indexSo.FindProperty("_moon").objectReferenceValue = BookSprite("Lune", BookArt.Moon(), Vector4.zero);
+            indexSo.FindProperty("_coin").objectReferenceValue = BookSprite("Piece", BookArt.Coin(), Vector4.zero);
             indexSo.ApplyModifiedPropertiesWithoutUndo();
 
             hudSo.FindProperty("_aquarium").objectReferenceValue = aquarium;

@@ -233,6 +233,7 @@ namespace FishAndChill.Save
             data.PlaySeconds = _playSeconds;
             data.SavedAtTicks = System.DateTime.Now.Ticks;
             data.Hour = _cycle != null ? _cycle.Hour : 8f;
+            data.Rewards = new List<string>(_progress.ClaimedRewards);
             try
             {
                 string temporary = SavePath + ".tmp";
@@ -303,6 +304,7 @@ namespace FishAndChill.Save
             Loaded = true;
             SavedZone = data.Zone;
             _playSeconds = data.PlaySeconds;
+            _progress.RestoreClaimedRewards(data.Rewards);
             if (_cycle != null)
             {
                 _cycle.SetHour(data.Hour);

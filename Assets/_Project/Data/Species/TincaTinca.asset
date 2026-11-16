@@ -26,6 +26,7 @@ MonoBehaviour:
   _sizeRangeCm: {x: 20, y: 60}
   _basePrice: 16
   _placeholderColor: {r: 0.38, g: 0.48, b: 0.2, a: 1}
+  _description: "Aime les fonds vaseux et la v\xE9g\xE9tation. Son mucus passait autrefois pour soigner les autres poissons."
   _activeTime: 2
   _sprite: {fileID: 21300000, guid: bdef034d017e52346aa083aace968b91, type: 3}
   _miniSprite: {fileID: 21300000, guid: ca3e62efb92c47d4d8d195663af234e3, type: 3}

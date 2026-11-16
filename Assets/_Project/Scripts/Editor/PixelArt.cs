@@ -22,6 +22,24 @@ namespace FishAndChill.Editor
         /// Variante pour l'interface : <paramref name="border"/> (gauche, bas, droite, haut, en pixels) rend le sprite
         /// étirable en 9 parties (coins nets à toute taille).
         /// </summary>
+        private static bool SameBytes(byte[] a, byte[] b)
+        {
+            if (a.Length != b.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i] != b[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public static Sprite Save(string assetPath, Color[,] pixels, int pixelsPerUnit, Vector2 pivot, Vector4 border, FilterMode filter)
         {
             EnsureFolder(Path.GetDirectoryName(assetPath).Replace('\\', '/'));
@@ -39,8 +57,14 @@ namespace FishAndChill.Editor
 
             texture.Apply();
             string fullPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, assetPath);
-            File.WriteAllBytes(fullPath, texture.EncodeToPNG());
+            byte[] png = texture.EncodeToPNG();
             UnityEngine.Object.DestroyImmediate(texture);
+            // Image inchangée : on ne la réécrit pas (plus rapide, et évite les fichiers verrouillés par l'import).
+            bool unchanged = File.Exists(fullPath) && SameBytes(File.ReadAllBytes(fullPath), png);
+            if (!unchanged)
+            {
+                File.WriteAllBytes(fullPath, png);
+            }
 
             AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
             var importer = (TextureImporter)AssetImporter.GetAtPath(assetPath);

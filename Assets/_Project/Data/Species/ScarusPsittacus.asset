@@ -26,6 +26,7 @@ MonoBehaviour:
   _sizeRangeCm: {x: 18, y: 30}
   _basePrice: 14
   _placeholderColor: {r: 0.35, g: 0.75, b: 0.7, a: 1}
+  _description: 'Croque le corail avec son bec et rejette du sable fin : une bonne part des plages vient de lui !'
   _activeTime: 1
   _sprite: {fileID: 21300000, guid: 42de09fc933d2f84aaa628a14c13c808, type: 3}
   _miniSprite: {fileID: 21300000, guid: ca9521dd1ea5f7d4680cd823cc4beb17, type: 3}

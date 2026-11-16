@@ -54,5 +54,8 @@ namespace FishAndChill.Save
 
         /// <summary>Heure de la journée (0 à 24) ; 8 h pour une ancienne sauvegarde.</summary>
         public float Hour = 8f;
+
+        /// <summary>Récompenses de collection encaissées (« zone:palier »).</summary>
+        public List<string> Rewards = new List<string>();
     }
 }

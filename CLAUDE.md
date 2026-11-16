@@ -146,12 +146,17 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   d'inventaire (joueur `Locked`, E/Échap ferme) ; devant le comptoir, E parle au marchand à la place. Quand le sac
   est plein après une prise, la fenêtre s'ouvre seule (places 1/2/3 qui clignotent). Pièces en haut à droite.
   Icônes de la boutique et de l'aquarium sur la minimap (`Minimap._landmarks`).
-- **Index des poissons** (`UI/FishIndex`, objet « Partie ») : icône de livre à droite du sac (compteur « 2/8 »,
-  `UiArt.BookIcon`), **Tab** (ou Y manette, `IndexInput`) ouvre le livre (joueur `Locked`), Tab/Échap ferme.
-  Grille 4×2 par page de toutes les espèces des zones du champ `_zones` (Mahana et Annecy) : espèces
-  découvertes dessinées, les autres en silhouette « ??? ». Flèches/ZQSD choisissent, fiche en bas (rareté, prises,
-  record, taille). « Découverte » = déjà pêchée une fois (`CatchLog`, qui garde aussi le record de taille).
-  Logique dans `SpeciesIndex` (testée).
+- **Index des espèces = carnet du pêcheur** (`UI/FishIndex`, objet « Partie », canvas ordre 12) : icône de livre à
+  droite du sac (compteur « 12/29 », `UiArt.BookIcon`), **Tab** (ou Y manette, `IndexInput`) ouvre un carnet sur deux pages
+  (dessins `BookArt` : cuir cousu, papier, cases encrées, onglets, pli, tampon, soleil/lune/pièce ; `Art/UI/Carnet/`).
+  **Onglets par zone** (touches physiques Q/E = A/E en AZERTY, ou gâchettes hautes) ; page de gauche : nom et pays de la
+  zone, barre de progression avec **paliers 25/50/100 %** (`CollectionRewards`, testé : 50/150/400 pièces, encaissés
+  automatiquement dès qu'ils sont atteints, bandeau « Carnet — … +N pièces » même carnet fermé, clés « zone:palier »
+  dans `PlayerProgress.ClaimedRewards` et `SaveData.Rewards`), tampon « COMPLET » à 100 %, grille 4×3 (dessins à
+  l'échelle, silhouettes « ??? »). Page de droite : grand dessin, rareté, heure (soleil/lune), zone, **description
+  réelle** (`FishSpecies.Description`, textes dans `PrototypeSetup.Descriptions`), prises / record / taille, aquarium ;
+  pour une espèce inconnue, un **indice** (heure, rareté, taille). « Découverte » = déjà pêchée une fois (`CatchLog`).
+  Logique dans `SpeciesIndex` et `CollectionRewards` (testées). La police n'a ni œ ni ā : les éviter dans les textes.
 - Le bouton Play lance toujours `FishingPrototype` (`PlayModeStartScene`), même si une autre scène est ouverte.
 - **Ne pas lancer les tests pendant que l'éditeur entre ou sort du Play mode** : le lanceur de tests plante et
   laisse une scène vide ouverte.

@@ -26,6 +26,7 @@ MonoBehaviour:
   _sizeRangeCm: {x: 40, y: 90}
   _basePrice: 50
   _placeholderColor: {r: 0.85, g: 0.88, b: 0.92, a: 1}
+  _description: "Le \xAB fant\xF4me des flats \xBB : tr\xE8s m\xE9fiant et d'une vitesse folle, le r\xEAve des p\xEAcheurs \xE0 la mouche."
   _activeTime: 0
   _sprite: {fileID: 21300000, guid: 82b6043e3b411a94cb9b14712510e823, type: 3}
   _miniSprite: {fileID: 21300000, guid: f8a1e07176cc95c42a01ff18f51abfb4, type: 3}

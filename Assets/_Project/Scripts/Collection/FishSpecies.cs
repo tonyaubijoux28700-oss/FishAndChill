@@ -33,6 +33,9 @@ namespace FishAndChill.Collection
         [SerializeField, Tooltip("Couleur provisoire tant qu'il n'y a pas de sprite.")]
         private Color _placeholderColor = Color.gray;
 
+        [SerializeField, TextArea, Tooltip("Une ou deux phrases vraies sur l'espèce, pour la fiche de l'index.")]
+        private string _description;
+
         [SerializeField, Tooltip("Moment où l'espèce mord : à toute heure, le jour ou la nuit.")]
         private ActiveTime _activeTime;
 
@@ -53,6 +56,7 @@ namespace FishAndChill.Collection
         public Color PlaceholderColor => _placeholderColor;
         public Sprite Sprite => _sprite;
         public ActiveTime ActiveTime => _activeTime;
+        public string Description => _description;
 
         /// <summary>Sprite de l'aquarium (le grand dessin s'il n'y a pas de petite version).</summary>
         public Sprite MiniSprite => _miniSprite != null ? _miniSprite : _sprite;

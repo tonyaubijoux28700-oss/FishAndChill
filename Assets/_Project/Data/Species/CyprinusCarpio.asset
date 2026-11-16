@@ -26,6 +26,7 @@ MonoBehaviour:
   _sizeRangeCm: {x: 30, y: 100}
   _basePrice: 40
   _placeholderColor: {r: 0.72, g: 0.58, b: 0.28, a: 1}
+  _description: "Peut vivre plus de 40 ans. Elle fouille la vase avec ses barbillons \xE0 la recherche de nourriture."
   _activeTime: 0
   _sprite: {fileID: 21300000, guid: 705b4b5daf49a4c4cacf1f61d78d13a5, type: 3}
   _miniSprite: {fileID: 21300000, guid: 8751f7fb1c93e5a49885f4f333efc93c, type: 3}
