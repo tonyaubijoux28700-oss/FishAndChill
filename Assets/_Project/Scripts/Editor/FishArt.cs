@@ -137,7 +137,7 @@ namespace FishAndChill.Editor
                 return PixelArt.Save($"{Folder}/{speciesId}.png", creature, 16, new Vector2(0.5f, 0.5f));
             }
 
-            if (MahanaFishArt.TryGet(speciesId, out DetailedFish detailed) || AnnecyFishArt.TryGet(speciesId, out detailed))
+            if (MahanaFishArt.TryGet(speciesId, out DetailedFish detailed) || AnnecyFishArt.TryGet(speciesId, out detailed) || ExtraFishArt.TryGet(speciesId, out detailed))
             {
                 return PixelArt.Save($"{Folder}/{speciesId}.png", detailed.Draw(), 16, new Vector2(0.5f, 0.5f));
             }

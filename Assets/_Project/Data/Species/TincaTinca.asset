@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: TincaTinca
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: tinca-tinca
+  _commonName: Tanche
+  _scientificName: Tinca tinca
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1
+    _zoneWidth: 0.24
+    _requiredHits: 3
+    _maxMisses: 2
+  _sizeRangeCm: {x: 20, y: 60}
+  _basePrice: 16
+  _placeholderColor: {r: 0.38, g: 0.48, b: 0.2, a: 1}
+  _activeTime: 2
+  _sprite: {fileID: 21300000, guid: bdef034d017e52346aa083aace968b91, type: 3}
+  _miniSprite: {fileID: 21300000, guid: ca3e62efb92c47d4d8d195663af234e3, type: 3}

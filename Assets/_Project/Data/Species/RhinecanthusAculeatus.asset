@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: RhinecanthusAculeatus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: rhinecanthus-aculeatus
+  _commonName: Baliste Picasso
+  _scientificName: Rhinecanthus aculeatus
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.2
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _sizeRangeCm: {x: 12, y: 30}
+  _basePrice: 18
+  _placeholderColor: {r: 0.84, g: 0.78, b: 0.62, a: 1}
+  _activeTime: 1
+  _sprite: {fileID: 21300000, guid: b8163298d5e9094498092ab02bd752f7, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 127732d006074174c9d60c9cf9556ae2, type: 3}

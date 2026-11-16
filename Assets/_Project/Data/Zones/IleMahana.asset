@@ -32,6 +32,16 @@ MonoBehaviour:
     _weight: 3
   - _species: {fileID: 11400000, guid: f9e130c52fab5304da835ea89eda9b98, type: 2}
     _weight: 2
+  - _species: {fileID: 11400000, guid: 98f8b8aee9d5d6a4887735cea39773a4, type: 2}
+    _weight: 25
+  - _species: {fileID: 11400000, guid: 58a58c6d976b84f45b8d360b6c74a009, type: 2}
+    _weight: 25
+  - _species: {fileID: 11400000, guid: 40aa44a77d91cd045ab22ec957ee6633, type: 2}
+    _weight: 14
+  - _species: {fileID: 11400000, guid: 3f474c86b44a9654ca24597fde92b815, type: 2}
+    _weight: 12
+  - _species: {fileID: 11400000, guid: e20d9612efca99446bf0bb7223f91ccb, type: 2}
+    _weight: 7
   - _species: {fileID: 11400000, guid: 780246b68e2c9a6418ae26cb14406f0b, type: 2}
     _weight: 12
   - _species: {fileID: 11400000, guid: 2bf5f33d332c4414881a3d369311f7f1, type: 2}

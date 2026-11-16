@@ -68,14 +68,16 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   et doit tomber dans l'eau (`CastTargeting`). `CameraFollow` sur la caméra, bloquée aux limites de la carte.
 - Tuiles pixel art provisoires (16×16, 16 px/unité, filtre Point) dans `Assets/_Project/Art/Tiles/`,
   **redessinées à chaque génération** : pour garder un dessin fait main, le renommer.
-- Zone de départ : **Île Mahana** (fictive, tropicale) avec 11 vraies espèces indo-pacifiques : 8 poissons, 2 crustacés
-  (crabe de palétuvier, langouste porcelaine) et 1 reptile (tortue verte).
+- Zone de départ : **Île Mahana** (fictive, tropicale) avec 16 vraies espèces indo-pacifiques : 13 poissons, 2 crustacés
+  (crabe de palétuvier, langouste porcelaine) et 1 reptile (tortue verte). Deuxième fournée (poisson-papillon cocher,
+  rouget-barbet à bande jaune, vivaneau à raies bleues, baliste Picasso, poisson-lion radié ; et à Annecy ablette,
+  chevesne, tanche, carpe commune, lotte) dessinée dans `ExtraFishArt`.
   Palmiers sur la Tilemap `Décor` (tronc bloquant).
 - **Plusieurs zones sur la même grille** : chaque zone est une **région** de `WorldMap` (`SetRegions`, `CurrentRegion`) ;
   `WorldBounds` (caméra, minimap) ne donne que la région actuelle. **Lac d'Annecy** : `LakeGenerator` (île retournée :
   eau au centre, galets, prés ; testé), 80×60 cases, à `LakeGap` = 100 cases à l'est de l'île (au-delà des intérieurs),
   construit par `MapSetup.BuildLake` dans les mêmes Tilemaps (tuiles de l'île recolorées par `LakeArt` : eau alpine,
-  galets, prés ; sapins). 8 espèces : 6 poissons (`AnnecyFishArt` + `PikeArt`), écrevisse signal et grenouille rieuse
+  galets, prés ; sapins). 13 espèces : 11 poissons (`AnnecyFishArt` + `PikeArt` + `ExtraFishArt`), écrevisse signal et grenouille rieuse
   (`FreshwaterCreatureArt`). Sur place, **pêche seulement** (aquarium et marchand à Mahana).
   **Décor** (`BuildLake`) : roseaux sur la rive au bord de l'eau, nénuphars à 2-4 cases du bord, rochers solides,
   prés fleuris (gentianes, marguerites ; `LakeArt`). **Vie** (`World/AmbientLife`, objet « Vie du lac », dessins
@@ -226,7 +228,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
     `DetailedFish` (silhouette, dégradé, nageoires, queue, tête, motifs) : profils lissés (Catmull-Rom), corps
     éclairé comme un volume rond (paliers nets, ombres froides, lumières chaudes, reflet), écailles en arcs,
     nageoires à rayons inclinés, pectorales translucides, contour sélectif teinté. Fiches des espèces de l'île dans
-    `MahanaFishArt.cs`, brochet dans `PikeArt.cs`. Les autres espèces gardent le dessin simple 48×24.
+    `MahanaFishArt.cs`, Annecy dans `AnnecyFishArt.cs`, brochet dans `PikeArt.cs`, deuxième fournée dans `ExtraFishArt.cs`. Les autres espèces gardent le dessin simple 48×24.
   - Nouvelle espèce = ajouter une fiche `DetailedFish` d'après l'anatomie réelle du poisson (dessin original,
     ne jamais recopier une illustration existante).
 - Pour remplacer un dessin par un vrai, utiliser un autre nom de fichier, sinon il sera écrasé.

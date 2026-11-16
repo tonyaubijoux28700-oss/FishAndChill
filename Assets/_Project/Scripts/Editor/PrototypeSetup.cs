@@ -75,6 +75,16 @@ namespace FishAndChill.Editor
                 1.8f, 0.12f, 4, 1, new Vector2(25f, 70f), 90, new Color(0.85f, 0.45f, 0.30f), 5f),
             new SpeciesData("coregonus-lavaretus", "Lavaret", "Coregonus lavaretus", Rarity.Uncommon,
                 1.2f, 0.22f, 3, 2, new Vector2(30f, 55f), 18, new Color(0.75f, 0.80f, 0.84f), 15f),
+            new SpeciesData("alburnus-alburnus", "Ablette", "Alburnus alburnus", Rarity.Common,
+                0.7f, 0.32f, 2, 2, new Vector2(8f, 20f), 3, new Color(0.80f, 0.86f, 0.88f), 35f),
+            new SpeciesData("squalius-cephalus", "Chevesne", "Squalius cephalus", Rarity.Common,
+                1.0f, 0.26f, 3, 2, new Vector2(20f, 60f), 9, new Color(0.62f, 0.62f, 0.52f), 28f),
+            new SpeciesData("tinca-tinca", "Tanche", "Tinca tinca", Rarity.Uncommon,
+                1.0f, 0.24f, 3, 2, new Vector2(20f, 60f), 16, new Color(0.38f, 0.48f, 0.20f), 14f),
+            new SpeciesData("cyprinus-carpio", "Carpe commune", "Cyprinus carpio", Rarity.Rare,
+                1.4f, 0.18f, 4, 2, new Vector2(30f, 100f), 40, new Color(0.72f, 0.58f, 0.28f), 9f),
+            new SpeciesData("lota-lota", "Lotte", "Lota lota", Rarity.Epic,
+                1.6f, 0.14f, 4, 1, new Vector2(30f, 70f), 80, new Color(0.48f, 0.42f, 0.24f), 4f),
 
             // Pas que des poissons : l'écrevisse signal (installée dans le lac) et la grenouille rieuse des rives.
             new SpeciesData("pacifastacus-leniusculus", "Écrevisse signal", "Pacifastacus leniusculus", Rarity.Common,
@@ -105,6 +115,16 @@ namespace FishAndChill.Editor
                 1.9f, 0.13f, 4, 1, new Vector2(60f, 160f), 110, new Color(0.60f, 0.65f, 0.70f), 3f),
             new SpeciesData("caranx-ignobilis", "Carangue géante", "Caranx ignobilis", Rarity.Legendary,
                 2.2f, 0.11f, 5, 1, new Vector2(60f, 170f), 250, new Color(0.30f, 0.32f, 0.38f), 2f),
+            new SpeciesData("chaetodon-auriga", "Poisson-papillon cocher", "Chaetodon auriga", Rarity.Common,
+                0.85f, 0.28f, 2, 2, new Vector2(12f, 23f), 6, new Color(0.96f, 0.90f, 0.60f), 25f),
+            new SpeciesData("mulloidichthys-flavolineatus", "Rouget-barbet à bande jaune", "Mulloidichthys flavolineatus", Rarity.Common,
+                0.9f, 0.27f, 2, 2, new Vector2(15f, 40f), 7, new Color(0.92f, 0.90f, 0.76f), 25f),
+            new SpeciesData("lutjanus-kasmira", "Vivaneau à raies bleues", "Lutjanus kasmira", Rarity.Uncommon,
+                1.1f, 0.23f, 3, 2, new Vector2(15f, 35f), 16, new Color(0.98f, 0.82f, 0.24f), 14f),
+            new SpeciesData("rhinecanthus-aculeatus", "Baliste Picasso", "Rhinecanthus aculeatus", Rarity.Uncommon,
+                1.2f, 0.22f, 3, 2, new Vector2(12f, 30f), 18, new Color(0.84f, 0.78f, 0.62f), 12f),
+            new SpeciesData("pterois-radiata", "Poisson-lion radié", "Pterois radiata", Rarity.Rare,
+                1.4f, 0.17f, 4, 2, new Vector2(12f, 24f), 40, new Color(0.60f, 0.22f, 0.16f), 7f),
 
             // On ne pêche pas que des poissons : crustacés du lagon et des mangroves, et la tortue verte.
             new SpeciesData("scylla-serrata", "Crabe de palétuvier", "Scylla serrata", Rarity.Uncommon,
@@ -203,6 +223,13 @@ namespace FishAndChill.Editor
                 { "esox-lucius", ActiveTime.Day },
                 { "perca-fluviatilis", ActiveTime.Day },
                 { "pacifastacus-leniusculus", ActiveTime.Night },
+                { "chaetodon-auriga", ActiveTime.Day },
+                { "rhinecanthus-aculeatus", ActiveTime.Day },
+                { "lutjanus-kasmira", ActiveTime.Night },
+                { "pterois-radiata", ActiveTime.Night },
+                { "alburnus-alburnus", ActiveTime.Day },
+                { "tinca-tinca", ActiveTime.Night },
+                { "lota-lota", ActiveTime.Night },
             };
 
         private static FishSpecies CreateOrUpdateSpecies(SpeciesData data)
