@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FishAndChill.Editor
 {
@@ -120,6 +120,30 @@ namespace FishAndChill.Editor
                 }
             }
 
+            return p;
+        }
+
+        /// <summary>Ombre de poisson vue de dessus 14×6 (banc d'un coin de pêche) : fuseau sombre et queue, transparent.</summary>
+        public static Color[,] FishShadow()
+        {
+            var p = new Color[14, 6];
+            Color shade = C(0.02f, 0.08f, 0.12f, 0.62f);
+            for (int x = 3; x < 14; x++)
+            {
+                float u = (x - 8.5f) / 5.5f;
+                float half = Mathf.Sqrt(Mathf.Max(0f, 1f - u * u)) * 2.4f;
+                for (int y = 0; y < 6; y++)
+                {
+                    if (Mathf.Abs(y + 0.5f - 3f) <= half) p[x, y] = shade;
+                }
+            }
+
+            // Queue fourchue.
+            PixelArt.Set(p, 2, 3, shade);
+            PixelArt.Set(p, 1, 4, shade);
+            PixelArt.Set(p, 0, 5, shade);
+            PixelArt.Set(p, 1, 1, shade);
+            PixelArt.Set(p, 0, 0, shade);
             return p;
         }
 

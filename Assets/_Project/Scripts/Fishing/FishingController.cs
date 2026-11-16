@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FishAndChill.Collection;
 using FishAndChill.Gear;
 using FishAndChill.Player;
@@ -35,6 +36,13 @@ namespace FishAndChill.Fishing
 
         [SerializeField, Tooltip("Horloge : certaines espèces ne mordent que le jour ou la nuit.")]
         private DayNightCycle _cycle;
+
+        [SerializeField, Tooltip("Coins de pêche de chaque zone (bancs, bulles, chasses).")]
+        private FishingSpots[] _spots = new FishingSpots[0];
+
+        /// <summary>Le bouchon est-il dans un coin de pêche, et lequel ?</summary>
+        public bool InSpot { get; private set; }
+        public SpotKind SpotKind { get; private set; }
 
         [SerializeField, Tooltip("Sac, aquarium et pièces du joueur. Sans lui, les prises ne sont pas conservées.")]
         private PlayerProgress _progress;
@@ -192,7 +200,7 @@ namespace FishAndChill.Fishing
                         // Le bouchon touche l'eau : l'attente commence, avec ses titillements.
                         _waited = 0f;
                         NibbleCount = 0;
-                        StartPhase(FishingState.Waiting, _biteTime, "Patience… attends que ça morde vraiment.");
+                        StartPhase(FishingState.Waiting, _biteTime, InSpot ? FishingSpotRules.Message(SpotKind) : "Patience… attends que ça morde vraiment.");
                     }
 
                     break;
@@ -316,11 +324,20 @@ namespace FishAndChill.Fishing
             }
 
             CastPoint = castPoint;
-            // L'appât attire plus souvent les espèces rares et fait mordre plus vite.
+            FishingSpots spots = CurrentSpots;
+            SpotKind kind = Fishing.SpotKind.School;
+            InSpot = spots != null && spots.TryGetSpot(castPoint, out kind);
+            SpotKind = kind;
+
+            // L'appât attire plus souvent les espèces rares et fait mordre plus vite ; un coin de pêche aussi.
             GearEffects gear = GearEffects;
             float hour = _cycle != null ? _cycle.Hour : 12f;
+            bool inSpot = InSpot;
+            SpotKind spotKind = SpotKind;
             HookedSpecies = _zone.PickSpecies(_random, species =>
-                DayCycleMath.IsActive(species.ActiveTime, hour) ? gear.RarityMultiplier(species.Rarity) : 0f);
+                DayCycleMath.IsActive(species.ActiveTime, hour)
+                    ? gear.RarityMultiplier(species.Rarity) * (inSpot ? FishingSpotRules.SpeciesMultiplier(spotKind, species) : 1f)
+                    : 0f);
             if (HookedSpecies == null)
             {
                 HookedSpecies = _zone.PickSpecies(_random, species => gear.RarityMultiplier(species.Rarity));
@@ -334,7 +351,7 @@ namespace FishAndChill.Fishing
             Vector2 range = HookedSpecies.SizeRangeCm;
             HookedSizeCm = Mathf.Lerp(range.x, range.y, (float)_random.NextDouble());
             float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble())
-                * gear.BiteWaitFactor;
+                * gear.BiteWaitFactor * (InSpot ? FishingSpotRules.WaitFactor(SpotKind) : 1f);
 
             // 1 à 3 titillements avant la vraie touche : l'attente s'allonge au besoin pour les espacer.
             _biteTime = Mathf.Max(wait, NibblePlanner.MinimumWait(1) + 0.2f);
@@ -346,10 +363,44 @@ namespace FishAndChill.Fishing
             StartPhase(FishingState.Casting, flight, "Lancer !");
         }
 
+        /// <summary>Les coins de pêche de la zone où l'on est.</summary>
+        private FishingSpots CurrentSpots
+        {
+            get
+            {
+                int region = _map != null ? _map.CurrentRegion : 0;
+                foreach (FishingSpots spots in _spots)
+                {
+                    if (spots != null && spots.Region == region) return spots;
+                }
+
+                return null;
+            }
+        }
+
         private bool TryFindCastPoint(out Vector2 castPoint)
         {
             Vector2 origin = _angler != null ? (Vector2)_angler.transform.position : (Vector2)transform.position;
             Vector2 facing = _angler != null ? _angler.Facing : Vector2.up;
+
+            // Face à un coin de pêche à portée : le lancer y va tout seul (un peu au hasard dans le coin).
+            FishingSpots spots = CurrentSpots;
+            if (spots != null)
+            {
+                IList<Vector2> centers = spots.Centers;
+                int target = FishingSpotRules.Assist(origin, facing, centers, 1.5f, _castMaxDistance);
+                if (target >= 0)
+                {
+                    Vector2 jitter = new Vector2((float)_random.NextDouble() - 0.5f, (float)_random.NextDouble() - 0.5f) * 0.8f;
+                    Vector2 inSpot = centers[target] + jitter;
+                    if (IsWater(inSpot))
+                    {
+                        castPoint = inSpot;
+                        return true;
+                    }
+                }
+            }
+
             float desired = Mathf.Lerp(_castDistance.x, _castDistance.y, (float)_random.NextDouble());
             float side = Mathf.Lerp(-_castSpread, _castSpread, (float)_random.NextDouble());
             Func<Vector2, bool> isWater = _map != null ? _map.IsWater : (Func<Vector2, bool>)(_ => true);
@@ -397,6 +448,11 @@ namespace FishAndChill.Fishing
 
         private void Catch()
         {
+            if (InSpot)
+            {
+                CurrentSpots?.Consume(CastPoint); // le coin s'épuise peu à peu
+            }
+
             FishSpecies species = HookedSpecies;
             var fish = new CaughtFish(species, HookedSizeCm);
             CatchLog.Register(species.Id, HookedSizeCm);

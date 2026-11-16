@@ -228,6 +228,16 @@ namespace FishAndChill.Editor
             worldMap.SetRegions(new[] { islandRegion, lakeRegion }, new[] { islandDock.Area, lakeDock.Area });
             BuildLakeLife(mapObject.transform, worldMap, player.transform, lakeDock.Area);
             BuildIslandLife(mapObject.transform, worldMap, player.transform, islandDock.Area);
+
+            // Coins de pêche (bancs, bulles, chasses) de chaque zone, que le lancer vise tout seul.
+            FishingSpots islandSpots = BuildSpots(mapObject.transform, "Coins de pêche de l'île", worldMap, 0, islandDock.Area);
+            FishingSpots lakeSpots = BuildSpots(mapObject.transform, "Coins de pêche du lac", worldMap, 1, lakeDock.Area);
+            var spotsSo = new SerializedObject(controller);
+            SerializedProperty spotList = spotsSo.FindProperty("_spots");
+            spotList.arraySize = 2;
+            spotList.GetArrayElementAtIndex(0).objectReferenceValue = islandSpots;
+            spotList.GetArrayElementAtIndex(1).objectReferenceValue = lakeSpots;
+            spotsSo.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(worldMap);
 
             // Position du joueur = ses pieds, au centre de la case.
@@ -437,6 +447,39 @@ namespace FishAndChill.Editor
             SetSprites(so.FindProperty("_moonGlint"), frames("RefletLune", 3, NightLifeArt.MoonGlint));
             so.FindProperty("_glowMaterial").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Material>(
                 "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat");
+        }
+
+        private static FishingSpots BuildSpots(Transform root, string name, WorldMap map, int region, Rect dock)
+        {
+            const string folder = "Assets/_Project/Art/Ambient";
+            Sprite[] Frames(string file, int count, System.Func<int, Color[,]> draw)
+            {
+                var sprites = new Sprite[count];
+                for (int i = 0; i < count; i++)
+                {
+                    sprites[i] = PixelArt.Save($"{folder}/{file}_{i}.png", draw(i), TileArt.Size, Vector2.one * 0.5f);
+                }
+
+                return sprites;
+            }
+
+            GameObject go = EnsureObject(name, root);
+            var spots = go.GetComponent<FishingSpots>();
+            if (spots == null)
+            {
+                spots = go.AddComponent<FishingSpots>();
+            }
+
+            var so = new SerializedObject(spots);
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_region").intValue = region;
+            so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 3f, dock.yMin - 3f, dock.width + 6f, dock.height + 6f);
+            SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
+            so.FindProperty("_shadow").objectReferenceValue = PixelArt.Save($"{folder}/OmbreBanc.png", LakeLifeArt.FishShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_bubble").objectReferenceValue = PixelArt.Save($"{folder}/BulleSurface.png", AquariumLifeArt.Bubble(), TileArt.Size, Vector2.one * 0.5f);
+            SetSprites(so.FindProperty("_jumper"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return spots;
         }
 
         private static void SetSwimmer(SerializedProperty entry, Sprite[] frames, int count, float speed)
