@@ -421,10 +421,21 @@ namespace FishAndChill.Editor
             var aquariumSo = new SerializedObject(aquarium);
             aquariumSo.FindProperty("_progress").objectReferenceValue = progress;
             aquariumSo.ApplyModifiedPropertiesWithoutUndo();
-            var tank = Object.FindAnyObjectByType<AquariumTank>();
-            var tankSo = new SerializedObject(tank);
-            tankSo.FindProperty("_progress").objectReferenceValue = progress;
-            tankSo.ApplyModifiedPropertiesWithoutUndo();
+            // Les deux bassins (lagon, lac) et les visiteurs suivent la collection du joueur.
+            foreach (AquariumTank tank in Object.FindObjectsByType<AquariumTank>())
+            {
+                var tankSo = new SerializedObject(tank);
+                tankSo.FindProperty("_progress").objectReferenceValue = progress;
+                tankSo.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            var visitors = Object.FindAnyObjectByType<AquariumVisitors>();
+            if (visitors != null)
+            {
+                var visitorsSo = new SerializedObject(visitors);
+                visitorsSo.FindProperty("_progress").objectReferenceValue = progress;
+                visitorsSo.ApplyModifiedPropertiesWithoutUndo();
+            }
 
             // Interface du sac et des pièces.
             var hud = partie.GetComponent<UI.InventoryHud>();

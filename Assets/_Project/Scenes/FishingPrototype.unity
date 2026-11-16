@@ -119,6 +119,108 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &104819289
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 104819290}
+  - component: {fileID: 104819291}
+  m_Layer: 0
+  m_Name: Visiteurs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &104819290
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 104819289}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 933593923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &104819291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 104819289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d6d107080c06284dabebee8c7dcd884, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.AquariumVisitors
+  _building: {fileID: 595800665}
+  _progress: {fileID: 332295271}
+  _looks:
+  - Down:
+    - {fileID: 21300000, guid: 365bb1d690b5eff40ae865b6eb5447fa, type: 3}
+    - {fileID: 21300000, guid: 0e9a81a45a4ff244082e4fc7f71f2c29, type: 3}
+    - {fileID: 21300000, guid: 4eefa8c6a910b4c4a8132ae76b0ecb5f, type: 3}
+    Up:
+    - {fileID: 21300000, guid: cc44e2bb26efbe54d9f1ff7b662acaa2, type: 3}
+    - {fileID: 21300000, guid: eec27105e8548664b870b090cae3e9d2, type: 3}
+    - {fileID: 21300000, guid: 16d834d339bc98642b0fd679654bce44, type: 3}
+    Left:
+    - {fileID: 21300000, guid: 45b32d8df0cb48649a29b78de5a3019d, type: 3}
+    - {fileID: 21300000, guid: eee244815acdaf24cb570c246af033e0, type: 3}
+    - {fileID: 21300000, guid: f51fdadcd1887ab4b95fdf72073cebfa, type: 3}
+    Right:
+    - {fileID: 21300000, guid: b988e0e2648e11746a403db3013c3b87, type: 3}
+    - {fileID: 21300000, guid: 8b7668705e6851d439b06c0a9e6282ce, type: 3}
+    - {fileID: 21300000, guid: b307182140d21db49935ff467f9640fb, type: 3}
+  - Down:
+    - {fileID: 21300000, guid: 291a5eaa2798a764e987f156c89537a4, type: 3}
+    - {fileID: 21300000, guid: 7473cbc830f70fd479ddeb91276128e4, type: 3}
+    - {fileID: 21300000, guid: 8de104c14e24662488e5982bf2afda7c, type: 3}
+    Up:
+    - {fileID: 21300000, guid: 935495485aacdfb459a2b10fee5030a2, type: 3}
+    - {fileID: 21300000, guid: 4dde86cc83c0e834fa6466319123e596, type: 3}
+    - {fileID: 21300000, guid: 59b8be969c83a884e9103c1bf61cfa83, type: 3}
+    Left:
+    - {fileID: 21300000, guid: 69415e90f643afa4e978486f0d2e2b53, type: 3}
+    - {fileID: 21300000, guid: 4e4e0480c2e4cdc4d9b431c7ca4954d1, type: 3}
+    - {fileID: 21300000, guid: 8fada67eb3636574d81e7ea6f0f12fd5, type: 3}
+    Right:
+    - {fileID: 21300000, guid: ce67f2d58775a0343986d879f096b2d8, type: 3}
+    - {fileID: 21300000, guid: 8b5ef1d4f69b32b4d8136712bc0e3015, type: 3}
+    - {fileID: 21300000, guid: 0298137370b66b547873a963a82918b2, type: 3}
+  - Down:
+    - {fileID: 21300000, guid: 01ec092f35de6c14b906d4bbaf09fece, type: 3}
+    - {fileID: 21300000, guid: db51459b53346e846a7bf3bc833ac2e9, type: 3}
+    - {fileID: 21300000, guid: 4fced00328f79b940950d4f88183749a, type: 3}
+    Up:
+    - {fileID: 21300000, guid: f7f6fed47bba3994795065a1ae6785d3, type: 3}
+    - {fileID: 21300000, guid: 6e761826779e2c640ac6f173b3c6572f, type: 3}
+    - {fileID: 21300000, guid: c4f2cb62e3aa32e408484c54c85d5d5f, type: 3}
+    Left:
+    - {fileID: 21300000, guid: 5f2f776c54ba38b418f1617887e2b75d, type: 3}
+    - {fileID: 21300000, guid: 45beb26dddb19944aae7c3818f73dacc, type: 3}
+    - {fileID: 21300000, guid: 5a1a78c4c4f36c84c8eb4ef31b9775fb, type: 3}
+    Right:
+    - {fileID: 21300000, guid: c4b7c89590a31514c8e16212315ce5fe, type: 3}
+    - {fileID: 21300000, guid: 6c143b4be81c4834097a9eb0c0bfc05f, type: 3}
+    - {fileID: 21300000, guid: 29596ec1212a8e24b80b980b85aea0ed, type: 3}
+  _rooms:
+  - Span: {x: 3.5, y: 26.5}
+    Lane: 8.9
+  - Span: {x: 35, y: 53}
+    Lane: 8.9
+  _maxPerRoom: 3
+  _speciesPerVisitor: 6
 --- !u!1 &109374336
 GameObject:
   m_ObjectHideFlags: 0
@@ -71488,7 +71590,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -3
+  m_SortingOrder: -2
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: ca2ee6c5e4d37584f8a4be5c51158197, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -371950,6 +372052,190 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 1
   m_BlendShapeWeights: []
+--- !u!1 &791755672
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 791755673}
+  - component: {fileID: 791755674}
+  m_Layer: 0
+  m_Name: Banc 3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &791755673
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791755672}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 39, y: 6.200001, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 933593923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &791755674
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 791755672}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 10
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 21300000, guid: 73b427140a1f7dd4eaa1e24a4fa71832, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 4, y: 1.75}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 1
+  m_BlendShapeWeights: []
+--- !u!1 &872261329
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 872261330}
+  - component: {fileID: 872261331}
+  m_Layer: 0
+  m_Name: Banc 4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &872261330
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872261329}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 49, y: 6.200001, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 933593923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &872261331
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872261329}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 10
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 21300000, guid: 73b427140a1f7dd4eaa1e24a4fa71832, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 4, y: 1.75}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 1
+  m_BlendShapeWeights: []
 --- !u!1 &875151898
 GameObject:
   m_ObjectHideFlags: 0
@@ -376887,6 +377173,14 @@ Transform:
   - {fileID: 220867408}
   - {fileID: 1199257008}
   - {fileID: 705829631}
+  - {fileID: 1714982909}
+  - {fileID: 1140270526}
+  - {fileID: 791755673}
+  - {fileID: 872261330}
+  - {fileID: 1324183800}
+  - {fileID: 1705058675}
+  - {fileID: 1641001966}
+  - {fileID: 104819290}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &950475165
@@ -376968,7 +377262,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -5
+  m_SortingOrder: -6
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 51f0daacc854a4f43bc3bf7acc999090, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -440956,6 +441250,98 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1254510492}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1140270525
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1140270526}
+  - component: {fileID: 1140270527}
+  m_Layer: 0
+  m_Name: Vitre du bassin du lac
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1140270526
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1140270525}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 30, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 933593923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &1140270527
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1140270525}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: -2
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 21300000, guid: 6420fd5e554b69140b0ff5ff4b9ac62d, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 26, y: 18}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!1 &1141459282
 GameObject:
   m_ObjectHideFlags: 0
@@ -441313,6 +441699,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: FishAndChill::FishAndChill.World.AquariumTank
   _progress: {fileID: 332295271}
   _building: {fileID: 595800665}
+  _zone: {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
+  _area:
+    serializedVersion: 2
+    x: 2.4
+    y: 12.4
+    width: 25.2
+    height: 4.4
   _sortingOrder: -4
   _minSpeed: 0.35
   _maxSpeed: 0.9
@@ -443317,6 +443710,62 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 1
   m_BlendShapeWeights: []
+--- !u!1 &1324183799
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1324183800}
+  - component: {fileID: 1324183801}
+  m_Layer: 0
+  m_Name: Poissons du bassin du lac
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1324183800
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324183799}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 933593923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1324183801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324183799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 837ea82d1e6663841b4861885291f3fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.AquariumTank
+  _progress: {fileID: 332295271}
+  _building: {fileID: 595800665}
+  _zone: {fileID: 11400000, guid: e71143147af136242879c044a37974a4, type: 2}
+  _area:
+    serializedVersion: 2
+    x: 34.4
+    y: 12.4
+    width: 19.2
+    height: 4.4
+  _sortingOrder: -4
+  _minSpeed: 0.6
+  _maxSpeed: 1.6
 --- !u!1 &1360753072
 GameObject:
   m_ObjectHideFlags: 0
@@ -443442,6 +443891,262 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 1
+  m_BlendShapeWeights: []
+--- !u!1 &1641001965
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1641001966}
+  - component: {fileID: 1641001967}
+  m_Layer: 0
+  m_Name: Vie du bassin du lac
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1641001966
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1641001965}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 933593923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1641001967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1641001965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2b24929bf24d7f4ab85f82c959ec884, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.TankLife
+  _building: {fileID: 595800665}
+  _area:
+    serializedVersion: 2
+    x: 34.4
+    y: 12.4
+    width: 19.2
+    height: 4.4
+  _seed: 23
+  _plants:
+  - Frames:
+    - {fileID: 21300000, guid: 2d6862a1376f9424a9889b9f81c59d88, type: 3}
+    - {fileID: 21300000, guid: 651071e732454134bb7c4a624e9cea98, type: 3}
+    - {fileID: 21300000, guid: 192a0732b682bfa419a2f70591bf2c36, type: 3}
+    Count: 6
+    Front: 0
+  - Frames:
+    - {fileID: 21300000, guid: e56891d19f4871d4ebaed0ae7ceb48a9, type: 3}
+    - {fileID: 21300000, guid: 9536776da9ada424c9402eb9003e9625, type: 3}
+    - {fileID: 21300000, guid: 81b49e977bb482044bef504803205d5c, type: 3}
+    Count: 5
+    Front: 1
+  _bubble: {fileID: 21300000, guid: 27798848f39a6d846992afacab3dfbb1, type: 3}
+  _bubbleSources: 3
+  _ray: {fileID: 21300000, guid: 4bc1df11f7fa92f43a8ce519a117ab7a, type: 3}
+  _rays: 3
+  _school:
+  - {fileID: 21300000, guid: 94b7159914e46dd40988de20d905e8ee, type: 3}
+  - {fileID: 21300000, guid: b2c03d1c69cd1bf44b9e799d246ae1d1, type: 3}
+  _schools: 2
+  _schoolSize: 9
+  _caustics:
+  - {fileID: 21300000, guid: ea14fff57412a084c80e044c9cdd457a, type: 3}
+  - {fileID: 21300000, guid: dfa9370cb261b7e45a011443475b0e8d, type: 3}
+  - {fileID: 21300000, guid: e88d8a042b58edb49a901481322754b2, type: 3}
+  _jelly: []
+  _jellyColumns: []
+--- !u!1 &1705058674
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1705058675}
+  - component: {fileID: 1705058676}
+  m_Layer: 0
+  m_Name: Vie du bassin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1705058675
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1705058674}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 933593923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1705058676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1705058674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2b24929bf24d7f4ab85f82c959ec884, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.TankLife
+  _building: {fileID: 595800665}
+  _area:
+    serializedVersion: 2
+    x: 2.4
+    y: 12.4
+    width: 25.2
+    height: 4.4
+  _seed: 11
+  _plants:
+  - Frames:
+    - {fileID: 21300000, guid: dd5830e8c89a3b747ad881ff393bf2f5, type: 3}
+    - {fileID: 21300000, guid: b27e45e00d60e97479352ea5544cd177, type: 3}
+    - {fileID: 21300000, guid: 1b353c524e16dd140a15e24ec437c8d0, type: 3}
+    Count: 7
+    Front: 0
+  - Frames:
+    - {fileID: 21300000, guid: 1d378f613527d714681cc57047a482d3, type: 3}
+    - {fileID: 21300000, guid: 932e6535c2004834d906a7e5d932662e, type: 3}
+    - {fileID: 21300000, guid: b070d16e5670f8d479dc5332e933e4b3, type: 3}
+    Count: 6
+    Front: 1
+  _bubble: {fileID: 21300000, guid: 27798848f39a6d846992afacab3dfbb1, type: 3}
+  _bubbleSources: 4
+  _ray: {fileID: 21300000, guid: 4bc1df11f7fa92f43a8ce519a117ab7a, type: 3}
+  _rays: 4
+  _school:
+  - {fileID: 21300000, guid: 7d96f6de02c363c4395bbf6d68364658, type: 3}
+  - {fileID: 21300000, guid: f9aa99683f4d97d4ba40a17f4f530227, type: 3}
+  _schools: 2
+  _schoolSize: 8
+  _caustics:
+  - {fileID: 21300000, guid: 2e6234f861e020b4982e9274700ce921, type: 3}
+  - {fileID: 21300000, guid: c20bd619a751a294a942b65965eecd2b, type: 3}
+  - {fileID: 21300000, guid: 6d44a67a36ed7194ca0b3111841c29f1, type: 3}
+  _jelly:
+  - {fileID: 21300000, guid: 4a0094d51d7f78048b62c762d5da957e, type: 3}
+  - {fileID: 21300000, guid: 0e5da2f3fb0fbe74b86dcf5d62fe7ae1, type: 3}
+  _jellyColumns:
+  - {x: 4.5, y: 3.2}
+  - {x: 25.5, y: 3.2}
+--- !u!1 &1714982908
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1714982909}
+  - component: {fileID: 1714982910}
+  m_Layer: 0
+  m_Name: Salle du lac
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1714982909
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1714982908}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 30, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 933593923}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &1714982910
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1714982908}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: -6
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 21300000, guid: 8b64fefcc3e2b534a9d8ec0fdf3ce1b3, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 26, y: 18}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
 --- !u!1 &1808955054
 GameObject:

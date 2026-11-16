@@ -134,9 +134,18 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu. Façade 12×10 cases
   (`AquariumArt`, 192×160 px, entre la 1re version 6×5 et la version 18×15 jugée trop grande : perron, colonnes,
   4 vitrines, rosace, dôme de verre plein d'eau, lanterne), emprise 11,2×5,2, site cherché autour du centre de l'île
-  avec 9 cases de marge, la boutique à ≥ 14 cases. Grande salle 30×18 cases, plus
-  grande que l'écran (la caméra suit le joueur) : bassin géant sur tout le mur du fond, allée en mosaïque, médaillon,
-  colonnes à méduses et bancs (obstacles, positions dans `AquariumBuilding.JellyfishColumns` / `Benches`). Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
+  avec 9 cases de marge, la boutique à ≥ 14 cases. **Deux salles** (intérieur 56×18 cases) : le **grand hall du lagon**
+  (30 cases : bassin tropical, allée en mosaïque, médaillon, colonnes à méduses, bancs) et, par un **passage voûté** dans
+  le mur de droite (`PassageBottom`/`PassageTop`), la **salle du lac** (24 cases, `AquariumLifeArt.LakeRoom` : lambris,
+  parquet, tapis, bassin d'eau douce aux galets avec souche). Entrée au milieu du hall (`InteriorBuilding.EntranceX`).
+  Un `AquariumTank` par bassin (`_zone`, `_area` = `HallTank` / `LakeTank`) : chaque bassin montre les espèces de sa zone,
+  à leur taille réelle (échelle de `FishDisplayScale`). **Vie des bassins** (`World/TankLife`, dessins `AquariumLifeArt`) :
+  plantes qui ondulent (laminaires, herbiers / potamots, élodées ; derrière et devant les poissons), bulles, rayons de
+  lumière, bancs d'anthias / de vairons, reflets d'eau au sol, méduses qui pulsent dans les colonnes. Ordres : fond -6,
+  plantes du fond et reflets -5, poissons -4, plantes de devant, bulles, rayons -3, vitre -2, mobilier 10, méduses 11.
+  **Visiteurs** (`World/AquariumVisitors`, le pêcheur recoloré en 3 tenues `Visiteur1..3`) : promenade devant chaque
+  bassin, pauses pour regarder ; 1 par salle puis +1 toutes les 6 espèces exposées (3 max). La faune de la zone
+  (`AmbientLife`) se cache à l'intérieur des bâtiments. Obstacles : `AquariumBuilding.JellyfishColumns` / `Benches`. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
   gros de chaque nouvelle espèce entre ; un poisson plus gros remplace l'exemplaire exposé (l'ancien revient dans le
   sac) ; les doublons restent dans le sac pour le marchand. `FishShop` ne vend pas un record de taille.
   Les poissons nagent dans le bassin (`AquariumTank`) avec leur petite version `FishSpecies.MiniSprite`

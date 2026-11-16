@@ -49,7 +49,10 @@ namespace FishAndChill.World
 
         protected Vector2 Door => transform.position;
         private Vector2 OutsideSpot => Door + new Vector2(0f, -0.9f);
-        private Vector2 InsideSpot => _interiorOrigin + new Vector2(InteriorSize.x * 0.5f, 0.9f);
+        /// <summary>Position de la porte dans la pièce (par défaut au milieu du mur du bas).</summary>
+        protected virtual float EntranceX => InteriorSize.x * 0.5f;
+
+        private Vector2 InsideSpot => _interiorOrigin + new Vector2(EntranceX, 0.9f);
 
         protected virtual void Start()
         {

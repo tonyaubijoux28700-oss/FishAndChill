@@ -561,6 +561,13 @@ namespace FishAndChill.Editor
             PixelArt.Rect(p, 9, 0, 9, StandBottom, MetalLight);
             PixelArt.Rect(p, InteriorWidth - 10, 0, InteriorWidth - 10, StandBottom, Metal);
 
+            // Passage voûté vers la salle du lac, dans le mur de droite (sol de 3,2 à 6 cases de haut).
+            PixelArt.Rect(p, InteriorWidth - 10, 51, InteriorWidth - 1, 96, C(0.78f, 0.84f, 0.86f));
+            PixelArt.Rect(p, InteriorWidth - 10, 51, InteriorWidth - 1, 52, C(0.60f, 0.68f, 0.72f));
+            PixelArt.Rect(p, InteriorWidth - 11, 50, InteriorWidth - 11, 100, Brass);
+            PixelArt.Rect(p, InteriorWidth - 11, 97, InteriorWidth - 1, 100, Brass);
+            PixelArt.Rect(p, InteriorWidth - 11, 101, InteriorWidth - 1, 101, BrassDark);
+
             // Paillasson de sortie.
             PixelArt.Rect(p, 216, 0, 263, 9, Tile);
             PixelArt.Rect(p, 219, 2, 260, 7, C(0.40f, 0.78f, 0.80f));
@@ -711,17 +718,7 @@ namespace FishAndChill.Editor
                 DrawWeed(p, wx, floor, 24 + (wx * 7) % 30);
             }
 
-            foreach (int bx in new[] { 88, 214, 310, 430 })
-            {
-                for (int y = floor + 14; y < WaterLine; y += 7)
-                {
-                    PixelArt.Set(p, bx + ((y / 7) % 2), y, Bubble);
-                    if ((y / 7) % 3 == 0)
-                    {
-                        PixelArt.Set(p, bx + 1 + ((y / 7) % 2), y + 1, Bubble);
-                    }
-                }
-            }
+            // Les bulles sont animées en jeu (TankLife).
         }
 
         private static void DrawChest(Color[,] p, int x0, int y0)
@@ -904,9 +901,7 @@ namespace FishAndChill.Editor
                 }
             }
 
-            DrawJellyfish(p, 16, 56, CoralPink);
-            DrawJellyfish(p, 30, 38, C(0.85f, 0.65f, 0.98f));
-            DrawJellyfish(p, 20, 22, CoralPink);
+            // Les méduses sont animées en jeu (TankLife) : la colonne n'a que l'eau et quelques bulles.
             for (int y = 14; y < 74; y += 9)
             {
                 PixelArt.Set(p, 34 + (y / 9) % 2, y, Bubble);

@@ -220,7 +220,8 @@ namespace FishAndChill.World
 
         private void Update()
         {
-            bool here = _map.CurrentRegion == _region;
+            // Hors de la région, ou à l'intérieur d'un bâtiment : la faune se cache (pas de papillons dans l'aquarium).
+            bool here = _map.CurrentRegion == _region && InteriorBuilding.Occupied == null;
             if (here != _active)
             {
                 _active = here;

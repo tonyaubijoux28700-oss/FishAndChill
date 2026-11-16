@@ -747,12 +747,22 @@ namespace FishAndChill.Editor
             room.transform.position = interiorOrigin;
             GameObject floor = EnsureObject("Sol, murs et bassin", room.transform);
             floor.transform.localPosition = Vector3.zero;
-            SetSprite(floor, interior, -5).spriteSortPoint = SpriteSortPoint.Center;
+            SetSprite(floor, interior, -6).spriteSortPoint = SpriteSortPoint.Center;
 
-            // Les poissons nagent entre le fond (-5) et la vitre (-3).
+            // Les poissons nagent entre le fond (-6, plantes du fond -5) et la vitre (-2, plantes de devant et bulles -3).
             GameObject glassObject = EnsureObject("Vitre du bassin", room.transform);
             glassObject.transform.localPosition = Vector3.zero;
-            SetSprite(glassObject, glass, -3).spriteSortPoint = SpriteSortPoint.Center;
+            SetSprite(glassObject, glass, -2).spriteSortPoint = SpriteSortPoint.Center;
+
+            // Salle du lac, à droite du grand hall par un passage voûté.
+            Sprite lakeRoom = PixelArt.Save($"{folder}/Aquarium_SalleDuLac.png", AquariumLifeArt.LakeRoom(), TileArt.Size, Vector2.zero);
+            Sprite lakeGlass = PixelArt.Save($"{folder}/Aquarium_SalleDuLac_Vitre.png", AquariumLifeArt.LakeTankGlass(), TileArt.Size, Vector2.zero);
+            GameObject lakeObject = EnsureObject("Salle du lac", room.transform);
+            lakeObject.transform.localPosition = new Vector3(AquariumBuilding.HallWidth, 0f, 0f);
+            SetSprite(lakeObject, lakeRoom, -6).spriteSortPoint = SpriteSortPoint.Center;
+            GameObject lakeGlassObject = EnsureObject("Vitre du bassin du lac", room.transform);
+            lakeGlassObject.transform.localPosition = new Vector3(AquariumBuilding.HallWidth, 0f, 0f);
+            SetSprite(lakeGlassObject, lakeGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
             // Mobilier de la salle (triés par les pieds, comme le joueur) : colonnes à méduses et bancs.
             Sprite column = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses.png", AquariumArt.JellyfishColumn(), TileArt.Size, new Vector2(0.5f, 0f));
@@ -771,7 +781,20 @@ namespace FishAndChill.Editor
                 SetSprite(item, bench, 10);
             }
 
-            GameObject fishObject = EnsureObject("Poissons du bassin", room.transform);
+            // Un bassin par zone : les espèces du lagon dans le grand hall, celles du lac dans la salle du lac.
+            var mahana = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/IleMahana.asset");
+            var annecy = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/LacAnnecy.asset");
+            BuildTank(room.transform, "Poissons du bassin", aquarium, mahana, AquariumBuilding.HallTank);
+            BuildTank(room.transform, "Poissons du bassin du lac", aquarium, annecy, AquariumBuilding.LakeTank);
+
+            BuildTankLife(room.transform, aquarium, folder);
+            BuildVisitors(room.transform, aquarium);
+            return aquarium;
+        }
+
+        private static void BuildTank(Transform room, string name, AquariumBuilding aquarium, FishingZone zone, Rect area)
+        {
+            GameObject fishObject = EnsureObject(name, room);
             fishObject.transform.localPosition = Vector3.zero;
             var tank = fishObject.GetComponent<AquariumTank>();
             if (tank == null)
@@ -781,8 +804,141 @@ namespace FishAndChill.Editor
 
             var tankSo = new SerializedObject(tank);
             tankSo.FindProperty("_building").objectReferenceValue = aquarium;
+            tankSo.FindProperty("_zone").objectReferenceValue = zone;
+            tankSo.FindProperty("_area").rectValue = area;
             tankSo.ApplyModifiedPropertiesWithoutUndo();
-            return aquarium;
+        }
+
+        /// <summary>Vie des deux bassins : plantes qui ondulent, bulles, rayons, bancs de petits poissons, reflets, méduses.</summary>
+        private static void BuildTankLife(Transform room, AquariumBuilding aquarium, string folder)
+        {
+            Sprite[] Frames(string name, int count, System.Func<int, Color[,]> draw, Vector2 pivot)
+            {
+                var sprites = new Sprite[count];
+                for (int i = 0; i < count; i++)
+                {
+                    sprites[i] = PixelArt.Save($"{folder}/Aquarium/{name}_{i}.png", draw(i), TileArt.Size, pivot);
+                }
+
+                return sprites;
+            }
+
+            var bottom = new Vector2(0.5f, 0f);
+            var center = new Vector2(0.5f, 0.5f);
+            Sprite bubble = PixelArt.Save($"{folder}/Aquarium/Bulle.png", AquariumLifeArt.Bubble(), TileArt.Size, center);
+            Sprite ray = PixelArt.Save($"{folder}/Aquarium/Rayon.png", AquariumLifeArt.LightRay(), TileArt.Size, center);
+
+            // Lagon : laminaires dorées, herbiers verts devant, anthias orange en bancs, reflets turquoise, méduses.
+            Sprite[] kelp = Frames("Laminaire", 3, f => AquariumLifeArt.Plant(f, 16, 46, 2, new Color(0.56f, 0.60f, 0.22f), new Color(0.40f, 0.44f, 0.16f), new Color(0.74f, 0.74f, 0.36f), true, 3), bottom);
+            Sprite[] seagrass = Frames("Herbier", 3, f => AquariumLifeArt.Plant(f, 18, 20, 5, new Color(0.30f, 0.72f, 0.42f), new Color(0.18f, 0.52f, 0.30f), new Color(0.56f, 0.86f, 0.56f), false, 7), bottom);
+            Sprite[] anthias = Frames("Anthias", 2, f => AquariumLifeArt.TinyFish(f, new Color(1f, 0.52f, 0.30f), new Color(1f, 0.78f, 0.62f), new Color(0.96f, 0.36f, 0.50f)), center);
+            Sprite[] lagoonCaustics = Frames("Reflets_Lagon", 3, f => AquariumLifeArt.Caustics(f, new Color(0.70f, 0.95f, 1f)), center);
+            Sprite[] jelly = Frames("Meduse", 2, f => AquariumLifeArt.Jelly(f, new Color(0.96f, 0.56f, 0.70f)), center);
+            BuildLife(room, "Vie du bassin", aquarium, AquariumBuilding.HallTank, 11, new[] { (kelp, 7, false), (seagrass, 6, true) },
+                bubble, 4, ray, 4, anthias, 2, 8, lagoonCaustics, jelly, AquariumBuilding.JellyfishColumns);
+
+            // Lac : potamots, élodées devant, vairons argentés, reflets verts.
+            Sprite[] pondweed = Frames("Potamot", 3, f => AquariumLifeArt.Plant(f, 16, 44, 2, new Color(0.36f, 0.54f, 0.24f), new Color(0.24f, 0.38f, 0.16f), new Color(0.52f, 0.68f, 0.32f), true, 11), bottom);
+            Sprite[] elodea = Frames("Elodee", 3, f => AquariumLifeArt.Plant(f, 18, 24, 4, new Color(0.20f, 0.46f, 0.24f), new Color(0.12f, 0.32f, 0.16f), new Color(0.36f, 0.62f, 0.34f), false, 13), bottom);
+            Sprite[] minnow = Frames("Vairon", 2, f => AquariumLifeArt.TinyFish(f, new Color(0.56f, 0.58f, 0.46f), new Color(0.86f, 0.86f, 0.80f), new Color(0.80f, 0.40f, 0.30f)), center);
+            Sprite[] lakeCaustics = Frames("Reflets_Lac", 3, f => AquariumLifeArt.Caustics(f, new Color(0.75f, 1f, 0.82f)), center);
+            BuildLife(room, "Vie du bassin du lac", aquarium, AquariumBuilding.LakeTank, 23, new[] { (pondweed, 6, false), (elodea, 5, true) },
+                bubble, 3, ray, 3, minnow, 2, 9, lakeCaustics, new Sprite[0], new Vector2[0]);
+        }
+
+        private static void BuildLife(Transform room, string name, AquariumBuilding aquarium, Rect area, int seed,
+            (Sprite[] frames, int count, bool front)[] plants, Sprite bubble, int bubbleSources, Sprite ray, int rays,
+            Sprite[] school, int schools, int schoolSize, Sprite[] caustics, Sprite[] jelly, Vector2[] jellyColumns)
+        {
+            GameObject go = EnsureObject(name, room);
+            go.transform.localPosition = Vector3.zero;
+            var life = go.GetComponent<TankLife>();
+            if (life == null)
+            {
+                life = go.AddComponent<TankLife>();
+            }
+
+            var so = new SerializedObject(life);
+            so.FindProperty("_building").objectReferenceValue = aquarium;
+            so.FindProperty("_area").rectValue = area;
+            so.FindProperty("_seed").intValue = seed;
+            SerializedProperty plantList = so.FindProperty("_plants");
+            plantList.arraySize = plants.Length;
+            for (int i = 0; i < plants.Length; i++)
+            {
+                SerializedProperty entry = plantList.GetArrayElementAtIndex(i);
+                SetSprites(entry.FindPropertyRelative("Frames"), plants[i].frames);
+                entry.FindPropertyRelative("Count").intValue = plants[i].count;
+                entry.FindPropertyRelative("Front").boolValue = plants[i].front;
+            }
+
+            so.FindProperty("_bubble").objectReferenceValue = bubble;
+            so.FindProperty("_bubbleSources").intValue = bubbleSources;
+            so.FindProperty("_ray").objectReferenceValue = ray;
+            so.FindProperty("_rays").intValue = rays;
+            SetSprites(so.FindProperty("_school"), school);
+            so.FindProperty("_schools").intValue = schools;
+            so.FindProperty("_schoolSize").intValue = schoolSize;
+            SetSprites(so.FindProperty("_caustics"), caustics);
+            SetSprites(so.FindProperty("_jelly"), jelly);
+            SerializedProperty columns = so.FindProperty("_jellyColumns");
+            columns.arraySize = jellyColumns.Length;
+            for (int i = 0; i < jellyColumns.Length; i++)
+            {
+                columns.GetArrayElementAtIndex(i).vector2Value = jellyColumns[i];
+            }
+
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Visiteurs : le pêcheur recoloré en trois tenues, qui se promènent devant les deux bassins.</summary>
+        private static void BuildVisitors(Transform room, AquariumBuilding aquarium)
+        {
+            const string characters = "Assets/_Project/Art/Characters";
+            (float shirt, float shorts, float sat, float value)[] outfits =
+            {
+                (0.98f, 0.62f, 0.6f, 0.5f),   // chemise rouge, short bleu marine
+                (0.14f, 0.33f, 0.7f, 0.8f),   // chemise jaune, short vert
+                (0.78f, 0.10f, 0.35f, 1.0f),  // chemise violette, short beige
+            };
+            string[] directions = { "Bas", "Haut", "Gauche", "Droite" };
+            string[] fields = { "Down", "Up", "Left", "Right" };
+
+            GameObject go = EnsureObject("Visiteurs", room);
+            go.transform.localPosition = Vector3.zero;
+            var visitors = go.GetComponent<AquariumVisitors>();
+            if (visitors == null)
+            {
+                visitors = go.AddComponent<AquariumVisitors>();
+            }
+
+            var so = new SerializedObject(visitors);
+            so.FindProperty("_building").objectReferenceValue = aquarium;
+            SerializedProperty looks = so.FindProperty("_looks");
+            looks.arraySize = outfits.Length;
+            for (int o = 0; o < outfits.Length; o++)
+            {
+                SerializedProperty look = looks.GetArrayElementAtIndex(o);
+                for (int d = 0; d < directions.Length; d++)
+                {
+                    var sprites = new Sprite[3];
+                    for (int f = 0; f < 3; f++)
+                    {
+                        Color[,] pixels = AquariumLifeArt.Visitor($"{characters}/Pecheur_{directions[d]}_{f}.png", outfits[o].shirt, outfits[o].shorts, outfits[o].sat, outfits[o].value);
+                        sprites[f] = PixelArt.Save($"{characters}/Visiteur{o + 1}_{directions[d]}_{f}.png", pixels, TileArt.Size, CharacterArt.Pivot);
+                    }
+
+                    SetSprites(look.FindPropertyRelative(fields[d]), sprites);
+                }
+            }
+
+            SerializedProperty rooms = so.FindProperty("_rooms");
+            rooms.arraySize = 2;
+            rooms.GetArrayElementAtIndex(0).FindPropertyRelative("Span").vector2Value = new Vector2(3.5f, AquariumBuilding.HallWidth - 3.5f);
+            rooms.GetArrayElementAtIndex(1).FindPropertyRelative("Span").vector2Value = new Vector2(AquariumBuilding.LakeRoomX + 3f, AquariumBuilding.InteriorWidth - 3f);
+            rooms.GetArrayElementAtIndex(0).FindPropertyRelative("Lane").floatValue = 8.9f;
+            rooms.GetArrayElementAtIndex(1).FindPropertyRelative("Lane").floatValue = 8.9f;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static GameObject EnsureObject(string name, Transform parent)

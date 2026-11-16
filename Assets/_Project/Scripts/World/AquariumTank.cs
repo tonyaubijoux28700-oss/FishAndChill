@@ -15,6 +15,12 @@ namespace FishAndChill.World
         [SerializeField] private PlayerProgress _progress;
         [SerializeField] private AquariumBuilding _building;
 
+        [SerializeField, Tooltip("Zone dont les espèces vivent dans ce bassin (vide = toutes).")]
+        private FishingZone _zone;
+
+        [SerializeField, Tooltip("Eau du bassin, relative au coin de la salle.")]
+        private Rect _area = new Rect(2.4f, 12.4f, 25.2f, 4.4f);
+
         [SerializeField, Tooltip("Ordre d'affichage des poissons : entre le fond du bassin et la vitre.")]
         private int _sortingOrder = -4;
 
@@ -69,18 +75,39 @@ namespace FishAndChill.World
         {
             foreach (CaughtFish specimen in _progress.Aquarium.Specimens)
             {
-                if (specimen.Species == null || _swimmers.ContainsKey(specimen.SpeciesId))
+                if (specimen.Species == null || _swimmers.ContainsKey(specimen.SpeciesId) || !LivesHere(specimen.Species))
                 {
                     continue;
                 }
 
-                _swimmers.Add(specimen.SpeciesId, CreateSwimmer(specimen.Species));
+                _swimmers.Add(specimen.SpeciesId, CreateSwimmer(specimen));
             }
         }
 
-        private Swimmer CreateSwimmer(FishSpecies species)
+        private Rect SwimArea => _building.WorldRect(_area);
+
+        private bool LivesHere(FishSpecies species)
         {
-            Rect area = _building.SwimArea;
+            if (_zone == null)
+            {
+                return true;
+            }
+
+            foreach (FishingZone.SpeciesEntry entry in _zone.Species)
+            {
+                if (entry.Species == species)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private Swimmer CreateSwimmer(CaughtFish specimen)
+        {
+            FishSpecies species = specimen.Species;
+            Rect area = SwimArea;
             bool onBottom = species.Kind.LivesOnBottom();
             var go = new GameObject($"{species.Kind.DisplayName()} - {species.CommonName}");
             go.transform.SetParent(transform, false);
@@ -88,6 +115,9 @@ namespace FishAndChill.World
             renderer.sprite = species.MiniSprite;
             // Ceux du fond passent devant les poissons (ils sont plus près de la vitre, sur le sable).
             renderer.sortingOrder = _sortingOrder;
+            // Taille réaliste : une ablette est minuscule à côté d'une carangue (même échelle que la carte de prise).
+            float scale = Mathf.Lerp(0.55f, 1.25f, Mathf.InverseLerp(FishDisplayScale.MinScale, 1f, FishDisplayScale.For(specimen.SizeCm)));
+            go.transform.localScale = new Vector3(scale, scale, 1f);
 
             var swimmer = new Swimmer
             {
@@ -111,7 +141,7 @@ namespace FishAndChill.World
 
         private void Update()
         {
-            Rect area = _building.SwimArea;
+            Rect area = SwimArea;
             float dt = Time.deltaTime;
             foreach (Swimmer swimmer in _swimmers.Values)
             {
