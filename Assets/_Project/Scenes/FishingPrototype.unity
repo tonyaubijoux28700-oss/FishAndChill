@@ -3135,6 +3135,9 @@ MonoBehaviour:
   _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
   _aquarium: {fileID: 595800665}
   _travel: {fileID: 332295279}
+  _showcaseBack: {fileID: 21300000, guid: db5df83aab0f02d4ca0de5d3dc4a9fef, type: 3}
+  _peg: {fileID: 21300000, guid: 8d8e4f5751ebaee45bad037a006c8aa6, type: 3}
+  _tag: {fileID: 21300000, guid: 7bf5b043295e34a47ba840bdbfea0f7e, type: 3}
   _toastSeconds: 5
 --- !u!4 &332295273
 Transform:

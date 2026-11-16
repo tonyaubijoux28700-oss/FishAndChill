@@ -505,6 +505,10 @@ namespace FishAndChill.Editor
             // Charte pixel art de l'interface (cadres, bandeaux, fonds d'eau), partagée par sac, carte et boutique.
             UI.UiSkin skin = UiSkinSetup.CreateOrUpdate();
             hudSo.FindProperty("_skin").objectReferenceValue = skin;
+            // Vitrine du matériel : fond en bois (×4), supports en laiton, étiquettes en papier (celles du carnet).
+            hudSo.FindProperty("_showcaseBack").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Materiel/Vitrine_Fond.png", GearArt.ShowcaseBack(), 25, new Vector2(0.5f, 0.5f));
+            hudSo.FindProperty("_peg").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Materiel/Vitrine_Support.png", GearArt.Peg(), 16, new Vector2(0.5f, 0.5f));
+            hudSo.FindProperty("_tag").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Carnet/Case.png", BookArt.Cell(), UiSkinArt.PixelsPerUnit, new Vector2(0.5f, 0.5f), new Vector4(5, 5, 5, 5), FilterMode.Point);
             var skinMenuSo = new SerializedObject(shopMenu);
             skinMenuSo.FindProperty("_skin").objectReferenceValue = skin;
             skinMenuSo.ApplyModifiedPropertiesWithoutUndo();

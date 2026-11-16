@@ -38,7 +38,7 @@ namespace FishAndChill.UI
         private const float ShowcaseScale = 2.6f;
         private static readonly Vector2 RodSize = new Vector2(96f, 160f) * ShowcaseScale;
         private static readonly Vector2 RodCenter = new Vector2(-112f, 30f);
-        private static readonly Vector2 RodLineEnd = new Vector2(86f, 62f);
+        private static readonly Vector2 RodLineEnd = new Vector2(84f, 60f);
 
         private sealed class GearLabel
         {
@@ -75,6 +75,11 @@ namespace FishAndChill.UI
 
         [SerializeField, Tooltip("Voyage : sur le ponton, E ouvre la carte du monde au lieu du sac.")]
         private ZoneTravel _travel;
+
+        [Header("Vitrine du matériel")]
+        [SerializeField, Tooltip("Fond en bois de la vitrine.")] private Sprite _showcaseBack;
+        [SerializeField, Tooltip("Support en laiton sous la canne.")] private Sprite _peg;
+        [SerializeField, Tooltip("Étiquette en papier (étirable).")] private Sprite _tag;
 
         [SerializeField, Min(1f)] private float _toastSeconds = 5f;
 
@@ -497,9 +502,19 @@ namespace FishAndChill.UI
             _toast.SetActive(false);
         }
 
+        private static readonly Color TagFamily = new Color(0.62f, 0.22f, 0.12f);
+        private static readonly Color TagInk = new Color(0.22f, 0.13f, 0.07f);
+        private static readonly Color TagSoft = new Color(0.42f, 0.32f, 0.22f);
+
+        /// <summary>Même courbe que le dessin de la grande canne (GearArt.RodPoint), en pixels du dessin.</summary>
+        private static Vector2 RodPoint(float t) => new Vector2(6f + t * 56f + t * t * t * 28f, 6f + t * 150f - t * t * t * 12f);
+
+        private static Vector2 RodToPanel(Vector2 pixel) => RodCenter - RodSize * 0.5f + pixel * ShowcaseScale;
+
         /// <summary>
-        /// Vitrine « Mon matériel » à gauche : sur un fond de feutre, la canne entière en grand, le fil, l'hameçon et
-        /// l'appât au bout, le sac en bas ; une étiquette à côté de chacun.
+        /// Vitrine « Mon matériel » à gauche : présentoir en bois éclairé par le haut, la canne cintrée posée sur deux
+        /// supports en laiton, son fil jusqu'à l'hameçon et l'appât, le sac sur l'étagère ; une étiquette en papier à
+        /// côté de chacun.
         /// </summary>
         private void BuildGearPanel()
         {
@@ -507,20 +522,25 @@ namespace FishAndChill.UI
             UiFactory.Center(panel.rectTransform, new Vector2(-455f, -10f), new Vector2(500f, 640f));
             RectTransform rect = panel.rectTransform;
 
-            // Feutre vert sombre de la vitrine, avec un léger halo au centre.
-            Image felt = UiFactory.Plain(rect, "Feutre", new Color(0.09f, 0.20f, 0.17f));
-            UiFactory.Stretch(felt.rectTransform, 14f);
-            Image halo = UiFactory.Plain(rect, "Halo", new Color(0.30f, 0.55f, 0.45f, 0.18f));
-            halo.sprite = SkinSprite(s => s.Glow);
-            UiFactory.Center(halo.rectTransform, new Vector2(-20f, 10f), new Vector2(460f, 520f));
+            Image back = UiFactory.Plain(rect, "Présentoir", _showcaseBack != null ? Color.white : new Color(0.40f, 0.26f, 0.16f));
+            back.sprite = _showcaseBack;
+            UiFactory.Stretch(back.rectTransform, 14f);
 
-            Text title = UiFactory.Label(rect, "Titre", 32, TextAnchor.MiddleCenter, Gold);
-            UiFactory.Bold(title);
-            title.text = "Mon matériel";
-            UiFactory.Center(title.rectTransform, new Vector2(0f, 290f), new Vector2(440f, 40f));
+            // Titre sur un bandeau doré, vissé en haut du présentoir.
+            UiFactory.TitlePlaque(rect, _skin, "Mon matériel", 26, new Vector2(0f, 284f), new Vector2(280f, 50f), out _);
 
             _rodImage = UiFactory.Plain(rect, "Canne", Color.white);
             UiFactory.Center(_rodImage.rectTransform, RodCenter, RodSize);
+
+            // Deux supports en laiton sous le brin : la canne repose dessus.
+            foreach (float t in new[] { 0.3f, 0.66f })
+            {
+                Image peg = UiFactory.Plain(rect, "Support", Color.white);
+                peg.sprite = _peg;
+                peg.enabled = _peg != null;
+                UiFactory.Center(peg.rectTransform, RodToPanel(RodPoint(t)) + new Vector2(2f, -9f), new Vector2(26f, 21f));
+            }
+
             _hookImage = UiFactory.Plain(rect, "Hameçon", Color.white);
             _hookImage.preserveAspect = true;
             UiFactory.Center(_hookImage.rectTransform, Vector2.zero, new Vector2(100f, 100f));
@@ -528,39 +548,40 @@ namespace FishAndChill.UI
             _baitImage.preserveAspect = true;
             UiFactory.Center(_baitImage.rectTransform, Vector2.zero, new Vector2(70f, 70f));
 
-            _rodLabel = BuildLabel(rect, "CANNE", new Vector2(138f, 205f), true);
-            _hookLabel = BuildLabel(rect, "HAMEÇON", new Vector2(138f, 50f), true);
-            _baitLabel = BuildLabel(rect, "APPÂT", new Vector2(138f, -100f), false);
+            _rodLabel = BuildLabel(rect, "CANNE", new Vector2(138f, 196f), true);
+            _hookLabel = BuildLabel(rect, "HAMEÇON", new Vector2(138f, 52f), true);
+            _baitLabel = BuildLabel(rect, "APPÂT", new Vector2(138f, -92f), false);
 
-            // Le sac, en bas de la vitrine.
-            Image bagBox = UiFactory.Sliced(rect, "Sac", SkinSprite(s => s.WaterBackdrop), _skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
-            UiFactory.Center(bagBox.rectTransform, new Vector2(-170f, -255f), new Vector2(84f, 84f));
-            _bagImage = UiFactory.Plain(bagBox.rectTransform, "Icône", Color.white);
+            // Le sac, posé sur l'étagère du bas.
+            _bagImage = UiFactory.Plain(rect, "Sac", Color.white);
             _bagImage.preserveAspect = true;
-            UiFactory.Center(_bagImage.rectTransform, Vector2.zero, new Vector2(70f, 70f));
-            _bagLabel = BuildLabel(rect, "SAC", new Vector2(40f, -255f), true, 300f);
+            UiFactory.Center(_bagImage.rectTransform, new Vector2(-170f, -238f), new Vector2(86f, 86f));
+            _bagLabel = BuildLabel(rect, "SAC", new Vector2(40f, -240f), true, 260f, 90f);
         }
 
-        /// <summary>Étiquette : famille en doré, nom, effet sur deux lignes, et niveau en pierres.</summary>
-        private GearLabel BuildLabel(RectTransform parent, string family, Vector2 position, bool levels, float width = 214f)
+        /// <summary>
+        /// Étiquette en papier : famille, nom (sa taille s'adapte pour tenir sur deux lignes au plus), effet, niveau.
+        /// </summary>
+        private GearLabel BuildLabel(RectTransform parent, string family, Vector2 position, bool levels, float width = 214f, float height = 128f)
         {
-            var root = new GameObject($"Étiquette {family}", typeof(RectTransform));
-            var rect = root.GetComponent<RectTransform>();
-            rect.SetParent(parent, false);
-            UiFactory.Center(rect, position, new Vector2(width, 110f));
+            Image tag = UiFactory.Sliced(parent, $"Étiquette {family}", _tag, _tag != null ? Color.white : new Color(0.92f, 0.86f, 0.70f));
+            RectTransform rect = tag.rectTransform;
+            UiFactory.Center(rect, position, new Vector2(width, height));
 
-            Text label = UiFactory.Label(rect, "Famille", 20, TextAnchor.MiddleLeft, Gold);
+            Text label = UiFactory.Label(rect, "Famille", 18, TextAnchor.MiddleLeft, TagFamily, shadow: false);
             label.text = family;
-            UiFactory.Place(label.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 0f), new Vector2(0f, 26f));
+            UiFactory.Bold(label);
+            UiFactory.Place(label.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -8f), new Vector2(-24f, 22f));
 
-            Text name = UiFactory.Label(rect, "Nom", 24, TextAnchor.UpperLeft, Ink);
+            Text name = UiFactory.Label(rect, "Nom", 24, TextAnchor.UpperLeft, TagInk, shadow: false);
             UiFactory.Bold(name);
-            name.horizontalOverflow = HorizontalWrapMode.Overflow; // une seule ligne
-            UiFactory.Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -26f), new Vector2(0f, 34f));
+            FitText(name, 15);
+            UiFactory.Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -32f), new Vector2(-24f, height > 100f ? 44f : 30f));
 
-            Text effect = UiFactory.Label(rect, "Effet", 19, TextAnchor.UpperLeft, Muted);
-            effect.horizontalOverflow = HorizontalWrapMode.Wrap;
-            UiFactory.Place(effect.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -62f), new Vector2(0f, 70f));
+            Text effect = UiFactory.Label(rect, "Effet", 18, TextAnchor.UpperLeft, TagSoft, shadow: false);
+            FitText(effect, 13);
+            float effectTop = height > 100f ? -78f : -62f;
+            UiFactory.Place(effect.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, effectTop), new Vector2(-24f, height + effectTop - 8f));
 
             var gearLabel = new GearLabel { Name = name, Effect = effect };
             if (levels)
@@ -569,12 +590,22 @@ namespace FishAndChill.UI
                 {
                     Image gem = UiFactory.Plain(rect, $"Niveau {k}", Color.white);
                     gem.sprite = SkinSprite(s => s.Gem);
-                    UiFactory.Place(gem.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-(3 - k) * 20f, -3f), new Vector2(18f, 18f));
+                    UiFactory.Place(gem.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f - (3 - k) * 19f, -10f), new Vector2(17f, 17f));
                     gearLabel.Levels.Add(gem);
                 }
             }
 
             return gearLabel;
+        }
+
+        /// <summary>Le texte rétrécit tout seul (jusqu'à <paramref name="minSize"/>) pour tenir dans sa case, sur plusieurs lignes.</summary>
+        private static void FitText(Text text, int minSize)
+        {
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMaxSize = text.fontSize;
+            text.resizeTextMinSize = UiFactory.Size(minSize);
         }
 
         /// <summary>Cases des poissons (3 colonnes) : les places achetées, puis les places encore verrouillées.</summary>
