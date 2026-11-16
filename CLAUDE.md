@@ -185,7 +185,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   (`LampLevel`, allumage 18 h-19 h 30, extinction 5 h 30-7 h), lumières 2D ponctuelles qui vacillent : chaque tuile
   `Lampadaire` de `Décor`, une lueur devant chaque `InteriorBuilding`, une lanterne près de chaque barque (`_lanterns`).
   Dans un intérieur, lumière de pièce éclairée. Papillons et libellules s'effacent la nuit (`AmbientLife`).
-  **Nuit vivante** (`AmbientLife`, dessins `NightLifeArt`, dans les 2 zones) : 12 lucioles qui dérivent autour du joueur et
+  **Nuit vivante** (`AmbientLife`, dessins `NightLifeArt`, dans les 2 zones) : 6 lucioles qui dérivent autour du joueur et
   clignotent (petite `Light2D` verte chacune), et le **reflet de la lune** sur l'eau (ordre -17, donc seulement sur
   l'eau) qui suit la caméra : posé sur l'eau libre visible la plus proche de `_moonOffset`, il glisse doucement.
   Les deux utilisent `_glowMaterial` = *Sprite-Unlit-Default* d'URP (brillent dans le noir).

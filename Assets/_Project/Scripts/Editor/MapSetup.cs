@@ -433,6 +433,7 @@ namespace FishAndChill.Editor
         {
             SetSprites(so.FindProperty("_glint"), frames("Reflet", 3, LakeLifeArt.Glint));
             SetSprites(so.FindProperty("_firefly"), frames("Luciole", 2, NightLifeArt.Firefly));
+            so.FindProperty("_fireflies").intValue = 6;
             SetSprites(so.FindProperty("_moonGlint"), frames("RefletLune", 3, NightLifeArt.MoonGlint));
             so.FindProperty("_glowMaterial").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Material>(
                 "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat");

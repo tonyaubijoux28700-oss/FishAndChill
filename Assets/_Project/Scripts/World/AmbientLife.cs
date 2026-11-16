@@ -56,7 +56,7 @@ namespace FishAndChill.World
 
         [SerializeField, Tooltip("Luciole (allumée, à demi éteinte) : la nuit, autour du joueur.")]
         private Sprite[] _firefly = new Sprite[0];
-        [SerializeField, Min(0)] private int _fireflies = 12;
+        [SerializeField, Min(0)] private int _fireflies = 6;
 
         [SerializeField, Tooltip("Reflet de la lune sur l'eau (images qui scintillent), la nuit.")]
         private Sprite[] _moonGlint = new Sprite[0];
