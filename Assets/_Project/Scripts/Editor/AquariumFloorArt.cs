@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FishAndChill.Editor
 {
@@ -128,6 +128,62 @@ namespace FishAndChill.Editor
                 PixelArt.Set(p, x, y, leaf);
                 PixelArt.Set(p, x + 1, y, S(leaf, 1.15f));
                 PixelArt.Set(p, x + 1, y + 1, S(leaf, 0.85f));
+            }
+        }
+
+        // ---------- Grande Barrière : sable blanc et caillebotis ----------
+
+        public static void Reef(Color[,] p)
+        {
+            int w = p.GetLength(0);
+            Color sand = C(0.94f, 0.91f, 0.82f);
+            Color plank = C(0.78f, 0.72f, 0.62f);
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < StandBottom; y++)
+                {
+                    // Caillebotis : de l'entrée vers le milieu, puis jusqu'à la terrasse devant le bassin.
+                    bool path = (y >= 51 && y <= 92 && x < Room + 140) || (x >= Room + 128 && x <= Room + 162 && y >= 51) || y >= 140;
+                    Color c;
+                    if (path)
+                    {
+                        bool across = y >= 140 || y <= 92 && x < Room + 128;
+                        int seam = across ? x % 8 : y % 8;
+                        c = S(plank, 0.94f + Noise(across ? x / 8 : y / 8, 3, 4) * 0.14f);
+                        if (seam == 0) c = C(0.44f, 0.40f, 0.34f);
+                    }
+                    else
+                    {
+                        c = Noise(x, y, 4) > 0.7f ? S(sand, 0.93f) : sand;
+                        if (Noise(x / 3, y / 2, 5) > 0.9f) c = S(sand, 0.88f); // petites rides du vent
+                    }
+
+                    p[x, y] = Glow(c, y, C(0.50f, 0.90f, 0.96f), 0.25f);
+                }
+            }
+
+            // Coquillages et étoiles de mer sur le sable.
+            var random = new System.Random(91);
+            for (int i = 0; i < 26; i++)
+            {
+                int x = random.Next(Room + 14, w - 14);
+                int y = random.Next(4, 136);
+                bool onPath = (y >= 49 && y <= 94 && x < Room + 142) || (x >= Room + 126 && x <= Room + 164);
+                if (onPath) continue;
+                if (i % 3 == 0)
+                {
+                    Color star = C(0.94f, 0.50f, 0.30f);
+                    foreach (Vector2Int d in new[] { Vector2Int.zero, Vector2Int.up, Vector2Int.left, Vector2Int.right, new Vector2Int(-1, -1), new Vector2Int(1, -1) })
+                    {
+                        PixelArt.Set(p, x + d.x, y + d.y, star);
+                    }
+                }
+                else
+                {
+                    Color shell = i % 2 == 0 ? C(0.98f, 0.86f, 0.80f) : C(0.96f, 0.94f, 0.88f);
+                    PixelArt.Rect(p, x, y, x + 2, y + 1, shell);
+                    PixelArt.Set(p, x + 1, y + 2, S(shell, 0.85f));
+                }
             }
         }
 

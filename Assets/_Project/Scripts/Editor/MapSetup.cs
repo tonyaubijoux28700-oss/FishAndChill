@@ -97,7 +97,7 @@ namespace FishAndChill.Editor
         };
 
         /// <summary>Écart (en cases) entre le bord est de l'île et le lac : la place des intérieurs de bâtiments.</summary>
-        private const int LakeGap = 170;
+        private const int LakeGap = 200;
 
         /// <summary>Le fleuve amazonien : un tronçon de fleuve qui serpente dans la jungle, à l'est du lac.</summary>
         private static readonly IslandGenerator.Settings RiverSettings = new IslandGenerator.Settings
@@ -1525,7 +1525,9 @@ namespace FishAndChill.Editor
 
             // Salle Japon, au bout de la salle Amazonie par un troisième passage.
             float japanX = AquariumBuilding.JapanRoomX - AquariumBuilding.PassageWidth;
-            Sprite japanRoom = PixelArt.Save($"{folder}/Aquarium_SalleJapon.png", AquariumJapanArt.JapanRoom(), TileArt.Size, Vector2.zero);
+            Color[,] japanRoomPixels = AquariumJapanArt.JapanRoom();
+            AquariumAmazonArt.OpenRightPassage(japanRoomPixels); // passage vers la salle Grande Barrière
+            Sprite japanRoom = PixelArt.Save($"{folder}/Aquarium_SalleJapon.png", japanRoomPixels, TileArt.Size, Vector2.zero);
             Sprite japanGlass = PixelArt.Save($"{folder}/Aquarium_SalleJapon_Vitre.png", AquariumJapanArt.TankGlass(), TileArt.Size, Vector2.zero);
             GameObject japanObject = EnsureObject("Salle Japon", room.transform);
             japanObject.transform.localPosition = new Vector3(japanX, 0f, 0f);
@@ -1533,6 +1535,17 @@ namespace FishAndChill.Editor
             GameObject japanGlassObject = EnsureObject("Vitre du bassin Japon", room.transform);
             japanGlassObject.transform.localPosition = new Vector3(japanX, 0f, 0f);
             SetSprite(japanGlassObject, japanGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
+
+            // Salle Grande Barrière, au bout de la salle Japon.
+            float reefX = AquariumBuilding.ReefRoomX - AquariumBuilding.PassageWidth;
+            Sprite reefRoom = PixelArt.Save($"{folder}/Aquarium_SalleRecif.png", AquariumReefArt.ReefRoom(), TileArt.Size, Vector2.zero);
+            Sprite reefGlass = PixelArt.Save($"{folder}/Aquarium_SalleRecif_Vitre.png", AquariumReefArt.TankGlass(), TileArt.Size, Vector2.zero);
+            GameObject reefObject = EnsureObject("Salle Grande Barrière", room.transform);
+            reefObject.transform.localPosition = new Vector3(reefX, 0f, 0f);
+            SetSprite(reefObject, reefRoom, -6).spriteSortPoint = SpriteSortPoint.Center;
+            GameObject reefGlassObject = EnsureObject("Vitre du bassin Grande Barrière", room.transform);
+            reefGlassObject.transform.localPosition = new Vector3(reefX, 0f, 0f);
+            SetSprite(reefGlassObject, reefGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
             // Mobilier de la salle (triés par les pieds, comme le joueur) : colonnes à méduses et bancs.
             Sprite column = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses.png", AquariumArt.JellyfishColumnV2(), TileArt.Size, new Vector2(0.5f, 0f));
@@ -1583,6 +1596,7 @@ namespace FishAndChill.Editor
             Furnish("Lac", AquariumRoomLayout.Lake, AquariumBuilding.LakeRoomX);
             Furnish("Amazonie", AquariumRoomLayout.Amazon, AquariumBuilding.AmazonRoomX);
             Furnish("Japon", AquariumRoomLayout.Japan, AquariumBuilding.JapanRoomX);
+            Furnish("Recif", AquariumRoomLayout.Reef, AquariumBuilding.ReefRoomX);
             var furnitureSo = new SerializedObject(aquarium);
             SerializedProperty furnitureList = furnitureSo.FindProperty("_furniture");
             furnitureList.arraySize = furniture.Count;
@@ -1608,6 +1622,8 @@ namespace FishAndChill.Editor
             BuildTank(room.transform, "Poissons du bassin Amazonie", aquarium, amazon, AquariumBuilding.AmazonTank);
             var japan = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/BaieJaponaise.asset");
             BuildTank(room.transform, "Poissons du bassin Japon", aquarium, japan, AquariumBuilding.JapanTank);
+            var reefZone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/GrandeBarriere.asset");
+            BuildTank(room.transform, "Poissons du bassin Grande Barrière", aquarium, reefZone, AquariumBuilding.ReefTank);
 
             BuildTankLife(room.transform, aquarium, folder);
             // Visiteurs mis de côté pour l'instant (AquariumVisitors et BuildVisitors restent prêts à resservir).
@@ -1698,6 +1714,14 @@ namespace FishAndChill.Editor
             Sprite[] japanCaustics = Frames("Reflets_Japon", 3, f => AquariumLifeArt.Caustics(f, new Color(0.70f, 0.88f, 1f)), center);
             BuildLife(room, "Vie du bassin Japon", aquarium, AquariumBuilding.JapanTank, 41, new[] { (kombu, 6, false), (ulva, 5, true) },
                 bubble, 4, ray, 4, sardine, 3, 12, japanCaustics, new Sprite[0][], new Transform[0]);
+
+            // Grande Barrière : coraux mous roses, herbiers devant, bancs de demoiselles bleues, reflets turquoise.
+            Sprite[] softCoral = Frames("CorailMou", 3, f => AquariumLifeArt.Plant(f, 16, 30, 5, new Color(0.94f, 0.56f, 0.70f), new Color(0.74f, 0.36f, 0.52f), new Color(1f, 0.80f, 0.88f), false, 31), bottom);
+            Sprite[] reefGrass = Frames("HerbierRecif", 3, f => AquariumLifeArt.Plant(f, 18, 18, 5, new Color(0.40f, 0.76f, 0.46f), new Color(0.24f, 0.56f, 0.32f), new Color(0.62f, 0.90f, 0.62f), false, 37), bottom);
+            Sprite[] chromis = Frames("Demoiselle", 2, f => AquariumLifeArt.TinyFish(f, new Color(0.24f, 0.52f, 0.96f), new Color(0.56f, 0.80f, 1f), new Color(0.18f, 0.36f, 0.80f)), center);
+            Sprite[] reefCaustics = Frames("Reflets_Recif", 3, f => AquariumLifeArt.Caustics(f, new Color(0.70f, 1f, 1f)), center);
+            BuildLife(room, "Vie du bassin Grande Barrière", aquarium, AquariumBuilding.ReefTank, 47, new[] { (softCoral, 6, false), (reefGrass, 5, true) },
+                bubble, 4, ray, 5, chromis, 3, 12, reefCaustics, new Sprite[0][], new Transform[0]);
         }
 
         private static void BuildLife(Transform room, string name, AquariumBuilding aquarium, Rect area, int seed,

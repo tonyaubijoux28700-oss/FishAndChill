@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FishAndChill.Editor
 {
@@ -258,6 +258,100 @@ namespace FishAndChill.Editor
             }
 
             return Finish(p, C(0.10f, 0.08f, 0.04f), 33f, 30f, 2.5f);
+        }
+
+        // ---------- Salle Grande Barrière ----------
+
+        /// <summary>Bénitier géant exposé sur un rocher : deux valves ondulées entrouvertes, manteau bleu-vert tacheté.</summary>
+        public static Color[,] GiantClam()
+        {
+            var p = new Color[46, 30];
+            Color rock = C(0.52f, 0.50f, 0.46f);
+            CreatureArt.Blob(p, 23, 6, 18f, 5.5f, rock);
+            Color shell = C(0.92f, 0.88f, 0.78f);
+            Color mantle = C(0.20f, 0.56f, 0.66f);
+            for (int x = 6; x <= 40; x++)
+            {
+                float u = (x - 23f) / 17f;
+                float h = Mathf.Sqrt(Mathf.Max(0f, 1f - u * u)) * 13f;
+                float wave = Mathf.Sin(x * 0.75f) * 1.5f;
+                for (int y = 10; y <= 10 + h + wave; y++)
+                {
+                    bool lip = Mathf.Abs(y - 17f - wave * 0.5f) < 2.2f;
+                    Color c = lip ? mantle : S(shell, 0.9f + (y - 10f) / 15f * 0.3f);
+                    if (lip && (x + y) % 4 == 0) c = C(0.54f, 0.86f, 0.90f); // taches irisées
+                    if (!lip && x % 5 == 0) c = S(c, 0.82f);                 // côtes de la coquille
+                    p[x, y] = c;
+                }
+            }
+
+            return Finish(p, C(0.18f, 0.16f, 0.14f), 23f, 20f, 2.5f);
+        }
+
+        /// <summary>Transat de plage : toile rayée bleu et blanc sur un cadre de bois.</summary>
+        public static Color[,] DeckChair()
+        {
+            var p = new Color[40, 26];
+            Color wood = C(0.70f, 0.56f, 0.38f);
+            CreatureArt.Limb(p, 4, 1, 14, 10, 0.9f, wood);
+            CreatureArt.Limb(p, 36, 1, 30, 10, 0.9f, wood);
+            CreatureArt.Limb(p, 10, 2, 34, 22, 0.9f, wood);
+            for (int i = 0; i <= 40; i++)
+            {
+                float t = i / 40f;
+                float x = Mathf.Lerp(6f, 33f, t);
+                float y = 9f + t * t * 13f;
+                for (int k = -2; k <= 2; k++)
+                {
+                    Color stripe = (i / 4) % 2 == 0 ? C(0.24f, 0.50f, 0.86f) : C(0.96f, 0.96f, 0.94f);
+                    PixelArt.Set(p, Mathf.RoundToInt(x), Mathf.RoundToInt(y) + k, stripe);
+                }
+            }
+
+            return Finish(p, C(0.16f, 0.14f, 0.12f), 20f, 17f, 2f);
+        }
+
+        /// <summary>Vieille ancre de marine posée debout, rouillée, avec son cordage.</summary>
+        public static Color[,] Anchor()
+        {
+            var p = new Color[28, 40];
+            Color iron = C(0.36f, 0.34f, 0.34f);
+            Color rust = C(0.58f, 0.32f, 0.18f);
+            CreatureArt.Limb(p, 14, 4, 14, 34, 1.4f, iron);                 // verge
+            CreatureArt.Limb(p, 8, 30, 20, 30, 1.1f, iron);                 // jas
+            CreatureArt.Blob(p, 14, 36, 3f, 3f, iron);                      // organeau
+            CreatureArt.Blob(p, 14, 36, 1.4f, 1.4f, Color.clear);
+            for (int k = 0; k <= 14; k++)                                    // bras en croissant
+            {
+                float a = Mathf.PI * k / 14f;
+                CreatureArt.Blob(p, 14 - Mathf.Cos(a) * 10f, 9 - Mathf.Sin(a) * 6f, 1.3f, 1.3f, k % 4 == 0 ? rust : iron);
+            }
+
+            CreatureArt.Limb(p, 4, 9, 2, 13, 1.2f, iron);
+            CreatureArt.Limb(p, 24, 9, 26, 13, 1.2f, iron);
+            for (int y = 6; y < 30; y += 3) PixelArt.Set(p, 15, y, rust);
+            CreatureArt.Limb(p, 16, 36, 24, 20, 0.6f, C(0.82f, 0.70f, 0.48f)); // cordage
+            return Finish(p, C(0.12f, 0.10f, 0.10f), 14f, 12f, 2f);
+        }
+
+        /// <summary>Bouée de sauvetage rouge et blanche accrochée à un poteau de bois.</summary>
+        public static Color[,] Lifebuoy()
+        {
+            var p = new Color[22, 38];
+            PixelArt.Rect(p, 10, 1, 12, 34, C(0.62f, 0.46f, 0.30f));
+            for (int x = 0; x < 22; x++)
+            {
+                for (int y = 0; y < 38; y++)
+                {
+                    float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(11f, 24f));
+                    if (d > 8f || d < 4.2f) continue;
+                    float a = Mathf.Atan2(y + 0.5f - 24f, x + 0.5f - 11f);
+                    bool red = Mathf.Repeat(a / (Mathf.PI * 0.5f), 1f) < 0.5f;
+                    p[x, y] = S(red ? C(0.90f, 0.20f, 0.16f) : C(0.96f, 0.96f, 0.94f), 1.05f - (y - 24f) / 8f * -0.1f);
+                }
+            }
+
+            return Finish(p, C(0.16f, 0.10f, 0.08f), 11f, 6f, 2f);
         }
 
         // ---------- Salle Japon ----------

@@ -12,7 +12,8 @@ namespace FishAndChill.World
     /// - le grand hall du lagon (30×18 cases) : bassin géant tropical sur tout le mur du fond, colonnes à méduses, bancs ;
     /// - la salle du lac (24×18 cases), à droite, par un passage voûté : bassin d'eau douce aux galets et roseaux ;
     /// - la salle Amazonie (24×18 cases), encore à droite par un second passage : bassin d'eau noire, racines, feuilles ;
-    /// - la salle Japon (24×18 cases), au bout : tatamis, shōji, bassin d'eau de mer aux rochers et algues.
+    /// - la salle Japon (24×18 cases) : jardin zen, shōji, bassin d'eau de mer aux rochers et algues ;
+    /// - la salle Grande Barrière (24×18 cases), au bout : cabane de plage, fresque marine, bassin de coraux.
     /// Chaque bassin montre les espèces de sa zone. Devant l'un ou l'autre, E dépose le sac : chaque nouvelle espèce entre,
     /// un poisson plus gros remplace celui exposé ; les doublons restent dans le sac.
     /// </summary>
@@ -26,7 +27,9 @@ namespace FishAndChill.World
         public const float AmazonRoomX = LakeRoomX + LakeRoomWidth + PassageWidth;
         public const float JapanRoomWidth = 24f;
         public const float JapanRoomX = AmazonRoomX + AmazonRoomWidth + PassageWidth;
-        public const float InteriorWidth = JapanRoomX + JapanRoomWidth;
+        public const float ReefRoomWidth = 24f;
+        public const float ReefRoomX = JapanRoomX + JapanRoomWidth + PassageWidth;
+        public const float InteriorWidth = ReefRoomX + ReefRoomWidth;
         public const float InteriorHeight = 18f;
 
         /// <summary>Haut du sol : au-delà commencent les bassins.</summary>
@@ -41,6 +44,7 @@ namespace FishAndChill.World
         public static readonly Rect LakeTank = new Rect(LakeRoomX + 2.4f, 12.4f, LakeRoomWidth - 4.8f, 4.4f);
         public static readonly Rect AmazonTank = new Rect(AmazonRoomX + 2.4f, 12.4f, AmazonRoomWidth - 4.8f, 4.4f);
         public static readonly Rect JapanTank = new Rect(JapanRoomX + 2.4f, 12.4f, JapanRoomWidth - 4.8f, 4.4f);
+        public static readonly Rect ReefTank = new Rect(ReefRoomX + 2.4f, 12.4f, ReefRoomWidth - 4.8f, 4.4f);
 
         /// <summary>Colonnes à méduses (pied, relatif au coin de la salle).</summary>
         public static readonly Vector2[] JellyfishColumns = { new Vector2(4.5f, 3.2f), new Vector2(25.5f, 3.2f) };
@@ -88,7 +92,8 @@ namespace FishAndChill.World
                 }
 
                 return (feet.x >= HallTank.xMin && feet.x <= HallTank.xMax) || (feet.x >= LakeTank.xMin && feet.x <= LakeTank.xMax)
-                    || (feet.x >= AmazonTank.xMin && feet.x <= AmazonTank.xMax) || (feet.x >= JapanTank.xMin && feet.x <= JapanTank.xMax);
+                    || (feet.x >= AmazonTank.xMin && feet.x <= AmazonTank.xMax) || (feet.x >= JapanTank.xMin && feet.x <= JapanTank.xMax)
+                    || (feet.x >= ReefTank.xMin && feet.x <= ReefTank.xMax);
             }
         }
 
@@ -106,6 +111,9 @@ namespace FishAndChill.World
             // Troisième passage, au bout de la salle Amazonie, et la salle Japon.
             map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(JapanRoomX - PassageWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
             map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(JapanRoomX + 0.7f, 0.15f), new Vector2(JapanRoomWidth - 1.4f, FloorTop - 0.15f)));
+            // Quatrième passage, au bout de la salle Japon, et la salle Grande Barrière.
+            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(ReefRoomX - PassageWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
+            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(ReefRoomX + 0.7f, 0.15f), new Vector2(ReefRoomWidth - 1.4f, FloorTop - 0.15f)));
 
             foreach (Vector2 spot in JellyfishColumns)
             {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace FishAndChill.Editor
@@ -48,6 +48,16 @@ namespace FishAndChill.Editor
             new Prop("Monstera", AquariumPropArt.Monstera, 22.4f, 1f, 1.4f, 0.5f),
             new Prop("Palmier en pot", AquariumPropArt.PalmPot, 1.6f, 8.2f, 1.2f, 0.5f),
             new Prop("Palmier en pot", AquariumPropArt.PalmPot, 22.4f, 8.2f, 1.2f, 0.5f),
+        };
+
+        public static readonly Prop[] Reef =
+        {
+            new Prop("Bénitier géant", AquariumPropArt.GiantClam, 16f, 3.6f, 2.6f, 0.7f),
+            new Prop("Transat", AquariumPropArt.DeckChair, 4.5f, 6.4f, 2.2f, 0.6f),
+            new Prop("Transat", AquariumPropArt.DeckChair, 19.5f, 6.4f, 2.2f, 0.6f),
+            new Prop("Ancre", AquariumPropArt.Anchor, 21.6f, 1.2f, 1.2f, 0.5f),
+            new Prop("Bouée", AquariumPropArt.Lifebuoy, 1.4f, 8.2f, 0.6f, 0.4f),
+            new Prop("Bouée", AquariumPropArt.Lifebuoy, 22.6f, 8.2f, 0.6f, 0.4f),
         };
 
         /// <summary>Rochers du jardin zen : le sol dessine des cercles ratissés autour.</summary>
