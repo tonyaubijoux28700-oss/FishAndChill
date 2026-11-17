@@ -787011,6 +787011,8 @@ MonoBehaviour:
   _map: {fileID: 1254510490}
   _player: {fileID: 1141459285}
   _decor: {fileID: 875151901}
+  _paving: {fileID: 109374339}
+  _pavingColor: {r: 0.82, g: 0.78, b: 0.7, a: 1}
   _palette:
   - Tile: {fileID: 11400000, guid: 7c1a15e84cdf69b4f9efb5b938f82984, type: 2}
     Color: {r: 0.14, g: 0.54, b: 0.67, a: 1}
@@ -787121,6 +787123,7 @@ MonoBehaviour:
   _playerColor: {r: 0.95, g: 0.2, b: 0.2, a: 1}
   _pixelsPerCell: 6
   _cornerPixelsPerCell: 3
+  _detail: 4
   _title: "\xCEle Mahana"
   _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
 --- !u!4 &998234000

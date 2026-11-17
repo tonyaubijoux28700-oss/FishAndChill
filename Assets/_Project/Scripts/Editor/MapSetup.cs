@@ -1882,6 +1882,8 @@ namespace FishAndChill.Editor
             so.FindProperty("_map").objectReferenceValue = worldMap;
             so.FindProperty("_player").objectReferenceValue = player;
             so.FindProperty("_decor").objectReferenceValue = decorMap;
+            Transform paving = decorMap.transform.parent.Find("Rendu - Pavés");
+            so.FindProperty("_paving").objectReferenceValue = paving != null ? paving.GetComponent<Tilemap>() : null;
             SerializedProperty landmarks = so.FindProperty("_landmarks");
             landmarks.arraySize = 2 + docks.Length;
             SetLandmark(landmarks.GetArrayElementAtIndex(0), "Boutique", shop.transform, shopIcon);

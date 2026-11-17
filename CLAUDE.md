@@ -272,8 +272,14 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Petite carte **toujours visible en bas à droite** ; **M** ouvre la grande carte au centre (la petite se masque).
 - `UI/Minimap` (objet « Minimap » de la scène) : touche **M** lue comme *lettre* selon la disposition du clavier
   (`FindKeyOnCurrentKeyboardLayout("m")`, donc juste en AZERTY), bouton Select de la manette, Échap pour fermer.
-- Image construite au démarrage depuis les Tilemaps (1 pixel = 1 case, couleurs par tuile dans `_palette`) ;
-  point rouge clignotant à la position du joueur (`MinimapMath`). Le jeu continue carte ouverte.
+- Image dessinée au démarrage et après chaque voyage (`Rebuild`) depuis les Tilemaps, à `_detail` = 4 pixels par case
+  (couleurs par tuile dans `_palette`) : côtes arrondies (interpolation bilinéaire, `MinimapMath.Bilinear`) avec écume,
+  eau plus claire près des rives (distance à la terre), grain du sol, chemins pavés (`_paving` = couche `Rendu - Pavés`,
+  case pavée si ses 4 tuiles de double grille existent), arbres en petites couronnes ombrées.
+- **Carte vivante** : 3 images de vaguelettes qui s'enchaînent, ombres de nuages, coins de pêche qui pulsent (couleur
+  selon la sorte, lus dans les `FishingSpots` de la région), flèche rouge dans le sens du regard (`MinimapMath.FacingAngle`)
+  avec une onde (`MinimapMath.Pulse`), teinte de l'heure (`DayCycleMath.SkyColor`). Cadres dorés de la charte, nom de la
+  zone sur les deux cartes, rose des vents et légende sur la grande. Le jeu continue carte ouverte.
 - Le canvas du jeu (`FishingPrototypeView`, ordre 10) passe au-dessus de la minimap (ordre 5).
 
 ## Art provisoire (généré par code)

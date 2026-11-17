@@ -38,6 +38,36 @@ namespace FishAndChill.Tests
         }
 
         [Test]
+        public void FacingAngle_PointsTheArrowWhereThePlayerLooks()
+        {
+            Assert.That(MinimapMath.FacingAngle(Vector2.up), Is.EqualTo(0f).Within(0.01f));
+            Assert.That(MinimapMath.FacingAngle(Vector2.right), Is.EqualTo(-90f).Within(0.01f));
+            Assert.That(MinimapMath.FacingAngle(Vector2.left), Is.EqualTo(90f).Within(0.01f));
+            Assert.That(Mathf.Abs(MinimapMath.FacingAngle(Vector2.down)), Is.EqualTo(180f).Within(0.01f));
+        }
+
+        [Test]
+        public void Bilinear_BlendsBetweenCells_AndClampsAtTheEdges()
+        {
+            var grid = new float[2, 2];
+            grid[1, 0] = 1f;
+            grid[1, 1] = 1f;
+            Assert.That(MinimapMath.Bilinear(grid, 0.5f, 0.5f), Is.EqualTo(0.5f).Within(0.0001f));
+            Assert.That(MinimapMath.Bilinear(grid, -3f, 0f), Is.EqualTo(0f));
+            Assert.That(MinimapMath.Bilinear(grid, 9f, 9f), Is.EqualTo(1f));
+        }
+
+        [Test]
+        public void Pulse_GrowsAndFades()
+        {
+            Vector2 start = MinimapMath.Pulse(0f);
+            Vector2 later = MinimapMath.Pulse(1f);
+            Assert.That(start, Is.EqualTo(new Vector2(1f, 1f)));
+            Assert.That(later.x, Is.GreaterThan(start.x));
+            Assert.That(later.y, Is.LessThan(start.y));
+        }
+
+        [Test]
         public void BlinkAlpha_StaysVisible()
         {
             for (float t = 0f; t < 2f; t += 0.05f)
