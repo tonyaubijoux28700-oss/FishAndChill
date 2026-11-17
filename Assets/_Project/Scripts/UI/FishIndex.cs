@@ -53,7 +53,7 @@ namespace FishAndChill.UI
         private Image _flipShadow;
         private float _flipT = -1f;
         private int _flipDirection = 1;
-        private bool _refreshAtMiddle;
+        private bool _refreshAtEnd;
         private const float BarWidth = 500f;
 
         [SerializeField, Tooltip("Zones dont les espèces figurent dans l'index, dans l'ordre des onglets.")]
@@ -294,12 +294,16 @@ namespace FishAndChill.UI
             RefreshOrWait();
         }
 
-        /// <summary>Pendant qu'une page tourne, le nouveau contenu n'apparaît qu'à mi-chemin (feuille vue par la tranche).</summary>
+        /// <summary>
+        /// Pendant qu'une page tourne, comme dans un vrai livre : la page que la feuille découvre en se soulevant se met à
+        /// jour tout de suite, celle sur laquelle elle se rabat seulement à la fin, une fois recouverte.
+        /// </summary>
         private void RefreshOrWait()
         {
-            if (_flipT >= 0f && _flipT < 0.5f)
+            if (_flipT >= 0f)
             {
-                _refreshAtMiddle = true;
+                Refresh(left: _flipDirection < 0, right: _flipDirection > 0);
+                _refreshAtEnd = true;
                 return;
             }
 
@@ -317,10 +321,10 @@ namespace FishAndChill.UI
                 return;
             }
 
-            if (_refreshAtMiddle)
+            if (_refreshAtEnd)
             {
                 // Une page tournait déjà : on finit d'afficher son contenu avant d'en tourner une autre.
-                _refreshAtMiddle = false;
+                _refreshAtEnd = false;
                 Refresh();
             }
 
@@ -342,14 +346,14 @@ namespace FishAndChill.UI
             }
 
             _flipT += deltaTime / FlipSeconds;
-            if (_refreshAtMiddle && _flipT >= 0.5f)
-            {
-                _refreshAtMiddle = false;
-                Refresh();
-            }
-
             if (_flipT >= 1f)
             {
+                if (_refreshAtEnd)
+                {
+                    _refreshAtEnd = false;
+                    Refresh();
+                }
+
                 _flipT = -1f;
                 _flip.gameObject.SetActive(false);
                 _flipShadow.gameObject.SetActive(false);
@@ -440,7 +444,8 @@ namespace FishAndChill.UI
 
         // ---------- Rafraîchissement ----------
 
-        private void Refresh()
+        /// <summary>Met à jour la page de gauche (onglets, zone, grille) et / ou celle de droite (fiche de l'espèce).</summary>
+        private void Refresh(bool left = true, bool right = true)
         {
             if (_index == null)
             {
@@ -448,6 +453,12 @@ namespace FishAndChill.UI
             }
 
             CatchLog log = Log;
+            if (!left)
+            {
+                if (right) RefreshDetail(log, _zones.Length > _zone ? _zones[_zone] : null);
+                return;
+            }
+
             _badge.text = $"{_index.DiscoveredCount(log)}/{_index.Count}";
 
             for (int i = 0; i < _tabs.Count; i++)
@@ -504,7 +515,7 @@ namespace FishAndChill.UI
                 cell.Gem.color = known ? s.Rarity.DisplayColor() : new Color(0.55f, 0.50f, 0.42f);
             }
 
-            RefreshDetail(log, zone);
+            if (right) RefreshDetail(log, zone);
             _help.text = _zoneSpecies.Count > 1
                 ? $"{ZoneKeys()} : changer de zone      Flèches : choisir      Tab : fermer"
                 : "Flèches : choisir      Tab : fermer";

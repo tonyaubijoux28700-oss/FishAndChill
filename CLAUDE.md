@@ -243,7 +243,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   réelle** (`FishSpecies.Description`, colonne Description de la table des espèces), prises / record / taille, aquarium ;
   pour une espèce inconnue, un **indice** (heure, rareté, taille). « Découverte » = déjà pêchée une fois (`CatchLog`).
   **Page qui tourne** (`FishIndex.TurnPage`) quand on change de zone ou de page d'espèces : une feuille de papier pivote
-  autour du pli (0,45 s), s'assombrit par la tranche et projette une ombre ; l'ancien contenu reste affiché jusqu'à mi-rotation (feuille vue par la tranche), puis le nouveau se découvre (`RefreshOrWait`).
+  autour du pli (0,45 s), s'assombrit par la tranche et projette une ombre ; comme dans un vrai livre, la page que la feuille découvre se met à jour tout de suite, celle sur laquelle elle se rabat seulement à la fin (`RefreshOrWait`, `Refresh(left, right)`).
   Logique dans `SpeciesIndex` et `CollectionRewards` (testées). La police n'a ni œ ni ā : les éviter dans les textes.
 - Le bouton Play lance toujours `FishingPrototype` (`PlayModeStartScene`), même si une autre scène est ouverte.
 - **Ne pas lancer les tests pendant que l'éditeur entre ou sort du Play mode** : le lanceur de tests plante et
