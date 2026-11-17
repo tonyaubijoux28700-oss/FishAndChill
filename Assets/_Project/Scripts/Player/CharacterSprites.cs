@@ -4,11 +4,11 @@ namespace FishAndChill.Player
 {
     /// <summary>
     /// Images du pêcheur fabriquées en jeu à partir de son apparence (<see cref="CharacterPainter"/>) :
-    /// 4 directions × 3 images, 32 px par unité, filtre Point, pivot aux pieds.
+    /// 4 directions × 3 images, 16 px par unité, filtre Point, pivot aux pieds.
     /// </summary>
     public sealed class CharacterSprites
     {
-        public const int PixelsPerUnit = CharacterPainter.PixelsPerUnit;
+        public const int PixelsPerUnit = 16;
 
         /// <summary>Pivot aux pieds (bas de l'image).</summary>
         public static readonly Vector2 Pivot = new Vector2(0.5f, 1f / CharacterPainter.Height);

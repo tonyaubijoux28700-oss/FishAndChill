@@ -272,7 +272,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   débardeur, marinière) et couleurs du haut et du short ; « Au hasard », « C'est parti ! ». Haut/Bas, ←/→, Entrée, Échap ;
   les lettres servent au prénom. Grand aperçu qui marche et se retourne. Choix et prénom dans `Player/CharacterOptions`
   (testé), apparence `Player/CharacterLook` (valeurs par défaut = pêcheur d'origine), sauvegardée (`SaveData.Look`).
-  Le pêcheur est **dessiné en jeu** à partir de **gabarits faits à la main pixel par pixel** (`Player/CharacterTemplates` : corps, coiffures, chapeaux, une lettre par rôle de couleur ; `Player/CharacterPainter`, `CharacterSprites`, outils `PixelShading`) et appliqué par
+  Le pêcheur est **dessiné en jeu** (`Player/CharacterPainter`, `CharacterSprites`, outils `PixelShading`) et appliqué par
   `SaveManager` (`PlayerAnimator.SetLook`) ; `CharacterArt` (éditeur) s'en sert pour les PNG par défaut. Le prénom
   remplace « Partie N » sur la carte de l'écran titre. Par script : `TitleScreen.OpenCreator(slot)` ;
   `TitleScreen.Play(slot)` garde le pêcheur par défaut.
@@ -330,10 +330,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
     sable (coquillage, étoile de mer), herbe (hibiscus, frangipanier), variantes choisies par `CellHash` ;
     cocotiers 32×40 sur la Tilemap `Décor` en tri individuel, même ordre que le joueur ;
   - tri par profondeur : Renderer2D en *Custom Axis* (0, 1, 0) — plus au nord = dessiné derrière ;
-  - pêcheur **32×48 à 32 px par unité** (même taille à l'écran qu'une case de large et 1,5 de haut, pixels deux fois plus fins que le décor), pivot **aux pieds**, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator`.
-    Style chibi détaillé : gabarits faits main en abrégé (`Player/CharacterTemplates`, « 6.10S », moitiés en miroir pour face et dos), rendus par `CharacterPainter` : relief calculé par pièce, base,
-    ombre, lumière par rôle, contour sombre teinté, ombre au sol), aussi utilisés en jeu pour l'apparence choisie.
-    Le marchand utilise le même style (`CharacterPainter.Merchant`, via `CharacterArt.Merchant` et `ShopArt.Merchant`) ;
+  - pêcheur 16×24, pivot **aux pieds**, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator`.
+    Même style que les poissons : formes rondes éclairées par paliers (`DetailedFish.Shade`), contour sélectif
+    partagé (`PixelArt.SelectiveOutline`), ombre douce au sol. Le marchand est dessiné de la même façon
+    (`CharacterArt.Merchant`, appelé par `ShopArt.Merchant`). Nouveau personnage = même `Canvas` de `CharacterArt` ;
   - poissons de profil, tête à droite, un par espèce (`FishArt.cs` → `Art/Fish/`), assignés au champ
     `_sprite` de chaque `FishSpecies`. Dessins **détaillés** (≈ 96 px de long) via le moteur paramétrable
     `DetailedFish` (silhouette, dégradé, nageoires, queue, tête, motifs) : profils lissés (Catmull-Rom), corps
