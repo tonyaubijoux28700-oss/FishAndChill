@@ -333,7 +333,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   - pêcheur 16×24, pivot **aux pieds**, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator`.
     Style chibi net : gabarits pixel par pixel (`Player/CharacterTemplates`, rendus par `CharacterPainter` : base,
     ombre, lumière par rôle, contour sombre teinté, ombre au sol), aussi utilisés en jeu pour l'apparence choisie.
-    Le marchand garde l'ancien dessin en formes rondes (`CharacterArt.Merchant`, appelé par `ShopArt.Merchant`) ;
+    Le marchand utilise le même style (`CharacterPainter.Merchant`, via `CharacterArt.Merchant` et `ShopArt.Merchant`) ;
   - poissons de profil, tête à droite, un par espèce (`FishArt.cs` → `Art/Fish/`), assignés au champ
     `_sprite` de chaque `FishSpecies`. Dessins **détaillés** (≈ 96 px de long) via le moteur paramétrable
     `DetailedFish` (silhouette, dégradé, nageoires, queue, tête, motifs) : profils lissés (Catmull-Rom), corps

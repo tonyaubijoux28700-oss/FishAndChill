@@ -73,6 +73,84 @@ namespace FishAndChill.Player
             return pixels;
         }
 
+        // ---------- Marchand ----------
+
+        private static readonly string[] MerchantRows =
+        {
+            "................", "................",
+            ".....yWWWWw.....", "....yWWWNWWw....", "....NNNNNNNN....", "..yyWWWWWWWWww..", "..wwwwwwwwwwww..",
+            "...GSSSSSSSSg...", "...GSgSSSSgSg...", "...GSESSSSESg...", "...SSSSppSSSs...", "...SGGGGGGGGs...",
+            "....sGsSSsGs....", "......ssss......",
+            "..TTTKKKKKKTtt..", "..TTTKKKKKKTtt..", "..SSTKKKKKKtSs..", "..SSTKKqqKKtSs..",
+            "....PKKKKKKQ....", "....PPKKKKQQ....", "....PPQ..PPQ....", ".....PQ..PQ.....", "....OOo..OOo....",
+            "................",
+        };
+
+        /// <summary>
+        /// Marchand de face, dans le style du pêcheur : vieux marin au bob blanc à ruban bleu (petite ancre), cheveux et
+        /// sourcils gris, grosse moustache, marinière rayée, tablier crème avec un poisson brodé sur la poche, pantalon, bottes.
+        /// </summary>
+        public static Color[,] Merchant()
+        {
+            char[,] grid = Parse(MerchantRows);
+            var skin = new Color(0.88f, 0.63f, 0.45f);
+            var grey = new Color(0.86f, 0.86f, 0.84f);
+            var navy = new Color(0.20f, 0.32f, 0.66f);
+            var apron = new Color(0.96f, 0.91f, 0.79f);
+            var trousers = new Color(0.36f, 0.30f, 0.27f);
+            var boots = new Color(0.32f, 0.21f, 0.14f);
+            var pixels = new Color[Width, Height];
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    char role = grid[x, y];
+                    if (role == '.')
+                    {
+                        continue;
+                    }
+
+                    Color stripe = y % 2 == 0 ? StripeWhite : navy;
+                    Color c;
+                    switch (role)
+                    {
+                        case 'S': c = skin; break;
+                        case 's': c = Dark(skin); break;
+                        case 'E': c = Eye; break;
+                        case 'p': c = Color.Lerp(skin, Blush, 0.5f); break;
+                        case 'G': c = grey; break;
+                        case 'g': c = Dark(grey); break;
+                        case 'W': c = White; break;
+                        case 'w': c = Dark(White); break;
+                        case 'y': c = Bright(White); break;
+                        case 'N': c = navy; break;
+                        case 'T': c = stripe; break;
+                        case 't': c = Dark(stripe); break;
+                        case 'K': c = apron; break;
+                        case 'q': c = navy; break;
+                        case 'P': c = trousers; break;
+                        case 'Q': c = Dark(trousers); break;
+                        case 'O': c = boots; break;
+                        case 'o': c = Dark(boots); break;
+                        default: c = Color.magenta; break;
+                    }
+
+                    // Le tablier s'ombre sur son bord droit.
+                    if (role == 'K' && (x == 10 || grid[Mathf.Min(Width - 1, x + 1), y] == 'Q'))
+                    {
+                        c = Dark(apron);
+                    }
+
+                    c.a = 1f;
+                    pixels[x, Height - 1 - y] = c;
+                }
+            }
+
+            Outline(pixels);
+            AddGroundShadow(pixels);
+            return pixels;
+        }
+
         // ---------- Gabarits ----------
 
         private static char[,] Parse(string[] rows)
