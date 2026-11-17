@@ -86,6 +86,7 @@ namespace FishAndChill.UI
         {
             public Image Frame;
             public Image Fish;
+            public ShineSweep Shine;
             public Image Gem;
             public Text Number;
             public Text Name;
@@ -118,6 +119,7 @@ namespace FishAndChill.UI
         private RectTransform _stampRect;
         private Text _pageText;
         private Image _detailFish;
+        private ShineSweep _detailShine;
         private Text _detailNumber;
         private Text _detailName;
         private Text _detailScientific;
@@ -510,6 +512,7 @@ namespace FishAndChill.UI
                 // À l'échelle de la taille adulte maximale de l'espèce : une ablette paraît petite, une carangue remplit la case.
                 cell.Fish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(CellWidth - 30f, 66f), SpritePixels(s), s.SizeRangeCm.y);
                 cell.Fish.color = known ? (s.Sprite != null ? Color.white : s.PlaceholderColor) : Silhouette;
+                cell.Shine.SetRarity(s.Rarity, known && s.Sprite != null);
                 cell.Name.text = known ? s.CommonName : "???";
                 cell.Name.color = known ? Ink : InkSoft;
                 cell.Gem.color = known ? s.Rarity.DisplayColor() : new Color(0.55f, 0.50f, 0.42f);
@@ -545,6 +548,7 @@ namespace FishAndChill.UI
             _detailFish.sprite = s.Sprite;
             _detailFish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(560f, 200f), SpritePixels(s), s.SizeRangeCm.y);
             _detailFish.color = known ? Color.white : Silhouette;
+            _detailShine.SetRarity(s.Rarity, known && s.Sprite != null);
             _detailNumber.text = $"N° {_selected + 1}";
 
             // Rareté, heure et zone : toujours visibles, ce sont aussi les indices d'une espèce inconnue.
@@ -772,7 +776,7 @@ namespace FishAndChill.UI
             name.horizontalOverflow = HorizontalWrapMode.Wrap;
             UiFactory.Place(name.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 6f), new Vector2(CellWidth - 12f, 46f));
 
-            return new CellView { Frame = frame, Fish = fish, Gem = gem, Number = number, Name = name };
+            return new CellView { Frame = frame, Fish = fish, Gem = gem, Number = number, Name = name, Shine = ShineSweep.Attach(fish) };
         }
 
         private void BuildRightPage(RectTransform page)
@@ -790,6 +794,7 @@ namespace FishAndChill.UI
             UiFactory.Center(backdrop.rectTransform, new Vector2(0f, 120f), new Vector2(620f, 240f));
             _detailFish = UiFactory.Plain(backdrop.rectTransform, "Poisson", Color.white);
             _detailFish.preserveAspect = true;
+            _detailShine = ShineSweep.Attach(_detailFish);
             UiFactory.Center(_detailFish.rectTransform, Vector2.zero, new Vector2(560f, 200f));
 
             // Ligne d'icônes : rareté, heure, zone.

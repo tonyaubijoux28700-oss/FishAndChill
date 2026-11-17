@@ -24,6 +24,7 @@ namespace FishAndChill.Fishing
         private readonly Text _title;
         private readonly UI.WigglingImage _fish;
         private bool _wiggles;
+        private readonly UI.ShineSweep _shine;
         private readonly RectTransform _fishRect;
         private static readonly Vector2 FishBox = new Vector2(560f, 210f);
         private readonly Text _name;
@@ -85,6 +86,7 @@ namespace FishAndChill.Fishing
             fishObject.transform.SetParent(backdrop.rectTransform, false);
             _fish = fishObject.GetComponent<UI.WigglingImage>();
             _fish.raycastTarget = false;
+            _shine = UI.ShineSweep.Attach(_fish); // éclat sur les écailles des espèces rares
             _fishRect = _fish.rectTransform;
             UiFactory.Center(_fishRect, Vector2.zero, FishBox);
 
@@ -161,6 +163,7 @@ namespace FishAndChill.Fishing
 
             _fish.sprite = species.Sprite;
             _wiggles = species.Kind == CreatureKind.Fish && species.Sprite != null;
+            _shine.SetRarity(species.Rarity, species.Sprite != null);
             _fish.color = species.Sprite != null ? Color.white : species.PlaceholderColor;
             // Taille du dessin selon la vraie taille de la prise : une ablette paraît petite, une carangue remplit la carte.
             Vector2 pixels = species.Sprite != null ? species.Sprite.rect.size : new Vector2(2f, 1f);
