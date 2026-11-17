@@ -242,6 +242,8 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   l'échelle, silhouettes « ??? »). Page de droite : grand dessin, rareté, heure (soleil/lune), zone, **description
   réelle** (`FishSpecies.Description`, colonne Description de la table des espèces), prises / record / taille, aquarium ;
   pour une espèce inconnue, un **indice** (heure, rareté, taille). « Découverte » = déjà pêchée une fois (`CatchLog`).
+  **Page qui tourne** (`FishIndex.TurnPage`) quand on change de zone ou de page d'espèces : une feuille de papier pivote
+  autour du pli (0,45 s), s'assombrit par la tranche et projette une ombre ; le nouveau contenu est déjà dessous.
   Logique dans `SpeciesIndex` et `CollectionRewards` (testées). La police n'a ni œ ni ā : les éviter dans les textes.
 - Le bouton Play lance toujours `FishingPrototype` (`PlayModeStartScene`), même si une autre scène est ouverte.
 - **Ne pas lancer les tests pendant que l'éditeur entre ou sort du Play mode** : le lanceur de tests plante et

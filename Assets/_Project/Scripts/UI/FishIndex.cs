@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FishAndChill.Collection;
 using FishAndChill.Fishing;
 using FishAndChill.Gear;
@@ -45,6 +45,14 @@ namespace FishAndChill.UI
         private const float IconSize = 112f;
         private const float PageWidth = 740f;
         private const float PageHeight = 810f;
+        private const float FlipSeconds = 0.45f;
+
+        // Page qui tourne : une feuille qui pivote autour du pli quand on change de zone ou de page.
+        private RectTransform _flip;
+        private Image _flipImage;
+        private Image _flipShadow;
+        private float _flipT = -1f;
+        private int _flipDirection = 1;
         private const float BarWidth = 500f;
 
         [SerializeField, Tooltip("Zones dont les espèces figurent dans l'index, dans l'ordre des onglets.")]
@@ -204,6 +212,7 @@ namespace FishAndChill.UI
                 if (zoneStep != 0 && _zoneSpecies.Count > 1)
                 {
                     ShowZone((_zone + zoneStep + _zoneSpecies.Count) % _zoneSpecies.Count);
+                    TurnPage(zoneStep);
                 }
 
                 (int dx, int dy) = IndexInput.NavigationThisFrame();
@@ -213,6 +222,7 @@ namespace FishAndChill.UI
                 }
 
                 Animate();
+                AnimateFlip(Time.unscaledDeltaTime);
             }
             else if (IndexInput.TogglePressedThisFrame() && CanOpenNow())
             {
@@ -272,8 +282,68 @@ namespace FishAndChill.UI
         /// <summary>Sélectionne une espèce de la zone affichée (et tourne la page si besoin).</summary>
         public void Select(int index)
         {
+            int before = SpeciesIndex.PageOf(_selected, PerPage);
             _selected = Mathf.Clamp(index, 0, Mathf.Max(0, Current.Count - 1));
+            int after = SpeciesIndex.PageOf(_selected, PerPage);
+            if (after != before)
+            {
+                TurnPage(after > before ? 1 : -1);
+            }
+
             Refresh();
+        }
+
+        /// <summary>
+        /// Fait tourner une page : vers l'avant (1), la feuille de droite se soulève et se rabat à gauche ; vers l'arrière
+        /// (-1), l'inverse. Le nouveau contenu est déjà dessous, la feuille le découvre en tournant.
+        /// </summary>
+        public void TurnPage(int direction)
+        {
+            if (_flip == null)
+            {
+                return;
+            }
+
+            _flipDirection = direction >= 0 ? 1 : -1;
+            _flipT = 0f;
+            // Pivot sur le pli : bord gauche de la page de droite, ou bord droit de la page de gauche.
+            _flip.pivot = new Vector2(_flipDirection > 0 ? 0f : 1f, 0.5f);
+            _flip.anchoredPosition = new Vector2(_flipDirection > 0 ? 382f - PageWidth * 0.5f : -382f + PageWidth * 0.5f, 0f);
+            _flip.gameObject.SetActive(true);
+            _flipShadow.gameObject.SetActive(true);
+            AnimateFlip(0f);
+        }
+
+        private void AnimateFlip(float deltaTime)
+        {
+            if (_flipT < 0f)
+            {
+                return;
+            }
+
+            _flipT += deltaTime / FlipSeconds;
+            if (_flipT >= 1f)
+            {
+                _flipT = -1f;
+                _flip.gameObject.SetActive(false);
+                _flipShadow.gameObject.SetActive(false);
+                return;
+            }
+
+            // Largeur apparente : 1 → 0 (feuille vue par la tranche) → -1 (rabattue de l'autre côté).
+            float eased = Mathf.SmoothStep(0f, 1f, _flipT);
+            float width = Mathf.Cos(eased * Mathf.PI);
+            _flip.localScale = new Vector3(width, 1f, 1f);
+            // Un peu plus sombre par la tranche, et ombre portée sur la page d'en dessous.
+            float edge = 1f - Mathf.Abs(width);
+            _flipImage.color = Color.Lerp(new Color(0.96f, 0.91f, 0.78f), new Color(0.70f, 0.62f, 0.48f), edge * 0.8f);
+            RectTransform shadow = _flipShadow.rectTransform;
+            bool firstHalf = width > 0f;
+            float side = firstHalf ? _flipDirection : -_flipDirection;
+            shadow.pivot = new Vector2(side > 0 ? 0f : 1f, 0.5f);
+            shadow.anchoredPosition = new Vector2(side * 12f, 0f);
+            shadow.sizeDelta = new Vector2(PageWidth * (1f - Mathf.Abs(width)) * 0.5f + 20f, PageHeight);
+            _flipShadow.color = new Color(0.2f, 0.12f, 0.06f, 0.25f * edge + 0.05f);
         }
 
         /// <summary>Hors pêche, hors menus (sac, marchand) : le joueur doit être libre de ses mouvements.</summary>
@@ -554,6 +624,17 @@ namespace FishAndChill.UI
 
             BuildLeftPage(left);
             BuildRightPage(right);
+
+            // Ombre et feuille qui tourne, par-dessus les deux pages.
+            _flipShadow = UiFactory.Plain(book, "Ombre de la page", new Color(0f, 0f, 0f, 0f));
+            _flipShadow.raycastTarget = false;
+            UiFactory.Center(_flipShadow.rectTransform, Vector2.zero, new Vector2(20f, PageHeight));
+            _flipShadow.gameObject.SetActive(false);
+            _flipImage = UiFactory.Sliced(book, "Page qui tourne", _page, new Color(0.96f, 0.91f, 0.78f));
+            _flipImage.raycastTarget = false;
+            _flip = _flipImage.rectTransform;
+            UiFactory.Center(_flip, Vector2.zero, new Vector2(PageWidth, PageHeight));
+            _flip.gameObject.SetActive(false);
 
             // Bandeau des récompenses (visible même carnet fermé).
             _bannerText = UiFactory.TitlePlaque(root, _skin, string.Empty, 28, new Vector2(0f, -482f), new Vector2(900f, 72f), out _bannerRect);
