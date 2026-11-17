@@ -127,6 +127,12 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   la **carte du monde** (←/→, Espace part, Échap ferme ; le sac ne s'ouvre pas sur le ponton) : fondu au noir, arrivée
   au bout du ponton, zone de pêche (`FishingController.SetZone`), région, minimap (`SetTitle`/`Rebuild`), grand bandeau
   du nom de la zone. Position sur la carte du monde et pays dans `FishingZone` (`_mapPosition`, `_region`).
+  **Carte du monde** (`UI/TravelMenu`) : vraie carte en pixel art dessinée au démarrage (280×130, `UI/WorldChart`, testé :
+  continents en polygones lon/lat, déserts, toundra, glaces, écume ; projection `ToLonLat`/`FromLonLat` qui place chaque
+  zone à sa vraie position, ex. Annecy (6°E, 46°N) = (0,52 ; 0,74)). Vaguelettes, nuages, repères à la couleur de l'eau
+  de la zone, onde sur la destination choisie, route en pointillés animés depuis la zone actuelle (chemin le plus court,
+  passe par le bord pour traverser le Pacifique), voilier qui navigue jusqu'à la destination (1,5 s) avant le fondu.
+  Fiche : barre des espèces découvertes et décompte par rareté.
   **Toutes les destinations sont ouvertes** : l'ordre de déblocage sera conçu plus tard. La zone actuelle est
   sauvegardée (`SaveData.Zone` = nom de l'asset de zone) et on y reprend au lancement.
   Nouvelle zone = une région de plus dans `MapSetup`, une destination dans `PrototypeSetup` (`SetDestination`), et la
