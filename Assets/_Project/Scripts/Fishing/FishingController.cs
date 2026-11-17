@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using FishAndChill.Collection;
 using FishAndChill.Gear;
@@ -94,6 +94,12 @@ namespace FishAndChill.Fishing
         public event Action<int> Nibbled;
         /// <summary>Un poisson est attrapé : (poisson, nouvelle espèce ?, sac plein ?).</summary>
         public event Action<CaughtFish, bool, bool> FishCaught;
+
+        /// <summary>Une bouteille à la mer a été pêchée à la place d'un poisson : son message et les pièces trouvées dedans.</summary>
+        public event Action<string, int> BottleFound;
+
+        [SerializeField, Range(0f, 1f), Tooltip("Chance qu'une prise réussie soit une bouteille à la mer.")]
+        private float _bottleChance = BottleMessage.Chance;
 
         public FishingState State { get; private set; } = FishingState.Idle;
         /// <summary>Horloge du jeu (null sans cycle jour/nuit).</summary>
@@ -473,6 +479,12 @@ namespace FishAndChill.Fishing
                 CurrentSpots?.Consume(CastPoint); // le coin s'épuise peu à peu
             }
 
+            if (_progress != null && _random.NextDouble() < _bottleChance)
+            {
+                FindBottle();
+                return;
+            }
+
             FishSpecies species = HookedSpecies;
             var fish = new CaughtFish(species, HookedSizeCm);
             CatchLog.Register(species.Id, HookedSizeCm);
@@ -494,6 +506,31 @@ namespace FishAndChill.Fishing
 
             StartPhase(FishingState.Result, _catchResultSeconds, $"{header}\n{detail}");
             FishCaught?.Invoke(fish, isNew, false);
+        }
+
+        /// <summary>Ce n'était pas un poisson : une bouteille à la mer, avec un message et quelques pièces.</summary>
+        private void FindBottle()
+        {
+            int coins = BottleMessage.Coins(_random);
+            _progress.Wallet.Add(coins);
+            var species = new System.Collections.Generic.List<FishSpecies>();
+            if (_zone != null)
+            {
+                foreach (FishingZone.SpeciesEntry entry in _zone.Species)
+                {
+                    if (entry.Species != null) species.Add(entry.Species);
+                }
+            }
+
+            string Favorite(FishSpecies s)
+            {
+                Bait bait = _progress.BaitCatalog != null ? _progress.BaitCatalog.FavoriteOf(s) : null;
+                return bait != null ? bait.DisplayName : null;
+            }
+
+            string message = BottleMessage.Write(species, CatchLog, Favorite, _random);
+            StartPhase(FishingState.Result, _catchResultSeconds, $"Une bouteille à la mer ! +{coins} pièces");
+            BottleFound?.Invoke(message, coins);
         }
 
         /// <summary>Nouvelle pour la collection : ni dans l'aquarium, ni déjà dans le sac.</summary>

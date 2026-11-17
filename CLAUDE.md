@@ -336,6 +336,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Le poisson **frétille** sur la carte de prise : `UI/WigglingImage` (image découpée en tranches qui ondulent, tête
   stable, queue qui bat, décalages au pixel du dessin) et `UI/WiggleMath` (testé : vague, sursaut toutes les 2,6 s avec
   petit saut et bascule). Crustacés, reptiles et amphibiens ne font que se balancer.
+- **Bouteille à la mer** (`Fishing/Core/BottleMessage`, testé ; `FishingController.FindBottle`, `_bottleChance` = 5 %) :
+  une prise réussie sur 20 est une bouteille. 10 à 40 pièces, et un message signé : 2 fois sur 3 un indice sur une
+  espèce de la zone pas encore pêchée (rareté, heure, taille max, appât préféré, sans la nommer), sinon une anecdote.
+  Carte `Fishing/BottleCard` (bouteille de verre qui flotte, message sur papier), à la place de la carte de prise.
 - **Photo de prise** (nouvelle espèce seulement, `CatchCard.AnimateCelebration`) : flash d'appareil photo, bord blanc de
   photo souvenir qui se redresse, tampon rouge « AJOUTÉE AU CARNET ! » qui s'abat en biais, 70 confettis qui tombent
   en tournant (dont la couleur de la rareté).
