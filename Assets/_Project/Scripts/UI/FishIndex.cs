@@ -53,6 +53,7 @@ namespace FishAndChill.UI
         private Image _flipShadow;
         private float _flipT = -1f;
         private int _flipDirection = 1;
+        private bool _refreshAtMiddle;
         private const float BarWidth = 500f;
 
         [SerializeField, Tooltip("Zones dont les espèces figurent dans l'index, dans l'ordre des onglets.")]
@@ -211,8 +212,8 @@ namespace FishAndChill.UI
                 int zoneStep = ZoneStepThisFrame();
                 if (zoneStep != 0 && _zoneSpecies.Count > 1)
                 {
-                    ShowZone((_zone + zoneStep + _zoneSpecies.Count) % _zoneSpecies.Count);
                     TurnPage(zoneStep);
+                    ShowZone((_zone + zoneStep + _zoneSpecies.Count) % _zoneSpecies.Count);
                 }
 
                 (int dx, int dy) = IndexInput.NavigationThisFrame();
@@ -276,7 +277,7 @@ namespace FishAndChill.UI
         {
             _zone = Mathf.Clamp(zone, 0, Mathf.Max(0, _zoneSpecies.Count - 1));
             _selected = 0;
-            Refresh();
+            RefreshOrWait();
         }
 
         /// <summary>Sélectionne une espèce de la zone affichée (et tourne la page si besoin).</summary>
@@ -288,6 +289,18 @@ namespace FishAndChill.UI
             if (after != before)
             {
                 TurnPage(after > before ? 1 : -1);
+            }
+
+            RefreshOrWait();
+        }
+
+        /// <summary>Pendant qu'une page tourne, le nouveau contenu n'apparaît qu'à mi-chemin (feuille vue par la tranche).</summary>
+        private void RefreshOrWait()
+        {
+            if (_flipT >= 0f && _flipT < 0.5f)
+            {
+                _refreshAtMiddle = true;
+                return;
             }
 
             Refresh();
@@ -302,6 +315,13 @@ namespace FishAndChill.UI
             if (_flip == null)
             {
                 return;
+            }
+
+            if (_refreshAtMiddle)
+            {
+                // Une page tournait déjà : on finit d'afficher son contenu avant d'en tourner une autre.
+                _refreshAtMiddle = false;
+                Refresh();
             }
 
             _flipDirection = direction >= 0 ? 1 : -1;
@@ -322,6 +342,12 @@ namespace FishAndChill.UI
             }
 
             _flipT += deltaTime / FlipSeconds;
+            if (_refreshAtMiddle && _flipT >= 0.5f)
+            {
+                _refreshAtMiddle = false;
+                Refresh();
+            }
+
             if (_flipT >= 1f)
             {
                 _flipT = -1f;
