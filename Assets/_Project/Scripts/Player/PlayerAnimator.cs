@@ -55,6 +55,22 @@ namespace FishAndChill.Player
             }
         }
 
+        /// <summary>Habille le pêcheur : ses images sont redessinées selon l'apparence choisie.</summary>
+        public void SetLook(CharacterLook look)
+        {
+            CharacterSprites sprites = CharacterSprites.Build(look);
+            _down = sprites.Down;
+            _up = sprites.Up;
+            _left = sprites.Left;
+            _right = sprites.Right;
+            if (_renderer == null)
+            {
+                _renderer = GetComponent<SpriteRenderer>();
+            }
+
+            _renderer.sprite = _down[0];
+        }
+
         /// <summary>Direction d'image la plus proche du regard (l'horizontal l'emporte à égalité).</summary>
         public static SpriteDirection DirectionOf(Vector2 facing)
         {

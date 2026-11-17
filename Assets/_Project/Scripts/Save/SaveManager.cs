@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using FishAndChill.Collection;
 using FishAndChill.Fishing;
+using FishAndChill.Player;
 using FishAndChill.World;
 using UnityEngine;
 
@@ -52,7 +53,17 @@ namespace FishAndChill.Save
         private float _playSeconds;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics() => ActiveSlot = -1; // le rechargement du domaine est désactivé en éditeur
+        private static void ResetStatics()
+        {
+            ActiveSlot = -1; // le rechargement du domaine est désactivé en éditeur
+            PendingLook = null;
+        }
+
+        /// <summary>Apparence choisie à la création du personnage, appliquée à la nouvelle partie après le rechargement.</summary>
+        public static CharacterLook PendingLook { get; set; }
+
+        /// <summary>Prénom et apparence du pêcheur de la partie en cours.</summary>
+        public CharacterLook Look { get; private set; } = new CharacterLook();
 
         /// <summary>Lit un emplacement sans le charger (écran titre) ; null s'il est vide ou illisible.</summary>
         public static SaveData Peek(int slot)
@@ -153,7 +164,15 @@ namespace FishAndChill.Save
             _progress.Changed += MarkDirty;
             if (!Loaded)
             {
+                Look = CharacterOptions.Sanitize(PendingLook);
                 MarkDirty(); // emplacement vide : la nouvelle partie l'occupe tout de suite
+            }
+
+            PendingLook = null;
+            PlayerAnimator player = FindAnyObjectByType<PlayerAnimator>();
+            if (player != null)
+            {
+                player.SetLook(Look);
             }
 
             if (_fishing != null)
@@ -240,6 +259,7 @@ namespace FishAndChill.Save
             }
 
             data.EquippedBait = _progress.Baits.Equipped;
+            data.Look = Look;
             try
             {
                 string temporary = SavePath + ".tmp";
@@ -309,6 +329,7 @@ namespace FishAndChill.Save
             _loading = false;
             Loaded = true;
             SavedZone = data.Zone;
+            Look = CharacterOptions.Sanitize(data.Look);
             _playSeconds = data.PlaySeconds;
             _progress.RestoreClaimedRewards(data.Rewards);
             if (data.Baits != null && data.Baits.Count > 0)

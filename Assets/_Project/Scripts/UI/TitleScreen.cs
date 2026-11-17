@@ -37,6 +37,8 @@ namespace FishAndChill.UI
         private readonly List<Image> _cards = new List<Image>();
         private readonly List<Text> _cardTexts = new List<Text>();
         private readonly List<Text> _cardFooters = new List<Text>();
+        private readonly List<Text> _cardTitles = new List<Text>();
+        private CharacterCreator _creator;
         private readonly SaveData[] _slots = new SaveData[SaveSlots.Count];
         private Canvas _canvas;
         private RectTransform _logo;
@@ -114,6 +116,11 @@ namespace FishAndChill.UI
             }
 
             AnimateLife(Time.unscaledDeltaTime);
+            if (_creator != null && _creator.IsOpen)
+            {
+                _creator.Update(Time.unscaledDeltaTime);
+                return;
+            }
 
             (int dx, int dy) = IndexInput.NavigationThisFrame();
             if (dx != 0 || dy != 0)
@@ -173,7 +180,41 @@ namespace FishAndChill.UI
                 return;
             }
 
+            if (_slots[_selected] == null && _creator != null)
+            {
+                // Nouvelle partie : on crée d'abord son pêcheur.
+                SetTitleVisible(false);
+                _creator.Open(_selected);
+                return;
+            }
+
             Play(_selected);
+        }
+
+        /// <summary>Ouvre la création du pêcheur sur cet emplacement (utilisable par script pour les tests).</summary>
+        public CharacterCreator OpenCreator(int slot)
+        {
+            _selected = Mathf.Clamp(slot, 0, SaveSlots.Count - 1);
+            SetTitleVisible(false);
+            _creator.Open(_selected);
+            return _creator;
+        }
+
+        private void SetTitleVisible(bool visible)
+        {
+            _logo.gameObject.SetActive(visible);
+            _quitFrame.gameObject.SetActive(visible);
+            _hint.gameObject.SetActive(visible);
+            foreach (Image card in _cards)
+            {
+                card.gameObject.SetActive(visible);
+            }
+        }
+
+        private void OnCreatorConfirmed(int slot, CharacterLook look)
+        {
+            SaveManager.PendingLook = look;
+            Play(slot);
         }
 
         private static bool DeletePressedThisFrame()
@@ -388,6 +429,8 @@ namespace FishAndChill.UI
                 SaveData data = _slots[i];
                 _cards[i].color = selected ? Color.white : new Color(0.62f, 0.67f, 0.74f);
                 _cards[i].rectTransform.localScale = selected ? new Vector3(1.05f, 1.05f, 1f) : Vector3.one;
+                string name = data != null && data.Look != null ? CharacterOptions.CleanName(data.Look.Name) : string.Empty;
+                _cardTitles[i].text = name.Length > 0 ? name : $"Partie {i + 1}";
                 if (data == null)
                 {
                     _cardTexts[i].text = "Vide";
@@ -488,7 +531,7 @@ namespace FishAndChill.UI
                     _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
                 RectTransform rect = card.rectTransform;
                 UiFactory.Center(rect, new Vector2((i - 1) * 500f, -40f), new Vector2(440f, 330f));
-                UiFactory.TitlePlaque(rect, _skin, $"Partie {i + 1}", 30, new Vector2(0f, 160f), new Vector2(240f, 62f), out _);
+                _cardTitles.Add(UiFactory.TitlePlaque(rect, _skin, $"Partie {i + 1}", 30, new Vector2(0f, 160f), new Vector2(240f, 62f), out _));
 
                 Text text = UiFactory.Label(rect, "Résumé", 30, TextAnchor.MiddleCenter, Normal);
                 text.supportRichText = true;
@@ -509,6 +552,10 @@ namespace FishAndChill.UI
 
             _hint = UiFactory.Label(root, "Aide", 26, TextAnchor.MiddleCenter, Normal);
             UiFactory.Center(_hint.rectTransform, new Vector2(0f, -420f), new Vector2(1400f, 36f));
+
+            _creator = new CharacterCreator(root, _skin);
+            _creator.Confirmed = OnCreatorConfirmed;
+            _creator.Cancelled = () => SetTitleVisible(true);
         }
     }
 }

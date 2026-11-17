@@ -266,6 +266,16 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   sauvegarde puisque `ActiveSlot` = -1), « Dernière escale : … » sous le logo, poissons de cette zone qui sautent en arc
   de derrière les emplacements devant le logo, bulles qui montent.
   Par script : `TitleScreen.Play(slot)` (sinon le prototype reste sur l'écran titre). Nouvelle zone = l'ajouter au champ `_zones` du `SaveManager`, sinon ses prises ne se rechargent pas.
+- **Création du pêcheur** (`UI/CharacterCreator`, ouvert par `TitleScreen` sur un emplacement vide) : prénom tapé au
+  clavier (14 caractères, `Keyboard.onTextInput`), teint, coiffure (courte, hérissée, mi-longue, longue, queue de cheval,
+  chignon, rasée), couleur des cheveux, chapeau (aucun, paille, casquette, bob, bandana), haut (chemise à fleurs, t-shirt,
+  débardeur, marinière) et couleurs du haut et du short ; « Au hasard », « C'est parti ! ». Haut/Bas, ←/→, Entrée, Échap ;
+  les lettres servent au prénom. Grand aperçu qui marche et se retourne. Choix et prénom dans `Player/CharacterOptions`
+  (testé), apparence `Player/CharacterLook` (valeurs par défaut = pêcheur d'origine), sauvegardée (`SaveData.Look`).
+  Le pêcheur est **dessiné en jeu** (`Player/CharacterPainter`, `CharacterSprites`, outils `PixelShading`) et appliqué par
+  `SaveManager` (`PlayerAnimator.SetLook`) ; `CharacterArt` (éditeur) s'en sert pour les PNG par défaut. Le prénom
+  remplace « Partie N » sur la carte de l'écran titre. Par script : `TitleScreen.OpenCreator(slot)` ;
+  `TitleScreen.Play(slot)` garde le pêcheur par défaut.
 - **Menu pause** (`UI/PauseMenu`, objet « Partie », canvas ordre 20) : **Échap** ou Start, seulement si aucun autre
   menu n'était ouvert à l'image précédente (Échap ferme d'abord sac, livre, marchand, grande carte). Fige le jeu
   (`Time.timeScale = 0`, `FishingController` et `Minimap` désactivés, joueur `Locked`), reprise une image plus tard.

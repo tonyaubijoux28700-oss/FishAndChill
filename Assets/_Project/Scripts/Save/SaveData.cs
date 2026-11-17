@@ -71,5 +71,8 @@ namespace FishAndChill.Save
         /// <summary>Appâts possédés et appât accroché à la ligne.</summary>
         public List<BaitStock> Baits = new List<BaitStock>();
         public string EquippedBait;
+
+        /// <summary>Prénom et apparence du pêcheur (ancienne sauvegarde : le pêcheur d'origine, sans prénom).</summary>
+        public Player.CharacterLook Look = new Player.CharacterLook();
     }
 }
