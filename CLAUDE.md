@@ -260,6 +260,9 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   les autres interfaces et bloque le jeu. Logo « Fish & Chill » qui flotte, 3 cartes « Partie 1/2/3 » (zone, espèces
   x / total, pièces, temps de jeu, date), « Quitter le jeu » dessous. ←/→ choisir, Bas/Haut, Espace jouer (nouvelle
   partie si vide), Suppr/Retour arrière/X effacer (deux fois). Curseur dans `TitleScreenLogic` (testé).
+  **Vivant** : décor = zone et heure de la partie jouée le plus récemment (`SetBackdrop`, `ZoneTravel.TravelTo` sans
+  sauvegarde puisque `ActiveSlot` = -1), « Dernière escale : … » sous le logo, poissons de cette zone qui sautent en arc
+  de derrière les emplacements devant le logo, bulles qui montent.
   Par script : `TitleScreen.Play(slot)` (sinon le prototype reste sur l'écran titre). Nouvelle zone = l'ajouter au champ `_zones` du `SaveManager`, sinon ses prises ne se rechargent pas.
 - **Menu pause** (`UI/PauseMenu`, objet « Partie », canvas ordre 20) : **Échap** ou Start, seulement si aucun autre
   menu n'était ouvert à l'image précédente (Échap ferme d'abord sac, livre, marchand, grande carte). Fige le jeu

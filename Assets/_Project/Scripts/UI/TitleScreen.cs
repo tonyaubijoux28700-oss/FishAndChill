@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FishAndChill.Collection;
 using FishAndChill.Fishing;
 using FishAndChill.Player;
 using FishAndChill.Save;
@@ -47,6 +48,26 @@ namespace FishAndChill.UI
         private int _confirmDelete = -1;
         private int _hideFrames = 3;
 
+        // Écran titre vivant : décor de la dernière partie, poissons qui sautent, bulles.
+        private sealed class Jumper
+        {
+            public Image Image;
+            public float Age = -1f;
+            public float Duration;
+            public Vector2 From;
+            public Vector2 To;
+            public float Height;
+        }
+
+        private readonly List<Jumper> _jumpers = new List<Jumper>();
+        private readonly List<RectTransform> _bubbles = new List<RectTransform>();
+        private readonly List<float> _bubbleSpeed = new List<float>();
+        private readonly System.Random _random = new System.Random();
+        private Text _lastStop;
+        private FishingZone _lastZone;
+        private bool _backdropDone;
+        private float _nextJump = 0.8f;
+
         public bool IsOpen => _canvas != null;
 
         private void Start()
@@ -85,6 +106,14 @@ namespace FishAndChill.UI
 
             float bob = Mathf.Sin(Time.unscaledTime * 1.6f) * 8f;
             _logo.anchoredPosition = new Vector2(0f, 330f + bob);
+            if (!_backdropDone)
+            {
+                // Après les Start de tout le monde : on se place dans la zone de la dernière partie jouée.
+                _backdropDone = true;
+                SetBackdrop();
+            }
+
+            AnimateLife(Time.unscaledDeltaTime);
 
             (int dx, int dy) = IndexInput.NavigationThisFrame();
             if (dx != 0 || dy != 0)
@@ -196,6 +225,123 @@ namespace FishAndChill.UI
             }
         }
 
+        // ---------- Écran titre vivant ----------
+
+        private float Range(float min, float max) => min + (float)_random.NextDouble() * (max - min);
+
+        /// <summary>Le décor derrière le titre : la zone et l'heure de la partie jouée le plus récemment.</summary>
+        private void SetBackdrop()
+        {
+            SaveData latest = null;
+            foreach (SaveData data in _slots)
+            {
+                if (data != null && (latest == null || data.SavedAtTicks > latest.SavedAtTicks)) latest = data;
+            }
+
+            var travel = FindAnyObjectByType<ZoneTravel>();
+            if (latest != null && travel != null)
+            {
+                int index = travel.IndexOf(latest.Zone);
+                if (index >= 0 && index != travel.Current) travel.TravelTo(index);
+                var cycle = FindAnyObjectByType<DayNightCycle>();
+                if (cycle != null) cycle.SetHour(latest.Hour);
+            }
+
+            _lastZone = travel != null && travel.CurrentDestination != null ? travel.CurrentDestination.Zone : null;
+            _lastStop.text = latest != null && _lastZone != null ? $"Dernière escale : {_lastZone.DisplayName}" : string.Empty;
+        }
+
+        private void AnimateLife(float dt)
+        {
+            float time = Time.unscaledTime;
+
+            // Bulles qui montent en ondulant, et repartent d'en bas.
+            for (int i = 0; i < _bubbles.Count; i++)
+            {
+                RectTransform bubble = _bubbles[i];
+                Vector2 p = bubble.anchoredPosition;
+                p.y += _bubbleSpeed[i] * dt;
+                p.x += Mathf.Sin(time * 1.5f + i) * 12f * dt;
+                if (p.y > 580f) p = new Vector2(Range(-940f, 940f), -580f);
+                bubble.anchoredPosition = p;
+            }
+
+            // Un poisson de la zone saute de temps en temps, de derrière les emplacements, devant le logo.
+            _nextJump -= dt;
+            if (_nextJump <= 0f)
+            {
+                _nextJump = Range(1.1f, 2.4f);
+                Jump();
+            }
+
+            foreach (Jumper jumper in _jumpers)
+            {
+                if (jumper.Age < 0f) continue;
+                jumper.Age += dt;
+                float t = jumper.Age / jumper.Duration;
+                if (t >= 1f)
+                {
+                    jumper.Age = -1f;
+                    jumper.Image.gameObject.SetActive(false);
+                    continue;
+                }
+
+                Vector2 p = Vector2.Lerp(jumper.From, jumper.To, t) + Vector2.up * (4f * jumper.Height * t * (1f - t));
+                Vector2 v = (jumper.To - jumper.From) + Vector2.up * (4f * jumper.Height * (1f - 2f * t));
+                RectTransform rect = jumper.Image.rectTransform;
+                rect.anchoredPosition = p;
+                bool left = v.x < 0f;
+                rect.localScale = new Vector3(left ? -1f : 1f, 1f, 1f);
+                float angle = Mathf.Atan2(v.y, Mathf.Abs(v.x)) * Mathf.Rad2Deg;
+                rect.localRotation = Quaternion.Euler(0f, 0f, left ? -angle : angle);
+            }
+        }
+
+        private void Jump()
+        {
+            if (_lastZone == null || _lastZone.Species.Count == 0) return;
+            Jumper free = _jumpers.Find(j => j.Age < 0f);
+            if (free == null) return;
+            FishSpecies species = null;
+            for (int attempt = 0; attempt < 8 && species == null; attempt++)
+            {
+                FishSpecies candidate = _lastZone.Species[_random.Next(_lastZone.Species.Count)].Species;
+                if (candidate != null && candidate.Sprite != null && candidate.Kind == CreatureKind.Fish) species = candidate;
+            }
+
+            if (species == null) return;
+            float direction = _random.NextDouble() < 0.5 ? -1f : 1f;
+            free.From = new Vector2(Range(-760f, 760f), 40f);
+            free.To = free.From + new Vector2(direction * Range(240f, 380f), 0f);
+            free.Height = Range(280f, 380f);
+            free.Duration = Range(1.1f, 1.5f);
+            free.Age = 0f;
+            free.Image.sprite = species.Sprite;
+            Vector2 size = species.Sprite.rect.size * 2.2f;
+            if (size.x > 240f) size *= 240f / size.x;
+            free.Image.rectTransform.sizeDelta = size;
+            free.Image.gameObject.SetActive(true);
+        }
+
+        private static Sprite Circle(int size)
+        {
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point };
+            for (int x = 0; x < size; x++)
+            {
+                for (int y = 0; y < size; y++)
+                {
+                    float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(size * 0.5f, size * 0.5f));
+                    float r = size * 0.5f - 0.5f;
+                    Color c = d > r ? Color.clear : d > r - 1.2f ? new Color(1f, 1f, 1f, 0.75f) : new Color(1f, 1f, 1f, 0.18f);
+                    if (d < r && x < size * 0.4f && y > size * 0.6f && d > r - 2.5f) c = Color.white; // reflet
+                    texture.SetPixel(x, y, c);
+                }
+            }
+
+            texture.Apply();
+            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+        }
+
         // ---------- Affichage ----------
 
         private int TotalSpecies()
@@ -298,6 +444,19 @@ namespace FishAndChill.UI
             Image veil = UiFactory.Plain(root, "Voile", new Color(0.01f, 0.05f, 0.09f, 0.42f));
             UiFactory.Stretch(veil.rectTransform);
 
+            // Bulles qui montent, derrière tout le reste.
+            Sprite bubbleSprite = Circle(12);
+            for (int i = 0; i < 26; i++)
+            {
+                Image bubble = UiFactory.Plain(root, "Bulle", Color.white);
+                bubble.sprite = bubbleSprite;
+                bubble.raycastTarget = false;
+                float size = Range(8f, 22f);
+                UiFactory.Center(bubble.rectTransform, new Vector2(Range(-940f, 940f), Range(-560f, 560f)), new Vector2(size, size));
+                _bubbles.Add(bubble.rectTransform);
+                _bubbleSpeed.Add(Range(30f, 80f));
+            }
+
             // Logo qui flotte doucement.
             var logoObject = new GameObject("Logo", typeof(RectTransform));
             _logo = logoObject.GetComponent<RectTransform>();
@@ -310,6 +469,18 @@ namespace FishAndChill.UI
             Text subtitle = UiFactory.Label(_logo, "Sous-titre", 34, TextAnchor.MiddleCenter, Normal);
             subtitle.text = "Pêche, collectionne, remplis ton aquarium";
             UiFactory.Center(subtitle.rectTransform, new Vector2(0f, -70f), new Vector2(1200f, 50f));
+            _lastStop = UiFactory.Label(_logo, "Dernière escale", 26, TextAnchor.MiddleCenter, Gold);
+            UiFactory.Center(_lastStop.rectTransform, new Vector2(0f, -108f), new Vector2(1200f, 36f));
+
+            // Poissons qui sautent : devant le logo, derrière les emplacements (qui font la surface de l'eau).
+            for (int i = 0; i < 4; i++)
+            {
+                Image fish = UiFactory.Plain(root, "Poisson qui saute", Color.white);
+                fish.raycastTarget = false;
+                fish.preserveAspect = true;
+                fish.gameObject.SetActive(false);
+                _jumpers.Add(new Jumper { Image = fish });
+            }
 
             for (int i = 0; i < SaveSlots.Count; i++)
             {
