@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d1726b683e3a34cb42cf076922ab57, type: 3}
+  m_Name: GrandeBarriere
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
+  _displayName: "Grande Barri\xE8re"
+  _description: "C\xF4te du Queensland : sable blanc, eucalyptus, mangrove, et le plus grand r\xE9cif de corail du monde au large."
+  _waterColor: {r: 0.1, g: 0.4, b: 0.66, a: 1}
+  _species:
+  - _species: {fileID: 11400000, guid: d24e32921fd8c8d41be5d553a7ec4abd, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 93d944936da46cf4897ee78e559eee75, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: c760d7b2fd895c346b2683ced2f4bbed, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 5ad436a3b90189c4491c990154c76539, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 780f4371e7a173741b55868dcbc2d970, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: ed3ee374dcc16d24fba5d79f0ee903a1, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 09d60590f0c277c47854440505cbdb8f, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 33ec84dd5e661834aa2ce87a8c178ed5, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 21693a62c963fa0438036db5e7f14a23, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: be05f8ad61c2d4648a5cc8de088d234a, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: d4278f7da6bfbd344a3073b53d921987, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 27a70a0ef2a80634cbbec3a859b08a3c, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: da066fb8b0a5def43927e2cfa1696ebd, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 48b13a29e26720b43b34363048d6e37b, type: 2}
+    _weight: 2
+  _mapPosition: {x: 0.88, y: 0.34}
+  _region: Queensland, Australie

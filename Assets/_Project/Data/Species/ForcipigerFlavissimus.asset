@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ForcipigerFlavissimus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: forcipiger-flavissimus
+  _commonName: Poisson-pincette jaune
+  _scientificName: Forcipiger flavissimus
+  _rarity: 0
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 12, y: 22}
+  _basePrice: 6
+  _placeholderColor: {r: 0.9647059, g: 0.8235294, b: 0.11764706, a: 1}
+  _description: "Son long museau en pince lui sert \xE0 attraper les petits animaux cach\xE9s dans les trous du corail."
+  _activeTime: 1
+  _sprite: {fileID: 21300000, guid: 103eb208057e94745a2f0b25dc50d6ef, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 53dd3341397329842b10f47be51e3c7b, type: 3}

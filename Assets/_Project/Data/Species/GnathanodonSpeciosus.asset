@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: GnathanodonSpeciosus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: gnathanodon-speciosus
+  _commonName: "Carangue dor\xE9e"
+  _scientificName: Gnathanodon speciosus
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 40, y: 120}
+  _basePrice: 18
+  _placeholderColor: {r: 0.9098039, g: 0.7607843, b: 0.22745098, a: 1}
+  _description: "Les jeunes nagent devant les requins et les m\xE9rous comme des pilotes. Les adultes perdent leurs bandes noires."
+  _activeTime: 1
+  _sprite: {fileID: 21300000, guid: a1d645a2f8f2fbc41825b7976ac0f70b, type: 3}
+  _miniSprite: {fileID: 21300000, guid: ac4425b5c12d5cc40998431c48759a19, type: 3}

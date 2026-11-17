@@ -122,6 +122,14 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   le sud. Vie (`BuildJapanLife`, `JapanLifeArt`) : canards mandarins, pétales de cerisier, grues du Japon. 14 espèces
   (table des espèces, dessins `JapanFishArt`, crabe-araignée géant dans `JapanCreatureArt`), thon rouge
   légendaire. Salle Japon à l'aquarium (voir Aquarium).
+- **Grande Barrière** (5e zone, région 4, Queensland) : `ReefGenerator` (terre au nord, plage de sable blanc, brousse,
+  crique de mangrove, bande de récif au large `Reef` ; testé), 90×64 cases, à `ReefGap` = 20 cases à l'est de la baie,
+  `MapSetup.BuildReef` (tuiles `ReefArt` : mer de corail, sable de silice, herbe sèche ; eucalyptus dans la brousse,
+  pandanus en haut de plage, palétuviers sur les berges de la crique, tous solides ; coraux vus à travers l'eau sur le
+  récif, dont le lagon clair suit les coraux). Vie (`BuildReefLife`, `ReefLifeArt`) : tortues de mer sous l'eau,
+  kangourous sur la plage, papillons Ulysse, pélicans. **Première zone faite uniquement par la table** : 14 espèces
+  dessinées par `FishArchetypes` (poisson-clown, barramundi, saumonée, requin à pointes noires, Napoléon, mérou géant
+  légendaire…). Pas encore de salle à l'aquarium.
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`, barque amarrée). Sur le ponton, **E** ouvre
   la **carte du monde** (←/→, Espace part, Échap ferme ; le sac ne s'ouvre pas sur le ponton) : fondu au noir, arrivée
