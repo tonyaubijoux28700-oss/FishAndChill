@@ -328,6 +328,9 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   - Nouvelle espèce = une ligne dans `Data/Especes.csv` (voir Table des espèces) ; pour un dessin plus fidèle, une fiche
     `DetailedFish` d'après l'anatomie réelle du poisson (dessin original, ne jamais recopier une illustration existante).
 - Pour remplacer un dessin par un vrai, utiliser un autre nom de fichier, sinon il sera écrasé.
+- Le poisson **frétille** sur la carte de prise : `UI/WigglingImage` (image découpée en tranches qui ondulent, tête
+  stable, queue qui bat, décalages au pixel du dessin) et `UI/WiggleMath` (testé : vague, sursaut toutes les 2,6 s avec
+  petit saut et bascule). Crustacés, reptiles et amphibiens ne font que se balancer.
 - Carte de prise : `CatchCard` (dessin du poisson, nom, nom scientifique, taille, rareté en couleur). Le dessin est
   **à l'échelle de la vraie taille de la prise** (`FishDisplayScale`, testé : échelle logarithmique de 8 cm = 32 % à
   150 cm = toute la largeur, proportions gardées, hauteur du cadre jamais dépassée). Même échelle dans l'index (cases et fiche),

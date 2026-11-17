@@ -1,4 +1,4 @@
-using FishAndChill.Collection;
+﻿using FishAndChill.Collection;
 using FishAndChill.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,7 +22,8 @@ namespace FishAndChill.Fishing
         private readonly Image _glow;
         private float _sideScale = 1f;
         private readonly Text _title;
-        private readonly Image _fish;
+        private readonly UI.WigglingImage _fish;
+        private bool _wiggles;
         private readonly RectTransform _fishRect;
         private static readonly Vector2 FishBox = new Vector2(560f, 210f);
         private readonly Text _name;
@@ -59,8 +60,11 @@ namespace FishAndChill.Fishing
             // Fond d'eau et poisson.
             Image backdrop = UiFactory.Sliced(_panel, "Fond d'eau", skin != null ? skin.WaterBackdrop : null, skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
             UiFactory.Center(backdrop.rectTransform, new Vector2(0f, 128f), new Vector2(620f, 262f));
-            _fish = UiFactory.Plain(backdrop.rectTransform, "Poisson", Color.white);
-            _fish.preserveAspect = true;
+            // Le poisson frétille : son dessin ondule, la queue bat (WigglingImage).
+            var fishObject = new GameObject("Poisson", typeof(RectTransform), typeof(UI.WigglingImage));
+            fishObject.transform.SetParent(backdrop.rectTransform, false);
+            _fish = fishObject.GetComponent<UI.WigglingImage>();
+            _fish.raycastTarget = false;
             _fishRect = _fish.rectTransform;
             UiFactory.Center(_fishRect, Vector2.zero, FishBox);
 
@@ -114,6 +118,7 @@ namespace FishAndChill.Fishing
             _glowColor.a = GlowStrength(species.Rarity);
 
             _fish.sprite = species.Sprite;
+            _wiggles = species.Kind == CreatureKind.Fish && species.Sprite != null;
             _fish.color = species.Sprite != null ? Color.white : species.PlaceholderColor;
             // Taille du dessin selon la vraie taille de la prise : une ablette paraît petite, une carangue remplit la carte.
             Vector2 pixels = species.Sprite != null ? species.Sprite.rect.size : new Vector2(2f, 1f);
@@ -184,8 +189,13 @@ namespace FishAndChill.Fishing
             float overshoot = 1f + Mathf.Sin(t * Mathf.PI) * 0.10f;
             _panel.localScale = Vector3.one * Mathf.Lerp(0.6f, 1f, t) * overshoot * _sideScale;
 
-            _fishRect.anchoredPosition = new Vector2(Mathf.Sin(_age * 1.3f) * 8f, Mathf.Sin(_age * 3f) * 6f);
-            _fishRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_age * 5f) * 2.5f);
+            // Nage sur place ; de temps en temps, un sursaut : coup de queue, petit saut et bascule.
+            float flop = _wiggles ? UI.WiggleMath.Flop(_age) : 0f;
+            _fishRect.anchoredPosition = new Vector2(Mathf.Sin(_age * 1.3f) * 8f, Mathf.Sin(_age * 3f) * 6f + flop * 24f);
+            _fishRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_age * 5f) * 2.5f + flop * Mathf.Sin(_age * 26f) * 7f);
+            _fish.Phase = _age * (9f + flop * 10f);
+            _fish.Amplitude = _wiggles ? 1.4f + flop * 3.5f : 0f;
+            _fish.Refresh();
 
             Color glow = _glowColor;
             glow.a *= 0.75f + 0.25f * Mathf.Sin(_age * 2.5f);
