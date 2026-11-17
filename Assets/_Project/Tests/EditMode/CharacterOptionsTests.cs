@@ -98,7 +98,7 @@ namespace FishAndChill.Tests
                         {
                             Assert.That(image.GetLength(0), Is.EqualTo(CharacterPainter.Width));
                             Assert.That(image.GetLength(1), Is.EqualTo(CharacterPainter.Height));
-                            Assert.That(PixelShading.IsFilled(image, 8, 12), Is.True, "la tête est dessinée");
+                            Assert.That(PixelShading.IsFilled(image, 16, 30), Is.True, "la tête est dessinée");
                         }
                     }
                 }
@@ -111,8 +111,8 @@ namespace FishAndChill.Tests
             Color[,] straw = CharacterPainter.Front(new CharacterLook(), 0, false);
             Color[,] cap = CharacterPainter.Front(new CharacterLook { Hat = 2 }, 0, false);
             Color[,] red = CharacterPainter.Front(new CharacterLook { TopColor = 1 }, 0, false);
-            Assert.That(cap[2, 17], Is.Not.EqualTo(straw[2, 17]), "chapeau différent");
-            Assert.That(red[4, 7], Is.Not.EqualTo(straw[4, 7]), "haut d'une autre couleur");
+            Assert.That(cap[3, 37], Is.Not.EqualTo(straw[3, 37]), "chapeau différent");
+            Assert.That(red[12, 17], Is.Not.EqualTo(straw[12, 17]), "haut d'une autre couleur");
         }
     }
 }

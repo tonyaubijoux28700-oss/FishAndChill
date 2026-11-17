@@ -1419,7 +1419,7 @@ namespace FishAndChill.Editor
             Sprite exterior = PixelArt.Save($"{folder}/Boutique.png", ShopArt.Exterior(), TileArt.Size, ShopArt.ExteriorPivot);
             Sprite interior = PixelArt.Save($"{folder}/Boutique_Interieur.png", ShopArt.Interior(), TileArt.Size, Vector2.zero);
             Sprite counter = PixelArt.Save($"{folder}/Boutique_Comptoir.png", ShopArt.Counter(), TileArt.Size, ShopArt.CounterPivot);
-            Sprite merchant = PixelArt.Save("Assets/_Project/Art/Characters/Marchand.png", ShopArt.Merchant(), TileArt.Size, CharacterArt.Pivot);
+            Sprite merchant = PixelArt.Save("Assets/_Project/Art/Characters/Marchand.png", ShopArt.Merchant(), FishAndChill.Player.CharacterPainter.PixelsPerUnit, CharacterArt.Pivot);
 
             GameObject go = EnsureObject("Boutique", null);
             go.transform.position = position;

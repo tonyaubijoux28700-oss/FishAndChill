@@ -330,8 +330,8 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
     sable (coquillage, étoile de mer), herbe (hibiscus, frangipanier), variantes choisies par `CellHash` ;
     cocotiers 32×40 sur la Tilemap `Décor` en tri individuel, même ordre que le joueur ;
   - tri par profondeur : Renderer2D en *Custom Axis* (0, 1, 0) — plus au nord = dessiné derrière ;
-  - pêcheur 16×24, pivot **aux pieds**, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator`.
-    Style chibi net : gabarits pixel par pixel (`Player/CharacterTemplates`, rendus par `CharacterPainter` : base,
+  - pêcheur **32×48 à 32 px par unité** (même taille à l'écran qu'une case de large et 1,5 de haut, pixels deux fois plus fins que le décor), pivot **aux pieds**, 4 directions × 3 images (`CharacterArt.cs` → `Art/Characters/`), animé par `PlayerAnimator`.
+    Style chibi détaillé : gabarits faits main en abrégé (`Player/CharacterTemplates`, « 6.10S », moitiés en miroir pour face et dos), rendus par `CharacterPainter` : relief calculé par pièce, base,
     ombre, lumière par rôle, contour sombre teinté, ombre au sol), aussi utilisés en jeu pour l'apparence choisie.
     Le marchand utilise le même style (`CharacterPainter.Merchant`, via `CharacterArt.Merchant` et `ShopArt.Merchant`) ;
   - poissons de profil, tête à droite, un par espèce (`FishArt.cs` → `Art/Fish/`), assignés au champ
