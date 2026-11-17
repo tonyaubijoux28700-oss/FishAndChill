@@ -201,6 +201,12 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   plantes qui ondulent (laminaires, herbiers / potamots, élodées ; derrière et devant les poissons), bulles, rayons de
   lumière, bancs d'anthias / de vairons, reflets d'eau au sol, méduses qui pulsent dans les colonnes. Ordres : fond -6,
   plantes du fond et reflets -5, poissons -4, plantes de devant, bulles, rayons -3, vitre -2, mobilier 10, méduses 11.
+  **Chaque salle a son caractère** (`AquariumFloorArt` pour les sols, `AquariumPropArt` pour le mobilier, disposition dans
+  `AquariumRoomLayout`, posé par `MapSetup` et rendu solide par `AquariumBuilding._furniture`) : lac en chalet (parquet en
+  vannerie, tapis rond tressé, barque exposée, bancs en rondins, sapins en pot), Amazonie en ponton (planches usées,
+  mousse, feuilles, pirogue, tronc moussu, monsteras et palmiers), Japon en jardin zen (gravier ratissé en cercles autour
+  des rochers, pas japonais, engawa devant le bassin, bonsaï, lanternes et bancs de pierre). Les bancs en fer ne
+  restent que dans le grand hall (`AquariumBuilding.Benches`).
   **Visiteurs mis de côté** pour l'instant : `World/AquariumVisitors` et `MapSetup.BuildVisitors` (pêcheur recoloré,
   promenade devant les bassins, +1 toutes les 6 espèces) existent mais ne sont plus appelés. La faune de la zone
   (`AmbientLife`) se cache à l'intérieur des bâtiments. Obstacles : `AquariumBuilding.JellyfishColumns` / `Benches`. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus

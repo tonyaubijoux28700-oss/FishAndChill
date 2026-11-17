@@ -49,12 +49,12 @@ namespace FishAndChill.World
         public static readonly Vector2[] Benches =
         {
             new Vector2(9f, 6.2f), new Vector2(21f, 6.2f),
-            new Vector2(LakeRoomX + 7f, 6.2f), new Vector2(LakeRoomX + 17f, 6.2f),
-            new Vector2(AmazonRoomX + 7f, 6.2f), new Vector2(AmazonRoomX + 17f, 6.2f),
-            new Vector2(JapanRoomX + 7f, 6.2f), new Vector2(JapanRoomX + 17f, 6.2f),
         };
 
         [SerializeField] private PlayerProgress _progress;
+
+        [SerializeField, Tooltip("Pied du mobilier des autres salles (barque, pirogue, rochers…), relatif au coin de l'intérieur : infranchissable.")]
+        private System.Collections.Generic.List<Rect> _furniture = new System.Collections.Generic.List<Rect>();
 
         [SerializeField, Tooltip("Optionnel : pas de dépôt pendant une partie de pêche.")]
         private FishingController _fishing;
@@ -117,6 +117,11 @@ namespace FishAndChill.World
             {
                 Vector2 foot = InteriorOrigin + spot;
                 map.AddObstacle(new Rect(foot.x - 1.9f, foot.y - 0.1f, 3.8f, 0.8f));
+            }
+
+            foreach (Rect item in _furniture)
+            {
+                map.AddObstacle(new Rect(InteriorOrigin + item.position, item.size));
             }
         }
 

@@ -49,22 +49,8 @@ namespace FishAndChill.Editor
         {
             var p = new Color[Width, Height];
 
-            // Tomettes ocre en losanges, lueur dorée du bassin vers le fond.
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < StandBottom; y++)
-                {
-                    bool joint = (x + y) % 16 == 0 || (x - y + 1600) % 16 == 0;
-                    Color c = ((x + y) / 16 + (x - y + 1600) / 16) % 2 == 0 ? C(0.66f, 0.38f, 0.24f) : C(0.60f, 0.34f, 0.22f);
-                    if (joint) c = C(0.40f, 0.22f, 0.14f);
-                    else if (Noise(x, y, 6) > 0.93f) c = DetailedFish.Shade(c, 0.9f);
-                    float glow = Mathf.InverseLerp(100f, StandBottom, y);
-                    c = Color.Lerp(c, C(0.86f, 0.62f, 0.30f), Mathf.Round(glow * 4f) / 4f * 0.25f);
-                    p[x, y] = c;
-                }
-            }
-
-            DrawRug(p, 128, 36, 320, 120);
+            // Ponton de planches usées, mousse et feuilles mortes.
+            AquariumFloorArt.Amazon(p);
 
             // Mur du fond vert sombre couvert de grandes feuilles découpées.
             for (int x = Room; x < Width; x++)

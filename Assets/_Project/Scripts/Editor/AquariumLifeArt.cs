@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 
 namespace FishAndChill.Editor
@@ -54,25 +54,8 @@ namespace FishAndChill.Editor
         {
             var p = new Color[LakeWidth, LakeHeight];
 
-            // Parquet en lames, joints décalés, tapis vert au milieu.
-            for (int x = 0; x < LakeWidth; x++)
-            {
-                for (int y = 0; y < StandBottom; y++)
-                {
-                    int row = y / 8;
-                    int joint = (x + row * 37) % 64;
-                    Color c = row % 2 == 0 ? C(0.70f, 0.52f, 0.34f) : C(0.65f, 0.47f, 0.30f);
-                    if (y % 8 == 0 || joint == 0) c = C(0.42f, 0.29f, 0.17f);
-                    else if (Noise(x, y, 5) > 0.92f) c = DetailedFish.Shade(c, 0.9f);
-
-                    // Lueur verte du bassin sur le sol.
-                    float glow = Mathf.InverseLerp(100f, StandBottom, y);
-                    c = Color.Lerp(c, C(0.50f, 0.78f, 0.66f), Mathf.Round(glow * 4f) / 4f * 0.3f);
-                    p[x, y] = c;
-                }
-            }
-
-            DrawRug(p, 128, 36, 320, 120);
+            // Parquet en vannerie de chêne, bordure en noyer, tapis rond tressé sous la barque.
+            AquariumFloorArt.Lake(p);
 
             // Mur du fond en lambris vertical, poutre en haut.
             for (int x = Room; x < LakeWidth; x++)

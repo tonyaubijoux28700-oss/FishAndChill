@@ -1351,6 +1351,42 @@ namespace FishAndChill.Editor
                 SetSprite(item, bench, 10);
             }
 
+            // Mobilier propre à chaque salle (barque et rondins au lac, pirogue et plantes en Amazonie, jardin zen au Japon).
+            var furniture = new List<Rect>();
+            Transform roomTransform = room.transform;
+            void Furnish(string roomName, AquariumRoomLayout.Prop[] props, float roomX)
+            {
+                for (int i = 0; i < props.Length; i++)
+                {
+                    AquariumRoomLayout.Prop prop = props[i];
+                    string file = $"{folder}/Aquarium/Meuble_{roomName}_{i + 1}.png";
+                    Sprite sprite = PixelArt.Save(file, prop.Draw(), TileArt.Size, new Vector2(0.5f, 0f));
+                    GameObject item = EnsureObject($"{prop.Name} ({roomName} {i + 1})", roomTransform);
+                    item.transform.position = interiorOrigin + new Vector2(roomX, 0f) + prop.Foot;
+                    SetSprite(item, sprite, 10);
+                    furniture.Add(new Rect(roomX + prop.Foot.x - prop.Size.x * 0.5f, prop.Foot.y - 0.1f, prop.Size.x, prop.Size.y));
+                }
+            }
+
+            Furnish("Lac", AquariumRoomLayout.Lake, AquariumBuilding.LakeRoomX);
+            Furnish("Amazonie", AquariumRoomLayout.Amazon, AquariumBuilding.AmazonRoomX);
+            Furnish("Japon", AquariumRoomLayout.Japan, AquariumBuilding.JapanRoomX);
+            var furnitureSo = new SerializedObject(aquarium);
+            SerializedProperty furnitureList = furnitureSo.FindProperty("_furniture");
+            furnitureList.arraySize = furniture.Count;
+            for (int i = 0; i < furniture.Count; i++)
+            {
+                furnitureList.GetArrayElementAtIndex(i).rectValue = furniture[i];
+            }
+
+            furnitureSo.ApplyModifiedPropertiesWithoutUndo();
+            // Les anciens bancs des autres salles (il n'en reste que dans le grand hall).
+            for (int i = AquariumBuilding.Benches.Length; i < 8; i++)
+            {
+                Transform old = room.transform.Find($"Banc {i + 1}");
+                if (old != null) Object.DestroyImmediate(old.gameObject);
+            }
+
             // Un bassin par zone : les espèces du lagon dans le grand hall, celles du lac dans la salle du lac.
             var mahana = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/IleMahana.asset");
             var annecy = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/LacAnnecy.asset");

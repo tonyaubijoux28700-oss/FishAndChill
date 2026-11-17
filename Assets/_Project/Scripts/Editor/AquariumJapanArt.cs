@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FishAndChill.Editor
 {
@@ -47,25 +47,8 @@ namespace FishAndChill.Editor
         {
             var p = new Color[Width, Height];
 
-            // Tatamis 64×32 bordés de noir, posés en quinconce, trame de paille.
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < StandBottom; y++)
-                {
-                    int row = y / 32;
-                    int col = (x + (row % 2) * 32) / 64;
-                    int lx = (x + (row % 2) * 32) % 64;
-                    int ly = y % 32;
-                    bool border = ly < 2 || ly > 29;
-                    Color c = (col + row) % 2 == 0 ? C(0.78f, 0.76f, 0.52f) : C(0.74f, 0.72f, 0.48f);
-                    if (lx % 2 == 0) c = DetailedFish.Shade(c, 0.95f);
-                    if (border) c = C(0.14f, 0.12f, 0.10f);
-                    else if (lx == 0) c = C(0.60f, 0.58f, 0.38f);
-                    float glow = Mathf.InverseLerp(100f, StandBottom, y);
-                    c = Color.Lerp(c, C(0.60f, 0.80f, 0.90f), Mathf.Round(glow * 4f) / 4f * 0.22f);
-                    p[x, y] = c;
-                }
-            }
+            // Jardin zen : gravier ratissé, pas japonais, engawa de bois devant le bassin.
+            AquariumFloorArt.Japan(p);
 
             // Mur du fond en shōji : papier clair dans une grille de bois sombre.
             for (int x = Room; x < Width; x++)
