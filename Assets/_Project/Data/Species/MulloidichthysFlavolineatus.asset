@@ -26,7 +26,7 @@ MonoBehaviour:
   _fightStyle: 0
   _sizeRangeCm: {x: 15, y: 40}
   _basePrice: 7
-  _placeholderColor: {r: 0.92, g: 0.9, b: 0.76, a: 1}
+  _placeholderColor: {r: 0.92156863, g: 0.9019608, b: 0.7607843, a: 1}
   _description: Fouille le sable avec ses deux barbillons pour trouver vers et petits crabes.
   _activeTime: 0
   _sprite: {fileID: 21300000, guid: 6886444e59e1c6a4c86dba0b364a36c0, type: 3}

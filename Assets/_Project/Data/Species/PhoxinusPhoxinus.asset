@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PhoxinusPhoxinus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: phoxinus-phoxinus
+  _commonName: Vairon
+  _scientificName: Phoxinus phoxinus
+  _rarity: 0
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 5, y: 12}
+  _basePrice: 3
+  _placeholderColor: {r: 0.49019608, g: 0.5176471, b: 0.38039216, a: 1}
+  _description: "Petit poisson des eaux fra\xEEches qui vit en bancs serr\xE9s. Au printemps, le m\xE2le a le ventre rouge vif."
+  _activeTime: 1
+  _sprite: {fileID: 21300000, guid: 727ac7fbc42a8cc42a31a22be927c8cb, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 47d75d70a57ac914bb99ba288502b212, type: 3}

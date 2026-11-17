@@ -26,7 +26,7 @@ MonoBehaviour:
   _fightStyle: 3
   _sizeRangeCm: {x: 30, y: 75}
   _basePrice: 22
-  _placeholderColor: {r: 0.84, g: 0.8, b: 0.3, a: 1}
+  _placeholderColor: {r: 0.8392157, g: 0.8, b: 0.29803923, a: 1}
   _description: "Chasseur redoutable qui attaque tout ce qui bouge : le pr\xE9f\xE9r\xE9 des p\xEAcheurs sportifs d'Amazonie."
   _activeTime: 1
   _sprite: {fileID: 21300000, guid: 59ed092c2266b1848a45dab941d5082c, type: 3}

@@ -26,7 +26,7 @@ MonoBehaviour:
   _fightStyle: 4
   _sizeRangeCm: {x: 100, y: 370}
   _basePrice: 110
-  _placeholderColor: {r: 0.9, g: 0.46, b: 0.2, a: 1}
+  _placeholderColor: {r: 0.9019608, g: 0.45882353, b: 0.2, a: 1}
   _description: "Le plus grand crabe du monde : pr\xE8s de 4 m d'une patte \xE0 l'autre ! Il vit en profondeur et remonte la nuit."
   _activeTime: 2
   _sprite: {fileID: 21300000, guid: 1d53d99452734d7438adf7edfd607798, type: 3}

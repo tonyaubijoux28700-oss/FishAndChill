@@ -26,7 +26,7 @@ MonoBehaviour:
   _fightStyle: 4
   _sizeRangeCm: {x: 25, y: 55}
   _basePrice: 22
-  _placeholderColor: {r: 0.25, g: 0.3, b: 0.5, a: 1}
+  _placeholderColor: {r: 0.2509804, g: 0.29803923, b: 0.5019608, a: 1}
   _description: "M\xE9rou couvert de points bleus. Chasse \xE0 l'aff\xFBt au cr\xE9puscule, cach\xE9 dans les failles du r\xE9cif."
   _activeTime: 2
   _sprite: {fileID: 21300000, guid: 696d37eef3b06b8468f83ae529eece7a, type: 3}

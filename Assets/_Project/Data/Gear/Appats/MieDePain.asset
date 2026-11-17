@@ -18,14 +18,15 @@ MonoBehaviour:
   _price: 0
   _uses: 0
   _favorites:
+  - {fileID: 11400000, guid: 63e5b0a759afdf84a959767155eda352, type: 2}
   - {fileID: 11400000, guid: a2afba05d20072d439bfe4edf2e0f1d9, type: 2}
   - {fileID: 11400000, guid: 31b39e93ad1b64a418dbe8a38eadb377, type: 2}
   - {fileID: 11400000, guid: ba5d2ed0f8f611e40afcfc3562a46fea, type: 2}
   - {fileID: 11400000, guid: e9f31d6c2e0bd7144ae3adfcec811a7d, type: 2}
-  - {fileID: 11400000, guid: 63e5b0a759afdf84a959767155eda352, type: 2}
-  - {fileID: 11400000, guid: ab8ada1d1efa3144395144ca800de574, type: 2}
   - {fileID: 11400000, guid: 3521e6ff96eac6c4f82809f7c2c396d5, type: 2}
+  - {fileID: 11400000, guid: ab8ada1d1efa3144395144ca800de574, type: 2}
   - {fileID: 11400000, guid: 3d74f9dfddd37b04b9e0c405baa199eb, type: 2}
+  - {fileID: 11400000, guid: c901bad8e26b0ec4bb6322d923feac85, type: 2}
   _favoriteBonus: 3
   _rareBonus: 1
   _nightBonus: 1

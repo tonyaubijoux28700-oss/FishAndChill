@@ -26,7 +26,7 @@ MonoBehaviour:
   _fightStyle: 2
   _sizeRangeCm: {x: 25, y: 80}
   _basePrice: 20
-  _placeholderColor: {r: 0.94, g: 0.56, b: 0.52, a: 1}
+  _placeholderColor: {r: 0.9411765, g: 0.56078434, b: 0.52156866, a: 1}
   _description: "Le \xAB roi des poissons \xBB au Japon : sa couleur rouge porte bonheur, on le sert pour les f\xEAtes."
   _activeTime: 0
   _sprite: {fileID: 21300000, guid: 25ede37464fbf804582a23e7ecde13df, type: 3}

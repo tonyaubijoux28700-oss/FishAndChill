@@ -24,194 +24,8 @@ namespace FishAndChill.Editor
         private const string ScenePath = ScenesFolder + "/FishingPrototype.unity";
         private const string TemplateScenePath = "Assets/Scenes/SampleScene.unity";
 
-        private readonly struct SpeciesData
-        {
-            public readonly string Id;
-            public readonly string CommonName;
-            public readonly string ScientificName;
-            public readonly Rarity Rarity;
-            public readonly float Speed;
-            public readonly float ZoneWidth;
-            public readonly int Hits;
-            public readonly int Misses;
-            public readonly Vector2 SizeCm;
-            public readonly int Price;
-            public readonly Color Color;
-            public readonly float Weight;
-            public readonly CreatureKind Kind;
-            public readonly BodyShape Shape;
-
-            public SpeciesData(string id, string commonName, string scientificName, Rarity rarity,
-                float speed, float zoneWidth, int hits, int misses, Vector2 sizeCm, int price, Color color, float weight,
-                CreatureKind kind = CreatureKind.Fish, BodyShape shape = BodyShape.Fish)
-            {
-                Kind = kind;
-                Shape = shape;
-                Id = id;
-                CommonName = commonName;
-                ScientificName = scientificName;
-                Rarity = rarity;
-                Speed = speed;
-                ZoneWidth = zoneWidth;
-                Hits = hits;
-                Misses = misses;
-                SizeCm = sizeCm;
-                Price = price;
-                Color = color;
-                Weight = weight;
-            }
-        }
-
-        // Espèces réellement présentes dans le lac d'Annecy.
-        private static readonly SpeciesData[] AnnecySpecies =
-        {
-            new SpeciesData("rutilus-rutilus", "Gardon", "Rutilus rutilus", Rarity.Common,
-                0.8f, 0.30f, 2, 2, new Vector2(10f, 30f), 5, new Color(0.75f, 0.78f, 0.80f), 40f),
-            new SpeciesData("perca-fluviatilis", "Perche commune", "Perca fluviatilis", Rarity.Common,
-                1.0f, 0.25f, 3, 2, new Vector2(15f, 40f), 8, new Color(0.55f, 0.65f, 0.30f), 30f),
-            new SpeciesData("salmo-trutta", "Truite fario", "Salmo trutta", Rarity.Uncommon,
-                1.3f, 0.20f, 3, 2, new Vector2(25f, 60f), 20, new Color(0.65f, 0.50f, 0.35f), 15f),
-            new SpeciesData("esox-lucius", "Brochet", "Esox lucius", Rarity.Rare,
-                1.5f, 0.16f, 4, 2, new Vector2(45f, 120f), 45, new Color(0.35f, 0.45f, 0.25f), 10f),
-            new SpeciesData("salvelinus-umbla", "Omble chevalier", "Salvelinus umbla", Rarity.Epic,
-                1.8f, 0.12f, 4, 1, new Vector2(25f, 70f), 90, new Color(0.85f, 0.45f, 0.30f), 5f),
-            new SpeciesData("coregonus-lavaretus", "Lavaret", "Coregonus lavaretus", Rarity.Uncommon,
-                1.2f, 0.22f, 3, 2, new Vector2(30f, 55f), 18, new Color(0.75f, 0.80f, 0.84f), 15f),
-            new SpeciesData("alburnus-alburnus", "Ablette", "Alburnus alburnus", Rarity.Common,
-                0.7f, 0.32f, 2, 2, new Vector2(8f, 20f), 3, new Color(0.80f, 0.86f, 0.88f), 35f),
-            new SpeciesData("squalius-cephalus", "Chevesne", "Squalius cephalus", Rarity.Common,
-                1.0f, 0.26f, 3, 2, new Vector2(20f, 60f), 9, new Color(0.62f, 0.62f, 0.52f), 28f),
-            new SpeciesData("tinca-tinca", "Tanche", "Tinca tinca", Rarity.Uncommon,
-                1.0f, 0.24f, 3, 2, new Vector2(20f, 60f), 16, new Color(0.38f, 0.48f, 0.20f), 14f),
-            new SpeciesData("cyprinus-carpio", "Carpe commune", "Cyprinus carpio", Rarity.Rare,
-                1.4f, 0.18f, 4, 2, new Vector2(30f, 100f), 40, new Color(0.72f, 0.58f, 0.28f), 9f),
-            new SpeciesData("lota-lota", "Lotte", "Lota lota", Rarity.Epic,
-                1.6f, 0.14f, 4, 1, new Vector2(30f, 70f), 80, new Color(0.48f, 0.42f, 0.24f), 4f),
-
-            // Pas que des poissons : l'écrevisse signal (installée dans le lac) et la grenouille rieuse des rives.
-            new SpeciesData("pacifastacus-leniusculus", "Écrevisse signal", "Pacifastacus leniusculus", Rarity.Common,
-                0.9f, 0.26f, 2, 2, new Vector2(8f, 16f), 7, new Color(0.42f, 0.30f, 0.18f), 18f,
-                CreatureKind.Crustacean, BodyShape.Lobster),
-            new SpeciesData("pelophylax-ridibundus", "Grenouille rieuse", "Pelophylax ridibundus", Rarity.Uncommon,
-                1.1f, 0.22f, 3, 2, new Vector2(7f, 15f), 15, new Color(0.42f, 0.54f, 0.24f), 10f,
-                CreatureKind.Amphibian, BodyShape.Frog),
-        };
-
-        // Île Mahana (fictive, ambiance Polynésie) : vraies espèces de lagon et de récif de l'Indo-Pacifique,
-        // pêchables depuis le rivage.
-        private static readonly SpeciesData[] MahanaSpecies =
-        {
-            new SpeciesData("abudefduf-vaigiensis", "Sergent-major indo-pacifique", "Abudefduf vaigiensis", Rarity.Common,
-                0.8f, 0.30f, 2, 2, new Vector2(10f, 20f), 4, new Color(0.85f, 0.85f, 0.45f), 30f),
-            new SpeciesData("acanthurus-triostegus", "Chirurgien bagnard", "Acanthurus triostegus", Rarity.Common,
-                0.9f, 0.28f, 2, 2, new Vector2(12f, 27f), 6, new Color(0.80f, 0.85f, 0.75f), 25f),
-            new SpeciesData("scarus-psittacus", "Perroquet commun", "Scarus psittacus", Rarity.Uncommon,
-                1.1f, 0.24f, 3, 2, new Vector2(18f, 30f), 14, new Color(0.35f, 0.75f, 0.70f), 15f),
-            new SpeciesData("cephalopholis-argus", "Mérou paon", "Cephalopholis argus", Rarity.Uncommon,
-                1.2f, 0.22f, 3, 2, new Vector2(25f, 55f), 22, new Color(0.25f, 0.30f, 0.50f), 12f),
-            new SpeciesData("caranx-melampygus", "Carangue à points bleus", "Caranx melampygus", Rarity.Rare,
-                1.5f, 0.17f, 4, 2, new Vector2(40f, 100f), 45, new Color(0.40f, 0.60f, 0.85f), 8f),
-            new SpeciesData("albula-glossodonta", "Banane de mer", "Albula glossodonta", Rarity.Rare,
-                1.6f, 0.16f, 4, 2, new Vector2(40f, 90f), 50, new Color(0.85f, 0.88f, 0.92f), 5f),
-            new SpeciesData("sphyraena-barracuda", "Grand barracuda", "Sphyraena barracuda", Rarity.Epic,
-                1.9f, 0.13f, 4, 1, new Vector2(60f, 160f), 110, new Color(0.60f, 0.65f, 0.70f), 3f),
-            new SpeciesData("caranx-ignobilis", "Carangue géante", "Caranx ignobilis", Rarity.Legendary,
-                2.2f, 0.11f, 5, 1, new Vector2(60f, 170f), 250, new Color(0.30f, 0.32f, 0.38f), 2f),
-            new SpeciesData("chaetodon-auriga", "Poisson-papillon cocher", "Chaetodon auriga", Rarity.Common,
-                0.85f, 0.28f, 2, 2, new Vector2(12f, 23f), 6, new Color(0.96f, 0.90f, 0.60f), 25f),
-            new SpeciesData("mulloidichthys-flavolineatus", "Rouget-barbet à bande jaune", "Mulloidichthys flavolineatus", Rarity.Common,
-                0.9f, 0.27f, 2, 2, new Vector2(15f, 40f), 7, new Color(0.92f, 0.90f, 0.76f), 25f),
-            new SpeciesData("lutjanus-kasmira", "Vivaneau à raies bleues", "Lutjanus kasmira", Rarity.Uncommon,
-                1.1f, 0.23f, 3, 2, new Vector2(15f, 35f), 16, new Color(0.98f, 0.82f, 0.24f), 14f),
-            new SpeciesData("rhinecanthus-aculeatus", "Baliste Picasso", "Rhinecanthus aculeatus", Rarity.Uncommon,
-                1.2f, 0.22f, 3, 2, new Vector2(12f, 30f), 18, new Color(0.84f, 0.78f, 0.62f), 12f),
-            new SpeciesData("pterois-radiata", "Poisson-lion radié", "Pterois radiata", Rarity.Rare,
-                1.4f, 0.17f, 4, 2, new Vector2(12f, 24f), 40, new Color(0.60f, 0.22f, 0.16f), 7f),
-
-            // On ne pêche pas que des poissons : crustacés du lagon et des mangroves, et la tortue verte.
-            new SpeciesData("scylla-serrata", "Crabe de palétuvier", "Scylla serrata", Rarity.Uncommon,
-                1.0f, 0.22f, 3, 2, new Vector2(10f, 25f), 18, new Color(0.38f, 0.40f, 0.22f), 12f,
-                CreatureKind.Crustacean, BodyShape.Crab),
-            new SpeciesData("panulirus-versicolor", "Langouste porcelaine", "Panulirus versicolor", Rarity.Rare,
-                1.4f, 0.17f, 4, 2, new Vector2(20f, 40f), 55, new Color(0.13f, 0.42f, 0.50f), 6f,
-                CreatureKind.Crustacean, BodyShape.Lobster),
-            new SpeciesData("chelonia-mydas", "Tortue verte", "Chelonia mydas", Rarity.Epic,
-                1.6f, 0.14f, 5, 2, new Vector2(60f, 120f), 120, new Color(0.42f, 0.34f, 0.18f), 2f,
-                CreatureKind.Reptile, BodyShape.Turtle),
-        };
-
-        // Fleuve amazonien (Brésil) : vraies espèces du bassin de l'Amazone, des petits piranhas à l'arapaïma géant.
-        private static readonly SpeciesData[] AmazonSpecies =
-        {
-            new SpeciesData("pygocentrus-nattereri", "Piranha à ventre rouge", "Pygocentrus nattereri", Rarity.Common,
-                0.9f, 0.28f, 2, 2, new Vector2(15f, 33f), 6, new Color(0.70f, 0.72f, 0.70f), 32f),
-            new SpeciesData("astronotus-ocellatus", "Oscar", "Astronotus ocellatus", Rarity.Common,
-                0.85f, 0.28f, 2, 2, new Vector2(18f, 35f), 6, new Color(0.36f, 0.32f, 0.22f), 28f),
-            new SpeciesData("pterygoplichthys-pardalis", "Pléco léopard", "Pterygoplichthys pardalis", Rarity.Common,
-                0.8f, 0.30f, 2, 2, new Vector2(20f, 45f), 5, new Color(0.70f, 0.58f, 0.38f), 25f),
-            new SpeciesData("symphysodon-aequifasciatus", "Discus", "Symphysodon aequifasciatus", Rarity.Uncommon,
-                1.1f, 0.23f, 3, 2, new Vector2(12f, 20f), 16, new Color(0.70f, 0.40f, 0.22f), 14f),
-            new SpeciesData("cichla-ocellaris", "Tucunaré", "Cichla ocellaris", Rarity.Uncommon,
-                1.3f, 0.20f, 3, 2, new Vector2(30f, 75f), 22, new Color(0.84f, 0.80f, 0.30f), 13f),
-            new SpeciesData("colossoma-macropomum", "Tambaqui", "Colossoma macropomum", Rarity.Uncommon,
-                1.2f, 0.22f, 3, 2, new Vector2(40f, 100f), 20, new Color(0.62f, 0.58f, 0.30f), 12f),
-            new SpeciesData("osteoglossum-bicirrhosum", "Arowana argenté", "Osteoglossum bicirrhosum", Rarity.Rare,
-                1.5f, 0.17f, 4, 2, new Vector2(50f, 100f), 45, new Color(0.82f, 0.84f, 0.82f), 8f),
-            new SpeciesData("pseudoplatystoma-fasciatum", "Surubim", "Pseudoplatystoma fasciatum", Rarity.Rare,
-                1.4f, 0.17f, 4, 2, new Vector2(50f, 130f), 45, new Color(0.60f, 0.62f, 0.58f), 7f),
-            new SpeciesData("hydrolycus-scomberoides", "Payara", "Hydrolycus scomberoides", Rarity.Epic,
-                1.8f, 0.13f, 4, 1, new Vector2(40f, 100f), 90, new Color(0.84f, 0.86f, 0.88f), 4f),
-            new SpeciesData("phractocephalus-hemioliopterus", "Pirarara", "Phractocephalus hemioliopterus", Rarity.Epic,
-                1.6f, 0.14f, 5, 1, new Vector2(60f, 130f), 100, new Color(0.94f, 0.36f, 0.14f), 3f),
-            new SpeciesData("electrophorus-electricus", "Gymnote électrique", "Electrophorus electricus", Rarity.Epic,
-                1.7f, 0.13f, 4, 1, new Vector2(80f, 200f), 110, new Color(0.34f, 0.30f, 0.24f), 3f),
-            new SpeciesData("arapaima-gigas", "Arapaïma", "Arapaima gigas", Rarity.Legendary,
-                2.2f, 0.11f, 5, 1, new Vector2(150f, 300f), 260, new Color(0.80f, 0.20f, 0.14f), 2f),
-
-            // Pas que des poissons : la tortue matamata et la crevette d'Amazonie.
-            new SpeciesData("chelus-fimbriata", "Matamata", "Chelus fimbriata", Rarity.Rare,
-                1.3f, 0.18f, 4, 2, new Vector2(30f, 45f), 50, new Color(0.44f, 0.30f, 0.18f), 6f,
-                CreatureKind.Reptile, BodyShape.Turtle),
-            new SpeciesData("macrobrachium-amazonicum", "Crevette d'Amazonie", "Macrobrachium amazonicum", Rarity.Common,
-                0.9f, 0.27f, 2, 2, new Vector2(6f, 15f), 5, new Color(0.62f, 0.70f, 0.66f), 20f,
-                CreatureKind.Crustacean, BodyShape.Lobster),
-        };
-
-        // Baie de la péninsule d'Izu (Japon) : vraies espèces des côtes japonaises, pêchées depuis le rivage.
-        private static readonly SpeciesData[] JapanSpecies =
-        {
-            new SpeciesData("scomber-japonicus", "Maquereau du Pacifique", "Scomber japonicus", Rarity.Common,
-                0.9f, 0.28f, 2, 2, new Vector2(20f, 45f), 5, new Color(0.20f, 0.46f, 0.50f), 32f),
-            new SpeciesData("trachurus-japonicus", "Chinchard du Japon", "Trachurus japonicus", Rarity.Common,
-                0.85f, 0.29f, 2, 2, new Vector2(15f, 35f), 5, new Color(0.82f, 0.84f, 0.70f), 32f),
-            new SpeciesData("sebastes-inermis", "Sébaste japonais", "Sebastes inermis", Rarity.Common,
-                0.8f, 0.30f, 2, 2, new Vector2(15f, 30f), 6, new Color(0.50f, 0.44f, 0.36f), 25f),
-            new SpeciesData("sebastiscus-marmoratus", "Rascasse marbrée", "Sebastiscus marmoratus", Rarity.Common,
-                0.85f, 0.28f, 2, 2, new Vector2(15f, 30f), 7, new Color(0.64f, 0.30f, 0.20f), 22f),
-            new SpeciesData("pagrus-major", "Pagre japonais", "Pagrus major", Rarity.Uncommon,
-                1.2f, 0.22f, 3, 2, new Vector2(25f, 80f), 20, new Color(0.94f, 0.56f, 0.52f), 14f),
-            new SpeciesData("takifugu-rubripes", "Fugu tigre", "Takifugu rubripes", Rarity.Uncommon,
-                1.1f, 0.23f, 3, 2, new Vector2(25f, 70f), 22, new Color(0.36f, 0.36f, 0.38f), 12f),
-            new SpeciesData("acanthopagrus-schlegelii", "Pagre noir", "Acanthopagrus schlegelii", Rarity.Uncommon,
-                1.2f, 0.22f, 3, 2, new Vector2(25f, 50f), 18, new Color(0.58f, 0.62f, 0.64f), 13f),
-            new SpeciesData("anguilla-japonica", "Anguille du Japon", "Anguilla japonica", Rarity.Uncommon,
-                1.1f, 0.22f, 3, 2, new Vector2(40f, 90f), 20, new Color(0.38f, 0.40f, 0.24f), 11f),
-            new SpeciesData("lateolabrax-japonicus", "Bar japonais", "Lateolabrax japonicus", Rarity.Rare,
-                1.5f, 0.17f, 4, 2, new Vector2(40f, 100f), 45, new Color(0.80f, 0.84f, 0.84f), 8f),
-            new SpeciesData("seriola-quinqueradiata", "Sériole du Japon", "Seriola quinqueradiata", Rarity.Rare,
-                1.6f, 0.16f, 4, 2, new Vector2(50f, 120f), 50, new Color(0.74f, 0.80f, 0.80f), 7f),
-            new SpeciesData("oplegnathus-fasciatus", "Perroquet rayé", "Oplegnathus fasciatus", Rarity.Rare,
-                1.5f, 0.17f, 4, 2, new Vector2(30f, 60f), 50, new Color(0.86f, 0.86f, 0.82f), 7f),
-            new SpeciesData("epinephelus-bruneus", "Mérou kue", "Epinephelus bruneus", Rarity.Epic,
-                1.8f, 0.13f, 5, 1, new Vector2(50f, 130f), 100, new Color(0.56f, 0.44f, 0.40f), 3f),
-            new SpeciesData("thunnus-orientalis", "Thon rouge du Pacifique", "Thunnus orientalis", Rarity.Legendary,
-                2.3f, 0.10f, 5, 1, new Vector2(100f, 300f), 280, new Color(0.10f, 0.14f, 0.28f), 1.5f),
-
-            // Pas que des poissons : le plus grand crabe du monde.
-            new SpeciesData("macrocheira-kaempferi", "Crabe-araignée géant", "Macrocheira kaempferi", Rarity.Epic,
-                1.6f, 0.14f, 5, 1, new Vector2(100f, 370f), 110, new Color(0.90f, 0.46f, 0.20f), 3f,
-                CreatureKind.Crustacean, BodyShape.Crab),
-        };
+        /// <summary>La table des espèces : une ligne par espèce (voir <see cref="SpeciesTable"/>).</summary>
+        public const string SpeciesTablePath = Root + "/Data/Especes.csv";
 
         private static readonly Color MahanaWater = new Color(0.20f, 0.68f, 0.75f);
 
@@ -224,50 +38,66 @@ namespace FishAndChill.Editor
                 return;
             }
 
-            string zonePath = GenerateData();
+            string zonePath = GenerateData(out int speciesCount);
 
             AssetDatabase.SaveAssets();
             GenerateScene(zonePath);
             AssetDatabase.SaveAssets();
-            Debug.Log($"[FishAndChill] Prototype prêt : {ScenePath} (Île Mahana, {MahanaSpecies.Length} espèces).");
+            Debug.Log($"[FishAndChill] Prototype prêt : {ScenePath} ({speciesCount} espèces lues dans {SpeciesTablePath}).");
+        }
+
+        /// <summary>Lit la table des espèces ; les erreurs (valeur inconnue, nombre mal écrit…) sont signalées dans la console.</summary>
+        public static System.Collections.Generic.List<SpeciesRow> ReadSpeciesTable()
+        {
+            SpeciesTable.Result table = SpeciesTable.Parse(System.IO.File.ReadAllText(SpeciesTablePath, System.Text.Encoding.UTF8));
+            foreach (string error in table.Errors)
+            {
+                Debug.LogError($"[FishAndChill] Table des espèces, {error}");
+            }
+
+            return table.Rows;
         }
 
         /// <summary>Crée les zones et leurs espèces ; renvoie le chemin de la zone de départ (Île Mahana).</summary>
-        private static string GenerateData()
+        private static string GenerateData(out int speciesCount)
         {
             EnsureFolder(SpeciesFolder);
             EnsureFolder(ZonesFolder);
+            System.Collections.Generic.List<SpeciesRow> rows = ReadSpeciesTable();
+            speciesCount = rows.Count;
 
             // Deuxième zone : un lac alpin d'eau douce bien réel.
             CreateOrUpdateZone(LakeZonePath, "Lac d'Annecy",
-                "Lac alpin aux eaux très claires, entouré de prés et de forêts de sapins.", new Color(0.12f, 0.34f, 0.44f), AnnecySpecies,
+                "Lac alpin aux eaux très claires, entouré de prés et de forêts de sapins.", new Color(0.12f, 0.34f, 0.44f), rows,
                 new Vector2(0.52f, 0.74f), "Haute-Savoie, France");
 
             // Troisième zone : un tronçon du fleuve Amazone, en pleine jungle.
             CreateOrUpdateZone(AmazonZonePath, "Fleuve Amazone",
-                "Fleuve immense aux eaux brunes, bordé de jungle, de nénuphars géants et de dauphins roses.", new Color(0.46f, 0.36f, 0.20f), AmazonSpecies,
+                "Fleuve immense aux eaux brunes, bordé de jungle, de nénuphars géants et de dauphins roses.", new Color(0.46f, 0.36f, 0.20f), rows,
                 new Vector2(0.35f, 0.44f), "Amazonas, Brésil");
 
             // Quatrième zone : une baie de la côte japonaise.
             CreateOrUpdateZone(JapanZonePath, "Baie d'Izu",
-                "Baie de la côte japonaise : plage de sable gris, cerisiers en fleurs, pins tordus et torii dans l'eau.", new Color(0.10f, 0.36f, 0.56f), JapanSpecies,
+                "Baie de la côte japonaise : plage de sable gris, cerisiers en fleurs, pins tordus et torii dans l'eau.", new Color(0.10f, 0.36f, 0.56f), rows,
                 new Vector2(0.85f, 0.67f), "Shizuoka, Japon");
 
             string startPath = ZonesFolder + "/IleMahana.asset";
             CreateOrUpdateZone(startPath, "Île Mahana",
                 "Île tropicale fictive : lagon turquoise, plages de sable blanc et cocotiers. Point de départ de l'aventure.",
-                MahanaWater, MahanaSpecies,
-                new Vector2(0.12f, 0.36f), "Polynésie (île fictive)");
+                MahanaWater, rows, new Vector2(0.12f, 0.36f), "Polynésie (île fictive)");
             return startPath;
         }
 
-        private static void CreateOrUpdateZone(string path, string displayName, string description, Color water, SpeciesData[] speciesData,
-            Vector2 mapPosition, string region)
+        /// <summary>Une zone et ses espèces : les lignes de la table dont la colonne Zone porte le nom de l'asset.</summary>
+        private static void CreateOrUpdateZone(string path, string displayName, string description, Color water,
+            System.Collections.Generic.List<SpeciesRow> allRows, Vector2 mapPosition, string region)
         {
-            var species = new FishSpecies[speciesData.Length];
-            for (int i = 0; i < speciesData.Length; i++)
+            string zoneName = System.IO.Path.GetFileNameWithoutExtension(path);
+            var rows = allRows.FindAll(r => r.Zone == zoneName);
+            var species = new FishSpecies[rows.Count];
+            for (int i = 0; i < rows.Count; i++)
             {
-                species[i] = CreateOrUpdateSpecies(speciesData[i]);
+                species[i] = CreateOrUpdateSpecies(rows[i]);
             }
 
             var zone = LoadOrCreate<FishingZone>(path);
@@ -284,183 +114,14 @@ namespace FishAndChill.Editor
             {
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 entry.FindPropertyRelative("_species").objectReferenceValue = species[i];
-                entry.FindPropertyRelative("_weight").floatValue = speciesData[i].Weight;
+                entry.FindPropertyRelative("_weight").floatValue = rows[i].Weight;
             }
 
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(zone);
         }
 
-        /// <summary>
-        /// Espèces qui ne mordent que le jour ou la nuit, d'après leur comportement réel (les autres : à toute heure).
-        /// Le perroquet dort la nuit dans un cocon de mucus ; crabe, langouste et écrevisse sortent la nuit ;
-        /// le mérou paon chasse surtout au crépuscule ; le brochet et la perche chassent à vue, de jour.
-        /// </summary>
-        private static readonly System.Collections.Generic.Dictionary<string, ActiveTime> ActiveTimes =
-            new System.Collections.Generic.Dictionary<string, ActiveTime>
-            {
-                { "scarus-psittacus", ActiveTime.Day },
-                { "acanthurus-triostegus", ActiveTime.Day },
-                { "abudefduf-vaigiensis", ActiveTime.Day },
-                { "cephalopholis-argus", ActiveTime.Night },
-                { "scylla-serrata", ActiveTime.Night },
-                { "panulirus-versicolor", ActiveTime.Night },
-                { "esox-lucius", ActiveTime.Day },
-                { "perca-fluviatilis", ActiveTime.Day },
-                { "pacifastacus-leniusculus", ActiveTime.Night },
-                { "chaetodon-auriga", ActiveTime.Day },
-                { "rhinecanthus-aculeatus", ActiveTime.Day },
-                { "lutjanus-kasmira", ActiveTime.Night },
-                { "pterois-radiata", ActiveTime.Night },
-                { "alburnus-alburnus", ActiveTime.Day },
-                { "tinca-tinca", ActiveTime.Night },
-                { "lota-lota", ActiveTime.Night },
-                { "astronotus-ocellatus", ActiveTime.Day },
-                { "pterygoplichthys-pardalis", ActiveTime.Night },
-                { "symphysodon-aequifasciatus", ActiveTime.Day },
-                { "cichla-ocellaris", ActiveTime.Day },
-                { "pseudoplatystoma-fasciatum", ActiveTime.Night },
-                { "phractocephalus-hemioliopterus", ActiveTime.Night },
-                { "electrophorus-electricus", ActiveTime.Night },
-                { "chelus-fimbriata", ActiveTime.Night },
-                { "macrobrachium-amazonicum", ActiveTime.Night },
-                { "scomber-japonicus", ActiveTime.Day },
-                { "trachurus-japonicus", ActiveTime.Day },
-                { "sebastes-inermis", ActiveTime.Night },
-                { "sebastiscus-marmoratus", ActiveTime.Night },
-                { "lateolabrax-japonicus", ActiveTime.Night },
-                { "anguilla-japonica", ActiveTime.Night },
-                { "macrocheira-kaempferi", ActiveTime.Night },
-            };
-
-        /// <summary>
-        /// Façon de se battre une fois ferré, d'après le vrai comportement (les autres : calmes). Nerveux : petits
-        /// poissons vifs ; fuyants : ceux qui filent en longues courses ; rushs : chasseurs qui démarrent d'un coup, et
-        /// crustacés qui s'échappent d'un coup de queue ; lourds : gros poissons et créatures qui tirent vers le fond.
-        /// </summary>
-        private static readonly System.Collections.Generic.Dictionary<string, FightStyle> FightStyles =
-            new System.Collections.Generic.Dictionary<string, FightStyle>
-            {
-                { "abudefduf-vaigiensis", FightStyle.Nervous },
-                { "acanthurus-triostegus", FightStyle.Nervous },
-                { "chaetodon-auriga", FightStyle.Nervous },
-                { "scarus-psittacus", FightStyle.Drifting },
-                { "albula-glossodonta", FightStyle.Drifting },
-                { "lutjanus-kasmira", FightStyle.Drifting },
-                { "caranx-melampygus", FightStyle.Rusher },
-                { "sphyraena-barracuda", FightStyle.Rusher },
-                { "panulirus-versicolor", FightStyle.Rusher },
-                { "cephalopholis-argus", FightStyle.Heavy },
-                { "caranx-ignobilis", FightStyle.Heavy },
-                { "scylla-serrata", FightStyle.Heavy },
-                { "chelonia-mydas", FightStyle.Heavy },
-                { "perca-fluviatilis", FightStyle.Nervous },
-                { "alburnus-alburnus", FightStyle.Nervous },
-                { "pelophylax-ridibundus", FightStyle.Nervous },
-                { "salmo-trutta", FightStyle.Drifting },
-                { "salvelinus-umbla", FightStyle.Drifting },
-                { "squalius-cephalus", FightStyle.Drifting },
-                { "esox-lucius", FightStyle.Rusher },
-                { "pacifastacus-leniusculus", FightStyle.Rusher },
-                { "tinca-tinca", FightStyle.Heavy },
-                { "cyprinus-carpio", FightStyle.Heavy },
-                { "pygocentrus-nattereri", FightStyle.Nervous },
-                { "symphysodon-aequifasciatus", FightStyle.Nervous },
-                { "cichla-ocellaris", FightStyle.Rusher },
-                { "osteoglossum-bicirrhosum", FightStyle.Rusher },
-                { "hydrolycus-scomberoides", FightStyle.Rusher },
-                { "macrobrachium-amazonicum", FightStyle.Rusher },
-                { "electrophorus-electricus", FightStyle.Drifting },
-                { "colossoma-macropomum", FightStyle.Heavy },
-                { "pseudoplatystoma-fasciatum", FightStyle.Heavy },
-                { "phractocephalus-hemioliopterus", FightStyle.Heavy },
-                { "arapaima-gigas", FightStyle.Heavy },
-                { "chelus-fimbriata", FightStyle.Heavy },
-                { "scomber-japonicus", FightStyle.Nervous },
-                { "trachurus-japonicus", FightStyle.Nervous },
-                { "takifugu-rubripes", FightStyle.Nervous },
-                { "pagrus-major", FightStyle.Drifting },
-                { "acanthopagrus-schlegelii", FightStyle.Drifting },
-                { "anguilla-japonica", FightStyle.Drifting },
-                { "lateolabrax-japonicus", FightStyle.Rusher },
-                { "seriola-quinqueradiata", FightStyle.Rusher },
-                { "oplegnathus-fasciatus", FightStyle.Heavy },
-                { "epinephelus-bruneus", FightStyle.Heavy },
-                { "thunnus-orientalis", FightStyle.Heavy },
-                { "macrocheira-kaempferi", FightStyle.Heavy },
-            };
-
-        /// <summary>Une ou deux phrases vraies sur chaque espèce, affichées dans la fiche de l'index.</summary>
-        private static readonly System.Collections.Generic.Dictionary<string, string> Descriptions =
-            new System.Collections.Generic.Dictionary<string, string>
-            {
-                // Île Mahana
-                { "abudefduf-vaigiensis", "Vit en bancs près des récifs. Le mâle garde ses oeufs collés sur un rocher et les défend contre tous." },
-                { "acanthurus-triostegus", "Broute les algues en grands bancs. Ses rayures lui valent son surnom de « bagnard »." },
-                { "scarus-psittacus", "Croque le corail avec son bec et rejette du sable fin : une bonne part des plages vient de lui !" },
-                { "cephalopholis-argus", "Mérou couvert de points bleus. Chasse à l'affût au crépuscule, caché dans les failles du récif." },
-                { "caranx-melampygus", "Chasseur rapide aux reflets bleus. Il suit parfois les murènes pour attraper ce qu'elles délogent." },
-                { "albula-glossodonta", "Le « fantôme des flats » : très méfiant et d'une vitesse folle, le rêve des pêcheurs à la mouche." },
-                { "sphyraena-barracuda", "Longue torpille aux dents acérées. Il attaque d'un coup, attiré par tout ce qui brille." },
-                { "caranx-ignobilis", "La plus grande des carangues : elle peut dépasser 1,5 m et sauter sur les oiseaux de mer." },
-                { "chaetodon-auriga", "Vit en couple fidèle. La tache noire sur sa nageoire trompe les prédateurs, qui visent le mauvais côté." },
-                { "mulloidichthys-flavolineatus", "Fouille le sable avec ses deux barbillons pour trouver vers et petits crabes." },
-                { "lutjanus-kasmira", "Se repose en grands bancs le jour et part chasser la nuit sur le récif." },
-                { "rhinecanthus-aculeatus", "Son nom hawaïen, humuhumunukunukuapua'a, est l'un des plus longs du monde. Il grogne quand on l'attrape !" },
-                { "pterois-radiata", "Ses longues épines sont venimeuses. Il chasse la nuit en coinçant ses proies avec ses nageoires en éventail." },
-                { "scylla-serrata", "Vit dans la vase des mangroves. Ses pinces sont si puissantes qu'elles brisent les coquillages." },
-                { "panulirus-versicolor", "Langouste aux couleurs de porcelaine. Elle n'a pas de pinces et sort la nuit de son trou." },
-                { "chelonia-mydas", "Broute les herbiers du lagon. Elle revient pondre sur la plage où elle est née, des années après." },
-
-                // Lac d'Annecy
-                { "rutilus-rutilus", "Le poisson blanc le plus commun du lac. On le reconnaît à son oeil rouge." },
-                { "perca-fluviatilis", "Chasse en bandes près du bord. Les filets de perche sont la grande spécialité des lacs alpins." },
-                { "salmo-trutta", "Truite sauvage des eaux froides, piquetée de points rouges cerclés de blanc." },
-                { "esox-lucius", "Le grand prédateur du lac. Immobile dans les herbes, il fond sur sa proie en un éclair." },
-                { "salvelinus-umbla", "Poisson des eaux profondes et glacées. Son ventre devient rouge vif à la saison des amours." },
-                { "coregonus-lavaretus", "Vit en bancs au large, en pleine eau. Un des poissons les plus pêchés du lac d'Annecy." },
-                { "alburnus-alburnus", "Petit poisson argenté qui gobe les insectes en surface. Ses écailles servaient à fabriquer de fausses perles." },
-                { "squalius-cephalus", "Mange de tout, même des cerises tombées dans l'eau ! Très méfiant à l'approche du pêcheur." },
-                { "tinca-tinca", "Aime les fonds vaseux et la végétation. Son mucus passait autrefois pour soigner les autres poissons." },
-                { "cyprinus-carpio", "Peut vivre plus de 40 ans. Elle fouille la vase avec ses barbillons à la recherche de nourriture." },
-                { "lota-lota", "Le seul cousin de la morue en eau douce. Elle vit au fond, dans le froid, et ne sort que la nuit." },
-                { "pacifastacus-leniusculus", "Venue d'Amérique, elle a envahi le lac. Une tache claire à la jointure des pinces lui donne son nom." },
-                { "pelophylax-ridibundus", "Son chant ressemble à un rire moqueur. Elle passe l'hiver enfouie dans la vase." },
-
-                // Fleuve Amazone
-                { "pygocentrus-nattereri", "Chasse en bancs. Sa réputation est exagérée : il mange surtout des poissons faibles ou blessés et des restes." },
-                { "astronotus-ocellatus", "La tache en forme d'oeil sur sa queue trompe les prédateurs, qui attaquent le mauvais bout." },
-                { "pterygoplichthys-pardalis", "Couvert de plaques osseuses, il râpe les algues avec sa bouche en ventouse et sort la nuit." },
-                { "symphysodon-aequifasciatus", "Les parents nourrissent leurs petits avec un mucus qu'ils produisent sur leur peau." },
-                { "cichla-ocellaris", "Chasseur redoutable qui attaque tout ce qui bouge : le préféré des pêcheurs sportifs d'Amazonie." },
-                { "colossoma-macropomum", "Pendant les crues, il nage dans la forêt inondée et broie les fruits et les graines qui tombent des arbres." },
-                { "osteoglossum-bicirrhosum", "Le « singe d'eau » : il bondit hors de l'eau pour attraper insectes et petits oiseaux sur les branches." },
-                { "pseudoplatystoma-fasciatum", "Grand poisson-chat rayé comme un tigre. Il chasse la nuit en sentant ses proies avec ses barbillons." },
-                { "hydrolycus-scomberoides", "Le « poisson-vampire » : deux crocs de 10 cm sortent de sa mâchoire du bas pour embrocher ses proies." },
-                { "phractocephalus-hemioliopterus", "Énorme poisson-chat à la queue rouge vif. Il avale presque tout ce qui passe, même des fruits." },
-                { "electrophorus-electricus", "Pas une vraie anguille ! Il produit des décharges de plus de 600 volts et respire de l'air en surface." },
-                { "arapaima-gigas", "Un des plus grands poissons d'eau douce du monde. Il remonte respirer en surface toutes les 15 minutes." },
-                { "chelus-fimbriata", "Tortue camouflée en tas de feuilles mortes. Elle aspire les poissons d'un coup en ouvrant grand la bouche." },
-                { "macrobrachium-amazonicum", "Crevette d'eau douce aux pinces très longues. Elle sort la nuit fouiller le fond des berges." },
-
-                // Baie d'Izu
-                { "scomber-japonicus", "Nage en immenses bancs rapides près de la surface. Le saba grillé est un grand classique au Japon." },
-                { "trachurus-japonicus", "Une rangée de petites plaques osseuses court le long de son flanc. On le mange frit ou séché." },
-                { "sebastes-inermis", "Ses grands yeux lui servent à chasser la nuit. Il attend souvent tête en haut près des rochers." },
-                { "sebastiscus-marmoratus", "Rascasse des rochers aux épines venimeuses. Les femelles donnent naissance à des petits déjà formés." },
-                { "pagrus-major", "Le « roi des poissons » au Japon : sa couleur rouge porte bonheur, on le sert pour les fêtes." },
-                { "takifugu-rubripes", "Il se gonfle d'eau quand on le menace. Son foie contient un poison mortel : seuls des chefs diplômés le préparent." },
-                { "acanthopagrus-schlegelii", "Il naît mâle puis devient souvent femelle en grandissant. Très méfiant, il fouille les rochers du bord." },
-                { "anguilla-japonica", "Elle naît en plein océan, près des îles Mariannes, puis remonte les rivières du Japon." },
-                { "lateolabrax-japonicus", "Il change de nom en grandissant au Japon. Il chasse la nuit dans l'écume, près des rochers." },
-                { "seriola-quinqueradiata", "Chasseur des grands bancs. Lui aussi change de nom avec l'âge : on l'appelle buri quand il est adulte." },
-                { "oplegnathus-fasciatus", "Ses dents soudées en bec cassent les oursins et les coquillages. Ses bandes s'effacent avec l'âge." },
-                { "epinephelus-bruneus", "Grand mérou solitaire des rochers profonds, très rare et très recherché. Il peut vivre plus de 50 ans." },
-                { "thunnus-orientalis", "Un géant de 300 cm qui traverse le Pacifique. Son corps reste plus chaud que l'eau, comme le nôtre." },
-                { "macrocheira-kaempferi", "Le plus grand crabe du monde : près de 4 m d'une patte à l'autre ! Il vit en profondeur et remonte la nuit." },
-            };
-
-        private static FishSpecies CreateOrUpdateSpecies(SpeciesData data)
+        private static FishSpecies CreateOrUpdateSpecies(SpeciesRow data)
         {
             string fileName = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(data.Id.Replace('-', ' ')).Replace(" ", string.Empty);
             var asset = LoadOrCreate<FishSpecies>($"{SpeciesFolder}/{fileName}.asset");
@@ -479,11 +140,10 @@ namespace FishAndChill.Editor
             so.FindProperty("_sizeRangeCm").vector2Value = data.SizeCm;
             so.FindProperty("_basePrice").intValue = data.Price;
             so.FindProperty("_placeholderColor").colorValue = data.Color;
-            so.FindProperty("_description").stringValue = Descriptions.TryGetValue(data.Id, out string description) ? description : string.Empty;
-            so.FindProperty("_fightStyle").enumValueIndex = (int)(FightStyles.TryGetValue(data.Id, out FightStyle fight) ? fight : FightStyle.Calm);
-            so.FindProperty("_activeTime").enumValueIndex =
-                (int)(ActiveTimes.TryGetValue(data.Id, out ActiveTime time) ? time : ActiveTime.Always);
-            so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color);
+            so.FindProperty("_description").stringValue = data.Description;
+            so.FindProperty("_fightStyle").enumValueIndex = (int)data.Fight;
+            so.FindProperty("_activeTime").enumValueIndex = (int)data.Time;
+            so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color, data);
             so.FindProperty("_miniSprite").objectReferenceValue = FishArt.GenerateMini(data.Id);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(asset);

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: HopliasAimara
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: hoplias-aimara
+  _commonName: Aimara
+  _scientificName: Hoplias aimara
+  _rarity: 2
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 40, y: 100}
+  _basePrice: 45
+  _placeholderColor: {r: 0.3529412, g: 0.2901961, b: 0.20392157, a: 1}
+  _description: "Grand chasseur aux dents pointues qui guette ses proies dans les eaux calmes. Il ne l\xE2che jamais prise."
+  _activeTime: 2
+  _sprite: {fileID: 21300000, guid: dc5659dc48614aa45b2705dbf23b9130, type: 3}
+  _miniSprite: {fileID: 21300000, guid: e55e097e1a907894bbfaf550d506f034, type: 3}

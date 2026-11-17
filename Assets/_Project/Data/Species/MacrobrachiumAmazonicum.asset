@@ -26,7 +26,7 @@ MonoBehaviour:
   _fightStyle: 3
   _sizeRangeCm: {x: 6, y: 15}
   _basePrice: 5
-  _placeholderColor: {r: 0.62, g: 0.7, b: 0.66, a: 1}
+  _placeholderColor: {r: 0.61960787, g: 0.69803923, b: 0.65882355, a: 1}
   _description: "Crevette d'eau douce aux pinces tr\xE8s longues. Elle sort la nuit fouiller le fond des berges."
   _activeTime: 2
   _sprite: {fileID: 21300000, guid: ec1b0a6c71517b6449623447dc7e62de, type: 3}

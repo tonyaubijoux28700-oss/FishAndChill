@@ -44,5 +44,7 @@ MonoBehaviour:
     _weight: 6
   - _species: {fileID: 11400000, guid: da652abd81a6098449c7f52e0821e4e0, type: 2}
     _weight: 20
+  - _species: {fileID: 11400000, guid: 13902d79538d4224e89aa079220b4e9c, type: 2}
+    _weight: 7
   _mapPosition: {x: 0.35, y: 0.44}
   _region: "Amazonas, Br\xE9sil"

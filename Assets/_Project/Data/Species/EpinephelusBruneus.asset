@@ -26,7 +26,7 @@ MonoBehaviour:
   _fightStyle: 4
   _sizeRangeCm: {x: 50, y: 130}
   _basePrice: 100
-  _placeholderColor: {r: 0.56, g: 0.44, b: 0.4, a: 1}
+  _placeholderColor: {r: 0.56078434, g: 0.4392157, b: 0.4, a: 1}
   _description: "Grand m\xE9rou solitaire des rochers profonds, tr\xE8s rare et tr\xE8s recherch\xE9. Il peut vivre plus de 50 ans."
   _activeTime: 0
   _sprite: {fileID: 21300000, guid: 99e0636b35640ce4daf5e536e4b1e3a6, type: 3}

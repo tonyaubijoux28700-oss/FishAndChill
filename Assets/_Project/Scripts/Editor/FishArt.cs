@@ -123,7 +123,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Dessine le poisson et renvoie son sprite. Espèce inconnue : forme générique à sa couleur provisoire.</summary>
-        public static Sprite Generate(string speciesId, Color fallbackColor)
+        public static Sprite Generate(string speciesId, Color fallbackColor, FishAndChill.Collection.SpeciesRow row = null)
         {
             // Dessins détaillés faits sur mesure (plus grands que le format générique).
             if (speciesId == "esox-lucius")
@@ -137,7 +137,8 @@ namespace FishAndChill.Editor
                 return PixelArt.Save($"{Folder}/{speciesId}.png", creature, 16, new Vector2(0.5f, 0.5f));
             }
 
-            if (MahanaFishArt.TryGet(speciesId, out DetailedFish detailed) || AnnecyFishArt.TryGet(speciesId, out detailed) || ExtraFishArt.TryGet(speciesId, out detailed) || AmazonFishArt.TryGet(speciesId, out detailed) || JapanFishArt.TryGet(speciesId, out detailed))
+            if (MahanaFishArt.TryGet(speciesId, out DetailedFish detailed) || AnnecyFishArt.TryGet(speciesId, out detailed) || ExtraFishArt.TryGet(speciesId, out detailed) || AmazonFishArt.TryGet(speciesId, out detailed) || JapanFishArt.TryGet(speciesId, out detailed)
+                || FishArchetypes.TryBuild(row, out detailed)) // sans fiche à la main : dessin d'après la table
             {
                 return PixelArt.Save($"{Folder}/{speciesId}.png", detailed.Draw(), 16, new Vector2(0.5f, 0.5f));
             }

@@ -49,8 +49,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   (la zone glisse, `DriftSpeed`), `Rusher` (la zone saute loin toutes les 1,6-3 s, annoncée 0,45 s avant : zone qui
   clignote en rouge, puis secousse), `Heavy` (tension +0,12/s, -0,3 par réussite, +0,22 par raté ; pleine = ligne
   cassée, `QteFailReason.LineBroke` ; la canne ralentit la tension). Titre de la jauge selon le style (« Il est lourd ! »),
-  conseil au début (`FishingController.FightHint`), barre « Tension » entre les pastilles. Styles réglés par
-  `PrototypeSetup.FightStyles` d'après le vrai comportement (barracuda, brochet, crustacés : rushs ; carpe, tanche,
+  conseil au début (`FishingController.FightHint`), barre « Tension » entre les pastilles. Styles réglés dans la colonne Combat de la table des espèces d'après le vrai comportement (barracuda, brochet, crustacés : rushs ; carpe, tanche,
   carangue géante, mérou, crabe, tortue : lourds ; truites, banane de mer : fuyants ; petits poissons : nerveux).
 - **Touche rare** (`Fishing/RareBiteEffect`, sur l'objet du `FishingController`) : quand une espèce rare ou mieux mord,
   étincelles de la couleur de la rareté qui jaillissent du bouchon (7 / 14 / 18, deux gerbes pour une légendaire) ;
@@ -113,7 +112,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   à l'est du lac, construit par `MapSetup.BuildAmazon` (tuiles recolorées par `AmazonArt` : eau café au lait, vase rouge
   sombre, jungle ; grands arbres à contreforts et lianes, 2 verts, solides ; nénuphars géants Victoria ; fougères ;
   héliconias et orchidées). Vie (`BuildAmazonLife`, dessins `AmazonLifeArt`) : dauphins roses, caïmans, morphos, aras
-  avec leur ombre. 14 espèces (`PrototypeSetup.AmazonSpecies`) : 12 poissons (`AmazonFishArt` : piranha, oscar, pléco,
+  avec leur ombre. 14 espèces (table des espèces) : 12 poissons (`AmazonFishArt` : piranha, oscar, pléco,
   discus, tucunaré, tambaqui, arowana, surubim, payara, pirarara, gymnote électrique, arapaïma légendaire), matamata et
   crevette d'Amazonie (`AmazonCreatureArt`). Salle Amazonie à l'aquarium (voir Aquarium).
 - **Baie d'Izu** (4e zone, région 3, Japon) : `BayGenerator` (mer au sud qui s'enfonce en arrondi, plage de sable gris,
@@ -121,7 +120,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   profonde, sable volcanique, mousse et pétales ; cerisiers, pins noirs tordus et bambous solides ; lanternes de pierre
   solides nommées `Lampadaire_Toro`, donc allumées la nuit ; torii rouge dans l'eau). Ponton au fond de la baie, vers
   le sud. Vie (`BuildJapanLife`, `JapanLifeArt`) : canards mandarins, pétales de cerisier, grues du Japon. 14 espèces
-  (`PrototypeSetup.JapanSpecies`, dessins `JapanFishArt`, crabe-araignée géant dans `JapanCreatureArt`), thon rouge
+  (table des espèces, dessins `JapanFishArt`, crabe-araignée géant dans `JapanCreatureArt`), thon rouge
   légendaire. Salle Japon à l'aquarium (voir Aquarium).
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`, barque amarrée). Sur le ponton, **E** ouvre
@@ -221,7 +220,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   automatiquement dès qu'ils sont atteints, bandeau « Carnet — … +N pièces » même carnet fermé, clés « zone:palier »
   dans `PlayerProgress.ClaimedRewards` et `SaveData.Rewards`), tampon « COMPLET » à 100 %, grille 4×3 (dessins à
   l'échelle, silhouettes « ??? »). Page de droite : grand dessin, rareté, heure (soleil/lune), zone, **description
-  réelle** (`FishSpecies.Description`, textes dans `PrototypeSetup.Descriptions`), prises / record / taille, aquarium ;
+  réelle** (`FishSpecies.Description`, colonne Description de la table des espèces), prises / record / taille, aquarium ;
   pour une espèce inconnue, un **indice** (heure, rareté, taille). « Découverte » = déjà pêchée une fois (`CatchLog`).
   Logique dans `SpeciesIndex` et `CollectionRewards` (testées). La police n'a ni œ ni ā : les éviter dans les textes.
 - Le bouton Play lance toujours `FishingPrototype` (`PlayModeStartScene`), même si une autre scène est ouverte.
@@ -264,8 +263,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   l'eau) qui suit la caméra : posé sur l'eau libre visible la plus proche de `_moonOffset`, il glisse doucement.
   Les deux utilisent `_glowMaterial` = *Sprite-Unlit-Default* d'URP (brillent dans le noir).
   Assembly `FishAndChill` : références URP (`Universal.2D.Runtime` pour `Light2D`).
-- **Espèces de jour / de nuit** : `FishSpecies.ActiveTime` (`Always`, `Day` 6 h-20 h, `Night` 19 h-7 h), réglé par
-  `PrototypeSetup.ActiveTimes` d'après le vrai comportement (perroquet, chirurgien, sergent-major, brochet, perche le
+- **Espèces de jour / de nuit** : `FishSpecies.ActiveTime` (`Always`, `Day` 6 h-20 h, `Night` 19 h-7 h), réglé dans la colonne Heure de la table des espèces d'après le vrai comportement (perroquet, chirurgien, sergent-major, brochet, perche le
   jour ; mérou paon, crabe, langouste, écrevisse la nuit). Le tirage ignore les espèces inactives
   (`FishingController`), l'index affiche « Mord le jour / la nuit ». Calculs dans `DayCycleMath` (testés).
 
@@ -301,8 +299,8 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
     éclairé comme un volume rond (paliers nets, ombres froides, lumières chaudes, reflet), écailles en arcs,
     nageoires à rayons inclinés, pectorales translucides, contour sélectif teinté. Fiches des espèces de l'île dans
     `MahanaFishArt.cs`, Annecy dans `AnnecyFishArt.cs`, brochet dans `PikeArt.cs`, deuxième fournée dans `ExtraFishArt.cs`. Les autres espèces gardent le dessin simple 48×24.
-  - Nouvelle espèce = ajouter une fiche `DetailedFish` d'après l'anatomie réelle du poisson (dessin original,
-    ne jamais recopier une illustration existante).
+  - Nouvelle espèce = une ligne dans `Data/Especes.csv` (voir Table des espèces) ; pour un dessin plus fidèle, une fiche
+    `DetailedFish` d'après l'anatomie réelle du poisson (dessin original, ne jamais recopier une illustration existante).
 - Pour remplacer un dessin par un vrai, utiliser un autre nom de fichier, sinon il sera écrasé.
 - Carte de prise : `CatchCard` (dessin du poisson, nom, nom scientifique, taille, rareté en couleur). Le dessin est
   **à l'échelle de la vraie taille de la prise** (`FishDisplayScale`, testé : échelle logarithmique de 8 cm = 32 % à
@@ -318,6 +316,25 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   mettre le gras avec `UiFactory.Bold` (pas de faux gras sur une police pixel, il rend les chiffres illisibles).
   Pixelify Sans a été essayée et rejetée (illisible).
 - Tests : les espèces de test (`TestFish`) sont en `HideAndDontSave`, sinon Unity les décharge entre deux lancements.
+
+## Table des espèces (le cœur du jeu : il y en aura des centaines)
+
+- **Toutes les espèces sont dans `Assets/_Project/Data/Especes.csv`** : une ligne par espèce, séparateur `;`, s'ouvre
+  dans un tableur (Excel, LibreOffice). Lue par `Collection/SpeciesTable` (testé) → `SpeciesRow`, puis le menu de
+  génération crée les `FishSpecies`, remplit les zones (colonne Zone = nom de l'asset de zone : IleMahana, LacAnnecy,
+  FleuveAmazone, BaieJaponaise) et les appâts favoris (colonne Appats : mie, ver, crevette, leurre, lumineux, calmar).
+  Erreurs de la table (valeur inconnue, nombre mal écrit) affichées dans la console, la ligne est sautée.
+- Valeurs en français, sans souci des accents : Rarete (commune, peu commune, rare, épique, légendaire), Nature
+  (poisson, crustacé, reptile, amphibien), Forme (ombre sous l'eau : poisson, crabe, langouste, tortue, grenouille),
+  Combat (calme, nerveux, fuyant, rush, lourd), Heure (toujours, jour, nuit). Nombres avec virgule ou point.
+  Vitesse, LargeurZone, Reussites, Rates, Prix, Frequence vides = valeurs par défaut de la rareté (`SpeciesTable.Default…`).
+- **Dessin** : une fiche dessinée à la main dans le code (`MahanaFishArt`, `AnnecyFishArt`, `AmazonFishArt`, `JapanFishArt`,
+  `ExtraFishArt`, `PikeArt`, `CreatureArt`…) reste prioritaire. Sinon, colonne Dessin = silhouette (`FishArchetypes` :
+  fuseau, haut, allonge, serpent, rond, disque, poisson-chat) + couleurs `#RRVVBB` (Dos, Flancs, Ventre, Nageoires, Oeil),
+  Motif (bandes, points, lignes, marbre, ocelle) + CouleurMotif, Queue (fourchue, croissant, droite, ronde), Extras
+  (barbillons, dents, epines, pinnules, adipeuse). Les non-poissons ont besoin d'une fiche à la main.
+- **Nouvelle espèce = une ligne dans la table**, puis relancer le menu de génération. Exemples faits uniquement par la
+  table : poisson-ballon à taches blanches, vairon, aimara, murène japonaise.
 
 ## Conventions de code
 

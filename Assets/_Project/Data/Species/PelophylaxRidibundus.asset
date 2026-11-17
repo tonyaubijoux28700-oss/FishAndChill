@@ -26,7 +26,7 @@ MonoBehaviour:
   _fightStyle: 1
   _sizeRangeCm: {x: 7, y: 15}
   _basePrice: 15
-  _placeholderColor: {r: 0.42, g: 0.54, b: 0.24, a: 1}
+  _placeholderColor: {r: 0.41960785, g: 0.5411765, b: 0.23921569, a: 1}
   _description: "Son chant ressemble \xE0 un rire moqueur. Elle passe l'hiver enfouie dans la vase."
   _activeTime: 0
   _sprite: {fileID: 21300000, guid: 6a0275122b27820419e3d2852c69b655, type: 3}

@@ -18,14 +18,16 @@ MonoBehaviour:
   _price: 90
   _uses: 6
   _favorites:
+  - {fileID: 11400000, guid: 0e029bc22d4ad1342951b76179de42f3, type: 2}
+  - {fileID: 11400000, guid: 4bd1bc3d346f3614985bd5bcce87b3f4, type: 2}
   - {fileID: 11400000, guid: f9e130c52fab5304da835ea89eda9b98, type: 2}
   - {fileID: 11400000, guid: 425ae51231487f84baec4c7cf87a7db5, type: 2}
-  - {fileID: 11400000, guid: 4bd1bc3d346f3614985bd5bcce87b3f4, type: 2}
-  - {fileID: 11400000, guid: 0e029bc22d4ad1342951b76179de42f3, type: 2}
   - {fileID: 11400000, guid: 35a8ca66579f7e149a9d3c8b2d1ef337, type: 2}
   - {fileID: 11400000, guid: 925f53e9934866b429e6a45c89bbe28e, type: 2}
-  - {fileID: 11400000, guid: 8979b331b10bca745b9dade50a554136, type: 2}
   - {fileID: 11400000, guid: 718cfea9e9cab274ca9c32251902b502, type: 2}
+  - {fileID: 11400000, guid: 8979b331b10bca745b9dade50a554136, type: 2}
+  - {fileID: 11400000, guid: 13902d79538d4224e89aa079220b4e9c, type: 2}
+  - {fileID: 11400000, guid: 3cf87c85e8e593b40abe9cb2fe09d35f, type: 2}
   _favoriteBonus: 3
   _rareBonus: 2.2
   _nightBonus: 1

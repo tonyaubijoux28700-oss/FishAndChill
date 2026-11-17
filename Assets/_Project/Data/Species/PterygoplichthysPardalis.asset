@@ -26,7 +26,7 @@ MonoBehaviour:
   _fightStyle: 0
   _sizeRangeCm: {x: 20, y: 45}
   _basePrice: 5
-  _placeholderColor: {r: 0.7, g: 0.58, b: 0.38, a: 1}
+  _placeholderColor: {r: 0.69803923, g: 0.5803922, b: 0.38039216, a: 1}
   _description: "Couvert de plaques osseuses, il r\xE2pe les algues avec sa bouche en ventouse et sort la nuit."
   _activeTime: 2
   _sprite: {fileID: 21300000, guid: 9e21d19cab2558a46a0f2c2365644994, type: 3}
