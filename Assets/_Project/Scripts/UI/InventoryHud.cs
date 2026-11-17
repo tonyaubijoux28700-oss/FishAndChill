@@ -233,6 +233,12 @@ namespace FishAndChill.UI
                 return false;
             }
 
+            // Devant le lit, E fait dormir.
+            if (FishAndChill.World.HouseBuilding.PlayerAtBed)
+            {
+                return false;
+            }
+
             // Devant le bassin, E dépose les poissons.
             if (_aquarium != null && _aquarium.PlayerAtTank)
             {

@@ -204,14 +204,20 @@ namespace FishAndChill.Editor
 
             // L'aquarium, grand (12 cases de large, dôme compris), au milieu de l'île, avec beaucoup de terre autour.
             Vector2Int center = TownLayout.LandCentroid(terrain);
-            // La porte est 4 cases sous le centre du bâtiment (façade + dôme) : on vise le centre de l'île.
-            Vector2Int aquariumCell = FindBuildingSite(terrain, center + Vector2Int.down * 4, null, 0, halfWidth: 9, front: 8, back: 10, anyDirection: true);
+            // La porte juste sous le centre de l'île : le bâtiment (façade + dôme) est bien au milieu de la carte.
+            Vector2Int aquariumCell = FindBuildingSite(terrain, center + Vector2Int.down, null, 0, halfWidth: 9, front: 8, back: 10, anyDirection: true);
 
             // La boutique : dans les terres, près du point de départ, loin de l'aquarium.
             Vector2Int shopCell = FindBuildingSite(terrain, spawn, aquariumCell, 14);
 
+            // La maison du joueur : dans la grande prairie de l'ouest, au calme, loin de l'aquarium.
+            Vector2Int houseCell = FindBuildingSite(terrain, center + new Vector2Int(-24, 2), aquariumCell, 16, halfWidth: 5, front: 6, back: 7, anyDirection: true);
+
+            // Le phare : sur la pointe nord de l'île, face au large.
+            Vector2Int lighthouseCell = FindLighthouseSite(terrain);
+
             // Parvis, chemins pavés et décor autour des bâtiments.
-            TownLayout.Result town = TownLayout.Build(terrain, spawn, shopCell, aquariumCell, seed);
+            TownLayout.Result town = TownLayout.Build(terrain, spawn, shopCell, aquariumCell, houseCell, seed);
             FillDualLayer(pavingLayer, bounds, width, height, (x, y) => town.Paved[x, y], tiles.PavingEdges, tiles.PavingFull, seed + 5);
             // Pied de chaque élément de décor et tronc de chaque cocotier : infranchissables.
             var staticObstacles = new List<Rect>();
@@ -226,7 +232,9 @@ namespace FishAndChill.Editor
                     bool nearSpawn = Mathf.Abs(x - spawn.x) <= 3 && Mathf.Abs(y - spawn.y) <= 3;
                     bool nearShop = Mathf.Abs(x - shopCell.x) <= 5 && y >= shopCell.y - 4 && y <= shopCell.y + 5;
                     bool nearAquarium = Mathf.Abs(x - aquariumCell.x) <= 8 && y >= aquariumCell.y - 7 && y <= aquariumCell.y + 11;
-                    if (terrain[x, y] != TerrainType.Grass || nearSpawn || nearShop || nearAquarium || town.Reserved[x, y]
+                    bool nearHouse = Mathf.Abs(x - houseCell.x) <= 5 && y >= houseCell.y - 4 && y <= houseCell.y + 6;
+                    bool nearLighthouse = Mathf.Abs(x - lighthouseCell.x) <= 3 && Mathf.Abs(y - lighthouseCell.y) <= 3;
+                    if (terrain[x, y] != TerrainType.Grass || nearSpawn || nearShop || nearAquarium || nearHouse || nearLighthouse || town.Reserved[x, y]
                         || IslandGenerator.CellHash(x, y, seed + 1) > 0.045f)
                     {
                         continue;
@@ -242,6 +250,10 @@ namespace FishAndChill.Editor
                     decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tiles.Palm);
                 }
             }
+
+            // Pied du phare : infranchissable.
+            var lighthousePosition = new Vector3(bounds.xMin + lighthouseCell.x + 0.5f, bounds.yMin + lighthouseCell.y, 0f);
+            staticObstacles.Add(new Rect(lighthousePosition.x - 0.95f, lighthousePosition.y - 0.1f, 1.9f, 0.9f));
 
             // Ponton de l'île : sur la plage sud, à côté du point de départ, vers le large.
             DockInfo islandDock = BuildDock(mapObject.transform, "Ponton - Île Mahana", terrain, bounds, spawn, Vector2Int.down);
@@ -338,7 +350,13 @@ namespace FishAndChill.Editor
             var aquariumInterior = new Vector2(bounds.xMax + 40f, bounds.yMin);
             AquariumBuilding aquarium = BuildAquarium(aquariumPosition, aquariumInterior, worldMap, player.GetComponent<PlayerMovement>(), follow, controller);
 
-            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, shop, aquarium, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker });
+            // Maison du joueur : intérieur après celui de l'aquarium (qui s'arrête 174 cases après l'île), avant le lac.
+            var housePosition = new Vector3(bounds.xMin + houseCell.x + 0.5f, bounds.yMin + houseCell.y, 0f);
+            var houseInterior = new Vector2(bounds.xMax + 180f, bounds.yMin);
+            HouseBuilding house = BuildHouse(housePosition, houseInterior, worldMap, player.GetComponent<PlayerMovement>(), follow);
+            Lighthouse lighthouse = BuildLighthouse(lighthousePosition);
+
+            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, shop, aquarium, house.transform, lighthouse.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker });
             return new Buildings
             {
                 Shop = shop, Aquarium = aquarium,
@@ -1413,6 +1431,91 @@ namespace FishAndChill.Editor
             return spawn + Vector2Int.up * 6;
         }
 
+        /// <summary>
+        /// Case du phare : la terre la plus au nord, avec un peu de terre autour (2 cases de large) pour son socle.
+        /// </summary>
+        private static Vector2Int FindLighthouseSite(TerrainType[,] terrain)
+        {
+            int width = terrain.GetLength(0);
+            int height = terrain.GetLength(1);
+            bool Land(int x, int y) => x >= 0 && y >= 0 && x < width && y < height && !IslandGenerator.IsWater(terrain, x, y);
+            for (int y = height - 1; y >= 0; y--)
+            {
+                Vector2Int? best = null;
+                for (int x = 1; x < width - 1; x++)
+                {
+                    if (Land(x - 1, y) && Land(x, y) && Land(x + 1, y) && Land(x - 1, y - 1) && Land(x, y - 1) && Land(x + 1, y - 1) && Land(x, y - 2))
+                    {
+                        // Le plus au milieu de la pointe.
+                        if (!best.HasValue || Mathf.Abs(x - width / 2) < Mathf.Abs(best.Value.x - width / 2))
+                        {
+                            best = new Vector2Int(x, y - 1);
+                        }
+                    }
+                }
+
+                if (best.HasValue)
+                {
+                    return best.Value;
+                }
+            }
+
+            return new Vector2Int(width / 2, height / 2);
+        }
+
+        /// <summary>La maison du joueur : façade sur l'île, pièce intérieure (lit, table, coffre) hors de l'île.</summary>
+        private static HouseBuilding BuildHouse(Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow)
+        {
+            const string folder = "Assets/_Project/Art/Buildings";
+            Sprite exterior = PixelArt.Save($"{folder}/Maison.png", HouseArt.Exterior(), TileArt.Size, HouseArt.ExteriorPivot);
+            Sprite interior = PixelArt.Save($"{folder}/Maison_Interieur.png", HouseArt.Interior(), TileArt.Size, Vector2.zero);
+
+            GameObject go = EnsureObject("Maison", null);
+            go.transform.position = position;
+            SetSprite(go, exterior, 10);
+            var house = go.GetComponent<HouseBuilding>();
+            if (house == null)
+            {
+                house = go.AddComponent<HouseBuilding>();
+            }
+
+            var so = new SerializedObject(house);
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_camera").objectReferenceValue = follow;
+            so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
+            so.FindProperty("_footprint").vector2Value = new Vector2(5f, 2.6f);
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            GameObject room = EnsureObject("Maison - Intérieur", null);
+            room.transform.position = interiorOrigin;
+            GameObject floor = EnsureObject("Sol et murs", room.transform);
+            floor.transform.localPosition = Vector3.zero;
+            SetSprite(floor, interior, -5).spriteSortPoint = SpriteSortPoint.Center;
+            return house;
+        }
+
+        /// <summary>Le phare, au pied de sa case : la nuit, sa lanterne s'allume et un faisceau balaie la mer.</summary>
+        private static Lighthouse BuildLighthouse(Vector3 position)
+        {
+            Sprite sprite = PixelArt.Save("Assets/_Project/Art/Buildings/Phare.png", LighthouseArt.Exterior(), TileArt.Size, LighthouseArt.Pivot);
+            GameObject go = EnsureObject("Phare", null);
+            go.transform.position = position;
+            SetSprite(go, sprite, 10);
+            var lighthouse = go.GetComponent<Lighthouse>();
+            if (lighthouse == null)
+            {
+                lighthouse = go.AddComponent<Lighthouse>();
+            }
+
+            var so = new SerializedObject(lighthouse);
+            so.FindProperty("_lanternOffset").vector2Value = LighthouseArt.LanternOffset;
+            so.FindProperty("_glowMaterial").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Material>(
+                "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat");
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return lighthouse;
+        }
+
         private static ShopBuilding BuildShop(Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow)
         {
             const string folder = "Assets/_Project/Art/Buildings";
@@ -2110,7 +2213,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform[] docks)
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform house, Transform lighthouse, Transform[] docks)
         {
             Sprite shopIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeBoutique.png", ShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
             Sprite aquariumIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeAquarium.png", AquariumArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
@@ -2164,12 +2267,14 @@ namespace FishAndChill.Editor
             Transform paving = decorMap.transform.parent.Find("Rendu - Pavés");
             so.FindProperty("_paving").objectReferenceValue = paving != null ? paving.GetComponent<Tilemap>() : null;
             SerializedProperty landmarks = so.FindProperty("_landmarks");
-            landmarks.arraySize = 2 + docks.Length;
+            landmarks.arraySize = 4 + docks.Length;
             SetLandmark(landmarks.GetArrayElementAtIndex(0), "Boutique", shop.transform, shopIcon);
             SetLandmark(landmarks.GetArrayElementAtIndex(1), "Aquarium", aquarium.transform, aquariumIcon);
+            SetLandmark(landmarks.GetArrayElementAtIndex(2), "Maison", house, PixelArt.Save("Assets/_Project/Art/UI/IconeMaison.png", HouseArt.Icon(), TileArt.Size, Vector2.one * 0.5f));
+            SetLandmark(landmarks.GetArrayElementAtIndex(3), "Phare", lighthouse, PixelArt.Save("Assets/_Project/Art/UI/IconePhare.png", LighthouseArt.Icon(), TileArt.Size, Vector2.one * 0.5f));
             for (int i = 0; i < docks.Length; i++)
             {
-                SetLandmark(landmarks.GetArrayElementAtIndex(2 + i), "Ponton", docks[i], dockIcon);
+                SetLandmark(landmarks.GetArrayElementAtIndex(4 + i), "Ponton", docks[i], dockIcon);
             }
             so.FindProperty("_waterColor").colorValue = new Color(0.14f, 0.54f, 0.67f);
             so.FindProperty("_pixelsPerCell").intValue = 6;

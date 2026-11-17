@@ -145,7 +145,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   sauvegardée (`SaveData.Zone` = nom de l'asset de zone) et on y reprend au lancement.
   Nouvelle zone = une région de plus dans `MapSetup`, une destination dans `PrototypeSetup` (`SetDestination`), et la
   zone dans les `_zones` de l'index et du `SaveManager`.
-- **Aménagement** (`TownLayout`, appelé par `MapSetup`) : l'aquarium est au **milieu de l'île** (`LandCentroid`),
+- **Aménagement** (`TownLayout`, appelé par `MapSetup`) : l'aquarium est au **milieu de l'île** (`LandCentroid`, porte une case sous le centre),
   la boutique près du départ. Aménagement **ordonné** : parvis symétrique devant l'aquarium + allée centrale de 3 cases
   dans l'axe de la porte (lampadaires en paires), chemins **droits à angles droits** de 3 cases (`BestZPath` : un seul
   virage choisi pour éviter l'eau, les bâtiments et le sable) : plage → bout de l'allée, boutique → chemin principal
@@ -162,6 +162,14 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   `AquariumCollection` (un exemplaire par espèce), `Wallet` (pièces). Logique pure testée.
 - Chaque prise va dans le sac. Sac plein → état `FishingState.BagFull` : 1/2/3 relâche ce poisson du sac
   (`ChooseReplace`), Espace relâche le nouveau (`ChooseRelease`).
+- **Maison du joueur** (`World/HouseBuilding`, objet « Maison », dessins `HouseArt` : enduit à colombages, toit de tuiles,
+  volets bleus) : dans la prairie de l'ouest (`MapSetup.FindBuildingSite` autour du centre - 24 cases), cour pavée et
+  chemin jusqu'au chemin principal (`TownLayout`, `DecorateHouse`). Intérieur 9×7 (lit, tapis, table, coffre, fenêtre
+  sur la mer ; intérieur à `bounds.xMax + 180`). Devant le lit, **E** fait dormir jusqu'à 7 h, seulement de 18 h à 5 h
+  (`SleepRules`, testé) : fondu au noir et message ; le sac ne s'ouvre pas devant le lit (`HouseBuilding.PlayerAtBed`).
+- **Phare** (`World/Lighthouse`, objet « Phare », dessin `LighthouseArt`) : sur la pointe nord (`FindLighthouseSite`),
+  pied solide. La nuit (`DayCycleMath.LampLevel`), lanterne allumée (`Light2D`) et double faisceau qui tourne
+  (sprite créé en jeu, matériau *Sprite-Unlit-Default*). Maison et phare ont leur icône sur la minimap.
 - **Boutique** (`ShopBuilding`, objet « Boutique », placée dans les terres par `MapSetup.FindShopSite`) :
   infranchissable ; on entre en poussant vers la porte (`PlayerMovement.LastInput`), on sort en redescendant sur
   le paillasson. L'intérieur est une pièce hors de l'île (`_interiorOrigin`, sol ajouté via
