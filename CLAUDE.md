@@ -331,6 +331,9 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Le poisson **frétille** sur la carte de prise : `UI/WigglingImage` (image découpée en tranches qui ondulent, tête
   stable, queue qui bat, décalages au pixel du dessin) et `UI/WiggleMath` (testé : vague, sursaut toutes les 2,6 s avec
   petit saut et bascule). Crustacés, reptiles et amphibiens ne font que se balancer.
+- **Photo de prise** (nouvelle espèce seulement, `CatchCard.AnimateCelebration`) : flash d'appareil photo, bord blanc de
+  photo souvenir qui se redresse, tampon rouge « AJOUTÉE AU CARNET ! » qui s'abat en biais, 70 confettis qui tombent
+  en tournant (dont la couleur de la rareté).
 - Carte de prise : `CatchCard` (dessin du poisson, nom, nom scientifique, taille, rareté en couleur). Le dessin est
   **à l'échelle de la vraie taille de la prise** (`FishDisplayScale`, testé : échelle logarithmique de 8 cm = 32 % à
   150 cm = toute la largeur, proportions gardées, hauteur du cadre jamais dépassée). Même échelle dans l'index (cases et fiche),

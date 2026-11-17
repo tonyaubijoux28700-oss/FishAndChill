@@ -38,6 +38,20 @@ namespace FishAndChill.Fishing
         private Color _glowColor;
         private float _age;
 
+        // « Photo » d'une nouvelle espèce : flash, bord de photo, tampon, confettis.
+        private const int ConfettiCount = 70;
+        private readonly RectTransform _photo;
+        private readonly Image _photoFrame;
+        private readonly RectTransform _stamp;
+        private readonly Image _stampImage;
+        private readonly Text _stampText;
+        private readonly Image _flash;
+        private readonly System.Collections.Generic.List<Image> _confetti = new System.Collections.Generic.List<Image>();
+        private readonly Vector2[] _confettiVelocity = new Vector2[ConfettiCount];
+        private readonly float[] _confettiSpin = new float[ConfettiCount];
+        private readonly System.Random _random = new System.Random();
+        private bool _celebrate;
+
         public CatchCard(RectTransform canvas, UiSkin skin)
         {
             _root = new GameObject("Carte de prise", typeof(RectTransform));
@@ -58,8 +72,14 @@ namespace FishAndChill.Fishing
             UiFactory.Center(_panel, Vector2.zero, PanelSize);
 
             // Fond d'eau et poisson.
-            Image backdrop = UiFactory.Sliced(_panel, "Fond d'eau", skin != null ? skin.WaterBackdrop : null, skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
-            UiFactory.Center(backdrop.rectTransform, new Vector2(0f, 128f), new Vector2(620f, 262f));
+            _photo = new GameObject("Photo", typeof(RectTransform)).GetComponent<RectTransform>();
+            _photo.SetParent(_panel, false);
+            UiFactory.Center(_photo, new Vector2(0f, 128f), new Vector2(620f, 262f));
+            // Bord blanc de photo souvenir (nouvelle espèce seulement), un peu plus large en bas.
+            _photoFrame = UiFactory.Plain(_photo, "Bord de la photo", new Color(0.97f, 0.95f, 0.90f));
+            UiFactory.Center(_photoFrame.rectTransform, new Vector2(0f, -2f), new Vector2(648f, 286f));
+            Image backdrop = UiFactory.Sliced(_photo, "Fond d'eau", skin != null ? skin.WaterBackdrop : null, skin != null ? Color.white : new Color(0.2f, 0.55f, 0.65f));
+            UiFactory.Center(backdrop.rectTransform, Vector2.zero, new Vector2(620f, 262f));
             // Le poisson frétille : son dessin ondule, la queue bat (WigglingImage).
             var fishObject = new GameObject("Poisson", typeof(RectTransform), typeof(UI.WigglingImage));
             fishObject.transform.SetParent(backdrop.rectTransform, false);
@@ -70,6 +90,15 @@ namespace FishAndChill.Fishing
 
             // Bandeau du titre, à cheval sur le haut du cadre.
             _title = UiFactory.TitlePlaque(_panel, skin, string.Empty, 36, new Vector2(0f, 318f), new Vector2(460f, 72f), out _);
+
+            // Tampon « ajoutée au carnet », qui s'abat sur le coin de la photo.
+            _stampImage = UiFactory.Sliced(_panel, "Tampon", skin != null ? skin.Slot : null, new Color(0.80f, 0.16f, 0.12f, 0.95f));
+            _stamp = _stampImage.rectTransform;
+            UiFactory.Center(_stamp, new Vector2(196f, 228f), new Vector2(290f, 56f));
+            _stampText = UiFactory.Label(_stamp, "Texte", 24, TextAnchor.MiddleCenter, Color.white);
+            UiFactory.Stretch(_stampText.rectTransform);
+            UiFactory.Bold(_stampText);
+            _stampText.text = "AJOUTÉE AU CARNET !";
 
             _name = UiFactory.Label(_panel, "Nom", 42, TextAnchor.MiddleCenter, Color.white);
             UiFactory.Bold(_name);
@@ -95,6 +124,19 @@ namespace FishAndChill.Fishing
 
             _hint = UiFactory.Label(_panel, "Aide", 21, TextAnchor.MiddleCenter, Muted);
             UiFactory.Center(_hint.rectTransform, new Vector2(0f, -272f), new Vector2(640f, 30f));
+
+            // Confettis par-dessus la carte, puis le flash de l'appareil photo par-dessus tout.
+            for (int i = 0; i < ConfettiCount; i++)
+            {
+                Image piece = UiFactory.Plain(rootRect, "Confetti", Color.white);
+                piece.raycastTarget = false;
+                piece.rectTransform.sizeDelta = i % 3 == 0 ? new Vector2(10f, 10f) : new Vector2(14f, 7f);
+                _confetti.Add(piece);
+            }
+
+            _flash = UiFactory.Plain(rootRect, "Flash", new Color(1f, 1f, 1f, 0f));
+            _flash.raycastTarget = false;
+            UiFactory.Stretch(_flash.rectTransform);
 
             Hide();
         }
@@ -166,6 +208,22 @@ namespace FishAndChill.Fishing
                 _hint.color = Muted;
             }
 
+            // Nouvelle espèce : c'est une photo souvenir (flash, bord blanc, tampon, confettis).
+            _celebrate = isNew;
+            _photoFrame.gameObject.SetActive(isNew);
+            _stamp.gameObject.SetActive(isNew);
+            Color[] colors = { rarityColor, Gold, Color.white, new Color(0.96f, 0.46f, 0.64f), new Color(0.40f, 0.86f, 0.96f), new Color(0.56f, 0.90f, 0.46f) };
+            for (int i = 0; i < _confetti.Count; i++)
+            {
+                Image piece = _confetti[i];
+                piece.gameObject.SetActive(isNew);
+                piece.color = colors[i % colors.Length];
+                piece.rectTransform.anchoredPosition = new Vector2(Range(-940f, 940f), Range(560f, 900f));
+                piece.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Range(0f, 360f));
+                _confettiVelocity[i] = new Vector2(Range(-50f, 50f), Range(-260f, -120f));
+                _confettiSpin[i] = Range(-400f, 400f);
+            }
+
             _age = 0f;
             _root.SetActive(true);
             Animate(0f);
@@ -197,10 +255,53 @@ namespace FishAndChill.Fishing
             _fish.Amplitude = _wiggles ? 1.4f + flop * 3.5f : 0f;
             _fish.Refresh();
 
+            AnimateCelebration(deltaTime);
+
             Color glow = _glowColor;
             glow.a *= 0.75f + 0.25f * Mathf.Sin(_age * 2.5f);
             _glow.color = glow;
             _glow.rectTransform.localScale = Vector3.one * (Mathf.Lerp(0.6f, 1f, t) + 0.03f * Mathf.Sin(_age * 2.5f)) * _sideScale;
+        }
+
+        private float Range(float min, float max) => min + (float)_random.NextDouble() * (max - min);
+
+        /// <summary>Flash qui s'efface, photo qui se redresse, tampon qui s'abat, confettis qui tombent en tournant.</summary>
+        private void AnimateCelebration(float deltaTime)
+        {
+            if (!_celebrate)
+            {
+                SetAlpha(_flash, 0f);
+                _photo.localRotation = Quaternion.identity;
+                return;
+            }
+
+            SetAlpha(_flash, Mathf.Clamp01(0.85f - _age / 0.4f * 0.85f));
+            float settle = Mathf.SmoothStep(0f, 1f, _age / 0.6f);
+            _photo.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(-7f, -1.5f, settle));
+
+            float slam = Mathf.Clamp01((_age - 0.45f) / 0.16f);
+            _stamp.localScale = Vector3.one * (slam <= 0f ? 0f : Mathf.Lerp(2.4f, 1f, slam) + (slam >= 1f ? Mathf.Max(0f, 0.08f - (_age - 0.61f) * 0.4f) : 0f));
+            _stamp.localRotation = Quaternion.Euler(0f, 0f, -12f);
+            SetAlpha(_stampImage, Mathf.Clamp01(slam * 2f) * 0.95f);
+            SetAlpha(_stampText, Mathf.Clamp01(slam * 2f));
+
+            for (int i = 0; i < _confetti.Count; i++)
+            {
+                RectTransform piece = _confetti[i].rectTransform;
+                _confettiVelocity[i].y -= 50f * deltaTime;
+                Vector2 sway = new Vector2(Mathf.Sin(_age * 3f + i) * 40f * deltaTime, 0f);
+                piece.anchoredPosition += _confettiVelocity[i] * deltaTime + sway;
+                piece.localRotation = Quaternion.Euler(0f, 0f, piece.localEulerAngles.z + _confettiSpin[i] * deltaTime);
+                // Effet de papier qui tourne : la largeur bat.
+                piece.localScale = new Vector3(Mathf.Abs(Mathf.Cos(_age * 6f + i)) * 0.8f + 0.2f, 1f, 1f);
+            }
+        }
+
+        private static void SetAlpha(Graphic graphic, float alpha)
+        {
+            Color c = graphic.color;
+            c.a = alpha;
+            graphic.color = c;
         }
 
         private static float GlowStrength(Rarity rarity)
