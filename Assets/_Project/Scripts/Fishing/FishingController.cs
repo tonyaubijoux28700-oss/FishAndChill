@@ -95,6 +95,9 @@ namespace FishAndChill.Fishing
         /// <summary>Un poisson est attrapé : (poisson, nouvelle espèce ?, sac plein ?).</summary>
         public event Action<CaughtFish, bool, bool> FishCaught;
 
+        /// <summary>Ancien record battu par la dernière prise (0 = pas de nouveau record).</summary>
+        public float LastBeatenRecord { get; private set; }
+
         /// <summary>Une bouteille à la mer a été pêchée à la place d'un poisson : son message et les pièces trouvées dedans.</summary>
         public event Action<string, int> BottleFound;
 
@@ -487,6 +490,7 @@ namespace FishAndChill.Fishing
 
             FishSpecies species = HookedSpecies;
             var fish = new CaughtFish(species, HookedSizeCm);
+            LastBeatenRecord = CatchLog.WouldBeRecord(species.Id, HookedSizeCm) ? CatchLog.BestSizeOf(species.Id) : 0f;
             CatchLog.Register(species.Id, HookedSizeCm);
             bool isNew = IsNewForCollection(species.Id);
             string header = $"{species.CommonName} ({species.Rarity.DisplayName()}) — {HookedSizeCm:0} cm";

@@ -336,6 +336,9 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - Le poisson **frétille** sur la carte de prise : `UI/WigglingImage` (image découpée en tranches qui ondulent, tête
   stable, queue qui bat, décalages au pixel du dessin) et `UI/WiggleMath` (testé : vague, sursaut toutes les 2,6 s avec
   petit saut et bascule). Crustacés, reptiles et amphibiens ne font que se balancer.
+- **Nouveau record** (`CatchLog.WouldBeRecord`, testé ; `FishingController.LastBeatenRecord`) : une prise plus grande
+  que le record de l'espèce (pas la toute première) affiche « Nouveau record ! », la taille gagnée en doré (« 70 cm (+8) »),
+  l'ancien record, un tampon doré « NOUVEAU RECORD ! » et des confettis dorés (sans flash ni photo).
 - **Éclat sur les écailles** (`UI/ShineSweep`, calculs `UI/ShineMath` testés) : sur les espèces rares, épiques et
   légendaires déjà découvertes, une bande de lumière translucide en biais traverse le dessin (le dessin sert de `Mask`),
   toutes les 3 / 2,2 / 1,6 s ; étincelles dorées sur les légendaires. Carte de prise, fiche et cases du carnet.

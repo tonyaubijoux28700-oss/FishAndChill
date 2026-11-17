@@ -52,9 +52,12 @@ namespace FishAndChill.Fishing
         private readonly float[] _confettiSpin = new float[ConfettiCount];
         private readonly System.Random _random = new System.Random();
         private bool _celebrate;
+        private bool _photoMode;
+        private readonly UiSkin _skin;
 
         public CatchCard(RectTransform canvas, UiSkin skin)
         {
+            _skin = skin;
             _root = new GameObject("Carte de prise", typeof(RectTransform));
             var rootRect = _root.GetComponent<RectTransform>();
             rootRect.SetParent(canvas, false);
@@ -152,12 +155,14 @@ namespace FishAndChill.Fishing
         }
 
         /// <summary>Carte de prise avec l'état du sac (<paramref name="bagCount"/> &lt; 0 : pas de sac).</summary>
-        public void Show(CaughtFish fish, bool isNew, bool bagFull, int bagCount, int bagCapacity)
+        /// <param name="beatenRecord">Ancien record de l'espèce que cette prise vient de battre (0 = pas de record).</param>
+        public void Show(CaughtFish fish, bool isNew, bool bagFull, int bagCount, int bagCapacity, float beatenRecord = 0f)
         {
             FishSpecies species = fish.Species;
             Color rarityColor = species.Rarity.DisplayColor();
 
-            _title.text = isNew ? "Nouvelle espèce !" : "Belle prise !";
+            bool record = !isNew && beatenRecord > 0f;
+            _title.text = isNew ? "Nouvelle espèce !" : record ? "Nouveau record !" : "Belle prise !";
             _glowColor = rarityColor;
             _glowColor.a = GlowStrength(species.Rarity);
 
@@ -171,7 +176,7 @@ namespace FishAndChill.Fishing
 
             _name.text = species.CommonName;
             _scientificName.text = species.ScientificName;
-            _size.text = $"{fish.SizeCm:0} cm";
+            _size.text = record ? $"{fish.SizeCm:0} cm <color=#FFD64D>(+{Mathf.Max(1f, fish.SizeCm - beatenRecord):0})</color>" : $"{fish.SizeCm:0} cm";
             // Espaces : laissent la place à la pierre de rareté, à gauche dans la pastille.
             _rarity.text = $"     {species.Rarity.DisplayName()}";
             _rarity.color = rarityColor;
@@ -205,17 +210,28 @@ namespace FishAndChill.Fishing
             }
             else
             {
-                _footer.text = isNew ? $"Garde-la pour l'aquarium !{bag}" : $"Doublon : le marchand te l'achètera{bag}";
-                _footer.color = isNew ? Gold : Muted;
+                _footer.text = isNew ? $"Garde-la pour l'aquarium !{bag}"
+                    : record ? $"Ancien record : {beatenRecord:0} cm{bag}"
+                    : $"Doublon : le marchand te l'achètera{bag}";
+                _footer.color = isNew || record ? Gold : Muted;
                 _hint.text = "Espace pour continuer";
                 _hint.color = Muted;
             }
 
             // Nouvelle espèce : c'est une photo souvenir (flash, bord blanc, tampon, confettis).
-            _celebrate = isNew;
+            // Nouveau record : tampon doré et pluie de confettis dorés, sans le flash ni la photo.
+            _celebrate = isNew || record;
+            _photoMode = isNew;
             _photoFrame.gameObject.SetActive(isNew);
-            _stamp.gameObject.SetActive(isNew);
-            Color[] colors = { rarityColor, Gold, Color.white, new Color(0.96f, 0.46f, 0.64f), new Color(0.40f, 0.86f, 0.96f), new Color(0.56f, 0.90f, 0.46f) };
+            _stamp.gameObject.SetActive(_celebrate);
+            _stampText.text = isNew ? "AJOUTÉE AU CARNET !" : "NOUVEAU RECORD !";
+            _stampText.color = isNew ? Color.white : new Color(0.30f, 0.16f, 0.04f);
+            // Rouge sur la case creusée pour une nouvelle espèce, bandeau doré de la charte pour un record.
+            _stampImage.sprite = _skin == null ? null : isNew ? _skin.Slot : _skin.Plaque;
+            _stampImage.color = isNew ? new Color(0.80f, 0.16f, 0.12f, 0.95f) : Color.white;
+            Color[] colors = isNew
+                ? new[] { rarityColor, Gold, Color.white, new Color(0.96f, 0.46f, 0.64f), new Color(0.40f, 0.86f, 0.96f), new Color(0.56f, 0.90f, 0.46f) }
+                : new[] { Gold, new Color(1f, 0.94f, 0.62f), new Color(0.90f, 0.62f, 0.16f), Color.white };
             for (int i = 0; i < _confetti.Count; i++)
             {
                 Image piece = _confetti[i];
@@ -278,9 +294,9 @@ namespace FishAndChill.Fishing
                 return;
             }
 
-            SetAlpha(_flash, Mathf.Clamp01(0.85f - _age / 0.4f * 0.85f));
+            SetAlpha(_flash, _photoMode ? Mathf.Clamp01(0.85f - _age / 0.4f * 0.85f) : 0f);
             float settle = Mathf.SmoothStep(0f, 1f, _age / 0.6f);
-            _photo.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(-7f, -1.5f, settle));
+            _photo.localRotation = _photoMode ? Quaternion.Euler(0f, 0f, Mathf.Lerp(-7f, -1.5f, settle)) : Quaternion.identity;
 
             float slam = Mathf.Clamp01((_age - 0.45f) / 0.16f);
             _stamp.localScale = Vector3.one * (slam <= 0f ? 0f : Mathf.Lerp(2.4f, 1f, slam) + (slam >= 1f ? Mathf.Max(0f, 0.08f - (_age - 0.61f) * 0.4f) : 0f));

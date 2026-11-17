@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace FishAndChill.Collection
@@ -46,6 +46,12 @@ namespace FishAndChill.Collection
         }
 
         public bool IsDiscovered(string speciesId) => CountOf(speciesId) > 0;
+
+        /// <summary>
+        /// Cette taille battrait-elle le record de l'espèce ? Seulement si l'espèce a déjà été pêchée (la toute première
+        /// prise n'est pas un « record ») et si la nouvelle est strictement plus grande. À demander avant <see cref="Register"/>.
+        /// </summary>
+        public bool WouldBeRecord(string speciesId, float sizeCm) => CountOf(speciesId) > 0 && sizeCm > BestSizeOf(speciesId);
 
         /// <summary>Espèces déjà pêchées (pour la sauvegarde).</summary>
         public IEnumerable<string> SpeciesIds => _counts.Keys;
