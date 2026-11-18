@@ -29,7 +29,9 @@ namespace FishAndChill.World
         public const float JapanRoomX = AmazonRoomX + AmazonRoomWidth + PassageWidth;
         public const float ReefRoomWidth = 24f;
         public const float ReefRoomX = JapanRoomX + JapanRoomWidth + PassageWidth;
-        public const float InteriorWidth = ReefRoomX + ReefRoomWidth;
+        public const float AtollRoomWidth = 24f;
+        public const float AtollRoomX = ReefRoomX + ReefRoomWidth + PassageWidth;
+        public const float InteriorWidth = AtollRoomX + AtollRoomWidth;
         public const float InteriorHeight = 18f;
 
         /// <summary>Haut du sol : au-delà commencent les bassins.</summary>
@@ -45,6 +47,7 @@ namespace FishAndChill.World
         public static readonly Rect AmazonTank = new Rect(AmazonRoomX + 2.4f, 12.4f, AmazonRoomWidth - 4.8f, 4.4f);
         public static readonly Rect JapanTank = new Rect(JapanRoomX + 2.4f, 12.4f, JapanRoomWidth - 4.8f, 4.4f);
         public static readonly Rect ReefTank = new Rect(ReefRoomX + 2.4f, 12.4f, ReefRoomWidth - 4.8f, 4.4f);
+        public static readonly Rect AtollTank = new Rect(AtollRoomX + 2.4f, 12.4f, AtollRoomWidth - 4.8f, 4.4f);
 
         /// <summary>Colonnes à méduses (pied, relatif au coin de la salle).</summary>
         public static readonly Vector2[] JellyfishColumns = { new Vector2(4.5f, 3.2f), new Vector2(25.5f, 3.2f) };
@@ -93,7 +96,7 @@ namespace FishAndChill.World
 
                 return (feet.x >= HallTank.xMin && feet.x <= HallTank.xMax) || (feet.x >= LakeTank.xMin && feet.x <= LakeTank.xMax)
                     || (feet.x >= AmazonTank.xMin && feet.x <= AmazonTank.xMax) || (feet.x >= JapanTank.xMin && feet.x <= JapanTank.xMax)
-                    || (feet.x >= ReefTank.xMin && feet.x <= ReefTank.xMax);
+                    || (feet.x >= ReefTank.xMin && feet.x <= ReefTank.xMax) || (feet.x >= AtollTank.xMin && feet.x <= AtollTank.xMax);
             }
         }
 
@@ -114,6 +117,8 @@ namespace FishAndChill.World
             // Quatrième passage, au bout de la salle Japon, et la salle Grande Barrière.
             map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(ReefRoomX - PassageWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
             map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(ReefRoomX + 0.7f, 0.15f), new Vector2(ReefRoomWidth - 1.4f, FloorTop - 0.15f)));
+            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(AtollRoomX - PassageWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
+            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(AtollRoomX + 0.7f, 0.15f), new Vector2(AtollRoomWidth - 1.4f, FloorTop - 0.15f)));
 
             foreach (Vector2 spot in JellyfishColumns)
             {

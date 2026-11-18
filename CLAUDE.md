@@ -138,7 +138,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   sud du grand îlot, dans le lagon. Vie (`BuildAtollLife`) : raies et tortues sous l'eau, bernard-l'ermite, papillons,
   poissons volants, frégate. 14 espèces faites par la table (`Zone` = `Maldives` : chirurgien à poitrine blanche,
   poisson-ange empereur, idole des Maures, baliste titan, thon jaune, murène javanaise, requin-tigre légendaire…).
-  Pas encore de salle à l'aquarium.
+  **Salle Maldives** à l'aquarium (6e salle, `AquariumAtollArt`, `AtollTank`, mobilier `AquariumRoomLayout.Atoll`) :
+  plancher de teck avec deux panneaux de verre sur le lagon, murs en rotin, bassin d'océan profond (pâté de corail,
+  raie manta au loin, gorgones, anthias), modèle de dhoni, lanternes en rotin. L'intérieur de l'aquarium fait
+  maintenant 160 cases : `LakeGap` passe à 220, et l'intérieur de la maison est au-dessus de celui de la boutique.
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`, barque amarrée). Sur le ponton, **E** ouvre
   la **carte du monde** (←/→, Espace part, Échap ferme ; le sac ne s'ouvre pas sur le ponton) : fondu au noir, arrivée

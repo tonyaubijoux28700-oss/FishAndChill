@@ -60,6 +60,17 @@ namespace FishAndChill.Editor
             new Prop("Bouée", AquariumPropArt.Lifebuoy, 22.6f, 8.2f, 0.6f, 0.4f),
         };
 
+        /// <summary>Salle Maldives : dhoni en modèle devant le bassin, lanternes en rotin, palmiers, transat entre les vitres du sol.</summary>
+        public static readonly Prop[] Atoll =
+        {
+            new Prop("Dhoni", AquariumAtollArt.Dhoni, 12f, 8.3f, 4.6f, 0.6f),
+            new Prop("Lanterne en rotin", AquariumAtollArt.RattanLantern, 1.3f, 8.4f, 0.5f, 0.3f),
+            new Prop("Lanterne en rotin", AquariumAtollArt.RattanLantern, 22.7f, 8.4f, 0.5f, 0.3f),
+            new Prop("Palmier en pot", AquariumPropArt.PalmPot, 1.4f, 1.1f, 1.2f, 0.5f),
+            new Prop("Palmier en pot", AquariumPropArt.PalmPot, 22.6f, 1.1f, 1.2f, 0.5f),
+            new Prop("Transat", AquariumPropArt.DeckChair, 12f, 1.2f, 2.2f, 0.6f),
+        };
+
         /// <summary>Rochers du jardin zen : le sol dessine des cercles ratissés autour.</summary>
         public static readonly Vector2[] JapanRocks = { new Vector2(8f, 3.6f), new Vector2(10.2f, 3.0f), new Vector2(17.5f, 4.8f) };
 

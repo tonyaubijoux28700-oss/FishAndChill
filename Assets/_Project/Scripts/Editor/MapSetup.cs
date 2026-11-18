@@ -99,7 +99,7 @@ namespace FishAndChill.Editor
         };
 
         /// <summary>Écart (en cases) entre le bord est de l'île et le lac : la place des intérieurs de bâtiments.</summary>
-        private const int LakeGap = 200;
+        private const int LakeGap = 220;
 
         /// <summary>Le fleuve amazonien : un tronçon de fleuve qui serpente dans la jungle, à l'est du lac.</summary>
         private static readonly IslandGenerator.Settings RiverSettings = new IslandGenerator.Settings
@@ -373,7 +373,7 @@ namespace FishAndChill.Editor
 
             // Maison du joueur : intérieur après celui de l'aquarium (qui s'arrête 174 cases après l'île), avant le lac.
             var housePosition = new Vector3(bounds.xMin + houseCell.x + 0.5f, bounds.yMin + houseCell.y, 0f);
-            var houseInterior = new Vector2(bounds.xMax + 180f, bounds.yMin);
+            var houseInterior = new Vector2(bounds.xMax + 20f, bounds.yMin + 10f);   // au-dessus de celui de la boutique
             HouseBuilding house = BuildHouse(housePosition, houseInterior, worldMap, player.GetComponent<PlayerMovement>(), follow);
             Lighthouse lighthouse = BuildLighthouse(lighthousePosition);
 
@@ -1855,7 +1855,9 @@ namespace FishAndChill.Editor
 
             // Salle Grande Barrière, au bout de la salle Japon.
             float reefX = AquariumBuilding.ReefRoomX - AquariumBuilding.PassageWidth;
-            Sprite reefRoom = PixelArt.Save($"{folder}/Aquarium_SalleRecif.png", AquariumReefArt.ReefRoom(), TileArt.Size, Vector2.zero);
+            Color[,] reefRoomPixels = AquariumReefArt.ReefRoom();
+            AquariumAmazonArt.OpenRightPassage(reefRoomPixels); // passage vers la salle Maldives
+            Sprite reefRoom = PixelArt.Save($"{folder}/Aquarium_SalleRecif.png", reefRoomPixels, TileArt.Size, Vector2.zero);
             Sprite reefGlass = PixelArt.Save($"{folder}/Aquarium_SalleRecif_Vitre.png", AquariumReefArt.TankGlass(), TileArt.Size, Vector2.zero);
             GameObject reefObject = EnsureObject("Salle Grande Barrière", room.transform);
             reefObject.transform.localPosition = new Vector3(reefX, 0f, 0f);
@@ -1863,6 +1865,17 @@ namespace FishAndChill.Editor
             GameObject reefGlassObject = EnsureObject("Vitre du bassin Grande Barrière", room.transform);
             reefGlassObject.transform.localPosition = new Vector3(reefX, 0f, 0f);
             SetSprite(reefGlassObject, reefGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
+
+            // Salle Maldives, au bout de la salle Grande Barrière.
+            float atollX = AquariumBuilding.AtollRoomX - AquariumBuilding.PassageWidth;
+            Sprite atollRoom = PixelArt.Save($"{folder}/Aquarium_SalleMaldives.png", AquariumAtollArt.AtollRoom(), TileArt.Size, Vector2.zero);
+            Sprite atollGlass = PixelArt.Save($"{folder}/Aquarium_SalleMaldives_Vitre.png", AquariumAtollArt.TankGlass(), TileArt.Size, Vector2.zero);
+            GameObject atollObject = EnsureObject("Salle Maldives", room.transform);
+            atollObject.transform.localPosition = new Vector3(atollX, 0f, 0f);
+            SetSprite(atollObject, atollRoom, -6).spriteSortPoint = SpriteSortPoint.Center;
+            GameObject atollGlassObject = EnsureObject("Vitre du bassin Maldives", room.transform);
+            atollGlassObject.transform.localPosition = new Vector3(atollX, 0f, 0f);
+            SetSprite(atollGlassObject, atollGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
             // Mobilier de la salle (triés par les pieds, comme le joueur) : colonnes à méduses et bancs.
             Sprite column = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses.png", AquariumArt.JellyfishColumnV2(), TileArt.Size, new Vector2(0.5f, 0f));
@@ -1914,6 +1927,7 @@ namespace FishAndChill.Editor
             Furnish("Amazonie", AquariumRoomLayout.Amazon, AquariumBuilding.AmazonRoomX);
             Furnish("Japon", AquariumRoomLayout.Japan, AquariumBuilding.JapanRoomX);
             Furnish("Recif", AquariumRoomLayout.Reef, AquariumBuilding.ReefRoomX);
+            Furnish("Maldives", AquariumRoomLayout.Atoll, AquariumBuilding.AtollRoomX);
             var furnitureSo = new SerializedObject(aquarium);
             SerializedProperty furnitureList = furnitureSo.FindProperty("_furniture");
             furnitureList.arraySize = furniture.Count;
@@ -1941,6 +1955,8 @@ namespace FishAndChill.Editor
             BuildTank(room.transform, "Poissons du bassin Japon", aquarium, japan, AquariumBuilding.JapanTank);
             var reefZone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/GrandeBarriere.asset");
             BuildTank(room.transform, "Poissons du bassin Grande Barrière", aquarium, reefZone, AquariumBuilding.ReefTank);
+            var atollZone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/Maldives.asset");
+            BuildTank(room.transform, "Poissons du bassin Maldives", aquarium, atollZone, AquariumBuilding.AtollTank);
 
             BuildTankLife(room.transform, aquarium, folder);
             // Visiteurs mis de côté pour l'instant (AquariumVisitors et BuildVisitors restent prêts à resservir).
@@ -2039,6 +2055,14 @@ namespace FishAndChill.Editor
             Sprite[] reefCaustics = Frames("Reflets_Recif", 3, f => AquariumLifeArt.Caustics(f, new Color(0.70f, 1f, 1f)), center);
             BuildLife(room, "Vie du bassin Grande Barrière", aquarium, AquariumBuilding.ReefTank, 47, new[] { (softCoral, 6, false), (reefGrass, 5, true) },
                 bubble, 4, ray, 5, chromis, 3, 12, reefCaustics, new Sprite[0][], new Transform[0]);
+
+            // Maldives : gorgones orange en éventail, herbiers devant, bancs d'anthias orange, reflets bleu vif.
+            Sprite[] seaFan = Frames("Gorgone", 3, f => AquariumLifeArt.Plant(f, 18, 34, 4, new Color(0.96f, 0.52f, 0.24f), new Color(0.74f, 0.32f, 0.14f), new Color(1f, 0.76f, 0.46f), false, 43), bottom);
+            Sprite[] atollGrass = Frames("HerbierAtoll", 3, f => AquariumLifeArt.Plant(f, 18, 16, 5, new Color(0.36f, 0.72f, 0.50f), new Color(0.22f, 0.52f, 0.36f), new Color(0.58f, 0.88f, 0.66f), false, 53), bottom);
+            Sprite[] orangeAnthias = Frames("Anthias_Maldives", 2, f => AquariumLifeArt.TinyFish(f, new Color(0.98f, 0.52f, 0.30f), new Color(1f, 0.80f, 0.60f), new Color(0.86f, 0.36f, 0.50f)), center);
+            Sprite[] atollCaustics = Frames("Reflets_Maldives", 3, f => AquariumLifeArt.Caustics(f, new Color(0.62f, 0.90f, 1f)), center);
+            BuildLife(room, "Vie du bassin Maldives", aquarium, AquariumBuilding.AtollTank, 59, new[] { (seaFan, 6, false), (atollGrass, 5, true) },
+                bubble, 4, ray, 5, orangeAnthias, 3, 12, atollCaustics, new Sprite[0][], new Transform[0]);
         }
 
         private static void BuildLife(Transform room, string name, AquariumBuilding aquarium, Rect area, int seed,
