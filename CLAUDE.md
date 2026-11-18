@@ -431,6 +431,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   reflet), matière (tissage, écorce, planches, chaume), ombre portée sous ce qui passe devant, contour sélectif teinté.
 - Moteur : `Editor/VolumeCanvas` (`Piece(forme, couleur, bombé, texture)`, formes `Ellipse`/`Capsule`/`Box`/`Union`,
   `Finish`), à **32 px par case** (`VolumeCanvas.PixelsPerUnit`) : deux fois plus fin, même taille à l'écran.
-- Déjà passés dans ce style (`Editor/VolumeIslandArt`) : cocotiers de l'île, rochers de l'île, façade de la boutique.
+- Déjà passés dans ce style : cocotiers, rochers et façade de la boutique (`Editor/VolumeIslandArt`), intérieur de la
+  maison (`Editor/VolumeHouseArt`, même disposition que les obstacles de `HouseBuilding`, rideaux, lambris, lampe, livres).
   À faire ensuite : pêcheur et marchand (avec toutes les options de personnalisation), maison, phare, aquarium,
   décor (buissons, haies, lampadaires…), puis sol et côtes, puis les autres zones.

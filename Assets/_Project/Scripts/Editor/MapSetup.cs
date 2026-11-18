@@ -1468,7 +1468,7 @@ namespace FishAndChill.Editor
         {
             const string folder = "Assets/_Project/Art/Buildings";
             Sprite exterior = PixelArt.Save($"{folder}/Maison.png", HouseArt.Exterior(), TileArt.Size, HouseArt.ExteriorPivot);
-            Sprite interior = PixelArt.Save($"{folder}/Maison_Interieur.png", HouseArt.Interior(), TileArt.Size, Vector2.zero);
+            Sprite interior = PixelArt.Save($"{folder}/Maison_Interieur.png", VolumeHouseArt.Interior(), VolumeCanvas.PixelsPerUnit, Vector2.zero);
 
             GameObject go = EnsureObject("Maison", null);
             go.transform.position = position;
