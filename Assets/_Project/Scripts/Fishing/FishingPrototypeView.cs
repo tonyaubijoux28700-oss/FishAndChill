@@ -135,6 +135,11 @@ namespace FishAndChill.Fishing
             {
                 _message.text = AquariumHint;
             }
+            else if (World.InteriorBuilding.Occupied != null)
+            {
+                // Maison, laboratoire… : pas de pêche ici, chaque pièce affiche sa propre aide (lit, bureau).
+                _message.text = string.Empty;
+            }
             else
             {
                 _message.text = _controller.Message;
