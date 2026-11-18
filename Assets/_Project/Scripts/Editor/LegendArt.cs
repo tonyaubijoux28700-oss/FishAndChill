@@ -131,7 +131,7 @@ namespace FishAndChill.Editor
                 {
                     if (full[x, y].a > 0.01f)
                     {
-                        p[x, y] = C(0.10f, 0.14f, 0.22f, 0.55f);
+                        p[x, y] = C(0.46f, 0.56f, 0.68f, 0.5f);   // assez clair pour se voir sur les cases sombres
                     }
                 }
             }
