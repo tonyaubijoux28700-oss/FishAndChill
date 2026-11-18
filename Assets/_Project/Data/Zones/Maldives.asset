@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d1726b683e3a34cb42cf076922ab57, type: 3}
+  m_Name: Maldives
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
+  _displayName: Atoll des Maldives
+  _description: "Anneau d'\xEElots de sable blanc autour d'un lagon turquoise, cocoteraies, bungalows sur pilotis et platier de corail."
+  _waterColor: {r: 0.08, g: 0.34, b: 0.66, a: 1}
+  _species:
+  - _species: {fileID: 11400000, guid: 926ac7f1c05c8b047b7d07f4d826210a, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: c3dc5823be6458b469e1ac91f363c852, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 1786ed29852ec9c4f9291e46f08118d9, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: f48aaa8d80d68ea4c9d646b90235680e, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: c5ec249653d7a6b49a118142881449e0, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: f3503a384ff62ed4586ee968acf924fe, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 16c779344eb98884986c4b160ccb451a, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 56f5afe31233358458f997d50cc62ef5, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 9b897a0ea55f3e740be4a7992d5e21ec, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 0cb8fb54f19e457459e78634c061449b, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 040cbb2c9bee0194f948cc349dff99cd, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: c8d4f8a78c3f17746843a63672ad5cad, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: bbab2cbc72425c540a2b422289480b7d, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 48a14f87ee5dc6e499ae9b025b88679f, type: 2}
+    _weight: 2
+  _mapPosition: {x: 0.69, y: 0.47}
+  _region: "Oc\xE9an Indien, Maldives"

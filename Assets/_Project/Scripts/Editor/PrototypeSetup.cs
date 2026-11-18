@@ -21,6 +21,7 @@ namespace FishAndChill.Editor
         private const string AmazonZonePath = ZonesFolder + "/FleuveAmazone.asset";
         private const string JapanZonePath = ZonesFolder + "/BaieJaponaise.asset";
         private const string ReefZonePath = ZonesFolder + "/GrandeBarriere.asset";
+        private const string AtollZonePath = ZonesFolder + "/Maldives.asset";
         private const string ScenesFolder = Root + "/Scenes";
         private const string ScenePath = ScenesFolder + "/FishingPrototype.unity";
         private const string TemplateScenePath = "Assets/Scenes/SampleScene.unity";
@@ -86,6 +87,11 @@ namespace FishAndChill.Editor
             CreateOrUpdateZone(ReefZonePath, "Grande Barrière",
                 "Côte du Queensland : sable blanc, eucalyptus, mangrove, et le plus grand récif de corail du monde au large.", new Color(0.10f, 0.40f, 0.66f), rows,
                 new Vector2(0.88f, 0.34f), "Queensland, Australie");
+
+            // Sixième zone : un atoll des Maldives, dans l'océan Indien.
+            CreateOrUpdateZone(AtollZonePath, "Atoll des Maldives",
+                "Anneau d'îlots de sable blanc autour d'un lagon turquoise, cocoteraies, bungalows sur pilotis et platier de corail.", new Color(0.08f, 0.34f, 0.66f), rows,
+                new Vector2(0.69f, 0.47f), "Océan Indien, Maldives");
 
             string startPath = ZonesFolder + "/IleMahana.asset";
             CreateOrUpdateZone(startPath, "Île Mahana",
@@ -374,7 +380,9 @@ namespace FishAndChill.Editor
             var amazonZone = AssetDatabase.LoadAssetAtPath<FishingZone>(AmazonZonePath);
             var japanZone = AssetDatabase.LoadAssetAtPath<FishingZone>(JapanZonePath);
             var reefZone = AssetDatabase.LoadAssetAtPath<FishingZone>(ReefZonePath);
-            zones.arraySize = 5;
+            var atollZone = AssetDatabase.LoadAssetAtPath<FishingZone>(AtollZonePath);
+            zones.arraySize = 6;
+            zones.GetArrayElementAtIndex(5).objectReferenceValue = atollZone;
             zones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             zones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
             zones.GetArrayElementAtIndex(2).objectReferenceValue = amazonZone;
@@ -416,7 +424,8 @@ namespace FishAndChill.Editor
             saveSo.FindProperty("_progress").objectReferenceValue = progress;
             saveSo.FindProperty("_fishing").objectReferenceValue = controller;
             SerializedProperty saveZones = saveSo.FindProperty("_zones");
-            saveZones.arraySize = 5;
+            saveZones.arraySize = 6;
+            saveZones.GetArrayElementAtIndex(5).objectReferenceValue = atollZone;
             saveZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             saveZones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
             saveZones.GetArrayElementAtIndex(2).objectReferenceValue = amazonZone;
@@ -432,7 +441,8 @@ namespace FishAndChill.Editor
 
             var travelSo = new SerializedObject(travel);
             SerializedProperty destinations = travelSo.FindProperty("_destinations");
-            destinations.arraySize = 5;
+            destinations.arraySize = 6;
+            SetDestination(destinations.GetArrayElementAtIndex(5), atollZone, 5, buildings.AtollDock);
             SetDestination(destinations.GetArrayElementAtIndex(0), zone, 0, buildings.IslandDock);
             SetDestination(destinations.GetArrayElementAtIndex(1), lakeZone, 1, buildings.LakeDock);
             SetDestination(destinations.GetArrayElementAtIndex(2), amazonZone, 2, buildings.AmazonDock);
@@ -489,7 +499,7 @@ namespace FishAndChill.Editor
             GameObject decorObject = GameObject.Find("Décor");
             cycleSo.FindProperty("_decor").objectReferenceValue = decorObject != null ? decorObject.GetComponent<UnityEngine.Tilemaps.Tilemap>() : null;
             SerializedProperty lanterns = cycleSo.FindProperty("_lanterns");
-            MapSetup.DockInfo[] docks = { buildings.IslandDock, buildings.LakeDock, buildings.AmazonDock, buildings.JapanDock, buildings.ReefDock };
+            MapSetup.DockInfo[] docks = { buildings.IslandDock, buildings.LakeDock, buildings.AmazonDock, buildings.JapanDock, buildings.ReefDock, buildings.AtollDock };
             lanterns.arraySize = docks.Length;
             for (int i = 0; i < docks.Length; i++)
             {
@@ -518,7 +528,8 @@ namespace FishAndChill.Editor
             titleSo.FindProperty("_minimap").objectReferenceValue = minimap;
             titleSo.FindProperty("_skin").objectReferenceValue = skin;
             SerializedProperty titleZones = titleSo.FindProperty("_zones");
-            titleZones.arraySize = 5;
+            titleZones.arraySize = 6;
+            titleZones.GetArrayElementAtIndex(5).objectReferenceValue = atollZone;
             titleZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
             titleZones.GetArrayElementAtIndex(1).objectReferenceValue = lakeZone;
             titleZones.GetArrayElementAtIndex(2).objectReferenceValue = amazonZone;

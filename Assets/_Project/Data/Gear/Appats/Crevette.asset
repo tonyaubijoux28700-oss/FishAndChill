@@ -38,6 +38,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 780f4371e7a173741b55868dcbc2d970, type: 2}
   - {fileID: 11400000, guid: 21693a62c963fa0438036db5e7f14a23, type: 2}
   - {fileID: 11400000, guid: 27a70a0ef2a80634cbbec3a859b08a3c, type: 2}
+  - {fileID: 11400000, guid: c3dc5823be6458b469e1ac91f363c852, type: 2}
+  - {fileID: 11400000, guid: 1786ed29852ec9c4f9291e46f08118d9, type: 2}
+  - {fileID: 11400000, guid: f48aaa8d80d68ea4c9d646b90235680e, type: 2}
+  - {fileID: 11400000, guid: c5ec249653d7a6b49a118142881449e0, type: 2}
+  - {fileID: 11400000, guid: 16c779344eb98884986c4b160ccb451a, type: 2}
+  - {fileID: 11400000, guid: 9b897a0ea55f3e740be4a7992d5e21ec, type: 2}
+  - {fileID: 11400000, guid: 0cb8fb54f19e457459e78634c061449b, type: 2}
   _favoriteBonus: 3
   _rareBonus: 1
   _nightBonus: 1

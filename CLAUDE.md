@@ -130,6 +130,15 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   kangourous sur la plage, papillons Ulysse, pélicans. **Première zone faite uniquement par la table** : 14 espèces
   dessinées par `FishArchetypes` (poisson-clown, barramundi, saumonée, requin à pointes noires, Napoléon, mérou géant
   légendaire…). Salle Grande Barrière à l'aquarium (voir Aquarium).
+- **Atoll des Maldives** (6e zone, région 5, océan Indien) : `AtollGenerator` (anneau d'îlots autour d'un grand lagon :
+  grand îlot continu au nord avec cocoteraie, petits îlots séparés par des passes, platier de corail au large `Reef` ;
+  testé), 90×64 cases, à `AtollGap` = 20 cases à l'est de la Grande Barrière, `MapSetup.BuildAtoll` (tuiles `AtollArt` :
+  océan bleu profond, tout le lagon turquoise clair, sable de corail blanc, végétation bien verte ; cocotiers en volume de
+  l'île, coraux du récif ; **bungalows sur pilotis** en volume dans le lagon de part et d'autre du ponton). Ponton au
+  sud du grand îlot, dans le lagon. Vie (`BuildAtollLife`) : raies et tortues sous l'eau, bernard-l'ermite, papillons,
+  poissons volants, frégate. 14 espèces faites par la table (`Zone` = `Maldives` : chirurgien à poitrine blanche,
+  poisson-ange empereur, idole des Maures, baliste titan, thon jaune, murène javanaise, requin-tigre légendaire…).
+  Pas encore de salle à l'aquarium.
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`, barque amarrée). Sur le ponton, **E** ouvre
   la **carte du monde** (←/→, Espace part, Échap ferme ; le sac ne s'ouvre pas sur le ponton) : fondu au noir, arrivée
@@ -387,7 +396,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - **Toutes les espèces sont dans `Assets/_Project/Data/Especes.csv`** : une ligne par espèce, séparateur `;`, s'ouvre
   dans un tableur (Excel, LibreOffice). Lue par `Collection/SpeciesTable` (testé) → `SpeciesRow`, puis le menu de
   génération crée les `FishSpecies`, remplit les zones (colonne Zone = nom de l'asset de zone : IleMahana, LacAnnecy,
-  FleuveAmazone, BaieJaponaise) et les appâts favoris (colonne Appats : mie, ver, crevette, leurre, lumineux, calmar).
+  FleuveAmazone, BaieJaponaise, GrandeBarriere, Maldives) et les appâts favoris (colonne Appats : mie, ver, crevette, leurre, lumineux, calmar).
   Erreurs de la table (valeur inconnue, nombre mal écrit) affichées dans la console, la ligne est sautée.
 - Valeurs en français, sans souci des accents : Rarete (commune, peu commune, rare, épique, légendaire), Nature
   (poisson, crustacé, reptile, amphibien), Forme (ombre sous l'eau : poisson, crabe, langouste, tortue, grenouille),
