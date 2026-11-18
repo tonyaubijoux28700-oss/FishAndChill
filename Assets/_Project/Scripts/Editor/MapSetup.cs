@@ -1519,7 +1519,7 @@ namespace FishAndChill.Editor
         private static ShopBuilding BuildShop(Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow)
         {
             const string folder = "Assets/_Project/Art/Buildings";
-            Sprite exterior = PixelArt.Save($"{folder}/Boutique.png", ShopArt.Exterior(), TileArt.Size, ShopArt.ExteriorPivot);
+            Sprite exterior = PixelArt.Save($"{folder}/Boutique.png", VolumeIslandArt.ShopExterior(), VolumeCanvas.PixelsPerUnit, VolumeIslandArt.ShopPivot);
             Sprite interior = PixelArt.Save($"{folder}/Boutique_Interieur.png", ShopArt.Interior(), TileArt.Size, Vector2.zero);
             Sprite counter = PixelArt.Save($"{folder}/Boutique_Comptoir.png", ShopArt.Counter(), TileArt.Size, ShopArt.CounterPivot);
             Sprite merchant = PixelArt.Save("Assets/_Project/Art/Characters/Marchand.png", ShopArt.Merchant(), TileArt.Size, CharacterArt.Pivot);
@@ -1982,7 +1982,7 @@ namespace FishAndChill.Editor
                 set.Grass[i] = SaveTile($"Herbe_{i}", TileArt.Grass(i), Vector2.one * 0.5f, TileArt.Size);
             }
 
-            set.Palm = SaveTile("Cocotier", TileArt.Palm(), TileArt.PalmPivot, TileArt.Size);
+            set.Palm = SaveTile("Cocotier", VolumeIslandArt.Palm(), VolumeIslandArt.PalmPivot, VolumeCanvas.PixelsPerUnit);
 
             // Transitions arrondies.
             var lagoon = new TransitionArt.Style
@@ -2114,7 +2114,9 @@ namespace FishAndChill.Editor
             set.Decor[TownLayout.DecorKind.Lamp] = new[] { Decor("Lampadaire", DecorArt.Lamp(), 0.3f) };
             set.Decor[TownLayout.DecorKind.Barrel] = new[] { Decor("Tonneau", DecorArt.Barrel(), -0.2f) };
             set.Decor[TownLayout.DecorKind.Crates] = new[] { Decor("Caisses", DecorArt.Crates(), -0.2f) };
-            set.Decor[TownLayout.DecorKind.Rock] = new[] { Decor("Rocher_0", DecorArt.Rock(0), 0.4f), Decor("Rocher_1", DecorArt.Rock(1), 0.4f) };
+            // Rochers en volume (32 px par case) : même taille que les anciens 16×12, pied au même endroit.
+            Vector2 rockPivot = new Vector2(0.5f, 0.4f / (VolumeIslandArt.RockHeight / (float)VolumeCanvas.PixelsPerUnit));
+            set.Decor[TownLayout.DecorKind.Rock] = new[] { SaveTile("Decor/Rocher_0", VolumeIslandArt.Rock(0), rockPivot, VolumeCanvas.PixelsPerUnit), SaveTile("Decor/Rocher_1", VolumeIslandArt.Rock(1), rockPivot, VolumeCanvas.PixelsPerUnit) };
             set.SignpostLeft = Decor("Panneau_Gauche", DecorArt.Signpost(false), 0.3f);
             set.SignpostRight = Decor("Panneau_Droite", DecorArt.Signpost(true), 0.3f);
         }
