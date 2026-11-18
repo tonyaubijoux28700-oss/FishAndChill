@@ -1,0 +1,123 @@
+using FishAndChill.Collection;
+using FishAndChill.Fishing;
+using FishAndChill.Player;
+using FishAndChill.World;
+using UnityEditor;
+using UnityEngine;
+
+namespace FishAndChill.Editor
+{
+    /// <summary>
+    /// Menu d'essai des poissons de légende (FishAndChill → Légendes), utilisable seulement pendant une partie en Play
+    /// mode : donner des fragments, réveiller le gardien, aller au laboratoire ou au remous, remettre à zéro.
+    /// Agit sur la première légende (le Vieux Ulua) et sur la partie en cours (sauvegardée comme une vraie partie).
+    /// </summary>
+    public static class LegendDebugMenu
+    {
+        private const string Root = "FishAndChill/Légendes (test)/";
+
+        private static FishingController Fishing => Object.FindAnyObjectByType<FishingController>();
+
+        private static LegendFish FirstLegend(FishingController fishing) => fishing != null && fishing.Legends.Count > 0 ? fishing.Legends[0] : null;
+
+        private static bool InGame() => EditorApplication.isPlaying && Save.SaveManager.InGame && Fishing != null && FirstLegend(Fishing) != null;
+
+        [MenuItem(Root + "Donner un fragment")]
+        private static void GiveFragment()
+        {
+            FishingController fishing = Fishing;
+            LegendFish legend = FirstLegend(fishing);
+            int count = fishing.Progress.Legends.AddFragment(legend.Id, legend.FragmentCount);
+            Debug.Log(count > 0
+                ? $"[FishAndChill] Fragment de « {legend.ArtifactName} » donné ({count} / {legend.FragmentCount})."
+                : "[FishAndChill] Tous les fragments sont déjà trouvés.");
+        }
+
+        [MenuItem(Root + "Donner tous les fragments")]
+        private static void GiveAllFragments()
+        {
+            FishingController fishing = Fishing;
+            LegendFish legend = FirstLegend(fishing);
+            while (fishing.Progress.Legends.AddFragment(legend.Id, legend.FragmentCount) > 0)
+            {
+            }
+
+            Debug.Log($"[FishAndChill] Tous les fragments de « {legend.ArtifactName} » sont en poche : va les poser sur le socle du laboratoire.");
+        }
+
+        [MenuItem(Root + "Réveiller le gardien (tout poser d'un coup)")]
+        private static void Summon()
+        {
+            FishingController fishing = Fishing;
+            LegendFish legend = FirstLegend(fishing);
+            LegendProgress legends = fishing.Progress.Legends;
+            while (legends.AddFragment(legend.Id, legend.FragmentCount) > 0)
+            {
+            }
+
+            while (legends.PlaceFragment(legend.Id, legend.FragmentCount) >= 0)
+            {
+            }
+
+            legends.Summon(legend.Id);
+            Debug.Log($"[FishAndChill] {legend.Title} : {legends.State(legend.Id)}. Le remous légendaire est dans le lagon de Mahana.");
+        }
+
+        [MenuItem(Root + "Aller au laboratoire (devant le socle)")]
+        private static void GoToLab()
+        {
+            var lab = Object.FindAnyObjectByType<LabBuilding>();
+            var player = Object.FindAnyObjectByType<PlayerMovement>();
+            if (lab == null || player == null) return;
+            if (!lab.IsPlayerInside) lab.Enter();
+            player.Teleport(lab.PedestalFront, Vector2.up);
+        }
+
+        [MenuItem(Root + "Aller au remous légendaire")]
+        private static void GoToEddy()
+        {
+            var spot = Object.FindAnyObjectByType<LegendSpot>();
+            var map = Object.FindAnyObjectByType<WorldMap>();
+            var player = Object.FindAnyObjectByType<PlayerMovement>();
+            if (spot == null || map == null || player == null) return;
+            if (!spot.Active)
+            {
+                Debug.LogWarning("[FishAndChill] Le remous n'est pas là : réveille d'abord le gardien (ou retourne sur l'île Mahana).");
+                return;
+            }
+
+            if (InteriorBuilding.Occupied != null) InteriorBuilding.Occupied.Exit();
+            foreach (Vector2 d in new[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right })
+            {
+                for (float k = 2.6f; k <= 4.2f; k += 0.2f)
+                {
+                    Vector2 p = spot.Center - d * k;
+                    if (map.CanStandAt(p, 0.3f))
+                    {
+                        player.Teleport(p, d);
+                        Object.FindAnyObjectByType<CameraFollow>()?.SnapToTarget();
+                        Debug.Log("[FishAndChill] Face au remous : appuie sur Espace pour lancer.");
+                        return;
+                    }
+                }
+            }
+        }
+
+        [MenuItem(Root + "Remettre la légende à zéro")]
+        private static void ResetLegend()
+        {
+            FishingController fishing = Fishing;
+            LegendFish legend = FirstLegend(fishing);
+            fishing.Progress.Legends.Reset(legend.Id);
+            Debug.Log($"[FishAndChill] {legend.Title} remis à zéro (aucun fragment).");
+        }
+
+        [MenuItem(Root + "Donner un fragment", true)]
+        [MenuItem(Root + "Donner tous les fragments", true)]
+        [MenuItem(Root + "Réveiller le gardien (tout poser d'un coup)", true)]
+        [MenuItem(Root + "Aller au laboratoire (devant le socle)", true)]
+        [MenuItem(Root + "Aller au remous légendaire", true)]
+        [MenuItem(Root + "Remettre la légende à zéro", true)]
+        private static bool Validate() => InGame();
+    }
+}

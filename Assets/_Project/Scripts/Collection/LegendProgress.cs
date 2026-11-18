@@ -104,6 +104,15 @@ namespace FishAndChill.Collection
             return true;
         }
 
+        /// <summary>Oublie tout d'une légende (essais) : aucun fragment, rien de posé.</summary>
+        public void Reset(string id)
+        {
+            if (!string.IsNullOrEmpty(id) && _entries.Remove(id))
+            {
+                Changed?.Invoke();
+            }
+        }
+
         /// <summary>Remet l'état d'une sauvegarde (sans déclencher Changed). Les posés ne dépassent jamais les pêchés.</summary>
         public void Restore(string id, int fragments, int placed, LegendState state)
         {
