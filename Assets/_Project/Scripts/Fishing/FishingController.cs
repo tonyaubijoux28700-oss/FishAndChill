@@ -104,6 +104,28 @@ namespace FishAndChill.Fishing
         [SerializeField, Range(0f, 1f), Tooltip("Chance qu'une prise réussie soit une bouteille à la mer.")]
         private float _bottleChance = BottleMessage.Chance;
 
+        [SerializeField, Tooltip("Poissons de légende : dans leur zone, une prise est parfois un fragment de leur artefact.")]
+        private LegendFish[] _legends = new LegendFish[0];
+
+        /// <summary>Un fragment d'artefact a été pêché à la place d'un poisson : (légende, fragments maintenant).</summary>
+        public event Action<LegendFish, int> FragmentFound;
+
+        public IReadOnlyList<LegendFish> Legends => _legends;
+
+        /// <summary>La légende qui vit dans la zone actuelle (null s'il n'y en a pas).</summary>
+        public LegendFish LegendOfZone
+        {
+            get
+            {
+                foreach (LegendFish legend in _legends)
+                {
+                    if (legend != null && legend.Zone == _zone) return legend;
+                }
+
+                return null;
+            }
+        }
+
         public FishingState State { get; private set; } = FishingState.Idle;
         /// <summary>Horloge du jeu (null sans cycle jour/nuit).</summary>
         public DayNightCycle Cycle => _cycle;
@@ -488,6 +510,15 @@ namespace FishAndChill.Fishing
                 return;
             }
 
+            // Dans la zone d'une légende, parfois un fragment de son artefact (plus souvent dans un coin de pêche).
+            LegendFish legend = LegendOfZone;
+            if (_progress != null && legend != null
+                && FragmentRules.ShouldDrop(_random, legend.FragmentChance, InSpot, _progress.Legends.State(legend.Id)))
+            {
+                FindFragment(legend);
+                return;
+            }
+
             FishSpecies species = HookedSpecies;
             var fish = new CaughtFish(species, HookedSizeCm);
             LastBeatenRecord = CatchLog.WouldBeRecord(species.Id, HookedSizeCm) ? CatchLog.BestSizeOf(species.Id) : 0f;
@@ -535,6 +566,27 @@ namespace FishAndChill.Fishing
             string message = BottleMessage.Write(species, CatchLog, Favorite, _random);
             StartPhase(FishingState.Result, _catchResultSeconds, $"Une bouteille à la mer ! +{coins} pièces");
             BottleFound?.Invoke(message, coins);
+        }
+
+        /// <summary>Ce n'était pas un poisson : un fragment de l'artefact de la légende de la zone.</summary>
+        private void FindFragment(LegendFish legend)
+        {
+            int count = _progress.Legends.AddFragment(legend.Id, legend.FragmentCount);
+            string text = count >= legend.FragmentCount
+                ? $"Le dernier fragment ! L'artefact « {legend.ArtifactName} » est complet : apporte-le au laboratoire."
+                : $"Un fragment de l'artefact « {legend.ArtifactName} » ! ({count} / {legend.FragmentCount})";
+            StartPhase(FishingState.Result, _catchResultSeconds, text);
+            FragmentFound?.Invoke(legend, count);
+        }
+
+        /// <summary>Pour les essais hors jeu : fait comme si la prochaine prise était un fragment.</summary>
+        public void DebugFindFragment()
+        {
+            LegendFish legend = LegendOfZone;
+            if (_progress != null && legend != null && _progress.Legends.State(legend.Id) == LegendState.Collecting)
+            {
+                FindFragment(legend);
+            }
         }
 
         /// <summary>Nouvelle pour la collection : ni dans l'aquarium, ni déjà dans le sac.</summary>

@@ -1278537,6 +1278537,8 @@ MonoBehaviour:
   _resultSeconds: 2.5
   _catchResultSeconds: 6
   _bottleChance: 0.05
+  _legends:
+  - {fileID: 11400000, guid: 50a41d05fe442ac4f9bcba9e05e9ccdc, type: 2}
 --- !u!4 &1235020157
 Transform:
   m_ObjectHideFlags: 0
@@ -1283877,6 +1283879,8 @@ MonoBehaviour:
   _footprint: {x: 4.8, y: 2.6}
   _interiorBackground: {r: 0.08, g: 0.06, b: 0.05, a: 1}
   _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
+  _progress: {fileID: 332295271}
+  _fishing: {fileID: 1235020156}
   _talkRadius: 1.1
 --- !u!212 &1468457977
 SpriteRenderer:

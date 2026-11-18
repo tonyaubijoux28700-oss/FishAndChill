@@ -259,6 +259,11 @@ namespace FishAndChill.Save
             }
 
             data.EquippedBait = _progress.Baits.Equipped;
+            foreach (string id in _progress.Legends.Ids)
+            {
+                data.Legends.Add(new SaveData.Legend { Id = id, Fragments = _progress.Legends.Fragments(id), State = (int)_progress.Legends.State(id) });
+            }
+
             data.Look = Look;
             try
             {
@@ -344,6 +349,17 @@ namespace FishAndChill.Save
             }
 
             _progress.EnsureDefaultBait();
+            if (data.Legends != null)
+            {
+                foreach (SaveData.Legend legend in data.Legends)
+                {
+                    if (System.Enum.IsDefined(typeof(LegendState), legend.State))
+                    {
+                        _progress.Legends.Restore(legend.Id, legend.Fragments, (LegendState)legend.State);
+                    }
+                }
+            }
+
             if (_cycle != null)
             {
                 _cycle.SetHour(data.Hour);

@@ -31,6 +31,7 @@ namespace FishAndChill.Fishing
         private PlayerMovement _playerMovement;
         private CatchCard _catchCard;
         private BottleCard _bottleCard;
+        private FragmentCard _fragmentCard;
         private bool _cardWasBagFull;
         private Sprite _square;
         private FishShadowSprites _fishShadows;
@@ -69,6 +70,7 @@ namespace FishAndChill.Fishing
             _controller.Nibbled += OnNibbled;
             _controller.FishCaught += OnFishCaught;
             _controller.BottleFound += OnBottleFound;
+            _controller.FragmentFound += OnFragmentFound;
         }
 
         private void OnDisable()
@@ -79,6 +81,7 @@ namespace FishAndChill.Fishing
             _controller.Nibbled -= OnNibbled;
             _controller.FishCaught -= OnFishCaught;
             _controller.BottleFound -= OnBottleFound;
+            _controller.FragmentFound -= OnFragmentFound;
         }
 
         private void Start()
@@ -119,11 +122,12 @@ namespace FishAndChill.Fishing
             UpdateQte();
             _catchCard.Animate(Time.deltaTime);
             _bottleCard.Animate(Time.deltaTime);
+            _fragmentCard.Animate(Time.deltaTime);
 
             // La carte de prise remplace le message texte ; dans la boutique, aide propre à la boutique
             // (et rien quand le menu du marchand est ouvert).
             // Pendant le combat, la jauge (et son bandeau « Ferre-le ! ») remplace le message.
-            if (_catchCard.IsVisible || _bottleCard.IsVisible || (_playerMovement != null && _playerMovement.Locked) || _controller.State == FishingState.Reeling)
+            if (_catchCard.IsVisible || _bottleCard.IsVisible || _fragmentCard.IsVisible || (_playerMovement != null && _playerMovement.Locked) || _controller.State == FishingState.Reeling)
             {
                 _message.text = string.Empty;
             }
@@ -532,6 +536,7 @@ namespace FishAndChill.Fishing
             BuildQte(root);
             _catchCard = new CatchCard(root, _skin);
             _bottleCard = new BottleCard(root, _skin);
+            _fragmentCard = new FragmentCard(root, _skin);
         }
 
         // ---------- Jauge du QTE ----------
@@ -837,6 +842,7 @@ namespace FishAndChill.Fishing
             {
                 _catchCard.Hide();
                 _bottleCard.Hide();
+                _fragmentCard.Hide();
                 _cardWasBagFull = false;
             }
 
@@ -895,6 +901,15 @@ namespace FishAndChill.Fishing
             RefreshHeader();
             _catchCard.Hide();
             _bottleCard.Show(message, coins);
+            _cardWasBagFull = false;
+        }
+
+        private void OnFragmentFound(LegendFish legend, int count)
+        {
+            RefreshHeader();
+            _catchCard.Hide();
+            _bottleCard.Hide();
+            _fragmentCard.Show(legend, count);
             _cardWasBagFull = false;
         }
 

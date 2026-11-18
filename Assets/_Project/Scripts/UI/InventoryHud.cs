@@ -350,6 +350,7 @@ namespace FishAndChill.UI
             _badge.text = $"{bag.Count}/{bag.Capacity}";
             _fishTitle.text = $"Mes poissons   {bag.Count} / {bag.Capacity}";
             RefreshGear();
+            RefreshRelic();
 
             for (int i = 0; i < _slots.Count; i++)
             {
@@ -519,6 +520,7 @@ namespace FishAndChill.UI
             UiFactory.Place(_windowHelp.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(-30f, 30f));
 
             BuildGearPanel();
+            BuildRelic();
 
             _fishTitle = UiFactory.Label(_windowRect, "Titre poissons", 32, TextAnchor.MiddleLeft, Gold);
             UiFactory.Bold(_fishTitle);
@@ -541,6 +543,90 @@ namespace FishAndChill.UI
             _toastText = UiFactory.Label(toast.rectTransform, "Texte", 24, TextAnchor.MiddleCenter, Color.white);
             UiFactory.Stretch(_toastText.rectTransform, 24f);
             _toast.SetActive(false);
+        }
+
+        // ---------- Relique (artefact d'un poisson de légende) ----------
+
+        private GameObject _relic;
+        private Image _relicSilhouette;
+        private readonly List<Image> _relicPieces = new List<Image>();
+        private Text _relicName;
+        private Text _relicCount;
+
+        /// <summary>
+        /// Colonne « Relique » entre le matériel et les poissons : l'artefact d'une légende en cours, fragments trouvés
+        /// à leur place sur sa silhouette. Les fragments ne prennent pas de place dans le sac.
+        /// </summary>
+        private void BuildRelic()
+        {
+            Image card = UiFactory.Sliced(_windowRect, "Relique", _roundCard != null ? _roundCard : SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+            _relic = card.gameObject;
+            RectTransform rect = card.rectTransform;
+            UiFactory.Center(rect, new Vector2(-168f, -10f), new Vector2(118f, 400f));
+
+            Text title = UiFactory.Label(rect, "Titre", 21, TextAnchor.MiddleCenter, Gold);
+            title.text = "Relique";
+            UiFactory.Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -10f), new Vector2(-8f, 28f));
+
+            _relicSilhouette = UiFactory.Plain(rect, "Silhouette", Color.white);
+            UiFactory.Center(_relicSilhouette.rectTransform, new Vector2(0f, 40f), new Vector2(96f, 128f));
+            _relicSilhouette.preserveAspect = true;
+
+            _relicName = UiFactory.Label(rect, "Nom", 19, TextAnchor.UpperCenter, Color.white);
+            _relicName.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiFactory.Center(_relicName.rectTransform, new Vector2(0f, -90f), new Vector2(108f, 60f));
+
+            _relicCount = UiFactory.Label(rect, "Fragments", 26, TextAnchor.MiddleCenter, Gold);
+            UiFactory.Bold(_relicCount);
+            UiFactory.Center(_relicCount.rectTransform, new Vector2(0f, -150f), new Vector2(108f, 34f));
+            _relic.SetActive(false);
+        }
+
+        /// <summary>Montre la première légende dont on a au moins un fragment (rien tant qu'on n'en a trouvé aucun).</summary>
+        private void RefreshRelic()
+        {
+            if (_relic == null || _fishing == null)
+            {
+                return;
+            }
+
+            LegendFish shown = null;
+            foreach (LegendFish legend in _fishing.Legends)
+            {
+                if (legend != null && (_progress.Legends.Fragments(legend.Id) > 0 || _progress.Legends.State(legend.Id) != LegendState.Collecting))
+                {
+                    shown = legend;
+                    break;
+                }
+            }
+
+            _relic.SetActive(shown != null);
+            if (shown == null)
+            {
+                return;
+            }
+
+            int count = _progress.Legends.Fragments(shown.Id);
+            LegendState state = _progress.Legends.State(shown.Id);
+            _relicSilhouette.sprite = shown.Silhouette;
+            while (_relicPieces.Count < shown.FragmentCount)
+            {
+                Image piece = UiFactory.Plain(_relicSilhouette.rectTransform, $"Fragment {_relicPieces.Count + 1}", Color.white);
+                piece.preserveAspect = true;
+                UiFactory.Stretch(piece.rectTransform);
+                _relicPieces.Add(piece);
+            }
+
+            // Les fragments se pêchent dans l'ordre : les premiers trouvés sont à leur place sur la silhouette.
+            for (int i = 0; i < _relicPieces.Count; i++)
+            {
+                bool owned = i < shown.FragmentCount && (i < count || state != LegendState.Collecting);
+                _relicPieces[i].sprite = shown.Fragment(i);
+                _relicPieces[i].gameObject.SetActive(owned && shown.Fragment(i) != null);
+            }
+
+            _relicName.text = shown.ArtifactName;
+            _relicCount.text = $"{(state == LegendState.Collecting ? count : shown.FragmentCount)} / {shown.FragmentCount}";
         }
 
         private static readonly Color TagFamily = new Color(0.62f, 0.22f, 0.12f);

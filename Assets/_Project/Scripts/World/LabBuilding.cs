@@ -19,6 +19,8 @@ namespace FishAndChill.World
         public const string ScientistName = "Dr Hina Teva";
 
         [SerializeField] private UiSkin _skin;
+        [SerializeField, Tooltip("Progression du joueur : la scientifique parle des fragments trouvés.")] private Collection.PlayerProgress _progress;
+        [SerializeField, Tooltip("La pêche, qui connaît les poissons de légende.")] private Fishing.FishingController _fishing;
         [SerializeField, Min(0.5f)] private float _talkRadius = 1.1f;
 
         private Text _prompt;
@@ -133,7 +135,9 @@ namespace FishAndChill.World
         /// <summary>Parle à la scientifique. Public pour pouvoir le déclencher hors clavier (tests).</summary>
         public void Talk()
         {
-            _lines = _metBefore ? new[] { LaterMeetings[Random.Range(0, LaterMeetings.Length)] } : FirstMeeting;
+            string[] legendLines = LegendLines();
+            _lines = !_metBefore ? FirstMeeting
+                : legendLines ?? new[] { LaterMeetings[Random.Range(0, LaterMeetings.Length)] };
             _metBefore = true;
             _index = 0;
             DialogOpen = true;
@@ -148,6 +152,59 @@ namespace FishAndChill.World
             _dialog.SetActive(true);
             ShowLine();
         }
+
+        /// <summary>
+        /// Ce que la scientifique dit des légendes en cours : un artefact complet d'abord, sinon des fragments déjà trouvés
+        /// (combien il en manque, et où les pêcher). Null si le joueur n'a encore rien trouvé.
+        /// </summary>
+        private string[] LegendLines()
+        {
+            if (_progress == null || _fishing == null)
+            {
+                return null;
+            }
+
+            Collection.LegendFish started = null;
+            foreach (Collection.LegendFish legend in _fishing.Legends)
+            {
+                if (legend == null)
+                {
+                    continue;
+                }
+
+                if (_progress.Legends.State(legend.Id) == Collection.LegendState.Complete)
+                {
+                    return new[]
+                    {
+                        $"Par tous les coraux… L'artefact « {legend.ArtifactName} » est complet ! Tu as réussi !",
+                        "Laisse-moi l'étudier un peu. Ces gravures parlent d'un gardien immense qui dort quelque part du côté de "
+                        + $"« {ZoneName(legend)} »…",
+                        "Reviens me voir bientôt : je cherche encore comment le réveiller.",
+                    };
+                }
+
+                if (started == null && _progress.Legends.State(legend.Id) == Collection.LegendState.Collecting
+                    && _progress.Legends.Fragments(legend.Id) > 0)
+                {
+                    started = legend;
+                }
+            }
+
+            if (started == null)
+            {
+                return null;
+            }
+
+            int missing = started.FragmentCount - _progress.Legends.Fragments(started.Id);
+            return new[]
+            {
+                $"Montre-moi ça… Un fragment de l'artefact « {started.ArtifactName} » ! Je n'en croyais pas mes yeux.",
+                $"Il t'en manque encore {missing}. Ils se pêchent du côté de « {ZoneName(started)} », "
+                + "et plus souvent là où les poissons se rassemblent.",
+            };
+        }
+
+        private static string ZoneName(Collection.LegendFish legend) => legend.Zone != null ? legend.Zone.DisplayName : "sa zone";
 
         /// <summary>Passe à la réplique suivante (ferme le dialogue après la dernière).</summary>
         public void Next()

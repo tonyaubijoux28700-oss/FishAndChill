@@ -72,6 +72,17 @@ namespace FishAndChill.Save
         public List<BaitStock> Baits = new List<BaitStock>();
         public string EquippedBait;
 
+        [Serializable]
+        public sealed class Legend
+        {
+            public string Id;
+            public int Fragments;
+            public int State;   // Collection.LegendState
+        }
+
+        /// <summary>Poissons de légende : fragments d'artefact pêchés et étape (vide pour une ancienne sauvegarde).</summary>
+        public List<Legend> Legends = new List<Legend>();
+
         /// <summary>Prénom et apparence du pêcheur (ancienne sauvegarde : le pêcheur d'origine, sans prénom).</summary>
         public Player.CharacterLook Look = new Player.CharacterLook();
     }

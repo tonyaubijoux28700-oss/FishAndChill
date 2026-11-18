@@ -190,7 +190,18 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   pompe, lueur du socle qui pulse, scientifique qui se penche sur ses papiers. Devant le bureau, **E** fait parler le **Dr Hina Teva** (boîte de
   dialogue, E/Espace suite, Échap ferme ; `PlayerAtDesk` / `DialogOpen` empêchent le sac de s'ouvrir). Première étape
   des **poissons de légende** (boss) : fragments d'artefact pêchés → artefact complet donné à la scientifique → boss
-  invoqué dans sa zone, combat en 3 phases. Pour l'instant elle ne fait que présenter les légendes.
+  invoqué dans sa zone, combat en 3 phases.
+- **Poissons de légende** (`Collection/LegendFish`, ScriptableObjects dans `Data/Legendes/`, générés par `LegendSetup` ;
+  champ `_legends` du `FishingController`). Premier : **le Vieux Ulua** (carangue géante de 210 cm, île Mahana), artefact
+  **Idole de corail** en 4 fragments (`LegendArt` : idole en volume, fragments aux cassures dentelées dans le même cadre,
+  silhouette ; `Art/Legendes/`). **Fragments** (`FragmentRules`, testé) : dans la zone de la légende, une prise réussie
+  sur ≈ 33 (3 %, ×2 dans un coin de pêche, ≈ 130 prises pour l'artefact) est un fragment, jamais en double, plus aucun
+  une fois l'artefact complet. Avancée dans `PlayerProgress.Legends` (`LegendProgress`, testé : `Collecting` → `Complete`
+  → `Summoned` → `Beaten`), sauvegardée (`SaveData.Legends`). Carte `Fishing/FragmentCard` (fragment qui flotte et
+  tourne dans un halo, artefact en silhouette qui se complète, phrase du fragment). Colonne **« Relique »** dans
+  l'inventaire (ne prend pas de place dans le sac). La scientifique dit combien il en manque et où, puis réagit à
+  l'artefact complet. Par script : `FishingController.DebugFindFragment()`. À faire : donner l'artefact, invoquer,
+  combat en 3 phases, récompense.
 - **Phare** (`World/Lighthouse`, objet « Phare », dessin `LighthouseArt`) : sur la pointe nord (`FindLighthouseSite`),
   pied solide. La nuit (`DayCycleMath.LampLevel`), lanterne allumée (`Light2D`) et double faisceau qui tourne
   (sprite créé en jeu, matériau *Sprite-Unlit-Default*). Maison et phare ont leur icône sur la minimap.

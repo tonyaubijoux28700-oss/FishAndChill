@@ -26,6 +26,9 @@ namespace FishAndChill.Collection
         public BaitCatalog BaitCatalog => _baitCatalog;
         public BaitBag Baits { get; private set; }
 
+        /// <summary>Poissons de légende : fragments d'artefact pêchés et étape de chacun.</summary>
+        public LegendProgress Legends { get; private set; }
+
         /// <summary>Appât accroché à la ligne (l'appât de départ si rien d'autre).</summary>
         public Bait EquippedBait
         {
@@ -58,6 +61,8 @@ namespace FishAndChill.Collection
             Wallet = new Wallet();
             Gear = new GearLoadout();
             Baits = new BaitBag();
+            Legends = new LegendProgress();
+            Legends.Changed += RaiseChanged;
             if (_baitCatalog != null && _baitCatalog.Default != null)
             {
                 Baits.Add(_baitCatalog.Default.Id, 0); // l'appât de départ, toujours là

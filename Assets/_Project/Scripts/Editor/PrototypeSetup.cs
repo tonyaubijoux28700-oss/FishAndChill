@@ -271,6 +271,15 @@ namespace FishAndChill.Editor
 
             so = new SerializedObject(controller);
             so.FindProperty("_progress").objectReferenceValue = progress;
+            // Poissons de légende : leurs fragments d'artefact se pêchent dans leur zone.
+            LegendFish[] legends = LegendSetup.CreateOrUpdate();
+            SerializedProperty legendList = so.FindProperty("_legends");
+            legendList.arraySize = legends.Length;
+            for (int i = 0; i < legends.Length; i++)
+            {
+                legendList.GetArrayElementAtIndex(i).objectReferenceValue = legends[i];
+            }
+
             so.ApplyModifiedPropertiesWithoutUndo();
 
             // Le pêcheur est trié par ses pieds (pivot) pour passer devant / derrière les cocotiers et l'aquarium.
@@ -280,6 +289,12 @@ namespace FishAndChill.Editor
             MapSetup.Buildings buildings = MapSetup.BuildIsland(player, controller);
             ShopBuilding shop = buildings.Shop;
             AquariumBuilding aquarium = buildings.Aquarium;
+
+            // La scientifique du laboratoire parle des fragments trouvés.
+            var labSo = new SerializedObject(buildings.Lab);
+            labSo.FindProperty("_progress").objectReferenceValue = progress;
+            labSo.FindProperty("_fishing").objectReferenceValue = controller;
+            labSo.ApplyModifiedPropertiesWithoutUndo();
 
             // L'aquarium dépose le sac de la partie, et ses poissons nagent dans le bassin.
             var aquariumSo = new SerializedObject(aquarium);
