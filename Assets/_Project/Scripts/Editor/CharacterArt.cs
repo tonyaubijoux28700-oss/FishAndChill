@@ -344,5 +344,94 @@ namespace FishAndChill.Editor
 
             return c.Render();
         }
+
+        private static readonly Color ScientistSkin = new Color(0.72f, 0.50f, 0.34f);
+        private static readonly Color DarkHair = new Color(0.16f, 0.11f, 0.09f);
+        private static readonly Color LabCoat = new Color(0.97f, 0.97f, 0.95f);
+        private static readonly Color Blouse = new Color(0.20f, 0.62f, 0.64f);
+        private static readonly Color Slacks = new Color(0.22f, 0.26f, 0.40f);
+        private static readonly Color GlassesFrame = new Color(0.30f, 0.30f, 0.34f);
+
+        /// <summary>
+        /// La scientifique du laboratoire, de face, 16×24, même style que le pêcheur : chignon brun foncé piqué d'une
+        /// fleur de tiaré, lunettes rondes, blouse blanche ouverte sur un haut turquoise, stylo dans la poche, pantalon.
+        /// </summary>
+        public static Color[,] Scientist()
+        {
+            var c = new Canvas();
+
+            // Chaussures et pantalon.
+            c.Cylinder(5, 21, 6, 22, Slacks, Part.Shorts);
+            c.Cylinder(9, 21, 10, 22, Slacks, Part.Shorts);
+            c.Cylinder(5, 23, 6, 23, Boot, Part.Sandal);
+            c.Cylinder(9, 23, 10, 23, Boot, Part.Sandal);
+
+            // Blouse blanche longue, ouverte sur le haut turquoise.
+            c.Cylinder(3, 13, 12, 20, LabCoat, Part.Shirt, roundTop: true);
+            for (int y = 13; y <= 18; y++)
+            {
+                c.Paint(7, y, Blouse, Part.Shirt);
+                c.Paint(8, y, Blouse, Part.Shirt);
+            }
+
+            for (int y = 13; y <= 20; y++)
+            {
+                c.Darken(6, y, 0.12f);   // pli des revers
+                c.Darken(9, y, 0.06f);
+            }
+
+            c.Clear(7, 20);
+            c.Clear(8, 20);
+            c.Paint(4, 17, Color.Lerp(LabCoat, Color.black, 0.14f), Part.Shirt);   // poches
+            c.Paint(11, 17, Color.Lerp(LabCoat, Color.black, 0.14f), Part.Shirt);
+            c.Paint(10, 14, new Color(0.24f, 0.40f, 0.80f), Part.Shirt);           // stylo
+
+            // Bras dans les manches de la blouse, mains.
+            foreach ((int x, float light) in new[] { (2, 1f), (13, 0.72f) })
+            {
+                for (int y = 13; y <= 18; y++)
+                {
+                    bool sleeve = y <= 17;
+                    c.Set(x, y, sleeve ? LabCoat : ScientistSkin, sleeve ? Part.Shirt : Part.Skin, y == 18 ? light + 0.1f : light);
+                }
+            }
+
+            // Tête : visage, cheveux tirés, lunettes rondes, sourire.
+            c.Ellipse(8f, 9.8f, 3.75f, 3.1f, ScientistSkin, Part.Skin);
+            for (int x = 5; x <= 10; x++)
+            {
+                for (int y = 8; y <= 11; y++)
+                {
+                    if (c.Is(x, y, Part.Skin))
+                    {
+                        c.Light[x, y] = Mathf.Max(c.Light[x, y], 1f);
+                    }
+                }
+            }
+
+            c.Ellipse(8f, 6.3f, 3.9f, 2.1f, DarkHair, Part.Hair);                  // cheveux
+            foreach (int y in new[] { 8, 9, 10 })
+            {
+                c.Set(4, y, DarkHair, Part.Hair, 0.95f);
+                c.Set(11, y, DarkHair, Part.Hair, 0.75f);
+            }
+
+            c.Ellipse(8f, 3.6f, 1.9f, 1.5f, DarkHair, Part.Hair);                  // chignon
+            c.Flat(10, 4, new Color(0.98f, 0.97f, 0.92f), Part.Hat);                 // fleur de tiaré
+            c.Flat(11, 5, new Color(0.98f, 0.97f, 0.92f), Part.Hat);
+            c.Flat(10, 5, new Color(1f, 0.84f, 0.30f), Part.Hat);
+
+            c.Flat(6, 9, Eye, Part.Skin);
+            c.Flat(9, 9, Eye, Part.Skin);
+            c.Paint(5, 9, GlassesFrame);
+            c.Paint(7, 9, GlassesFrame);
+            c.Paint(8, 9, GlassesFrame);
+            c.Paint(10, 9, GlassesFrame);
+            c.Paint(5, 10, Color.Lerp(ScientistSkin, Blush, 0.35f));
+            c.Paint(10, 10, Color.Lerp(ScientistSkin, Blush, 0.35f));
+            c.Paint(7, 11, Color.Lerp(ScientistSkin, Lips, 0.55f));
+            c.Paint(8, 11, Color.Lerp(ScientistSkin, Lips, 0.55f));
+            return c.Render();
+        }
     }
 }

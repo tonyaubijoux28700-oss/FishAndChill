@@ -239,6 +239,12 @@ namespace FishAndChill.UI
                 return false;
             }
 
+            // Devant le bureau du laboratoire, E fait parler la scientifique.
+            if (FishAndChill.World.LabBuilding.PlayerAtDesk || FishAndChill.World.LabBuilding.DialogOpen)
+            {
+                return false;
+            }
+
             // Devant le bassin, E dépose les poissons.
             if (_aquarium != null && _aquarium.PlayerAtTank)
             {

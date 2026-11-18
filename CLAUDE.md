@@ -179,6 +179,15 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   chemin jusqu'au chemin principal (`TownLayout`, `DecorateHouse`). Intérieur 9×7 (lit, tapis, table, coffre, fenêtre
   sur la mer ; intérieur à `bounds.xMax + 180`). Devant le lit, **E** fait dormir jusqu'à 7 h, seulement de 18 h à 5 h
   (`SleepRules`, testé) : fondu au noir et message ; le sac ne s'ouvre pas devant le lit (`HouseBuilding.PlayerAtBed`).
+- **Laboratoire** (`World/LabBuilding`, objet « Laboratoire », dessins `LabArt` en volume : murs blanchis, toit de tôle
+  bleue, coupole, antenne, hublots ; scientifique `CharacterArt.Scientist`) : dans les terres de l'est
+  (`FindBuildingSite` autour du centre + 22 cases, `alsoAvoid` = boutique et maison), cour pavée, chemin et décor
+  (`TownLayout.DecorateLab`), icône sur la minimap. Intérieur 11×8 à `bounds.xMax + 20, yMin + 20` (au-dessus de la
+  maison) : aquarium d'étude, étagères à bocaux, carte, affiche du poisson de légende, bureau, socle de pierre et plante
+  (sprites à part, obstacles dans `LabBuilding`). Devant le bureau, **E** fait parler le **Dr Hina Teva** (boîte de
+  dialogue, E/Espace suite, Échap ferme ; `PlayerAtDesk` / `DialogOpen` empêchent le sac de s'ouvrir). Première étape
+  des **poissons de légende** (boss) : fragments d'artefact pêchés → artefact complet donné à la scientifique → boss
+  invoqué dans sa zone, combat en 3 phases. Pour l'instant elle ne fait que présenter les légendes.
 - **Phare** (`World/Lighthouse`, objet « Phare », dessin `LighthouseArt`) : sur la pointe nord (`FindLighthouseSite`),
   pied solide. La nuit (`DayCycleMath.LampLevel`), lanterne allumée (`Light2D`) et double faisceau qui tourne
   (sprite créé en jeu, matériau *Sprite-Unlit-Default*). Maison et phare ont leur icône sur la minimap.
