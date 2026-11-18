@@ -1100574,6 +1100574,7 @@ MonoBehaviour:
   _decor: {fileID: 875151901}
   _paving: {fileID: 109374339}
   _pavingColor: {r: 0.82, g: 0.78, b: 0.7, a: 1}
+  _lagoon: {fileID: 1808955057}
   _palette:
   - Tile: {fileID: 11400000, guid: 7c1a15e84cdf69b4f9efb5b938f82984, type: 2}
     Color: {r: 0.14, g: 0.54, b: 0.67, a: 1}

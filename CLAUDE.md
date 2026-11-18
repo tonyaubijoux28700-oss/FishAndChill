@@ -331,6 +331,8 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   (couleurs par tuile dans `_palette`) : côtes arrondies (interpolation bilinéaire, `MinimapMath.Bilinear`) avec écume,
   eau plus claire près des rives (distance à la terre), grain du sol, chemins pavés (`_paving` = couche `Rendu - Pavés`,
   case pavée si ses 4 tuiles de double grille existent), arbres en petites couronnes ombrées.
+- **Lagons** : les cases d'eau couvertes par la couche `Rendu - Lagon` (`_lagoon`, double grille) sont claires et teintées
+  de turquoise (`_lagoonTint`), même loin des côtes (lagon de l'atoll, récif).
 - **Carte vivante** : 3 images de vaguelettes qui s'enchaînent, ombres de nuages, coins de pêche qui pulsent (couleur
   selon la sorte, lus dans les `FishingSpots` de la région), flèche rouge dans le sens du regard (`MinimapMath.FacingAngle`)
   avec une onde (`MinimapMath.Pulse`), teinte de l'heure (`DayCycleMath.SkyColor`). Cadres dorés de la charte, nom de la

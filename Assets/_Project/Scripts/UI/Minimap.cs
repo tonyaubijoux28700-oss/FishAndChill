@@ -64,6 +64,12 @@ namespace FishAndChill.UI
 
         [SerializeField] private Color _pavingColor = new Color(0.82f, 0.78f, 0.70f);
 
+        [SerializeField, Tooltip("Couche du lagon (eau claire), en double grille : ces cases sont claires sur la carte, même loin des côtes.")]
+        private Tilemap _lagoon;
+
+        [SerializeField, Tooltip("Teinte de l'eau claire du lagon sur la carte.")]
+        private Color _lagoonTint = new Color(0.30f, 0.82f, 0.80f);
+
         [SerializeField, Tooltip("Couleur de chaque tuile sur la carte.")]
         private List<TileColor> _palette = new List<TileColor>();
 
@@ -229,6 +235,7 @@ namespace FishAndChill.UI
             var land = new float[w, h];
             var ground = new Color[w, h];
             var decor = new Color?[w, h];
+            var shallow = new bool[w, h];
             for (int x = 0; x < w; x++)
             {
                 for (int y = 0; y < h; y++)
@@ -245,6 +252,8 @@ namespace FishAndChill.UI
                     {
                         TileBase water = _map.Water != null ? _map.Water.GetTile(cell) : null;
                         ground[x, y] = water != null && lookup.TryGetValue(water, out Color c) ? c : _waterColor;
+                        shallow[x, y] = HasAllCorners(_lagoon, cell);
+                        if (shallow[x, y]) ground[x, y] = Color.Lerp(ground[x, y], _lagoonTint, 0.65f);
                     }
 
                     TileBase decorTile = _decor != null ? _decor.GetTile(cell) : null;
@@ -253,6 +262,15 @@ namespace FishAndChill.UI
             }
 
             float[,] depth = WaterDepth(land, 4);
+            // Lagon (atoll, récif) : eau claire même au milieu, comme en jeu.
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    if (shallow[x, y]) depth[x, y] = Mathf.Min(depth[x, y], 0.6f);
+                }
+            }
+
             int d4 = _detail;
             int tw = w * d4;
             int th = h * d4;
@@ -334,14 +352,17 @@ namespace FishAndChill.UI
         /// Case pavée ? Les pavés sont dessinés en double grille (décalée d'une demi-case) : une case est pavée quand les
         /// quatre tuiles de rendu qui la touchent existent.
         /// </summary>
-        private bool IsPaved(Vector3Int cell)
+        private bool IsPaved(Vector3Int cell) => HasAllCorners(_paving, cell);
+
+        /// <summary>Les quatre tuiles de rendu (double grille) qui touchent cette case existent sur cette couche.</summary>
+        private static bool HasAllCorners(Tilemap layer, Vector3Int cell)
         {
-            if (_paving == null) return false;
+            if (layer == null) return false;
             for (int dx = -1; dx <= 0; dx++)
             {
                 for (int dy = -1; dy <= 0; dy++)
                 {
-                    if (_paving.GetTile(cell + new Vector3Int(dx, dy, 0)) == null) return false;
+                    if (layer.GetTile(cell + new Vector3Int(dx, dy, 0)) == null) return false;
                 }
             }
 
