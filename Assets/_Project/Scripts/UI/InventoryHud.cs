@@ -240,7 +240,8 @@ namespace FishAndChill.UI
             }
 
             // Devant le bureau du laboratoire, E fait parler la scientifique.
-            if (FishAndChill.World.LabBuilding.PlayerAtDesk || FishAndChill.World.LabBuilding.DialogOpen)
+            if (FishAndChill.World.LabBuilding.PlayerAtDesk || FishAndChill.World.LabBuilding.DialogOpen
+                || FishAndChill.World.LabBuilding.PlayerAtPedestal)
             {
                 return false;
             }
@@ -552,6 +553,7 @@ namespace FishAndChill.UI
         private readonly List<Image> _relicPieces = new List<Image>();
         private Text _relicName;
         private Text _relicCount;
+        private Text _relicPlaced;
 
         /// <summary>
         /// Colonne « Relique » entre le matériel et les poissons : l'artefact d'une légende en cours, fragments trouvés
@@ -578,7 +580,10 @@ namespace FishAndChill.UI
 
             _relicCount = UiFactory.Label(rect, "Fragments", 26, TextAnchor.MiddleCenter, Gold);
             UiFactory.Bold(_relicCount);
-            UiFactory.Center(_relicCount.rectTransform, new Vector2(0f, -150f), new Vector2(108f, 34f));
+            UiFactory.Center(_relicCount.rectTransform, new Vector2(0f, -140f), new Vector2(108f, 34f));
+
+            _relicPlaced = UiFactory.Label(rect, "Posés", 18, TextAnchor.MiddleCenter, Muted);
+            UiFactory.Center(_relicPlaced.rectTransform, new Vector2(0f, -172f), new Vector2(108f, 26f));
             _relic.SetActive(false);
         }
 
@@ -627,6 +632,8 @@ namespace FishAndChill.UI
 
             _relicName.text = shown.ArtifactName;
             _relicCount.text = $"{(state == LegendState.Collecting ? count : shown.FragmentCount)} / {shown.FragmentCount}";
+            int placed = state == LegendState.Collecting ? _progress.Legends.Placed(shown.Id) : shown.FragmentCount;
+            _relicPlaced.text = placed >= shown.FragmentCount ? "assemblée" : placed > 0 ? $"{placed} posé{(placed > 1 ? "s" : "")}" : "à assembler";
         }
 
         private static readonly Color TagFamily = new Color(0.62f, 0.22f, 0.12f);

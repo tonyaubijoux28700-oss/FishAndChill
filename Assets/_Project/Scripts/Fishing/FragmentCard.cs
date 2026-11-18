@@ -96,7 +96,7 @@ namespace FishAndChill.Fishing
         {
             int index = Mathf.Clamp(count - 1, 0, legend.FragmentCount - 1);
             bool complete = count >= legend.FragmentCount;
-            _title.text = complete ? "Artefact complet !" : "Fragment d'artefact !";
+            _title.text = complete ? "Dernier fragment !" : "Fragment d'artefact !";
             _fragmentImage.sprite = legend.Fragment(index);
             // Le pivot sur le fragment lui-même : il est centré dans le halo et tourne autour de lui-même.
             _fragment.pivot = legend.FragmentCenter(index);
@@ -117,7 +117,7 @@ namespace FishAndChill.Fishing
 
             _newPiece = index;
             _line.text = legend.FragmentLine(index)
-                + (complete ? $"\nL'artefact « {legend.ArtifactName} » est complet : apporte-le au laboratoire !" : string.Empty);
+                + (complete ? $"\nTu as tous les morceaux : assemble l'artefact sur le socle du laboratoire !" : string.Empty);
             _count.text = $"{Mathf.Min(count, legend.FragmentCount)} / {legend.FragmentCount}";
             _age = 0f;
             _root.SetActive(true);

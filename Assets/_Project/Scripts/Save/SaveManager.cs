@@ -261,7 +261,7 @@ namespace FishAndChill.Save
             data.EquippedBait = _progress.Baits.Equipped;
             foreach (string id in _progress.Legends.Ids)
             {
-                data.Legends.Add(new SaveData.Legend { Id = id, Fragments = _progress.Legends.Fragments(id), State = (int)_progress.Legends.State(id) });
+                data.Legends.Add(new SaveData.Legend { Id = id, Fragments = _progress.Legends.Fragments(id), Placed = _progress.Legends.Placed(id), State = (int)_progress.Legends.State(id) });
             }
 
             data.Look = Look;
@@ -355,7 +355,7 @@ namespace FishAndChill.Save
                 {
                     if (System.Enum.IsDefined(typeof(LegendState), legend.State))
                     {
-                        _progress.Legends.Restore(legend.Id, legend.Fragments, (LegendState)legend.State);
+                        _progress.Legends.Restore(legend.Id, legend.Fragments, legend.Placed, (LegendState)legend.State);
                     }
                 }
             }

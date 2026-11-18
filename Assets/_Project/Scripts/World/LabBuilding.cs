@@ -43,6 +43,7 @@ namespace FishAndChill.World
         {
             PlayerAtDesk = false;
             DialogOpen = false;
+            PlayerAtPedestal = false;
         }
 
         public override Vector2 InteriorSize => new Vector2(InteriorWidth, InteriorHeight);
@@ -103,10 +104,26 @@ namespace FishAndChill.World
             }
         }
 
+        /// <summary>Là où l'on se tient pour ouvrir l'atelier des artefacts : devant le socle.</summary>
+        public Vector2 PedestalFront => InteriorOrigin + new Vector2(Pedestal.center.x, Pedestal.yMin - 0.5f);
+
+        /// <summary>Le joueur est devant le socle (E ouvre l'atelier des artefacts, pas le sac).</summary>
+        public static bool PlayerAtPedestal { get; private set; }
+
+        /// <summary>L'atelier des artefacts (créé au démarrage).</summary>
+        public ArtifactWorkshop Workshop { get; private set; }
+
         protected override void Start()
         {
             base.Start();
             BuildUi();
+            if (_progress != null && _fishing != null)
+            {
+                var go = new GameObject("Atelier des artefacts");
+                go.transform.SetParent(transform, false);
+                Workshop = go.AddComponent<ArtifactWorkshop>();
+                Workshop.Init(_skin, _progress, _fishing.Legends, Player);
+            }
         }
 
         protected override void Update()
@@ -117,18 +134,29 @@ namespace FishAndChill.World
                 return;
             }
 
+            bool workshopOpen = Workshop != null && Workshop.IsOpen;
             base.Update();
-            bool atDesk = IsPlayerInside && Player != null && !Player.Locked
-                          && Vector2.Distance(Player.transform.position, DeskFront) <= _talkRadius;
+            bool free = IsPlayerInside && Player != null && !Player.Locked;
+            bool atDesk = free && Vector2.Distance(Player.transform.position, DeskFront) <= _talkRadius;
+            bool atPedestal = Workshop != null && IsPlayerInside && Player != null
+                              && Vector2.Distance(Player.transform.position, PedestalFront) <= _talkRadius;
             PlayerAtDesk = atDesk;
+            PlayerAtPedestal = atPedestal;   // reste vrai pendant que l'atelier est ouvert : E ne doit pas ouvrir le sac
             if (_prompt != null)
             {
-                _prompt.gameObject.SetActive(atDesk);
+                _prompt.gameObject.SetActive((atDesk || atPedestal) && !workshopOpen);
+                _prompt.text = atPedestal ? "E : atelier des artefacts" : $"E : parler au {ScientistName}";
             }
 
-            if (atDesk && InteractInput.PressedThisFrame())
+            // L'appui sur E qui vient de fermer l'atelier ne le rouvre pas.
+            bool pressed = InteractInput.PressedThisFrame() && (Workshop == null || Time.frameCount != Workshop.ClosedFrame);
+            if (atDesk && pressed)
             {
                 Talk();
+            }
+            else if (atPedestal && free && !workshopOpen && pressed)
+            {
+                Workshop.Open();
             }
         }
 
@@ -196,12 +224,25 @@ namespace FishAndChill.World
             }
 
             int missing = started.FragmentCount - _progress.Legends.Fragments(started.Id);
-            return new[]
+            int inHand = _progress.Legends.InHand(started.Id);
+            var lines = new System.Collections.Generic.List<string>
             {
-                $"Montre-moi ça… Un fragment de l'artefact « {started.ArtifactName} » ! Je n'en croyais pas mes yeux.",
-                $"Il t'en manque encore {missing}. Ils se pêchent du côté de « {ZoneName(started)} », "
-                + "et plus souvent là où les poissons se rassemblent.",
+                $"Montre-moi ça… Des fragments de l'artefact « {started.ArtifactName} » ! Je n'en croyais pas mes yeux.",
             };
+            if (inHand > 0)
+            {
+                lines.Add(inHand == 1
+                    ? "Pose ce fragment sur le socle de pierre, là, à droite : l'artefact se reconstituera morceau par morceau."
+                    : $"Tu en as {inHand} en poche. Pose-les sur le socle de pierre, là, à droite : l'artefact se reconstituera morceau par morceau.");
+            }
+
+            if (missing > 0)
+            {
+                lines.Add($"Il t'en manque encore {missing} à pêcher, du côté de « {ZoneName(started)} », "
+                          + "et plus souvent là où les poissons se rassemblent.");
+            }
+
+            return lines.ToArray();
         }
 
         private static string ZoneName(Collection.LegendFish legend) => legend.Zone != null ? legend.Zone.DisplayName : "sa zone";

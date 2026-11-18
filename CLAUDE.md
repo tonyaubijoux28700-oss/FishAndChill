@@ -196,12 +196,19 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   **Idole de corail** en 4 fragments (`LegendArt` : idole en volume, fragments aux cassures dentelées dans le même cadre,
   silhouette ; `Art/Legendes/`). **Fragments** (`FragmentRules`, testé) : dans la zone de la légende, une prise réussie
   sur ≈ 33 (3 %, ×2 dans un coin de pêche, ≈ 130 prises pour l'artefact) est un fragment, jamais en double, plus aucun
-  une fois l'artefact complet. Avancée dans `PlayerProgress.Legends` (`LegendProgress`, testé : `Collecting` → `Complete`
-  → `Summoned` → `Beaten`), sauvegardée (`SaveData.Legends`). Carte `Fishing/FragmentCard` (fragment qui flotte et
-  tourne dans un halo, artefact en silhouette qui se complète, phrase du fragment). Colonne **« Relique »** dans
-  l'inventaire (ne prend pas de place dans le sac). La scientifique dit combien il en manque et où, puis réagit à
-  l'artefact complet. Par script : `FishingController.DebugFindFragment()`. À faire : donner l'artefact, invoquer,
-  combat en 3 phases, récompense.
+  une fois tous trouvés. Un fragment pêché va **en poche** ; l'artefact n'est complet qu'une fois tous ses fragments
+  **posés** au labo, dans l'ordre. Avancée dans `PlayerProgress.Legends` (`LegendProgress`, testé : `Fragments`,
+  `Placed`, `InHand`, `PlaceFragment` ; `Collecting` → `Complete` → `Summoned` → `Beaten`), sauvegardée
+  (`SaveData.Legends`, avec `Placed`). Carte `Fishing/FragmentCard` (fragment qui flotte et tourne dans un halo,
+  artefact en silhouette, phrase du fragment). Colonne **« Relique »** dans l'inventaire (trouvés / posés, ne prend pas
+  de place dans le sac).
+  **Atelier des artefacts** (`UI/ArtifactWorkshop`, créé par `LabBuilding`, canvas ordre 15) : **E devant le socle**
+  (`LabBuilding.PedestalFront`, `PlayerAtPedestal`). Liste des légendes à gauche (« ??? » tant que rien n'est trouvé),
+  artefact **grisé** au centre rempli morceau par morceau, fragments en poche sur le plateau en bas ; **Espace** pose le
+  suivant : il s'envole en arc jusqu'à sa place (rotation, rebond), éclair, secousse, étincelles ; le dernier illumine
+  l'artefact d'un halo doré. Haut/Bas change d'artefact, E/Échap ferme. Par script : `lab.Workshop.Open()`,
+  `PlaceNext()`. La scientifique dit combien il en manque, invite à les poser, puis réagit à l'artefact complet.
+  Par script : `FishingController.DebugFindFragment()`. À faire : invoquer, combat en 3 phases, récompense.
 - **Phare** (`World/Lighthouse`, objet « Phare », dessin `LighthouseArt`) : sur la pointe nord (`FindLighthouseSite`),
   pied solide. La nuit (`DayCycleMath.LampLevel`), lanterne allumée (`Light2D`) et double faisceau qui tourne
   (sprite créé en jeu, matériau *Sprite-Unlit-Default*). Maison et phare ont leur icône sur la minimap.

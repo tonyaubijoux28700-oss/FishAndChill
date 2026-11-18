@@ -1,11 +1,10 @@
 using System;
-using FishAndChill.Collection;
 
 namespace FishAndChill.Fishing
 {
     /// <summary>
     /// Fragments d'artefact : de temps en temps, une prise réussie dans la zone d'une légende n'est pas un poisson mais un
-    /// fragment de son artefact (plus souvent dans un coin de pêche). Plus aucun fragment une fois l'artefact complet.
+    /// fragment de son artefact (plus souvent dans un coin de pêche). Plus aucun une fois tous les fragments trouvés.
     /// Logique pure, testée.
     /// </summary>
     public static class FragmentRules
@@ -18,8 +17,8 @@ namespace FishAndChill.Fishing
 
         public static float ChanceFor(float chance, bool inSpot) => Math.Max(0f, chance) * (inSpot ? SpotBonus : 1f);
 
-        /// <summary>Cette prise est-elle un fragment ? Seulement tant que la légende en est à chercher ses fragments.</summary>
-        public static bool ShouldDrop(Random random, float chance, bool inSpot, LegendState state)
-            => state == LegendState.Collecting && random.NextDouble() < ChanceFor(chance, inSpot);
+        /// <summary>Cette prise est-elle un fragment ? Seulement s'il en reste à trouver (<paramref name="canFindMore"/>).</summary>
+        public static bool ShouldDrop(Random random, float chance, bool inSpot, bool canFindMore)
+            => canFindMore && random.NextDouble() < ChanceFor(chance, inSpot);
     }
 }

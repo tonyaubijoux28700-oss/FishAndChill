@@ -513,7 +513,7 @@ namespace FishAndChill.Fishing
             // Dans la zone d'une légende, parfois un fragment de son artefact (plus souvent dans un coin de pêche).
             LegendFish legend = LegendOfZone;
             if (_progress != null && legend != null
-                && FragmentRules.ShouldDrop(_random, legend.FragmentChance, InSpot, _progress.Legends.State(legend.Id)))
+                && FragmentRules.ShouldDrop(_random, legend.FragmentChance, InSpot, _progress.Legends.CanFindMore(legend.Id, legend.FragmentCount)))
             {
                 FindFragment(legend);
                 return;
@@ -573,7 +573,7 @@ namespace FishAndChill.Fishing
         {
             int count = _progress.Legends.AddFragment(legend.Id, legend.FragmentCount);
             string text = count >= legend.FragmentCount
-                ? $"Le dernier fragment ! L'artefact « {legend.ArtifactName} » est complet : apporte-le au laboratoire."
+                ? $"Le dernier fragment ! Va assembler l'artefact « {legend.ArtifactName} » sur le socle du laboratoire."
                 : $"Un fragment de l'artefact « {legend.ArtifactName} » ! ({count} / {legend.FragmentCount})";
             StartPhase(FishingState.Result, _catchResultSeconds, text);
             FragmentFound?.Invoke(legend, count);
@@ -583,7 +583,7 @@ namespace FishAndChill.Fishing
         public void DebugFindFragment()
         {
             LegendFish legend = LegendOfZone;
-            if (_progress != null && legend != null && _progress.Legends.State(legend.Id) == LegendState.Collecting)
+            if (_progress != null && legend != null && _progress.Legends.CanFindMore(legend.Id, legend.FragmentCount))
             {
                 FindFragment(legend);
             }

@@ -77,6 +77,7 @@ namespace FishAndChill.Save
         {
             public string Id;
             public int Fragments;
+            public int Placed;  // fragments posés sur l'artefact, au laboratoire
             public int State;   // Collection.LegendState
         }
 
