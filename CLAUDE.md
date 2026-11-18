@@ -184,7 +184,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   (`FindBuildingSite` autour du centre + 22 cases, `alsoAvoid` = boutique et maison), cour pavée, chemin et décor
   (`TownLayout.DecorateLab`), icône sur la minimap. Intérieur 11×8 à `bounds.xMax + 20, yMin + 20` (au-dessus de la
   maison) : aquarium d'étude, étagères à bocaux, carte, affiche du poisson de légende, bureau, socle de pierre et plante
-  (sprites à part, obstacles dans `LabBuilding`). Devant le bureau, **E** fait parler le **Dr Hina Teva** (boîte de
+  (sprites à part, obstacles dans `LabBuilding`). **Vie** (`World/LabLife`, objet « Vie du laboratoire », dessins
+  `LabArt.TankFish` / `Seaweed` / `Bubble` / `PedestalGlow` → `Art/Buildings/Laboratoire/`, seulement quand le joueur est
+  dedans) : poissons qui nagent dans l'aquarium d'étude (queue qui bat, demi-tour), algues qui ondulent, bulles de la
+  pompe, lueur du socle qui pulse, scientifique qui se penche sur ses papiers. Devant le bureau, **E** fait parler le **Dr Hina Teva** (boîte de
   dialogue, E/Espace suite, Échap ferme ; `PlayerAtDesk` / `DialogOpen` empêchent le sac de s'ouvrir). Première étape
   des **poissons de légende** (boss) : fragments d'artefact pêchés → artefact complet donné à la scientifique → boss
   invoqué dans sa zone, combat en 3 phases. Pour l'instant elle ne fait que présenter les légendes.

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using static FishAndChill.Editor.VolumeCanvas;
 
@@ -179,20 +180,9 @@ namespace FishAndChill.Editor
                     if ((x - y) % 23 == 0 || (x - y) % 23 == 1) return C(0.70f, 0.92f, 0.98f);                  // reflets
                     return Color.Lerp(C(0.40f, 0.76f, 0.86f), C(0.16f, 0.44f, 0.62f), (y - 26f) / 60f);
                 }, 0.9f, 0.9f);
-            for (int k = 0; k < 5; k++)
-            {
-                float sx = 22f + k * 17f;
-                cv.Piece(Capsule(sx, 88f, sx + (k % 2 == 0 ? 3f : -3f), 62f + (k % 3) * 6f, 2f), k % 2 == 0 ? Leaf : Darker(Leaf, 0.85f), 2f);
-            }
-
-            cv.Piece(Union(Ellipse(48f, 50f, 8f, 4.5f), (x, y) => x > 37 && x < 42 && Mathf.Abs(y - 50f) < (42 - x) * 0.9f), C(0.98f, 0.82f, 0.24f), 3f);
-            cv.Dot(53, 49, C(0.08f, 0.06f, 0.08f));
-            cv.Piece(Union(Ellipse(76f, 70f, 6f, 3.5f), (x, y) => x > 82 && x < 86 && Mathf.Abs(y - 70f) < (x - 82) * 0.9f), C(0.40f, 0.30f, 0.80f), 2.5f);
-            cv.Dot(72, 69, C(0.08f, 0.06f, 0.08f));
-            foreach ((float bx, float by) in new[] { (88f, 40f), (90f, 54f), (86f, 66f) })
-            {
-                cv.Piece(Ellipse(bx, by, 1.8f, 1.8f), C(0.86f, 0.97f, 1f), 1.5f);
-            }
+            // Poissons, algues et bulles sont animés en jeu (LabLife) ; ici, un rocher et la pierre de la pompe.
+            cv.Piece(Union(Ellipse(40f, 88f, 9f, 6f), Ellipse(50f, 90f, 6f, 4f)), C(0.56f, 0.54f, 0.52f), 4f);
+            cv.Piece(Ellipse(87f, 91f, 4f, 2f), C(0.36f, 0.38f, 0.42f), 2f);
 
             cv.Piece(Box(10, 18, 102, 24), C(0.30f, 0.34f, 0.40f), 2f);   // couvercle et lampe
 
@@ -316,6 +306,89 @@ namespace FishAndChill.Editor
             cv.Piece(Union(Box(12, 48, 36, 70), Ellipse(24f, 48f, 13f, 3f)), C(0.80f, 0.44f, 0.30f), 4f,
                 (x, y, c) => y == 54 ? Darker(c, 0.8f) : c);
             return cv.Finish(C(0.12f, 0.14f, 0.10f));
+        }
+
+        // ---------- Vie de l'aquarium d'étude (animée par LabLife) ----------
+
+        /// <summary>Petit poisson de profil, tête à droite (<paramref name="frame"/> 0 ou 1 : la queue bat).</summary>
+        public static Color[,] TankFish(Color body, Color fin, int frame, float length = 16f)
+        {
+            int w = Mathf.CeilToInt(length) + 6, h = 12;
+            var cv = new VolumeCanvas(w, h);
+            float cx = w * 0.5f + 1f, cy = h * 0.5f, rx = length * 0.36f, ry = length * 0.22f;
+            float tail = cx - rx - 0.5f;
+            float tilt = frame == 0 ? -1.2f : 1.2f;
+            cv.Piece((x, y) => x < tail + 1f && x > tail - 5f && Mathf.Abs(y - cy - tilt * (tail - x) / 5f) < (tail + 1f - x) * 0.75f, fin, 1.5f);
+            cv.Piece(Ellipse(cx, cy - ry * 0.9f, rx * 0.45f, ry * 0.45f), fin, 1.5f);   // nageoire du dos
+            cv.Piece(Ellipse(cx, cy, rx, ry), body, 3f, (x, y, c) => y > cy + ry * 0.4f ? Color.Lerp(c, Color.white, 0.35f) : c);
+            cv.Dot(Mathf.RoundToInt(cx + rx * 0.55f), Mathf.RoundToInt(cy - 1f), C(0.06f, 0.05f, 0.08f));
+            return cv.Finish(Darker(body, 0.45f), 0.6f);
+        }
+
+        /// <summary>Hauteur des images d'algue, en pixels.</summary>
+        public const int SeaweedHeight = 30;
+
+        /// <summary>Touffe d'algue qui ondule (<paramref name="frame"/> 0, 1, 2 : penchée à gauche, droite, à droite).</summary>
+        public static Color[,] Seaweed(int frame)
+        {
+            var cv = new VolumeCanvas(14, SeaweedHeight);
+            float bend = (frame - 1) * 2.5f;
+            for (int k = 0; k < 2; k++)
+            {
+                float baseX = 5f + k * 4f, top = 6f + k * 9f;
+                var pts = new List<Vector2>();
+                for (int s = 0; s <= 5; s++)
+                {
+                    float u = s / 5f;
+                    pts.Add(new Vector2(baseX + bend * u * u + Mathf.Sin(u * 5f + k) * 1f, Mathf.Lerp(SeaweedHeight - 2f, top, u)));
+                }
+
+                for (int s = 0; s < pts.Count - 1; s++)
+                {
+                    Vector2 a = pts[s], b = pts[s + 1];
+                    cv.Piece(Capsule(a.x, a.y, b.x, b.y, 1.8f - s * 0.18f), k == 0 ? Leaf : Darker(Leaf, 0.82f), 2f, null, 0.92f);
+                }
+            }
+
+            return cv.Finish(C(0.10f, 0.26f, 0.14f), 0.5f);
+        }
+
+        /// <summary>Bulle de 4 px, claire avec un reflet.</summary>
+        public static Color[,] Bubble()
+        {
+            var p = new Color[4, 4];
+            Color rim = C(0.86f, 0.97f, 1f, 0.9f), inside = C(0.70f, 0.90f, 1f, 0.35f);
+            for (int x = 0; x < 4; x++)
+            {
+                for (int y = 0; y < 4; y++)
+                {
+                    bool corner = (x == 0 || x == 3) && (y == 0 || y == 3);
+                    if (!corner) p[x, y] = x == 0 || x == 3 || y == 0 || y == 3 ? rim : inside;
+                }
+            }
+
+            p[1, 2] = C(1f, 1f, 1f, 1f);
+            return p;
+        }
+
+        /// <summary>Lueur turquoise du creux du socle (ovale doux, posé par-dessus le socle).</summary>
+        public static Color[,] PedestalGlow()
+        {
+            var p = new Color[28, 14];
+            for (int x = 0; x < 28; x++)
+            {
+                for (int y = 0; y < 14; y++)
+                {
+                    float u = (x + 0.5f - 14f) / 13f, v = (y + 0.5f - 4f) / 3.2f;
+                    float d = u * u + v * v;
+                    float up = (y + 0.5f - 4f) / 10f;   // un halo qui monte un peu au-dessus du creux
+                    float halo = Mathf.Clamp01(1f - Mathf.Abs(u) * 1.3f) * Mathf.Clamp01(1f - up) * (y >= 4 ? 0.35f : 0f);
+                    float a = Mathf.Max(d <= 1f ? 0.8f * (1f - d * 0.6f) : 0f, halo);
+                    if (a > 0.04f) p[x, y] = C(0.55f, 0.95f, 0.95f, Mathf.Round(a * 4f) / 4f);
+                }
+            }
+
+            return p;
         }
 
         // ---------- Icône de la minimap (16×16, y depuis le bas) ----------

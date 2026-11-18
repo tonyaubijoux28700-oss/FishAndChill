@@ -1782,6 +1782,66 @@ namespace FishAndChill.Editor
             Prop("Scientifique", lab.ScientistSpot, scientist);
             Prop("Socle", lab.PedestalSpot, pedestal);
             Prop("Plante", lab.PlantSpot, plant);
+
+            // Vie du laboratoire : poissons, algues et bulles de l'aquarium d'étude, lueur du socle, scientifique.
+            const string lifeFolder = "Assets/_Project/Art/Buildings/Laboratoire";
+            PixelArt.EnsureFolder(lifeFolder);
+            Sprite[] Fish(string name, Color body, Color fin, float length) => new[]
+            {
+                PixelArt.Save($"{lifeFolder}/{name}_0.png", LabArt.TankFish(body, fin, 0, length), ppu, Vector2.one * 0.5f),
+                PixelArt.Save($"{lifeFolder}/{name}_1.png", LabArt.TankFish(body, fin, 1, length), ppu, Vector2.one * 0.5f),
+            };
+
+            var weed = new Sprite[3];
+            for (int i = 0; i < 3; i++)
+            {
+                weed[i] = PixelArt.Save($"{lifeFolder}/Algue_{i}.png", LabArt.Seaweed(i), ppu, new Vector2(0.5f, 2f / LabArt.SeaweedHeight));
+            }
+
+            GameObject glowObject = EnsureObject("Lueur du socle", room.transform);
+            glowObject.transform.position = lab.PedestalSpot + new Vector2(0f, 49f / ppu);
+            SpriteRenderer glow = SetSprite(glowObject, PixelArt.Save($"{lifeFolder}/Lueur_Socle.png", LabArt.PedestalGlow(), ppu, new Vector2(0.5f, 4f / 14f)), 11);
+
+            GameObject lifeObject = EnsureObject("Vie du laboratoire", room.transform);
+            var life = lifeObject.GetComponent<LabLife>();
+            if (life == null)
+            {
+                life = lifeObject.AddComponent<LabLife>();
+            }
+
+            var lifeSo = new SerializedObject(life);
+            lifeSo.FindProperty("_lab").objectReferenceValue = lab;
+            SerializedProperty looks = lifeSo.FindProperty("_fish");
+            (Sprite[] frames, int count, Vector2 speed)[] fish =
+            {
+                (Fish("Poisson_Jaune", new Color(1f, 0.84f, 0.22f), new Color(0.96f, 0.66f, 0.14f), 16f), 1, new Vector2(0.35f, 0.5f)),
+                (Fish("Poisson_Violet", new Color(0.44f, 0.34f, 0.84f), new Color(1f, 0.62f, 0.22f), 12f), 1, new Vector2(0.4f, 0.6f)),
+                (Fish("Neon", new Color(0.30f, 0.72f, 0.96f), new Color(0.92f, 0.30f, 0.30f), 8f), 4, new Vector2(0.6f, 0.9f)),
+            };
+            looks.arraySize = fish.Length;
+            for (int i = 0; i < fish.Length; i++)
+            {
+                SerializedProperty look = looks.GetArrayElementAtIndex(i);
+                SerializedProperty frames = look.FindPropertyRelative("Frames");
+                frames.arraySize = 2;
+                frames.GetArrayElementAtIndex(0).objectReferenceValue = fish[i].frames[0];
+                frames.GetArrayElementAtIndex(1).objectReferenceValue = fish[i].frames[1];
+                look.FindPropertyRelative("Count").intValue = fish[i].count;
+                look.FindPropertyRelative("Speed").vector2Value = fish[i].speed;
+            }
+
+            lifeSo.FindProperty("_weeds").intValue = 3;
+            SerializedProperty weedFrames = lifeSo.FindProperty("_weed");
+            weedFrames.arraySize = weed.Length;
+            for (int i = 0; i < weed.Length; i++)
+            {
+                weedFrames.GetArrayElementAtIndex(i).objectReferenceValue = weed[i];
+            }
+
+            lifeSo.FindProperty("_bubble").objectReferenceValue = PixelArt.Save($"{lifeFolder}/Bulle.png", LabArt.Bubble(), ppu, Vector2.one * 0.5f);
+            lifeSo.FindProperty("_glow").objectReferenceValue = glow;
+            lifeSo.FindProperty("_scientist").objectReferenceValue = room.transform.Find("Scientifique");
+            lifeSo.ApplyModifiedPropertiesWithoutUndo();
             return lab;
         }
 
