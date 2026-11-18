@@ -290,6 +290,21 @@ namespace FishAndChill.Editor
             ShopBuilding shop = buildings.Shop;
             AquariumBuilding aquarium = buildings.Aquarium;
 
+            // Chaque remous légendaire attend la légende de sa zone (même région que la zone de la légende).
+            foreach (LegendSpot legendSpot in Object.FindObjectsByType<LegendSpot>())
+            {
+                var spotSo = new SerializedObject(legendSpot);
+                spotSo.FindProperty("_progress").objectReferenceValue = progress;
+                LegendFish match = null;
+                foreach (LegendFish legend in legends)
+                {
+                    if (legend != null && legend.Zone != null && legend.Zone.name == "IleMahana" && legendSpot.Region == 0) match = legend;
+                }
+
+                spotSo.FindProperty("_legend").objectReferenceValue = match;
+                spotSo.ApplyModifiedPropertiesWithoutUndo();
+            }
+
             // La scientifique du laboratoire parle des fragments trouvés.
             var labSo = new SerializedObject(buildings.Lab);
             labSo.FindProperty("_progress").objectReferenceValue = progress;

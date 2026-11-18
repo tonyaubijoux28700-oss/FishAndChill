@@ -112,6 +112,25 @@ namespace FishAndChill.Fishing
 
         public IReadOnlyList<LegendFish> Legends => _legends;
 
+        private LegendSpot[] _legendSpots = new LegendSpot[0];
+
+        /// <summary>La légende qui a mordu (null pour un poisson ordinaire).</summary>
+        public LegendFish HookedLegend { get; private set; }
+
+        /// <summary>Le remous légendaire de la région où l'on est, s'il est là.</summary>
+        private LegendSpot ActiveLegendSpot
+        {
+            get
+            {
+                foreach (LegendSpot spot in _legendSpots)
+                {
+                    if (spot != null && spot.Active) return spot;
+                }
+
+                return null;
+            }
+        }
+
         /// <summary>La légende qui vit dans la zone actuelle (null s'il n'y en a pas).</summary>
         public LegendFish LegendOfZone
         {
@@ -163,6 +182,7 @@ namespace FishAndChill.Fishing
         private void Awake()
         {
             _random = new System.Random();
+            _legendSpots = FindObjectsByType<LegendSpot>();
             if (_progress != null)
             {
                 _progress.EnsureCreated();
@@ -257,7 +277,9 @@ namespace FishAndChill.Fishing
                 case FishingState.Bite:
                     if (CountDown(deltaTime))
                     {
-                        Finish($"Trop lent… {HookedSpecies.CommonName.ToLowerInvariant()} a lâché l'appât.");
+                        Finish(HookedLegend != null
+                            ? $"Trop lent… {HookedLegend.Title} a lâché l'appât et replonge dans le remous."
+                            : $"Trop lent… {HookedSpecies.CommonName.ToLowerInvariant()} a lâché l'appât.");
                     }
 
                     break;
@@ -300,6 +322,14 @@ namespace FishAndChill.Fishing
                     break;
 
                 case FishingState.Bite:
+                    if (HookedLegend != null)
+                    {
+                        // Le combat de légende viendra ici ; pour l'instant, la légende se dégage aussitôt.
+                        Finish($"{HookedLegend.Title} a mordu… et replonge aussitôt, emportant presque ta canne ! "
+                               + "Il faudra un vrai combat pour le sortir de l'eau.");
+                        break;
+                    }
+
                     // Le matériel (canne, hameçon) rend le combat plus facile.
                     // La canne aide aussi à tenir la tension des gros poissons.
                     // Canne et hameçon : chacun a sa spécialité (tension, rushs, nerveux, fuyants).
@@ -361,6 +391,14 @@ namespace FishAndChill.Fishing
             }
 
             CastPoint = castPoint;
+            HookedLegend = null;
+            LegendSpot legendSpot = ActiveLegendSpot;
+            if (legendSpot != null && legendSpot.Contains(castPoint) && legendSpot.Legend.Species != null)
+            {
+                CastIntoLegendSpot(legendSpot.Legend);
+                return;
+            }
+
             FishingSpots spots = CurrentSpots;
             SpotKind kind = Fishing.SpotKind.School;
             InSpot = spots != null && spots.TryGetSpot(castPoint, out kind);
@@ -412,6 +450,24 @@ namespace FishAndChill.Fishing
             StartPhase(FishingState.Casting, flight, "Lancer !");
         }
 
+        /// <summary>
+        /// Le bouchon tombe dans le remous légendaire : c'est la légende qui mordra, après une longue attente et quelques
+        /// titillements. L'appât n'est pas consommé (la légende ne s'y intéresse pas).
+        /// </summary>
+        private void CastIntoLegendSpot(LegendFish legend)
+        {
+            HookedLegend = legend;
+            HookedSpecies = legend.Species;
+            HookedSizeCm = legend.SizeCm;
+            InSpot = false;
+            _baitNotice = $"Le remous bouillonne… {legend.Title} tourne sous ton bouchon.";
+            _biteTime = Mathf.Lerp(5f, 8f, (float)_random.NextDouble());
+            _nibbles = NibblePlanner.Plan(_random, _biteTime);
+            Vector2 origin = _angler != null ? (Vector2)_angler.transform.position : (Vector2)transform.position;
+            float flight = _castFlightSeconds * Mathf.Clamp(Vector2.Distance(origin, CastPoint) / 4f, 0.7f, 1.4f);
+            StartPhase(FishingState.Casting, flight, "Lancer dans le remous légendaire !");
+        }
+
         /// <summary>Les coins de pêche de la zone où l'on est.</summary>
         private FishingSpots CurrentSpots
         {
@@ -431,6 +487,19 @@ namespace FishAndChill.Fishing
         {
             Vector2 origin = _angler != null ? (Vector2)_angler.transform.position : (Vector2)transform.position;
             Vector2 facing = _angler != null ? _angler.Facing : Vector2.up;
+
+            // Face au remous légendaire à portée : le lancer y va tout seul.
+            LegendSpot legendSpot = ActiveLegendSpot;
+            if (legendSpot != null)
+            {
+                int aimed = FishingSpotRules.Assist(origin, facing, new[] { legendSpot.Center }, 1.5f, _castMaxDistance + GearEffects.CastBonus);
+                if (aimed >= 0)
+                {
+                    Vector2 jitter = new Vector2((float)_random.NextDouble() - 0.5f, (float)_random.NextDouble() - 0.5f) * 0.6f;
+                    castPoint = legendSpot.Center + jitter;
+                    return true;
+                }
+            }
 
             // Face à un coin de pêche à portée : le lancer y va tout seul (un peu au hasard dans le coin).
             FishingSpots spots = CurrentSpots;

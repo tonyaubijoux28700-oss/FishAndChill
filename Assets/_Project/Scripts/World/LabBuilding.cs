@@ -123,11 +123,52 @@ namespace FishAndChill.World
                 go.transform.SetParent(transform, false);
                 Workshop = go.AddComponent<ArtifactWorkshop>();
                 Workshop.Init(_skin, _progress, _fishing.Legends, Player);
+
+                // L'artefact assemblé trône sur le socle (petit, au-dessus du creux).
+                var idol = new GameObject("Artefact sur le socle");
+                idol.transform.SetParent(transform, false);
+                idol.transform.position = PedestalSpot + new Vector2(0f, 1.53f + 0.5f);
+                idol.transform.localScale = Vector3.one * 0.5f;
+                _pedestalIdol = idol.AddComponent<SpriteRenderer>();
+                _pedestalIdol.sortingOrder = 12;
             }
+        }
+
+        private SpriteRenderer _pedestalIdol;
+
+        /// <summary>Montre sur le socle le premier artefact assemblé ; il brille davantage une fois son gardien réveillé.</summary>
+        private void UpdatePedestal()
+        {
+            if (_pedestalIdol == null || !IsPlayerInside)
+            {
+                return;
+            }
+
+            Collection.LegendFish shown = null;
+            foreach (Collection.LegendFish legend in _fishing.Legends)
+            {
+                if (legend != null && _progress.Legends.State(legend.Id) != Collection.LegendState.Collecting)
+                {
+                    shown = legend;
+                    break;
+                }
+            }
+
+            _pedestalIdol.enabled = shown != null;
+            if (shown == null)
+            {
+                return;
+            }
+
+            _pedestalIdol.sprite = shown.Artifact;
+            bool awake = _progress.Legends.State(shown.Id) == Collection.LegendState.Summoned;
+            float bob = Mathf.Sin(Time.time * (awake ? 2.6f : 1.2f)) * (awake ? 0.06f : 0.03f);
+            _pedestalIdol.transform.position = PedestalSpot + new Vector2(0f, 2.03f + bob);
         }
 
         protected override void Update()
         {
+            UpdatePedestal();
             if (DialogOpen)
             {
                 UpdateDialog();
@@ -205,9 +246,19 @@ namespace FishAndChill.World
                     return new[]
                     {
                         $"Par tous les coraux… L'artefact « {legend.ArtifactName} » est complet ! Tu as réussi !",
-                        "Laisse-moi l'étudier un peu. Ces gravures parlent d'un gardien immense qui dort quelque part du côté de "
-                        + $"« {ZoneName(legend)} »…",
-                        "Reviens me voir bientôt : je cherche encore comment le réveiller.",
+                        "Ces gravures parlent d'un gardien immense qui dort quelque part du côté de "
+                        + $"« {ZoneName(legend)} ». L'artefact peut le réveiller.",
+                        "Retourne au socle quand tu te sens prêt… et prends ta meilleure canne.",
+                    };
+                }
+
+                if (_progress.Legends.State(legend.Id) == Collection.LegendState.Summoned)
+                {
+                    return new[]
+                    {
+                        $"{legend.Title} est réveillé ! Mes instruments s'affolent depuis ce matin.",
+                        $"Cherche un grand remous sombre du côté de « {ZoneName(legend)} » : il est marqué en or sur ta carte.",
+                        "Lance en plein dedans. Et surtout… ne lâche rien.",
                     };
                 }
 

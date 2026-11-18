@@ -63,6 +63,17 @@ namespace FishAndChill.UI
         private float _shake;
         private float _completeAge = -1f;
 
+        // Réveil du gardien : l'artefact tremble de plus en plus, le halo enfle, puis un éclair blanc remplit l'écran.
+        private const float SummonSeconds = 2.4f;
+        private const float SummonFlashAt = 1.6f;
+        private float _summonAge = -1f;
+        private Image _whiteout;
+        private Text _banner;
+        private float _bannerAge = -1f;
+
+        /// <summary>La légende vient d'être réveillée depuis l'atelier.</summary>
+        public event System.Action<LegendFish> Summoned;
+
         private sealed class RowView
         {
             public Image Frame;
@@ -112,6 +123,10 @@ namespace FishAndChill.UI
             _selected = Mathf.Clamp(FirstStarted(), 0, Mathf.Max(0, _legends.Count - 1));
             _flyingIndex = -1;
             _completeAge = -1f;
+            _summonAge = -1f;
+            _bannerAge = -1f;
+            _banner.color = Color.clear;
+            _whiteout.color = Color.clear;
             if (_flying != null) _flying.gameObject.SetActive(false);
             if (_player != null) _player.Locked = true;
             _window.SetActive(true);
@@ -161,6 +176,76 @@ namespace FishAndChill.UI
             return true;
         }
 
+        /// <summary>
+        /// Réveille le gardien de l'artefact choisi (s'il est complet et pas encore réveillé) : animation, puis la légende
+        /// est invoquée dans sa zone. Public pour les essais par script.
+        /// </summary>
+        public bool Summon()
+        {
+            LegendFish legend = Selected;
+            if (legend == null || _summonAge >= 0f || _flyingIndex >= 0 || _progress.Legends.State(legend.Id) != LegendState.Complete)
+            {
+                return false;
+            }
+
+            _summonAge = 0f;
+            _help.text = string.Empty;
+            _status.text = "L'idole s'éveille…";
+            return true;
+        }
+
+        private void AnimateSummon(float dt)
+        {
+            if (_summonAge >= 0f)
+            {
+                float before = _summonAge;
+                _summonAge += dt;
+                float build = Mathf.Clamp01(_summonAge / SummonFlashAt);
+                _shake = Mathf.Max(_shake, 0.05f + 0.25f * build);
+                if (Random.value < dt * (6f + 30f * build))
+                {
+                    float a = Random.Range(0f, Mathf.PI * 2f);
+                    Burst(FramePosition + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * 60f, new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * Random.Range(200f, 380f), Random.value < 0.5f ? Gold : Glow);
+                }
+
+                if (before < SummonFlashAt && _summonAge >= SummonFlashAt)
+                {
+                    LegendFish legend = Selected;
+                    if (legend != null && _progress.Legends.Summon(legend.Id))
+                    {
+                        string zone = legend.Zone != null ? legend.Zone.DisplayName : "sa zone";
+                        _banner.text = $"{legend.Title} s'est réveillé !";
+                        _bannerAge = 0f;
+                        Summoned?.Invoke(legend);
+                        Refresh();
+                        _status.text = $"Il t'attend au remous légendaire, du côté de « {zone} ».";
+                    }
+                }
+
+                if (_summonAge >= SummonSeconds)
+                {
+                    _summonAge = -1f;
+                    Refresh();
+                }
+            }
+
+            // Éclair blanc qui remplit l'écran au moment du réveil, puis s'efface.
+            float white = _summonAge < 0f ? 0f
+                : _summonAge < SummonFlashAt ? Mathf.Pow(Mathf.Clamp01((_summonAge - SummonFlashAt + 0.35f) / 0.35f), 2f)
+                : Mathf.Clamp01(1f - (_summonAge - SummonFlashAt) / 0.8f);
+            _whiteout.color = new Color(1f, 0.98f, 0.92f, white);
+
+            if (_bannerAge >= 0f)
+            {
+                _bannerAge += dt;
+                float appear = Mathf.Clamp01(_bannerAge / 0.3f);
+                float fade = Mathf.Clamp01((4f - _bannerAge) / 0.6f);
+                _banner.color = new Color(Gold.r, Gold.g, Gold.b, appear * fade);
+                _banner.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.4f, 1f, appear);
+                if (_bannerAge > 4f) _bannerAge = -1f;
+            }
+        }
+
         private LegendFish Selected => _legends.Count > 0 ? _legends[Mathf.Clamp(_selected, 0, _legends.Count - 1)] : null;
 
         private int FirstStarted()
@@ -191,6 +276,7 @@ namespace FishAndChill.UI
             float dt = Time.unscaledDeltaTime;
             _age += dt;
             AnimateFlight(dt);
+            AnimateSummon(dt);
             AnimateEffects(dt);
 
             // L'appui qui a ouvert l'atelier ne doit pas déjà le refermer.
@@ -199,15 +285,20 @@ namespace FishAndChill.UI
                 return;
             }
 
-            if (PauseInput.TogglePressedThisFrame() || PauseInput.BackPressedThisFrame() || InteractInput.PressedThisFrame())
+            if (_summonAge < 0f && (PauseInput.TogglePressedThisFrame() || PauseInput.BackPressedThisFrame() || InteractInput.PressedThisFrame()))
             {
                 Close();
                 return;
             }
 
-            if (PauseInput.ConfirmPressedThisFrame())
+            if (_summonAge >= 0f)
             {
-                PlaceNext();
+                return;   // pendant le réveil, on regarde
+            }
+
+            if (PauseInput.ConfirmPressedThisFrame() && _flyingIndex < 0 && !PlaceNext())
+            {
+                Summon();
             }
 
             int move = VerticalPressed();
@@ -376,7 +467,11 @@ namespace FishAndChill.UI
                 row.Icon.color = known ? Color.white : new Color(1f, 1f, 1f, 0.5f);
                 row.Name.text = known ? legend.ArtifactName : "???";
                 string zone = legend != null && legend.Zone != null ? legend.Zone.DisplayName : string.Empty;
-                row.Detail.text = !known ? zone : $"{PlacedOf(legend)} / {legend.FragmentCount} posés";
+                LegendState rowState = legend != null ? _progress.Legends.State(legend.Id) : LegendState.Collecting;
+                row.Detail.text = !known ? zone
+                    : rowState == LegendState.Summoned ? "Gardien réveillé"
+                    : rowState == LegendState.Beaten ? "Légende vaincue"
+                    : $"{PlacedOf(legend)} / {legend.FragmentCount} posés";
             }
 
             LegendFish selected = Selected;
@@ -411,7 +506,10 @@ namespace FishAndChill.UI
 
             string zoneName = selected.Zone != null ? selected.Zone.DisplayName : "sa zone";
             _status.color = complete ? Gold : Color.white;
-            _status.text = complete ? "Artefact complet ! Il ne reste qu'à le réveiller…"
+            LegendState state = _progress.Legends.State(selected.Id);
+            _status.text = state == LegendState.Summoned ? $"{selected.Title} est réveillé : il t'attend au remous légendaire, du côté de « {zoneName} »."
+                : state == LegendState.Beaten ? $"{selected.Title} a été vaincu. L'idole repose, apaisée."
+                : complete ? "Artefact complet ! Espace : réveiller le gardien"
                 : !discovered ? $"Aucun fragment trouvé. Ils se pêchent du côté de « {zoneName} »."
                 : inHand > 0 ? $"{placed} / {selected.FragmentCount} posés — Espace : poser le fragment suivant"
                 : $"{placed} / {selected.FragmentCount} posés — pêche {(selected.FragmentCount - found == 1 ? "le dernier" : $"les {selected.FragmentCount - found} autres")} du côté de « {zoneName} »";
@@ -434,7 +532,8 @@ namespace FishAndChill.UI
             }
 
             _help.text = (_legends.Count > 1 ? "Haut / Bas : artefact   —   " : string.Empty)
-                + (inHand > 0 && !complete ? "Espace : poser   —   " : string.Empty) + "E ou Échap : fermer";
+                + (inHand > 0 && !complete ? "Espace : poser   —   " : string.Empty)
+                + (state == LegendState.Complete ? "Espace : réveiller le gardien   —   " : string.Empty) + "E ou Échap : fermer";
         }
 
         private void BuildUi()
@@ -524,6 +623,14 @@ namespace FishAndChill.UI
 
             _help = UiFactory.Label(_panel, "Aide", 22, TextAnchor.MiddleCenter, Muted);
             UiFactory.Center(_help.rectTransform, new Vector2(0f, -420f), new Vector2(1300f, 30f));
+
+            _whiteout = UiFactory.Plain(root, "Éclair du réveil", new Color(1f, 1f, 1f, 0f));
+            _whiteout.raycastTarget = false;
+            UiFactory.Stretch(_whiteout.rectTransform);
+
+            _banner = UiFactory.Label(root, "Bandeau du réveil", 64, TextAnchor.MiddleCenter, new Color(Gold.r, Gold.g, Gold.b, 0f));
+            UiFactory.Bold(_banner);
+            UiFactory.Center(_banner.rectTransform, new Vector2(0f, 300f), new Vector2(1600f, 90f));
         }
     }
 }

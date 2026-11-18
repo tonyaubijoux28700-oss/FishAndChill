@@ -108,6 +108,7 @@ namespace FishAndChill.UI
         private PlayerMovement _movement;
         private DayNightCycle _cycle;
         private FishingSpots[] _spotSources = new FishingSpots[0];
+        private LegendSpot[] _legendSources = new LegendSpot[0];
         private readonly float[] _cloudX = new float[CloudCount];
         private Sprite _arrowSprite;
         private Sprite _ringSprite;
@@ -133,6 +134,7 @@ namespace FishAndChill.UI
             _movement = _player != null ? _player.GetComponent<PlayerMovement>() : null;
             _cycle = FindAnyObjectByType<DayNightCycle>();
             _spotSources = FindObjectsByType<FishingSpots>();
+            _legendSources = FindObjectsByType<LegendSpot>();
             for (int i = 0; i < CloudCount; i++) _cloudX[i] = i / (float)CloudCount;
             CreateSprites();
             BuildUi();
@@ -568,6 +570,18 @@ namespace FishAndChill.UI
                     marker.color = color;
                     marker.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.85f, 1.15f, beat);
                 }
+            }
+
+            // Le remous d'une légende réveillée : gros point doré qui bat plus fort.
+            foreach (LegendSpot legend in _legendSources)
+            {
+                if (legend == null || !legend.Active || used >= view.Spots.Count) continue;
+                Image marker = view.Spots[used++];
+                marker.gameObject.SetActive(true);
+                marker.rectTransform.anchoredPosition = onMap(MinimapMath.WorldToNormalized(legend.Center, _worldBounds));
+                float beat = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 6f);
+                marker.color = Color.Lerp(new Color(1f, 0.72f, 0.20f), new Color(1f, 0.30f, 0.22f), beat);
+                marker.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.5f, 2.1f, beat);
             }
 
             for (int i = used; i < view.Spots.Count; i++)

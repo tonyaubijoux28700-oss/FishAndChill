@@ -208,7 +208,15 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   suivant : il s'envole en arc jusqu'à sa place (rotation, rebond), éclair, secousse, étincelles ; le dernier illumine
   l'artefact d'un halo doré. Haut/Bas change d'artefact, E/Échap ferme. Par script : `lab.Workshop.Open()`,
   `PlaceNext()`. La scientifique dit combien il en manque, invite à les poser, puis réagit à l'artefact complet.
-  Par script : `FishingController.DebugFindFragment()`. À faire : invoquer, combat en 3 phases, récompense.
+  Par script : `FishingController.DebugFindFragment()`.
+  **Réveil** : artefact complet → Espace dans l'atelier (`ArtifactWorkshop.Summon`) : l'idole tremble, étincelles,
+  éclair blanc, bandeau « Le Vieux Ulua s'est réveillé ! », état `Summoned` ; l'idole trône ensuite sur le socle du labo.
+  **Remous légendaire** (`World/LegendSpot`, objet « Remous légendaire de l'île », `MapSetup.BuildLegendSpot`, relié à
+  sa légende par `PrototypeSetup`) : visible seulement tant que la légende est réveillée ; eau libre fixe (graine) à
+  portée de lancer d'une rive, remous sombre qui respire, ondes, ombre géante qui tourne (cachée quand la ligne est
+  dedans), gros point doré sur la minimap. Le lancer y va tout seul (visée) ; dedans, c'est la légende qui mord
+  (`FishingController.HookedLegend`, attente 5-8 s, ombre géante de 72 px sous le bouchon). **Combat pas encore fait** :
+  au ferrage, la légende replonge (message). À faire : combat en 3 phases, récompense (trophée, pièces, carnet).
 - **Phare** (`World/Lighthouse`, objet « Phare », dessin `LighthouseArt`) : sur la pointe nord (`FindLighthouseSite`),
   pied solide. La nuit (`DayCycleMath.LampLevel`), lanterne allumée (`Light2D`) et double faisceau qui tourne
   (sprite créé en jeu, matériau *Sprite-Unlit-Default*). Maison et phare ont leur icône sur la minimap.

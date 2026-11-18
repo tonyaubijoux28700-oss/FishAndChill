@@ -334,6 +334,8 @@ namespace FishAndChill.Editor
             FishingSpots japanSpots = BuildSpots(mapObject.transform, "Coins de pêche de la baie", worldMap, 3, japanDock.Area);
             FishingSpots reefSpots = BuildSpots(mapObject.transform, "Coins de pêche du récif", worldMap, 4, reefDock.Area);
             FishingSpots atollSpots = BuildSpots(mapObject.transform, "Coins de pêche de l'atoll", worldMap, 5, atollDock.Area);
+            // Remous légendaire de l'île (le Vieux Ulua) : visible une fois la légende réveillée au laboratoire.
+            BuildLegendSpot(mapObject.transform, "Remous légendaire de l'île", worldMap, 0, islandDock.Area);
             spotList.arraySize = 6;
             spotList.GetArrayElementAtIndex(5).objectReferenceValue = atollSpots;
             spotList.GetArrayElementAtIndex(0).objectReferenceValue = islandSpots;
@@ -599,6 +601,31 @@ namespace FishAndChill.Editor
             SetSprites(so.FindProperty("_jumper"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
             so.ApplyModifiedPropertiesWithoutUndo();
             return spots;
+        }
+
+        /// <summary>Le remous d'une légende ; sa légende et la progression sont reliées par le menu du prototype.</summary>
+        private static LegendSpot BuildLegendSpot(Transform root, string name, WorldMap map, int region, Rect dock)
+        {
+            GameObject go = EnsureObject(name, root);
+            var spot = go.GetComponent<LegendSpot>();
+            if (spot == null)
+            {
+                spot = go.AddComponent<LegendSpot>();
+            }
+
+            var ring = new Sprite[3];
+            for (int i = 0; i < 3; i++)
+            {
+                ring[i] = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/_Project/Art/Ambient/Rond_{i}.png");
+            }
+
+            var so = new SerializedObject(spot);
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_region").intValue = region;
+            so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 5f, dock.yMin - 5f, dock.width + 10f, dock.height + 10f);
+            SetSprites(so.FindProperty("_ring"), ring);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return spot;
         }
 
         private static void SetSwimmer(SerializedProperty entry, Sprite[] frames, int count, float speed)

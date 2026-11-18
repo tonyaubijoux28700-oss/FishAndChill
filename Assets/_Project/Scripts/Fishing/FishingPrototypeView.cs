@@ -58,7 +58,7 @@ namespace FishAndChill.Fishing
             _controller = GetComponent<FishingController>();
             _square = CreateSquareSprite();
             // Silhouettes du poisson sous l'eau : 18, 26 et 36 pixels de long.
-            _fishShadows = new FishShadowSprites(18, 26, 36);
+            _fishShadows = new FishShadowSprites(18, 26, 36, 72);   // la dernière taille : les légendes
             _bobberSprite = CreateBobberSprite();
         }
 
@@ -355,7 +355,7 @@ namespace FishAndChill.Fishing
         // ---------- Le poisson reste dans l'eau ----------
 
         /// <summary>Demi-longueur de la silhouette, en cases, selon la taille.</summary>
-        private float FishHalfLength => (_fishSize == 0 ? 18 : _fishSize == 1 ? 26 : 36) / 32f;
+        private float FishHalfLength => (_fishSize == 0 ? 18 : _fishSize == 1 ? 26 : _fishSize == 2 ? 36 : 72) / 32f;
 
         /// <summary>Le poisson entier (museau, queue, flancs) est-il dans l'eau à cet endroit ?</summary>
         private bool FitsInWater(Vector2 center, Vector2 heading)
@@ -852,7 +852,7 @@ namespace FishAndChill.Fishing
 
                 // Silhouette petite, moyenne ou grande selon la taille du poisson.
                 float sizeCm = _controller.HookedSizeCm;
-                _fishSize = sizeCm < 35f ? 0 : sizeCm < 80f ? 1 : 2;
+                _fishSize = _controller.HookedLegend != null ? 3 : sizeCm < 35f ? 0 : sizeCm < 80f ? 1 : 2;
                 // Poisson, crabe, langouste, tortue ou grenouille : la silhouette suit l'espèce.
                 _hookedShape = _controller.HookedSpecies != null ? _controller.HookedSpecies.BodyShape : BodyShape.Fish;
 
