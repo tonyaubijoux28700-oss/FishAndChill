@@ -32,6 +32,7 @@ namespace FishAndChill.Fishing
         private CatchCard _catchCard;
         private BottleCard _bottleCard;
         private FragmentCard _fragmentCard;
+        private LegendVictoryCard _victoryCard;
         private bool _cardWasBagFull;
         private Sprite _square;
         private FishShadowSprites _fishShadows;
@@ -71,6 +72,8 @@ namespace FishAndChill.Fishing
             _controller.FishCaught += OnFishCaught;
             _controller.BottleFound += OnBottleFound;
             _controller.FragmentFound += OnFragmentFound;
+            _controller.LegendPhaseStarted += OnLegendPhaseStarted;
+            _controller.LegendBeaten += OnLegendBeaten;
         }
 
         private void OnDisable()
@@ -82,6 +85,8 @@ namespace FishAndChill.Fishing
             _controller.FishCaught -= OnFishCaught;
             _controller.BottleFound -= OnBottleFound;
             _controller.FragmentFound -= OnFragmentFound;
+            _controller.LegendPhaseStarted -= OnLegendPhaseStarted;
+            _controller.LegendBeaten -= OnLegendBeaten;
         }
 
         private void Start()
@@ -120,14 +125,16 @@ namespace FishAndChill.Fishing
 
             UpdateWorld();
             UpdateQte();
+            UpdateLegendFight();
             _catchCard.Animate(Time.deltaTime);
             _bottleCard.Animate(Time.deltaTime);
             _fragmentCard.Animate(Time.deltaTime);
+            _victoryCard.Animate(Time.deltaTime);
 
             // La carte de prise remplace le message texte ; dans la boutique, aide propre à la boutique
             // (et rien quand le menu du marchand est ouvert).
             // Pendant le combat, la jauge (et son bandeau « Ferre-le ! ») remplace le message.
-            if (_catchCard.IsVisible || _bottleCard.IsVisible || _fragmentCard.IsVisible || (_playerMovement != null && _playerMovement.Locked) || _controller.State == FishingState.Reeling)
+            if (_catchCard.IsVisible || _bottleCard.IsVisible || _fragmentCard.IsVisible || _victoryCard.IsVisible || (_playerMovement != null && _playerMovement.Locked) || _controller.State == FishingState.Reeling)
             {
                 _message.text = string.Empty;
             }
@@ -537,6 +544,7 @@ namespace FishAndChill.Fishing
             _catchCard = new CatchCard(root, _skin);
             _bottleCard = new BottleCard(root, _skin);
             _fragmentCard = new FragmentCard(root, _skin);
+            _victoryCard = new LegendVictoryCard(root, _skin);
         }
 
         // ---------- Jauge du QTE ----------
@@ -622,6 +630,78 @@ namespace FishAndChill.Fishing
             Text tensionLabel = UI.UiFactory.Label(tension.rectTransform, "Légende", 18, TextAnchor.MiddleCenter, Color.white);
             tensionLabel.text = "Tension";
             UI.UiFactory.Stretch(tensionLabel.rectTransform);
+
+            // Combat de légende : endurance de la bête au-dessus de la jauge, et ce qu'elle fait à chaque phase.
+            Image stamina = UI.UiFactory.Sliced(_qteRect, "Endurance de la légende", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : BarColor);
+            UI.UiFactory.Center(stamina.rectTransform, new Vector2(0f, 150f), new Vector2(700f, 44f));
+            _staminaGroup = stamina.gameObject;
+            _staminaFill = CreateImage(stamina.rectTransform, "Niveau", new Color(1f, 0.45f, 0.25f));
+            _staminaFill.rectTransform.anchorMin = new Vector2(0f, 0f);
+            _staminaFill.rectTransform.anchorMax = new Vector2(1f, 1f);
+            _staminaFill.rectTransform.offsetMin = new Vector2(6f, 6f);
+            _staminaFill.rectTransform.offsetMax = new Vector2(-6f, -6f);
+            _staminaLabel = UI.UiFactory.Label(stamina.rectTransform, "Nom", 22, TextAnchor.MiddleCenter, Color.white);
+            UI.UiFactory.Stretch(_staminaLabel.rectTransform);
+            _staminaGroup.SetActive(false);
+
+            _legendCry = UI.UiFactory.Label(_qteRect, "Cri de la légende", 40, TextAnchor.MiddleCenter, new Color(1f, 0.84f, 0.30f, 0f));
+            UI.UiFactory.Bold(_legendCry);
+            UI.UiFactory.Center(_legendCry.rectTransform, new Vector2(0f, 215f), new Vector2(1200f, 60f));
+        }
+
+        private GameObject _staminaGroup;
+        private Image _staminaFill;
+        private Text _staminaLabel;
+        private Text _legendCry;
+        private float _legendCryAge = -1f;
+        private float _shownStamina = 1f;
+
+        /// <summary>Une phase du combat de légende commence : son cri s'affiche en grand, la jauge tremble et flashe.</summary>
+        private void OnLegendPhaseStarted(int phase)
+        {
+            LegendFight fight = _controller.LegendFight;
+            if (fight == null)
+            {
+                return;
+            }
+
+            _legendCry.text = phase == 0 ? fight.CurrentPhase.Cry : $"Phase {phase + 1} / {fight.PhaseCount} : {fight.CurrentPhase.Cry}";
+            _legendCryAge = 0f;
+            if (phase == 0)
+            {
+                _shownStamina = 1f;
+            }
+
+            _shakeTimer = 0.45f;
+            Color flash = RushColor;
+            flash.a = 0f;
+            _flash.color = flash;
+            _flashTimer = 0.25f;
+        }
+
+        /// <summary>Endurance de la légende (fond qui descend en douceur) et cri de la phase qui s'efface.</summary>
+        private void UpdateLegendFight()
+        {
+            LegendFight fight = _controller.LegendFight;
+            bool show = fight != null && _controller.State == FishingState.Reeling;
+            _staminaGroup.SetActive(show);
+            if (show)
+            {
+                _shownStamina = Mathf.MoveTowards(_shownStamina, fight.Stamina, Time.deltaTime * 0.8f);
+                _staminaFill.rectTransform.anchorMax = new Vector2(Mathf.Max(0.02f, _shownStamina), 1f);
+                _staminaFill.color = Color.Lerp(new Color(0.95f, 0.22f, 0.18f), new Color(1f, 0.62f, 0.22f), _shownStamina);
+                _staminaLabel.text = $"{_controller.HookedLegend?.Title}   —   phase {fight.Phase + 1} / {fight.PhaseCount}";
+            }
+
+            if (_legendCryAge >= 0f)
+            {
+                _legendCryAge += Time.deltaTime;
+                float appear = Mathf.Clamp01(_legendCryAge / 0.2f);
+                float fade = Mathf.Clamp01((2.4f - _legendCryAge) / 0.5f);
+                _legendCry.color = new Color(1f, 0.84f, 0.30f, show ? appear * fade : 0f);
+                _legendCry.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.35f, 1f, appear);
+                if (_legendCryAge > 2.4f) _legendCryAge = -1f;
+            }
         }
 
         private static void AddEdge(RectTransform parent, string name, Color color, Vector2 anchorMin, Vector2 anchorMax, Vector2 size)
@@ -707,7 +787,8 @@ namespace FishAndChill.Fishing
             }
 
             // Façon de se battre : titre de la jauge, tension des poissons lourds, rushs annoncés.
-            _qteTitle.text = FightTitle(challenge.Style);
+            LegendFight legendFight = _controller.LegendFight;
+            _qteTitle.text = legendFight != null && legendFight.InBreak ? $"Phase {legendFight.Phase + 1} !" : FightTitle(challenge.Style);
             _tensionGroup.SetActive(challenge.UsesTension);
             if (challenge.UsesTension)
             {
@@ -744,6 +825,8 @@ namespace FishAndChill.Fishing
             // La jauge se place du côté opposé au bouchon pour ne jamais cacher le poisson.
             bool lineBelow = _player != null && _castPoint.y < _player.position.y;
             _qteRect.anchoredPosition = new Vector2(Mathf.Round(shake / 4f) * 4f, lineBelow ? 730f : 40f);
+            // Le cri de la légende se place du côté libre de l'écran (sous la jauge quand elle est en haut).
+            _legendCry.rectTransform.anchoredPosition = new Vector2(0f, lineBelow ? -125f : 215f);
         }
 
         /// <summary>Aiguille du curseur 7×21 : pointe en triangle en haut, tige, pied ; blanc cerclé de sombre.</summary>
@@ -843,6 +926,7 @@ namespace FishAndChill.Fishing
                 _catchCard.Hide();
                 _bottleCard.Hide();
                 _fragmentCard.Hide();
+                _victoryCard.Hide();
                 _cardWasBagFull = false;
             }
 
@@ -910,6 +994,16 @@ namespace FishAndChill.Fishing
             _catchCard.Hide();
             _bottleCard.Hide();
             _fragmentCard.Show(legend, count);
+            _cardWasBagFull = false;
+        }
+
+        private void OnLegendBeaten(LegendFish legend, int coins)
+        {
+            RefreshHeader();
+            _catchCard.Hide();
+            _bottleCard.Hide();
+            _fragmentCard.Hide();
+            _victoryCard.Show(legend, coins);
             _cardWasBagFull = false;
         }
 

@@ -271,6 +271,19 @@ namespace FishAndChill.World
 
             if (started == null)
             {
+                // Une légende déjà vaincue : la scientifique s'en souvient.
+                foreach (Collection.LegendFish legend in _fishing.Legends)
+                {
+                    if (legend != null && _progress.Legends.State(legend.Id) == Collection.LegendState.Beaten)
+                    {
+                        return new[]
+                        {
+                            $"{legend.Title}, {legend.SizeCm:0} cm… Tout le monde ne parle plus que de ça sur l'île !",
+                            "Il paraît que d'autres gardiens dorment ailleurs dans le monde. Mes recherches continuent…",
+                        };
+                    }
+                }
+
                 return null;
             }
 

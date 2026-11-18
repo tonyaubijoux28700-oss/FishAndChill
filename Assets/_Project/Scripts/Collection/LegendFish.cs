@@ -27,6 +27,13 @@ namespace FishAndChill.Collection
         [SerializeField, Min(1f), Tooltip("Taille de la légende, en centimètres.")]
         private float _sizeCm = 200f;
 
+        [Header("Combat")]
+        [SerializeField, Tooltip("Les phases du combat, dans l'ordre (chacune sa façon de se battre).")]
+        private LegendPhase[] _phases = new LegendPhase[0];
+
+        [SerializeField, Min(0), Tooltip("Pièces gagnées quand on la sort de l'eau.")]
+        private int _rewardCoins = 500;
+
         [Header("Artefact")]
         [SerializeField, Tooltip("Nom de l'artefact, ex. « Idole de corail ».")]
         private string _artifactName;
@@ -56,6 +63,8 @@ namespace FishAndChill.Collection
         public FishSpecies Species => _species;
         public FishingZone Zone => _zone;
         public float SizeCm => _sizeCm;
+        public System.Collections.Generic.IReadOnlyList<LegendPhase> Phases => _phases;
+        public int RewardCoins => _rewardCoins;
         public string ArtifactName => string.IsNullOrEmpty(_artifactName) ? "artefact" : _artifactName;
         public int FragmentCount => Mathf.Max(1, _fragmentCount);
         public float FragmentChance => _fragmentChance;
@@ -72,6 +81,13 @@ namespace FishAndChill.Collection
         public string FragmentLine(int index) => _fragmentLines != null && index >= 0 && index < _fragmentLines.Length ? _fragmentLines[index] : string.Empty;
 
 #if UNITY_EDITOR
+        /// <summary>Règle le combat (menu de génération).</summary>
+        public void ConfigureFight(LegendPhase[] phases, int rewardCoins)
+        {
+            _phases = phases;
+            _rewardCoins = rewardCoins;
+        }
+
         /// <summary>Remplit la fiche (menu de génération).</summary>
         public void Configure(string id, string title, FishSpecies species, FishingZone zone, float sizeCm, string artifactName,
             int fragmentCount, float fragmentChance, Sprite artifact, Sprite[] fragments, Vector2[] fragmentCenters, Sprite silhouette, string[] fragmentLines)

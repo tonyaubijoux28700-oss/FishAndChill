@@ -17,6 +17,29 @@ MonoBehaviour:
   _species: {fileID: 11400000, guid: f9e130c52fab5304da835ea89eda9b98, type: 2}
   _zone: {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
   _sizeCm: 210
+  _phases:
+  - _style: 3
+    _difficulty:
+      _cursorSpeed: 1.25
+      _zoneWidth: 0.2
+      _requiredHits: 3
+      _maxMisses: 2
+    _cry: Il fonce vers la passe !
+  - _style: 4
+    _difficulty:
+      _cursorSpeed: 1.1
+      _zoneWidth: 0.22
+      _requiredHits: 4
+      _maxMisses: 2
+    _cry: Il sonde et tire de tout son poids !
+  - _style: 1
+    _difficulty:
+      _cursorSpeed: 1.55
+      _zoneWidth: 0.17
+      _requiredHits: 4
+      _maxMisses: 2
+    _cry: "Il s'affole pr\xE8s de la surface !"
+  _rewardCoins: 600
   _artifactName: Idole de corail
   _fragmentCount: 4
   _fragmentChance: 0.03

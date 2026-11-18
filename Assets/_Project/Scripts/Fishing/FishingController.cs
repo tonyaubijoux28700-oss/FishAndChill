@@ -285,6 +285,12 @@ namespace FishAndChill.Fishing
                     break;
 
                 case FishingState.Reeling:
+                    if (LegendFight != null)
+                    {
+                        TickLegendFight(deltaTime);
+                        break;
+                    }
+
                     Challenge.Tick(deltaTime);
                     if (Challenge.Status == QteStatus.Failed)
                     {
@@ -324,9 +330,7 @@ namespace FishAndChill.Fishing
                 case FishingState.Bite:
                     if (HookedLegend != null)
                     {
-                        // Le combat de légende viendra ici ; pour l'instant, la légende se dégage aussitôt.
-                        Finish($"{HookedLegend.Title} a mordu… et replonge aussitôt, emportant presque ta canne ! "
-                               + "Il faudra un vrai combat pour le sortir de l'eau.");
+                        StartLegendFight(HookedLegend);
                         break;
                     }
 
@@ -532,6 +536,18 @@ namespace FishAndChill.Fishing
 
         private void ResolveQtePress()
         {
+            if (LegendFight != null)
+            {
+                QtePressResult pressed = LegendFight.Press();
+                if (pressed != QtePressResult.Ignored)
+                {
+                    QtePressed?.Invoke(pressed);
+                }
+
+                AfterLegendStep();
+                return;
+            }
+
             QtePressResult result = Challenge.Press();
             QtePressed?.Invoke(result);
 
@@ -542,6 +558,107 @@ namespace FishAndChill.Fishing
             else if (Challenge.Status == QteStatus.Failed)
             {
                 Lose();
+            }
+        }
+
+        // ---------- Combat d'une légende ----------
+
+        /// <summary>Le combat de légende en cours (null pour un poisson ordinaire).</summary>
+        public LegendFight LegendFight { get; private set; }
+
+        /// <summary>Une nouvelle phase du combat de légende commence (numéro à partir de 0).</summary>
+        public event Action<int> LegendPhaseStarted;
+
+        /// <summary>Une légende a été sortie de l'eau : (légende, pièces gagnées).</summary>
+        public event Action<LegendFish, int> LegendBeaten;
+
+        private int _shownPhase;
+
+        private void StartLegendFight(LegendFish legend)
+        {
+            GearEffects gear = GearEffects;
+            float tension = gear.TensionFactor > 0f ? gear.TensionFactor : 1f;
+            float nervous = gear.NervousFactor > 0f ? gear.NervousFactor : 1f;
+            float rush = gear.RushFactor > 0f ? gear.RushFactor : 1f;
+            float drift = gear.DriftFactor > 0f ? gear.DriftFactor : 1f;
+            IReadOnlyList<LegendPhase> phases = legend.Phases != null && legend.Phases.Count > 0
+                ? legend.Phases
+                : new[] { new LegendPhase(legend.Species.FightStyle, legend.Species.Difficulty, "Il se débat !") };
+            LegendFight = new LegendFight(phases, phase => new QteChallenge(gear.Apply(phase.Difficulty), _random, phase.Style, tension, nervous, rush, drift));
+            Challenge = LegendFight.Challenge;
+            _shownPhase = 0;
+            StartPhase(FishingState.Reeling, 0f, $"{legend.Title} est ferré ! {phases[0].Cry}");
+            LegendPhaseStarted?.Invoke(0);
+        }
+
+        private void TickLegendFight(float deltaTime)
+        {
+            LegendFight.Tick(deltaTime);
+            AfterLegendStep();
+        }
+
+        /// <summary>Après chaque instant du combat : nouvelle phase annoncée, victoire ou fuite.</summary>
+        private void AfterLegendStep()
+        {
+            Challenge = LegendFight.Challenge;
+            if (LegendFight.Phase != _shownPhase)
+            {
+                _shownPhase = LegendFight.Phase;
+                Message = $"Phase {_shownPhase + 1} / {LegendFight.PhaseCount} : {LegendFight.CurrentPhase.Cry}";
+                LegendPhaseStarted?.Invoke(_shownPhase);
+                StateChanged?.Invoke();
+            }
+
+            if (LegendFight.Status == QteStatus.Succeeded)
+            {
+                BeatLegend();
+            }
+            else if (LegendFight.Status == QteStatus.Failed)
+            {
+                LoseLegend();
+            }
+        }
+
+        private void BeatLegend()
+        {
+            LegendFish legend = HookedLegend;
+            LegendFight = null;
+            int coins = legend.RewardCoins;
+            if (_progress != null)
+            {
+                _progress.Legends.Beat(legend.Id);
+                _progress.Wallet.Add(coins);
+            }
+
+            StartPhase(FishingState.Result, _catchResultSeconds * 1.5f,
+                $"{legend.Title} est sorti de l'eau ! {legend.SizeCm:0} cm — la légende de « {legend.Zone?.DisplayName} » est vaincue. +{coins} pièces");
+            LegendBeaten?.Invoke(legend, coins);
+        }
+
+        private void LoseLegend()
+        {
+            LegendFish legend = HookedLegend;
+            QteFailReason reason = LegendFight.FailReason;
+            int phase = LegendFight.Phase;
+            LegendFight = null;
+            Finish(reason == QteFailReason.LineBroke
+                ? $"Crac ! {legend.Title} a cassé la ligne (phase {phase + 1}). Il retourne dans le remous… retente ta chance !"
+                : $"{legend.Title} s'est dégagé (phase {phase + 1}). Il tourne encore dans le remous : retente ta chance !");
+        }
+
+        /// <summary>Pour les essais hors jeu : gagne la phase en cours du combat de légende d'un coup.</summary>
+        public void DebugWinLegendPhase()
+        {
+            if (LegendFight == null)
+            {
+                return;
+            }
+
+            int phase = LegendFight.Phase;
+            for (int i = 0; i < 50 && LegendFight != null && LegendFight.Phase == phase && LegendFight.Status == QteStatus.InProgress; i++)
+            {
+                LegendFight.Challenge.Gauge.MoveZone(LegendFight.Challenge.Gauge.Position);
+                ResolveQtePress();
             }
         }
 

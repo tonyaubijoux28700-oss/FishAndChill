@@ -215,8 +215,15 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   sa légende par `PrototypeSetup`) : visible seulement tant que la légende est réveillée ; eau libre fixe (graine) à
   portée de lancer d'une rive, remous sombre qui respire, ondes, ombre géante qui tourne (cachée quand la ligne est
   dedans), gros point doré sur la minimap. Le lancer y va tout seul (visée) ; dedans, c'est la légende qui mord
-  (`FishingController.HookedLegend`, attente 5-8 s, ombre géante de 72 px sous le bouchon). **Combat pas encore fait** :
-  au ferrage, la légende replonge (message). À faire : combat en 3 phases, récompense (trophée, pièces, carnet).
+  (`FishingController.HookedLegend`, attente 5-8 s, ombre géante de 72 px sous le bouchon).
+  **Combat de légende** (`Fishing/Core/LegendFight`, testé ; phases `LegendPhase` dans la fiche, `LegendFish.Phases`) :
+  phases enchaînées, chacune une jauge `QteChallenge` avec son style (matériel appliqué), pause de 1,3 s entre deux
+  (appuis ignorés, titre « Phase N ! »), endurance sur tout le combat ; un échec = elle s'échappe (reste réveillée, on
+  retente). Vieux Ulua : rush (« Il fonce vers la passe ! »), lourd (« Il sonde et tire de tout son poids ! »), nerveux
+  (« Il s'affole près de la surface ! »). Vue : barre d'endurance au-dessus de la jauge, cri de la phase en grand (du côté
+  libre de l'écran), secousse et flash. Victoire : `LegendBeaten`, état `Beaten`, `RewardCoins` (600), carte
+  `Fishing/LegendVictoryCard` (la bête en grand, rayons dorés, confettis), le remous disparaît. Par script :
+  `FishingController.DebugWinLegendPhase()`. À faire : trophée à l'aquarium, légende dans le carnet.
 - **Phare** (`World/Lighthouse`, objet « Phare », dessin `LighthouseArt`) : sur la pointe nord (`FindLighthouseSite`),
   pied solide. La nuit (`DayCycleMath.LampLevel`), lanterne allumée (`Light2D`) et double faisceau qui tourne
   (sprite créé en jeu, matériau *Sprite-Unlit-Default*). Maison et phare ont leur icône sur la minimap.

@@ -53,6 +53,14 @@ namespace FishAndChill.Editor
                     "Un bras sculpté, poli par la mer. Des écailles d'argent géantes y sont restées accrochées.",
                     "Le socle de l'idole. Gravé dessous : « Ulua, roi du lagon, dort sous la passe ».",
                 });
+            // Le combat, d'après la vraie carangue géante : elle file vers le large, puis sonde et tire de tout son poids
+            // (elle est réputée casser les lignes), et finit par se débattre en surface.
+            ulua.ConfigureFight(new[]
+            {
+                new LegendPhase(FightStyle.Rusher, new QteDifficulty(1.25f, 0.20f, 3, 2), "Il fonce vers la passe !"),
+                new LegendPhase(FightStyle.Heavy, new QteDifficulty(1.1f, 0.22f, 4, 2), "Il sonde et tire de tout son poids !"),
+                new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il s'affole près de la surface !"),
+            }, 600);
             EditorUtility.SetDirty(ulua);
             return new[] { ulua };
         }
