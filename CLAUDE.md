@@ -149,7 +149,11 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   raie manta au loin, gorgones, anthias), modèle de dhoni, lanternes en rotin. L'intérieur de l'aquarium fait
   maintenant 160 cases : `LakeGap` passe à 220, et l'intérieur de la maison est au-dessus de celui de la boutique.
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
-  2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`, barque amarrée). Sur le ponton, **E** ouvre
+  2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`). **Le même ponton dans toutes les zones**
+  (`Editor/DockArt`, style en volume, `Art/Tiles/Ponton.png` et `Ponton_VersLeHaut.png` retourné pour les pontons qui
+  partent vers le haut) : planches vernies, poteaux cerclés de corde, main courante de corde, panneau à la rose des
+  vents, caisses et tonneau côté rive, bouée, rouleau de corde, taquets et réverbère au bout ; amarré à côté, le
+  **voilier** des voyages (`DockArt.Boat`, `Voilier.png`), le même que sur la carte du monde. Sur le ponton, **E** ouvre
   la **carte du monde** (←/→, Espace part, Échap ferme ; le sac ne s'ouvre pas sur le ponton) : fondu au noir, arrivée
   au bout du ponton, zone de pêche (`FishingController.SetZone`), région, minimap (`SetTitle`/`Rebuild`), grand bandeau
   du nom de la zone. Position sur la carte du monde et pays dans `FishingZone` (`_mapPosition`, `_region`).

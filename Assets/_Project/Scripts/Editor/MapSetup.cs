@@ -1618,14 +1618,18 @@ namespace FishAndChill.Editor
 
             GameObject dock = EnsureObject(name, mapRoot);
             dock.transform.position = new Vector3(area.center.x, area.center.y, 0f);
-            Sprite planks = PixelArt.Save($"{TilesFolder}/Ponton.png", LakeArt.Dock(yMax - yMin), TileArt.Size, Vector2.one * 0.5f);
+            // Le ponton des voyages, le même partout : dessiné bout vers le bas, retourné s'il part vers le haut.
+            int ppu = VolumeCanvas.PixelsPerUnit;
+            bool up = direction.y > 0;
+            Sprite planks = PixelArt.Save($"{TilesFolder}/{(up ? "Ponton_VersLeHaut" : "Ponton")}.png", DockArt.Dock(yMax - yMin, up), ppu, Vector2.one * 0.5f);
             SetSprite(dock, planks, -9);
 
-            // Barque amarrée le long du bout du ponton, côté est.
+            // Le voilier des voyages (celui de la carte du monde), amarré le long du bout du ponton, côté est.
             GameObject boat = EnsureObject("Barque", dock.transform);
-            float endY = bounds.yMin + end + 0.5f - direction.y * 1.2f;
-            boat.transform.position = new Vector3(area.xMax + 0.6f, endY, 0f);
-            Sprite boatSprite = PixelArt.Save($"{TilesFolder}/Barque.png", LakeArt.Boat(), TileArt.Size, Vector2.one * 0.5f);
+            float boatLength = DockArt.BoatHeight / (float)ppu;
+            float endY = bounds.yMin + end + 0.5f - direction.y * (boatLength * 0.5f + 0.2f);
+            boat.transform.position = new Vector3(area.xMax + 0.35f + DockArt.BoatWidth / (2f * ppu), endY, 0f);
+            Sprite boatSprite = PixelArt.Save($"{TilesFolder}/Voilier.png", DockArt.Boat(), ppu, Vector2.one * 0.5f);
             SetSprite(boat, boatSprite, -8);
 
             return new DockInfo
