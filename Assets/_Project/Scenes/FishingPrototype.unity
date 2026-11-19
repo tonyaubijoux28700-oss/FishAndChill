@@ -1283883,6 +1283883,11 @@ MonoBehaviour:
   _progress: {fileID: 332295271}
   _fishing: {fileID: 1235020156}
   _talkRadius: 1.1
+  _workshopLook:
+    Bench: {fileID: 21300000, guid: c52a45fc0aed6444893b783448d2e42b, type: 3}
+    Slab: {fileID: 21300000, guid: 4b133f6eeb47bc54388d13d64c643346, type: 3}
+    Compartment: {fileID: 21300000, guid: 7efbb6703c246054e9537e7a9b9a509a, type: 3}
+    Card: {fileID: 21300000, guid: f6c39d41412d1fe428b7b76962eb80bd, type: 3}
 --- !u!212 &1468457977
 SpriteRenderer:
   serializedVersion: 3

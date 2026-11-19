@@ -22,6 +22,8 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Progression du joueur : la scientifique parle des fragments trouvés.")] private Collection.PlayerProgress _progress;
         [SerializeField, Tooltip("La pêche, qui connaît les poissons de légende.")] private Fishing.FishingController _fishing;
         [SerializeField, Min(0.5f)] private float _talkRadius = 1.1f;
+        [SerializeField, Tooltip("Décor de l'atelier des artefacts (établi, dalle de pierre, cases de velours, fiches).")]
+        private ArtifactWorkshop.Look _workshopLook = new ArtifactWorkshop.Look();
 
         private Text _prompt;
         private GameObject _dialog;
@@ -122,7 +124,7 @@ namespace FishAndChill.World
                 var go = new GameObject("Atelier des artefacts");
                 go.transform.SetParent(transform, false);
                 Workshop = go.AddComponent<ArtifactWorkshop>();
-                Workshop.Init(_skin, _progress, _fishing.Legends, Player);
+                Workshop.Init(_skin, _progress, _fishing.Legends, Player, _workshopLook);
 
                 // L'artefact assemblé trône sur le socle (petit, au-dessus du creux).
                 var idol = new GameObject("Artefact sur le socle");

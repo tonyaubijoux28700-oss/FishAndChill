@@ -1790,6 +1790,15 @@ namespace FishAndChill.Editor
             so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
             so.FindProperty("_footprint").vector2Value = new Vector2(4.8f, 2.6f);
             so.FindProperty("_skin").objectReferenceValue = UiSkinSetup.CreateOrUpdate();
+            // Décor de l'atelier des artefacts, à l'échelle de l'interface (1 pixel = 4 unités, comme la charte).
+            const string workshopFolder = "Assets/_Project/Art/UI/Atelier";
+            PixelArt.EnsureFolder(workshopFolder);
+            Sprite Ui(string file, Color[,] pixels) => PixelArt.Save($"{workshopFolder}/{file}.png", pixels, UiSkinArt.PixelsPerUnit, Vector2.one * 0.5f);
+            SerializedProperty workshopLook = so.FindProperty("_workshopLook");
+            workshopLook.FindPropertyRelative("Bench").objectReferenceValue = Ui("Etabli", WorkshopArt.Bench());
+            workshopLook.FindPropertyRelative("Slab").objectReferenceValue = Ui("Dalle", WorkshopArt.Slab());
+            workshopLook.FindPropertyRelative("Compartment").objectReferenceValue = Ui("Case_Velours", WorkshopArt.Compartment());
+            workshopLook.FindPropertyRelative("Card").objectReferenceValue = Ui("Fiche", WorkshopArt.Card());
             so.ApplyModifiedPropertiesWithoutUndo();
 
             GameObject room = EnsureObject("Laboratoire - Intérieur", null);

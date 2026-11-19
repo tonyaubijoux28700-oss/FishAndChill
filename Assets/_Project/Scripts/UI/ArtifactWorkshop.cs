@@ -101,8 +101,23 @@ namespace FishAndChill.UI
         /// <summary>Image où l'atelier a été fermé (l'appui sur E qui ferme ne doit rien rouvrir).</summary>
         public int ClosedFrame { get; private set; } = -1;
 
-        public void Init(UiSkin skin, PlayerProgress progress, IReadOnlyList<LegendFish> legends, PlayerMovement player)
+        /// <summary>Le décor de l'atelier (dessins de WorkshopArt) ; sans lui, la charte d'interface sert de fond.</summary>
+        [System.Serializable]
+        public sealed class Look
         {
+            public Sprite Bench;
+            public Sprite Slab;
+            public Sprite Compartment;
+            public Sprite Card;
+        }
+
+        private static readonly Color CardInk = new Color(0.26f, 0.17f, 0.10f);
+        private static readonly Color CardSoft = new Color(0.46f, 0.34f, 0.24f);
+        private Look _look = new Look();
+
+        public void Init(UiSkin skin, PlayerProgress progress, IReadOnlyList<LegendFish> legends, PlayerMovement player, Look look = null)
+        {
+            _look = look ?? new Look();
             _skin = skin;
             _progress = progress;
             _legends = legends ?? new LegendFish[0];
@@ -462,7 +477,8 @@ namespace FishAndChill.UI
                 RowView row = _rows[i];
                 LegendFish legend = i < _legends.Count ? _legends[i] : null;
                 bool known = Discovered(legend);
-                row.Frame.color = i == _selected ? new Color(1f, 0.92f, 0.62f) : Color.white;
+                row.Frame.color = i == _selected ? (_look.Card != null ? Color.white : new Color(1f, 0.92f, 0.62f))
+                    : (_look.Card != null ? new Color(0.78f, 0.74f, 0.68f) : Color.white);
                 row.Icon.sprite = legend == null ? null : known && PlacedOf(legend) >= legend.FragmentCount ? legend.Artifact : legend.Silhouette;
                 row.Icon.color = known ? Color.white : new Color(1f, 1f, 1f, 0.5f);
                 row.Name.text = known ? legend.ArtifactName : "???";
@@ -557,7 +573,18 @@ namespace FishAndChill.UI
             Image panel = UiFactory.Sliced(root, "Fenêtre", _skin != null ? _skin.Panel : null, _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
             _panel = panel.rectTransform;
             UiFactory.Center(_panel, Vector2.zero, new Vector2(1500f, 900f));
+
+            // L'établi du laboratoire, dans le cadre doré : bois sombre, tapis de feutre, carnet, loupe, bocal.
+            if (_look.Bench != null)
+            {
+                Image bench = UiFactory.Plain(_panel, "Établi", Color.white);
+                bench.sprite = _look.Bench;
+                bench.raycastTarget = false;
+                UiFactory.Stretch(bench.rectTransform, 14f);
+            }
+
             UiFactory.TitlePlaque(_panel, _skin, "Atelier des artefacts", 36, new Vector2(0f, 450f), new Vector2(560f, 72f), out _);
+            bool cards = _look.Card != null;
 
             // Liste des artefacts, à gauche.
             Text listTitle = UiFactory.Label(_panel, "Titre liste", 26, TextAnchor.MiddleLeft, Gold);
@@ -565,20 +592,28 @@ namespace FishAndChill.UI
             UiFactory.Center(listTitle.rectTransform, new Vector2(-560f, 360f), new Vector2(320f, 36f));
             for (int i = 0; i < Mathf.Max(1, _legends.Count); i++)
             {
-                Image frame = UiFactory.Sliced(_panel, $"Légende {i + 1}", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
-                UiFactory.Center(frame.rectTransform, new Vector2(-560f, 270f - i * 128f), new Vector2(330f, 116f));
+                // Une fiche de papier épinglée sur l'établi (ou une case de la charte, sans décor).
+                Image frame = cards
+                    ? UiFactory.Plain(_panel, $"Légende {i + 1}", Color.white)
+                    : UiFactory.Sliced(_panel, $"Légende {i + 1}", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+                if (cards) frame.sprite = _look.Card;
+                UiFactory.Center(frame.rectTransform, new Vector2(-560f, 270f - i * 128f), new Vector2(332f, 116f));
                 Image icon = UiFactory.Plain(frame.rectTransform, "Icône", Color.white);
                 icon.preserveAspect = true;
-                UiFactory.Center(icon.rectTransform, new Vector2(-118f, 0f), new Vector2(66f, 88f));
-                Text name = UiFactory.Label(frame.rectTransform, "Nom", 24, TextAnchor.MiddleLeft, Color.white);
+                UiFactory.Center(icon.rectTransform, new Vector2(-112f, -4f), new Vector2(66f, 88f));
+                Text name = UiFactory.Label(frame.rectTransform, "Nom", 24, TextAnchor.MiddleLeft, cards ? CardInk : Color.white, shadow: !cards);
                 UiFactory.Center(name.rectTransform, new Vector2(40f, 18f), new Vector2(230f, 34f));
-                Text detail = UiFactory.Label(frame.rectTransform, "Détail", 19, TextAnchor.MiddleLeft, Muted);
+                Text detail = UiFactory.Label(frame.rectTransform, "Détail", 19, TextAnchor.MiddleLeft, cards ? CardSoft : Muted, shadow: !cards);
                 UiFactory.Center(detail.rectTransform, new Vector2(40f, -18f), new Vector2(230f, 30f));
                 _rows.Add(new RowView { Frame = frame, Icon = icon, Name = name, Detail = detail });
             }
 
             // L'artefact au centre : fond de pierre, halo, silhouette grisée, morceaux posés, éclair.
-            Image stone = UiFactory.Sliced(_panel, "Fond de l'artefact", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+            // La dalle de pierre gravée sur laquelle on reconstitue l'artefact.
+            Image stone = _look.Slab != null
+                ? UiFactory.Plain(_panel, "Dalle de pierre", Color.white)
+                : UiFactory.Sliced(_panel, "Fond de l'artefact", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+            if (_look.Slab != null) stone.sprite = _look.Slab;
             UiFactory.Center(stone.rectTransform, FramePosition, new Vector2(560f, 540f));
             _artifactName = UiFactory.Label(_panel, "Nom de l'artefact", 32, TextAnchor.MiddleCenter, Gold);
             UiFactory.Bold(_artifactName);
@@ -607,7 +642,11 @@ namespace FishAndChill.UI
             UiFactory.Center(_trayTitle.rectTransform, new Vector2(-560f, TrayY + 4f), new Vector2(330f, 34f));
             for (int i = 0; i < 6; i++)
             {
-                Image frame = UiFactory.Sliced(_panel, $"Plateau {i + 1}", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+                // Une case de velours dans le plateau de bois.
+                Image frame = _look.Compartment != null
+                    ? UiFactory.Plain(_panel, $"Plateau {i + 1}", Color.white)
+                    : UiFactory.Sliced(_panel, $"Plateau {i + 1}", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+                if (_look.Compartment != null) frame.sprite = _look.Compartment;
                 UiFactory.Center(frame.rectTransform, SlotPosition(i), new Vector2(120f, 120f));
                 Image piece = UiFactory.Plain(frame.rectTransform, "Fragment", Color.white);
                 piece.raycastTarget = false;

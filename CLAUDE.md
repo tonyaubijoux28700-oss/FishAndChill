@@ -217,7 +217,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   (`LabBuilding.PedestalFront`, `PlayerAtPedestal`). Liste des légendes à gauche (« ??? » tant que rien n'est trouvé),
   artefact **grisé** au centre rempli morceau par morceau, fragments en poche sur le plateau en bas ; **Espace** pose le
   suivant : il s'envole en arc jusqu'à sa place (rotation, rebond), éclair, secousse, étincelles ; le dernier illumine
-  l'artefact d'un halo doré. Haut/Bas change d'artefact, E/Échap ferme. Par script : `lab.Workshop.Open()`,
+  l'artefact d'un halo doré. Haut/Bas change d'artefact, E/Échap ferme. Décor (`Editor/WorkshopArt` →
+  `Art/UI/Atelier/`, `ArtifactWorkshop.Look` dans le champ `_workshopLook` du `LabBuilding`, 1 pixel = 4 unités) :
+  l'établi du labo (bois sombre éclairé par la lampe, tapis de feutre, carnet ouvert au croquis de l'idole, loupe,
+  pinceau, bocal), dalle de pierre gravée pour l'artefact, cases de velours du plateau, fiches de papier épinglées. Par script : `lab.Workshop.Open()`,
   `PlaceNext()`. La scientifique dit combien il en manque, invite à les poser, puis réagit à l'artefact complet.
   Par script : `FishingController.DebugFindFragment()`.
   **Réveil** : artefact complet → Espace dans l'atelier (`ArtifactWorkshop.Summon`) : l'idole tremble, étincelles,
