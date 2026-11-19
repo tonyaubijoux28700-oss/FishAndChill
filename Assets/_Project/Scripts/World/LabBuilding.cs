@@ -247,7 +247,7 @@ namespace FishAndChill.World
                 {
                     return new[]
                     {
-                        $"Par tous les coraux… L'artefact « {legend.ArtifactName} » est complet ! Tu as réussi !",
+                        $"Incroyable… L'artefact « {legend.ArtifactName} » est complet ! Tu as réussi !",
                         "Ces gravures parlent d'un gardien immense qui dort quelque part du côté de "
                         + $"« {ZoneName(legend)} ». L'artefact peut le réveiller.",
                         "Retourne au socle quand tu te sens prêt… et prends ta meilleure canne.",

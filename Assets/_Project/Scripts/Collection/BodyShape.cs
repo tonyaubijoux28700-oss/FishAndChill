@@ -14,5 +14,8 @@ namespace FishAndChill.Collection
 
         /// <summary>Murène géante : long corps qui ondule tout entier, tête massive à la gueule ouverte, yeux qui luisent.</summary>
         Moray,
+
+        /// <summary>Écrevisse titan : carapace, queue en éventail, deux pinces inégales qui claquent, pattes qui marchent, yeux qui luisent.</summary>
+        Crayfish,
     }
 }

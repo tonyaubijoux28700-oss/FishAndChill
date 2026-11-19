@@ -106,6 +106,7 @@ namespace FishAndChill.Fishing
                         case BodyShape.Frog: tone = Frog(u, v, phase, out core) ? BodyTone : None; break;
                         case BodyShape.Monster: tone = Monster(u, v, phase); break;
                         case BodyShape.Moray: tone = Moray(u, v, phase); break;
+                        case BodyShape.Crayfish: tone = Crayfish(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -327,6 +328,57 @@ namespace FishAndChill.Fishing
                 return spine ? CoreTone : BodyTone;
             }
 
+            return None;
+        }
+
+        /// <summary>
+        /// Écrevisse titan, vue de dessus : carapace et abdomen en anneaux, éventail de la queue, pattes qui marchent (elles
+        /// avancent par paires opposées), deux pinces inégales (la grosse à gauche) qui s'ouvrent et se ferment, yeux.
+        /// </summary>
+        private static int Crayfish(float u, float v, int phase)
+        {
+            float av = Mathf.Abs(v);
+            if (InEllipse(u, av, 0.36f, 0.06f, 0.035f, 0.035f)) return EyeTone;
+
+            // Carapace, rostre, abdomen en anneaux, éventail.
+            if (InEllipse(u, v, 0.12f, 0f, 0.24f, 0.15f) || (u > 0.3f && u < 0.42f && av < (0.42f - u) * 0.5f))
+            {
+                return av < 0.07f ? CoreTone : BodyTone;
+            }
+
+            if (u > -0.55f && u <= -0.1f)
+            {
+                float width = 0.12f - (-0.1f - u) * 0.06f;
+                bool ring = Mathf.Repeat(u * 11f, 1f) < 0.2f;
+                if (av <= width) return ring && av > width - 0.03f ? EdgeTone : BodyTone;
+            }
+
+            if (u > -0.78f && u <= -0.55f && av <= 0.08f + (-0.55f - u) * 0.9f) return EdgeTone;
+
+            // Quatre paires de pattes, qui avancent en alternance.
+            for (int k = 0; k < 4; k++)
+            {
+                float u0 = 0.02f + k * 0.07f;
+                float step = (k % 2 == 0 ? 1 : -1) * phase * 0.04f;
+                float side = Mathf.Sign(v);
+                float sway = side > 0 ? step : -step;
+                if (OnSegment(u, av, u0, 0.1f, u0 - 0.12f + sway, 0.34f, 0.022f)) return EdgeTone;
+            }
+
+            // Les pinces : bras puis paume et deux doigts qui s'ouvrent (phase).
+            float open = 0.05f + (phase + 1) * 0.03f;
+            for (int side = -1; side <= 1; side += 2)
+            {
+                float big = side < 0 ? 1.35f : 1f;
+                float sv = v * side;
+                if (OnSegment(u, sv, 0.32f, 0.08f, 0.52f, 0.26f, 0.035f * big)) return BodyTone;
+                if (InEllipse(u, sv, 0.66f, 0.28f, 0.12f * big, 0.07f * big)) return BodyTone;
+                if (OnSegment(u, sv, 0.74f, 0.28f - open, 0.98f, 0.26f - open * 1.4f, 0.03f * big)) return BodyTone;
+                if (OnSegment(u, sv, 0.74f, 0.28f + open, 0.96f, 0.30f + open * 1.4f, 0.03f * big)) return BodyTone;
+            }
+
+            // Antennes.
+            if (OnSegment(u, av, 0.4f, 0.04f, 0.95f, 0.5f + phase * 0.04f, 0.015f)) return EdgeTone;
             return None;
         }
 

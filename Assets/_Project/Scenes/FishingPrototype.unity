@@ -1102645,6 +1102645,64 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 1
   m_BlendShapeWeights: []
+--- !u!1 &1069689454
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1069689455}
+  - component: {fileID: 1069689456}
+  m_Layer: 0
+  m_Name: "Remous l\xE9gendaire du lac"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1069689455
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069689454}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1254510492}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1069689456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1069689454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8489e8b96f5347498bc8e16f4580013, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.LegendSpot
+  _map: {fileID: 1254510490}
+  _region: 1
+  _avoid:
+    serializedVersion: 2
+    x: 306
+    y: -24
+    width: 12
+    height: 16
+  _legend: {fileID: 11400000, guid: 4a16ea5bd51231b44a859bee16b6f08f, type: 2}
+  _progress: {fileID: 332295271}
+  _ring:
+  - {fileID: 21300000, guid: f1ef822e0939b3f48998c561b2bdae9d, type: 3}
+  - {fileID: 21300000, guid: 5460ae81f1ae62b46a2244ea16f2a086, type: 3}
+  - {fileID: 21300000, guid: 5a7bef8dbda107040957fea62a793114, type: 3}
 --- !u!1 &1077453713
 GameObject:
   m_ObjectHideFlags: 0
@@ -1278539,6 +1278597,7 @@ MonoBehaviour:
   _bottleChance: 0.05
   _legends:
   - {fileID: 11400000, guid: 50a41d05fe442ac4f9bcba9e05e9ccdc, type: 2}
+  - {fileID: 11400000, guid: 4a16ea5bd51231b44a859bee16b6f08f, type: 2}
 --- !u!4 &1235020157
 Transform:
   m_ObjectHideFlags: 0
@@ -1283336,6 +1283395,7 @@ Transform:
   - {fileID: 1143016456}
   - {fileID: 449430499}
   - {fileID: 2032041925}
+  - {fileID: 1069689455}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1277163520

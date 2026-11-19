@@ -42,7 +42,7 @@
   Par script : `FishingController.DebugFindFragment()`.
   **Réveil** : artefact complet → Espace dans l'atelier (`ArtifactWorkshop.Summon`) : l'idole tremble, étincelles,
   éclair blanc, bandeau « Tuna s'est réveillé ! », état `Summoned` ; l'idole trône ensuite sur le socle du labo.
-  **Remous légendaire** (`World/LegendSpot`, objet « Remous légendaire de l'île », `MapSetup.BuildLegendSpot`, relié à
+  **Remous légendaire** (`World/LegendSpot`, objets « Remous légendaire de l'île » et « … du lac », `MapSetup.BuildLegendSpot`, relié à
   sa légende par `PrototypeSetup`) : visible seulement tant que la légende est réveillée ; eau libre fixe (graine) à
   portée de lancer d'une rive, remous sombre qui respire, ondes, ombre géante qui tourne (cachée quand la ligne est
   dedans), gros point doré sur la minimap. Le lancer y va tout seul (visée) ; dedans, c'est la légende qui mord
@@ -55,13 +55,26 @@
   libre de l'écran), secousse et flash. Victoire : `LegendBeaten`, état `Beaten`, `RewardCoins` (600), carte
   `Fishing/LegendVictoryCard` (la bête en grand, rayons dorés, confettis), le remous disparaît. Par script :
   `FishingController.DebugWinLegendPhase()`. Trophée à l'aquarium et légende dans le carnet : reportés (idée pas encore choisie).
+- **Deuxième légende : Bramafan**, écrevisse titan de 380 cm du **Lac d'Annecy** (espèce de base l'écrevisse signal ;
+  « qui crie famine » en patois savoyard), même fonctionnement que Tuna de bout en bout. Dessin `Editor/LakeCrayfishArt`
+  → `Art/Legendes/Bramafan.png` (vue de dessus : armure fissurée couverte de vase, galets et moules, pince-marteau et
+  pince-cisaille, tache claire de l'écrevisse signal qui luit, grappes d'yeux, antenne arrachée, œufs qui luisent).
+  Silhouette sous l'eau `BodyShape.Crayfish` (`FishShadowSprites.Crayfish` : pinces qui claquent, pattes qui marchent).
+  Artefact **Médaillon des palafittes** (`Editor/MedallionArt`, même cadre 48×64 que l'idole : pendentif de bronze
+  verdi, bord perlé, pinces gravées en spirale autour d'une ambre ; 4 quartiers dentelés, haut puis sens horaire).
+  Combat : rush (« Il file à reculons d'un grand coup de queue ! »), lourd (« Il plante ses pinces dans les galets du
+  fond ! »), nerveux (« Il claque des pinces dans tous les sens ! »), un peu plus dur que Tuna, 800 pièces. Remous dans la
+  région 1. **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
+  `Center` / `Silhouette`), un `BuildLegendSpot` dans la région de sa zone (`PrototypeSetup.RegionOf` relie remous et
+  légende). Le menu de test agit toujours sur la première légende (Tuna).
 
 ## Dessins des légendes
 
 
 - Ce sont de **vrais monstres marins**, pas des poissons, dans le style très détaillé et sombre de `Editor/MorayArt`
   et `Editor/LagoonDragonArt` (outils communs dans `Editor/CreatureShapes` : épine dorsale avec repère local pour
-  peindre écailles et motifs qui suivent la courbe, tubes qui s'affinent, courbes, polygones). Une créature unique et
+  peindre écailles et motifs qui suivent la courbe, tubes qui s'affinent, courbes, polygones, bruit doux `Noise`,
+  anneaux `Ring`, nageoires `FinAlong`). Une créature unique et
   cohérente avec sa zone, de plus en plus impressionnante au fil des zones.
 - `LagoonDragonArt` (dragon des mers : crête d'épines et membrane déchirée, cornes, gueule à crocs) est **réservé à une
   zone plus avancée** ; il n'est encore utilisé nulle part.

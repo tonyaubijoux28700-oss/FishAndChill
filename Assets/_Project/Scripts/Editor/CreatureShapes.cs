@@ -114,6 +114,54 @@ namespace FishAndChill.Editor
         /// <summary>Bruit stable entre 0 et 1 pour une case.</summary>
         public static float Hash(int x, int y) => Mathf.Repeat(Mathf.Sin(x * 12.9898f + y * 78.233f) * 43758.5453f, 1f);
 
+        /// <summary>Bruit doux (interpolé) entre 0 et 1, pour les marbrures.</summary>
+        public static float Noise(float x, float y)
+        {
+            int ix = Mathf.FloorToInt(x), iy = Mathf.FloorToInt(y);
+            float fx = x - ix, fy = y - iy;
+            fx = fx * fx * (3f - 2f * fx);
+            fy = fy * fy * (3f - 2f * fy);
+            float top = Mathf.Lerp(Hash(ix, iy), Hash(ix + 1, iy), fx);
+            float bottom = Mathf.Lerp(Hash(ix, iy + 1), Hash(ix + 1, iy + 1), fx);
+            return Mathf.Lerp(top, bottom, fy);
+        }
+
+        /// <summary>
+        /// Contour d'une nageoire posée le long du corps entre t0 et t1, côté dos (<paramref name="side"/> = -1) ou ventre
+        /// (+1) : <paramref name="height"/>(k) donne sa hauteur au-delà du corps, k allant de 0 (côté t0) à 1 (côté t1).
+        /// </summary>
+        public static Vector2[] FinAlong(Spine spine, float t0, float t1, float side, Func<float, float> height, int steps = 28, float sweep = 0f)
+        {
+            var pts = new List<Vector2>();
+            for (int i = 0; i <= steps; i++)
+            {
+                float t = Mathf.Lerp(t0, t1, i / (float)steps);
+                Vector2 at = spine.At(t, out Vector2 n);
+                pts.Add(at + n * side * spine.RadiusAt(t) * 0.6f);
+            }
+
+            for (int i = steps; i >= 0; i--)
+            {
+                float k = i / (float)steps;
+                float t = Mathf.Lerp(t0, t1, k);
+                Vector2 at = spine.At(t, out Vector2 n);
+                Vector2 along = new Vector2(n.y, -n.x);   // vers la tête
+                float hk = height(k);
+                pts.Add(at + n * side * (spine.RadiusAt(t) + hk) - along * hk * sweep);
+            }
+
+            return pts.ToArray();
+        }
+
+        /// <summary>Anneau (maillon de chaîne, bague) : entre deux ellipses.</summary>
+        public static Func<float, float, bool> Ring(float cx, float cy, float rx, float ry, float thickness)
+            => (x, y) =>
+            {
+                float u = (x - cx) / rx, v = (y - cy) / ry;
+                float a = (x - cx) / Mathf.Max(0.5f, rx - thickness), b = (y - cy) / Mathf.Max(0.5f, ry - thickness);
+                return u * u + v * v <= 1f && a * a + b * b > 1f;
+            };
+
         /// <summary>Mélange une couleur dans le tableau final (y depuis le bas).</summary>
         public static void Mix(Color[,] p, int x, int y, Color c, float amount)
         {

@@ -70,15 +70,29 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Un fragment, dans le cadre de l'idole entière ; sa cassure est assombrie.</summary>
-        public static Color[,] IdolPiece(int piece)
+        public static Color[,] IdolPiece(int piece) => Cut(Idol(), PieceOf, piece);
+
+        /// <summary>Centre d'un fragment dans le cadre de l'idole (0 à 1), pour le montrer centré sur la carte.</summary>
+        public static Vector2 PieceCenter(int piece) => Center(IdolPiece(piece));
+
+        /// <summary>L'idole en ombre sombre et transparente : la place des fragments manquants.</summary>
+        public static Color[,] IdolSilhouette() => Silhouette(Idol());
+
+        // ---------- Outils communs à tous les artefacts ----------
+
+        /// <summary>
+        /// Découpe un fragment dans un artefact entier : <paramref name="pieceOf"/> donne le numéro du fragment de chaque
+        /// pixel (y depuis le bas). Le fragment garde le cadre de l'artefact ; sa cassure est assombrie.
+        /// </summary>
+        public static Color[,] Cut(Color[,] full, System.Func<int, int, int> pieceOf, int piece)
         {
-            Color[,] full = Idol();
-            var p = new Color[IdolWidth, IdolHeight];
-            for (int x = 0; x < IdolWidth; x++)
+            int w = full.GetLength(0), h = full.GetLength(1);
+            var p = new Color[w, h];
+            for (int x = 0; x < w; x++)
             {
-                for (int y = 0; y < IdolHeight; y++)
+                for (int y = 0; y < h; y++)
                 {
-                    if (full[x, y].a < 0.01f || PieceOf(x, y) != piece)
+                    if (full[x, y].a < 0.01f || pieceOf(x, y) != piece)
                     {
                         continue;
                     }
@@ -89,7 +103,7 @@ namespace FishAndChill.Editor
                         for (int dy = -1; dy <= 1 && !edge; dy++)
                         {
                             int a = x + dx, b = y + dy;
-                            edge = a >= 0 && b >= 0 && a < IdolWidth && b < IdolHeight && full[a, b].a > 0.01f && PieceOf(a, b) != piece;
+                            edge = a >= 0 && b >= 0 && a < w && b < h && full[a, b].a > 0.01f && pieceOf(a, b) != piece;
                         }
                     }
 
@@ -100,14 +114,14 @@ namespace FishAndChill.Editor
             return p;
         }
 
-        /// <summary>Centre d'un fragment dans le cadre de l'idole (0 à 1), pour le montrer centré sur la carte.</summary>
-        public static Vector2 PieceCenter(int piece)
+        /// <summary>Centre de ce qui est dessiné dans le cadre (0 à 1).</summary>
+        public static Vector2 Center(Color[,] p)
         {
-            Color[,] p = IdolPiece(piece);
-            int xMin = IdolWidth, xMax = -1, yMin = IdolHeight, yMax = -1;
-            for (int x = 0; x < IdolWidth; x++)
+            int w = p.GetLength(0), h = p.GetLength(1);
+            int xMin = w, xMax = -1, yMin = h, yMax = -1;
+            for (int x = 0; x < w; x++)
             {
-                for (int y = 0; y < IdolHeight; y++)
+                for (int y = 0; y < h; y++)
                 {
                     if (p[x, y].a < 0.01f) continue;
                     xMin = Mathf.Min(xMin, x);
@@ -117,17 +131,17 @@ namespace FishAndChill.Editor
                 }
             }
 
-            return xMax < 0 ? new Vector2(0.5f, 0.5f) : new Vector2((xMin + xMax + 1) * 0.5f / IdolWidth, (yMin + yMax + 1) * 0.5f / IdolHeight);
+            return xMax < 0 ? new Vector2(0.5f, 0.5f) : new Vector2((xMin + xMax + 1) * 0.5f / w, (yMin + yMax + 1) * 0.5f / h);
         }
 
-        /// <summary>L'idole en ombre sombre et transparente : la place des fragments manquants.</summary>
-        public static Color[,] IdolSilhouette()
+        /// <summary>Un artefact en ombre sombre et transparente : la place des fragments manquants.</summary>
+        public static Color[,] Silhouette(Color[,] full)
         {
-            Color[,] full = Idol();
-            var p = new Color[IdolWidth, IdolHeight];
-            for (int x = 0; x < IdolWidth; x++)
+            int w = full.GetLength(0), h = full.GetLength(1);
+            var p = new Color[w, h];
+            for (int x = 0; x < w; x++)
             {
-                for (int y = 0; y < IdolHeight; y++)
+                for (int y = 0; y < h; y++)
                 {
                     if (full[x, y].a > 0.01f)
                     {

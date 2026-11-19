@@ -298,7 +298,7 @@ namespace FishAndChill.Editor
                 LegendFish match = null;
                 foreach (LegendFish legend in legends)
                 {
-                    if (legend != null && legend.Zone != null && legend.Zone.name == "IleMahana" && legendSpot.Region == 0) match = legend;
+                    if (legend != null && legend.Zone != null && RegionOf(legend.Zone.name) == legendSpot.Region) match = legend;
                 }
 
                 spotSo.FindProperty("_legend").objectReferenceValue = match;
@@ -576,6 +576,21 @@ namespace FishAndChill.Editor
             EditorSceneManager.SaveScene(scene);
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
+        }
+
+        /// <summary>Région de la carte d'une zone (nom de son asset), la même que pour sa destination de voyage ; -1 si inconnue.</summary>
+        private static int RegionOf(string zoneName)
+        {
+            switch (zoneName)
+            {
+                case "IleMahana": return 0;
+                case "LacAnnecy": return 1;
+                case "FleuveAmazone": return 2;
+                case "BaieJaponaise": return 3;
+                case "GrandeBarriere": return 4;
+                case "Maldives": return 5;
+                default: return -1;
+            }
         }
 
         private static void SetDestination(SerializedProperty entry, FishingZone zone, int region, MapSetup.DockInfo dock)
