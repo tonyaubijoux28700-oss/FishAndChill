@@ -200,8 +200,11 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   **posés** au labo, dans l'ordre. Avancée dans `PlayerProgress.Legends` (`LegendProgress`, testé : `Fragments`,
   `Placed`, `InHand`, `PlaceFragment` ; `Collecting` → `Complete` → `Summoned` → `Beaten`), sauvegardée
   (`SaveData.Legends`, avec `Placed`). Carte `Fishing/FragmentCard` (fragment qui flotte et tourne dans un halo,
-  artefact en silhouette, phrase du fragment). Colonne **« Relique »** dans l'inventaire (trouvés / posés, ne prend pas
-  de place dans le sac).
+  artefact en silhouette, phrase du fragment). Onglet **« Reliques »** de l'inventaire (`InventoryHud`, Tab ou
+  ←/→ entre « Sac et matériel » et « Reliques », pas d'onglets pendant le choix « sac plein » ; `OpenRelics()` par
+  script) : une carte par légende (3 par rangée) avec l'artefact (posés en couleur, en poche à demi transparents),
+  une pierre par fragment (or = posé, turquoise = en poche), l'étape et la suite. Les fragments ne prennent pas de
+  place dans le sac.
   **Atelier des artefacts** (`UI/ArtifactWorkshop`, créé par `LabBuilding`, canvas ordre 15) : **E devant le socle**
   (`LabBuilding.PedestalFront`, `PlayerAtPedestal`). Liste des légendes à gauche (« ??? » tant que rien n'est trouvé),
   artefact **grisé** au centre rempli morceau par morceau, fragments en poche sur le plateau en bas ; **Espace** pose le

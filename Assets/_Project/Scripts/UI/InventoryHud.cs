@@ -128,6 +128,7 @@ namespace FishAndChill.UI
 
             _progress.EnsureCreated();
             BuildUi();
+            ShowPage(InventoryPage.Bag);
             _progress.Changed += Refresh;
             if (_aquarium != null)
             {
@@ -188,6 +189,14 @@ namespace FishAndChill.UI
                 {
                     Open();
                 }
+                else if (IsOpen)
+                {
+                    int tab = TabPressed();
+                    if (tab != 0)
+                    {
+                        ShowPage(_page == InventoryPage.Bag ? InventoryPage.Relics : InventoryPage.Bag);
+                    }
+                }
             }
 
             AnimateSlots();
@@ -206,6 +215,14 @@ namespace FishAndChill.UI
             }
 
             Refresh();
+            ShowPage(InventoryPage.Bag);
+        }
+
+        /// <summary>Ouvre directement la page des reliques (utilisable par script pour les tests).</summary>
+        public void OpenRelics()
+        {
+            Open();
+            ShowPage(InventoryPage.Relics);
         }
 
         public void Close()
@@ -268,11 +285,22 @@ namespace FishAndChill.UI
                 _window.SetActive(true);
                 _openedForChoice = true;
                 Refresh();
+                ShowPage(InventoryPage.Bag);
             }
             else if (!Choosing && _openedForChoice)
             {
                 _window.SetActive(false);
                 _openedForChoice = false;
+            }
+
+            // Sac plein : on montre toujours le sac (et pas d'onglets).
+            if (Choosing && (_page != InventoryPage.Bag || _bagTab.gameObject.activeSelf))
+            {
+                ShowPage(InventoryPage.Bag);
+            }
+            else if (!Choosing && IsOpen && !_bagTab.gameObject.activeSelf)
+            {
+                ShowPage(_page);
             }
 
             _windowTitle.text = Choosing ? "Quel poisson relâcher ?" : "Mon inventaire";
@@ -281,7 +309,7 @@ namespace FishAndChill.UI
             _windowRect.localScale = Vector3.one * (Choosing ? 0.55f : 1.08f);
             _windowHelp.text = Choosing
                 ? $"1 à {_progress.Bag.Capacity} : relâcher   •   Espace : relâcher le nouveau"
-                : ChangeHelp() + "E ou Échap : fermer";
+                : (_page == InventoryPage.Bag ? ChangeHelp() : string.Empty) + "Tab : onglet   •   E ou Échap : fermer";
             _windowHelp.color = Choosing ? Gold : Muted;
         }
 
@@ -351,7 +379,7 @@ namespace FishAndChill.UI
             _badge.text = $"{bag.Count}/{bag.Capacity}";
             _fishTitle.text = $"Mes poissons   {bag.Count} / {bag.Capacity}";
             RefreshGear();
-            RefreshRelic();
+            RefreshRelics();
 
             for (int i = 0; i < _slots.Count; i++)
             {
@@ -520,10 +548,22 @@ namespace FishAndChill.UI
             _windowHelp = UiFactory.Label(_windowRect, "Aide", 25, TextAnchor.MiddleCenter, Muted);
             UiFactory.Place(_windowHelp.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(-30f, 30f));
 
-            BuildGearPanel();
-            BuildRelic();
+            // Deux onglets : le sac et le matériel, puis les reliques des légendes.
+            _bagPage = Page("Page du sac");
+            _relicPage = Page("Page des reliques");
+            Image Tab(string title, float x)
+            {
+                UiFactory.TitlePlaque(_windowRect, _skin, title, 24, new Vector2(x, 345f), new Vector2(230f, 48f), out RectTransform tab);
+                return tab.GetComponent<Image>();
+            }
 
-            _fishTitle = UiFactory.Label(_windowRect, "Titre poissons", 32, TextAnchor.MiddleLeft, Gold);
+            _bagTab = Tab("Sac et matériel", -640f);
+            _relicTab = Tab("Reliques", -395f);
+
+            BuildGearPanel();
+            BuildRelicPage();
+
+            _fishTitle = UiFactory.Label(_bagPage, "Titre poissons", 32, TextAnchor.MiddleLeft, Gold);
             UiFactory.Bold(_fishTitle);
             UiFactory.Center(_fishTitle.rectTransform, new Vector2(330f, 300f), new Vector2(860f, 40f));
 
@@ -546,94 +586,217 @@ namespace FishAndChill.UI
             _toast.SetActive(false);
         }
 
-        // ---------- Relique (artefact d'un poisson de légende) ----------
+        // ---------- Onglets ----------
 
-        private GameObject _relic;
-        private Image _relicSilhouette;
-        private readonly List<Image> _relicPieces = new List<Image>();
-        private Text _relicName;
-        private Text _relicCount;
-        private Text _relicPlaced;
+        private enum InventoryPage { Bag, Relics }
 
-        /// <summary>
-        /// Colonne « Relique » entre le matériel et les poissons : l'artefact d'une légende en cours, fragments trouvés
-        /// à leur place sur sa silhouette. Les fragments ne prennent pas de place dans le sac.
-        /// </summary>
-        private void BuildRelic()
+        private InventoryPage _page = InventoryPage.Bag;
+        private RectTransform _bagPage;
+        private RectTransform _relicPage;
+        private Image _bagTab;
+        private Image _relicTab;
+
+        private RectTransform Page(string name)
         {
-            Image card = UiFactory.Sliced(_windowRect, "Relique", _roundCard != null ? _roundCard : SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
-            _relic = card.gameObject;
-            RectTransform rect = card.rectTransform;
-            UiFactory.Center(rect, new Vector2(-168f, -10f), new Vector2(118f, 400f));
-
-            Text title = UiFactory.Label(rect, "Titre", 21, TextAnchor.MiddleCenter, Gold);
-            title.text = "Relique";
-            UiFactory.Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -10f), new Vector2(-8f, 28f));
-
-            _relicSilhouette = UiFactory.Plain(rect, "Silhouette", Color.white);
-            UiFactory.Center(_relicSilhouette.rectTransform, new Vector2(0f, 40f), new Vector2(96f, 128f));
-            _relicSilhouette.preserveAspect = true;
-
-            _relicName = UiFactory.Label(rect, "Nom", 19, TextAnchor.UpperCenter, Color.white);
-            _relicName.horizontalOverflow = HorizontalWrapMode.Wrap;
-            UiFactory.Center(_relicName.rectTransform, new Vector2(0f, -90f), new Vector2(108f, 60f));
-
-            _relicCount = UiFactory.Label(rect, "Fragments", 26, TextAnchor.MiddleCenter, Gold);
-            UiFactory.Bold(_relicCount);
-            UiFactory.Center(_relicCount.rectTransform, new Vector2(0f, -140f), new Vector2(108f, 34f));
-
-            _relicPlaced = UiFactory.Label(rect, "Posés", 18, TextAnchor.MiddleCenter, Muted);
-            UiFactory.Center(_relicPlaced.rectTransform, new Vector2(0f, -172f), new Vector2(108f, 26f));
-            _relic.SetActive(false);
+            var go = new GameObject(name, typeof(RectTransform));
+            var rect = go.GetComponent<RectTransform>();
+            rect.SetParent(_windowRect, false);
+            UiFactory.Stretch(rect);
+            return rect;
         }
 
-        /// <summary>Montre la première légende dont on a au moins un fragment (rien tant qu'on n'en a trouvé aucun).</summary>
-        private void RefreshRelic()
+        /// <summary>Onglet suivant (Tab, →, croix droite) ou précédent (←, croix gauche) ; 0 sinon.</summary>
+        private static int TabPressed()
         {
-            if (_relic == null || _fishing == null)
+            Keyboard k = Keyboard.current;
+            Gamepad g = Gamepad.current;
+            if ((k != null && (k.tabKey.wasPressedThisFrame || k.rightArrowKey.wasPressedThisFrame)) || (g != null && g.dpad.right.wasPressedThisFrame)) return 1;
+            if ((k != null && k.leftArrowKey.wasPressedThisFrame) || (g != null && g.dpad.left.wasPressedThisFrame)) return -1;
+            return 0;
+        }
+
+        /// <summary>Affiche une page de l'inventaire (le sac pendant le choix « sac plein »).</summary>
+        private void ShowPage(InventoryPage page)
+        {
+            _page = Choosing ? InventoryPage.Bag : page;
+            _bagPage.gameObject.SetActive(_page == InventoryPage.Bag);
+            _relicPage.gameObject.SetActive(_page == InventoryPage.Relics);
+            Color dim = new Color(0.55f, 0.55f, 0.6f);
+            _bagTab.color = _page == InventoryPage.Bag ? Color.white : dim;
+            _relicTab.color = _page == InventoryPage.Relics ? Color.white : dim;
+            _bagTab.gameObject.SetActive(!Choosing);
+            _relicTab.gameObject.SetActive(!Choosing);
+            if (_page == InventoryPage.Relics)
+            {
+                RefreshRelics();
+            }
+        }
+
+        // ---------- Page des reliques (artefacts des poissons de légende) ----------
+
+        private const int RelicColumns = 3;
+        private const float RelicWidth = 520f;
+        private const float RelicHeight = 290f;
+
+        private Text _relicHeader;
+        private Text _relicEmpty;
+        private readonly List<RelicView> _relics = new List<RelicView>();
+
+        private sealed class RelicView
+        {
+            public Image Frame;
+            public Image Silhouette;
+            public readonly List<Image> Pieces = new List<Image>();
+            public readonly List<Image> Pips = new List<Image>();
+            public RectTransform PipRow;
+            public Text Name;
+            public Text Zone;
+            public Text Status;
+            public Text Hint;
+        }
+
+        /// <summary>
+        /// Page « Reliques » : une carte par poisson de légende (3 par rangée) avec son artefact (fragments posés en
+        /// couleur, en poche à demi transparents, manquants en silhouette), des pierres par fragment, l'étape et la suite.
+        /// Les fragments ne prennent pas de place dans le sac.
+        /// </summary>
+        private void BuildRelicPage()
+        {
+            _relicHeader = UiFactory.Label(_relicPage, "Titre reliques", 32, TextAnchor.MiddleLeft, Gold);
+            UiFactory.Bold(_relicHeader);
+            UiFactory.Center(_relicHeader.rectTransform, new Vector2(-10f, 278f), new Vector2(1600f, 40f));
+
+            _relicEmpty = UiFactory.Label(_relicPage, "Aucune légende", 26, TextAnchor.MiddleCenter, Muted);
+            _relicEmpty.text = "Aucune légende connue pour l'instant.";
+            UiFactory.Center(_relicEmpty.rectTransform, Vector2.zero, new Vector2(1200f, 40f));
+        }
+
+        private RelicView CreateRelicCard(int index)
+        {
+            int column = index % RelicColumns;
+            int row = index / RelicColumns;
+            var position = new Vector2((column - 1) * (RelicWidth + 24f), 110f - row * (RelicHeight + 24f));
+            var view = new RelicView();
+            view.Frame = UiFactory.Sliced(_relicPage, $"Relique {index + 1}", _roundCard != null ? _roundCard : SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+            RectTransform card = view.Frame.rectTransform;
+            UiFactory.Center(card, position, new Vector2(RelicWidth, RelicHeight));
+
+            Image backdrop = UiFactory.Sliced(card, "Fond", SkinSprite(s => s.WaterBackdrop), _skin != null ? new Color(1f, 1f, 1f, 0.55f) : new Color(0.2f, 0.4f, 0.5f));
+            UiFactory.Center(backdrop.rectTransform, new Vector2(-165f, 0f), new Vector2(170f, 250f));
+            view.Silhouette = UiFactory.Plain(card, "Artefact", Color.white);
+            view.Silhouette.preserveAspect = true;
+            UiFactory.Center(view.Silhouette.rectTransform, new Vector2(-165f, 0f), new Vector2(165f, 220f));
+
+            view.Name = UiFactory.Label(card, "Nom", 30, TextAnchor.MiddleLeft, Gold);
+            UiFactory.Bold(view.Name);
+            UiFactory.Center(view.Name.rectTransform, new Vector2(95f, 102f), new Vector2(330f, 40f));
+            view.Zone = UiFactory.Label(card, "Zone", 20, TextAnchor.MiddleLeft, Muted);
+            UiFactory.Center(view.Zone.rectTransform, new Vector2(95f, 70f), new Vector2(330f, 28f));
+
+            var pipRow = new GameObject("Fragments", typeof(RectTransform));
+            view.PipRow = pipRow.GetComponent<RectTransform>();
+            view.PipRow.SetParent(card, false);
+            UiFactory.Center(view.PipRow, new Vector2(95f, 30f), new Vector2(330f, 34f));
+
+            view.Status = UiFactory.Label(card, "Étape", 23, TextAnchor.UpperLeft, Color.white);
+            view.Status.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiFactory.Center(view.Status.rectTransform, new Vector2(95f, -22f), new Vector2(330f, 60f));
+            view.Hint = UiFactory.Label(card, "Suite", 19, TextAnchor.UpperLeft, Muted);
+            view.Hint.horizontalOverflow = HorizontalWrapMode.Wrap;
+            UiFactory.Center(view.Hint.rectTransform, new Vector2(95f, -92f), new Vector2(330f, 70f));
+            return view;
+        }
+
+        private void RefreshRelics()
+        {
+            if (_relicPage == null || _fishing == null)
             {
                 return;
             }
 
-            LegendFish shown = null;
-            foreach (LegendFish legend in _fishing.Legends)
+            IReadOnlyList<LegendFish> legends = _fishing.Legends;
+            int beaten = 0;
+            for (int i = 0; i < legends.Count; i++)
             {
-                if (legend != null && (_progress.Legends.Fragments(legend.Id) > 0 || _progress.Legends.State(legend.Id) != LegendState.Collecting))
-                {
-                    shown = legend;
-                    break;
-                }
+                LegendFish legend = legends[i];
+                if (legend == null) continue;
+                while (_relics.Count <= i) _relics.Add(CreateRelicCard(_relics.Count));
+                if (_progress.Legends.State(legend.Id) == LegendState.Beaten) beaten++;
+                FillRelic(_relics[i], legend);
             }
 
-            _relic.SetActive(shown != null);
-            if (shown == null)
-            {
-                return;
-            }
+            _relicEmpty.gameObject.SetActive(legends.Count == 0);
+            _relicHeader.text = $"Reliques des légendes   {beaten} / {legends.Count} vaincue{(beaten > 1 ? "s" : string.Empty)}";
+        }
 
-            int count = _progress.Legends.Fragments(shown.Id);
-            LegendState state = _progress.Legends.State(shown.Id);
-            _relicSilhouette.sprite = shown.Silhouette;
-            while (_relicPieces.Count < shown.FragmentCount)
+        private void FillRelic(RelicView view, LegendFish legend)
+        {
+            LegendProgress progress = _progress.Legends;
+            LegendState state = progress.State(legend.Id);
+            int total = legend.FragmentCount;
+            int found = state == LegendState.Collecting ? progress.Fragments(legend.Id) : total;
+            int placed = state == LegendState.Collecting ? progress.Placed(legend.Id) : total;
+            bool known = found > 0;
+            string zone = legend.Zone != null ? legend.Zone.DisplayName : "?";
+
+            view.Silhouette.sprite = legend.Silhouette;
+            view.Silhouette.color = known ? Color.white : new Color(1f, 1f, 1f, 0.45f);
+            while (view.Pieces.Count < total)
             {
-                Image piece = UiFactory.Plain(_relicSilhouette.rectTransform, $"Fragment {_relicPieces.Count + 1}", Color.white);
+                Image piece = UiFactory.Plain(view.Silhouette.rectTransform, "Fragment", Color.white);
                 piece.preserveAspect = true;
                 UiFactory.Stretch(piece.rectTransform);
-                _relicPieces.Add(piece);
+                view.Pieces.Add(piece);
             }
 
-            // Les fragments se pêchent dans l'ordre : les premiers trouvés sont à leur place sur la silhouette.
-            for (int i = 0; i < _relicPieces.Count; i++)
+            for (int i = 0; i < view.Pieces.Count; i++)
             {
-                bool owned = i < shown.FragmentCount && (i < count || state != LegendState.Collecting);
-                _relicPieces[i].sprite = shown.Fragment(i);
-                _relicPieces[i].gameObject.SetActive(owned && shown.Fragment(i) != null);
+                // Posé : en couleur ; en poche : à demi transparent, pas encore à sa place ; manquant : silhouette seule.
+                view.Pieces[i].sprite = legend.Fragment(i);
+                view.Pieces[i].gameObject.SetActive(i < total && i < found && legend.Fragment(i) != null);
+                view.Pieces[i].color = i < placed ? Color.white : new Color(1f, 1f, 1f, 0.5f);
             }
 
-            _relicName.text = shown.ArtifactName;
-            _relicCount.text = $"{(state == LegendState.Collecting ? count : shown.FragmentCount)} / {shown.FragmentCount}";
-            int placed = state == LegendState.Collecting ? _progress.Legends.Placed(shown.Id) : shown.FragmentCount;
-            _relicPlaced.text = placed >= shown.FragmentCount ? "assemblée" : placed > 0 ? $"{placed} posé{(placed > 1 ? "s" : "")}" : "à assembler";
+            while (view.Pips.Count < total)
+            {
+                Image pip = UiFactory.Plain(view.PipRow, "Pierre", Color.white);
+                pip.sprite = SkinSprite(s => s.Gem);
+                UiFactory.Place(pip.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(view.Pips.Count * 40f, 0f), new Vector2(30f, 30f));
+                view.Pips.Add(pip);
+            }
+
+            for (int i = 0; i < view.Pips.Count; i++)
+            {
+                view.Pips[i].color = i < placed ? Gold : i < found ? new Color(0.45f, 0.95f, 0.92f) : new Color(0.3f, 0.34f, 0.4f);
+            }
+
+            view.Name.text = known ? legend.ArtifactName : "???";
+            view.Zone.text = $"Du côté de « {zone} »";
+            switch (state)
+            {
+                case LegendState.Beaten:
+                    view.Status.text = $"{legend.Title} vaincu — {legend.SizeCm:0} cm";
+                    view.Status.color = Gold;
+                    view.Hint.text = "Une légende de plus à ton palmarès !";
+                    break;
+                case LegendState.Summoned:
+                    view.Status.text = $"{legend.Title} est réveillé !";
+                    view.Status.color = new Color(1f, 0.55f, 0.35f);
+                    view.Hint.text = "Il t'attend au remous légendaire : le point doré sur ta carte.";
+                    break;
+                case LegendState.Complete:
+                    view.Status.text = "Artefact complet";
+                    view.Status.color = Gold;
+                    view.Hint.text = "Réveille le gardien depuis le socle du laboratoire.";
+                    break;
+                default:
+                    view.Status.color = Color.white;
+                    view.Status.text = known ? $"{found} / {total} trouvés   •   {placed} posé{(placed > 1 ? "s" : string.Empty)}" : "Aucun fragment trouvé";
+                    view.Hint.text = !known ? "Ses fragments se pêchent ici, plus souvent dans les coins de pêche."
+                        : found > placed ? "Pose tes fragments sur le socle du laboratoire."
+                        : "Continue de pêcher : il en manque encore.";
+                    break;
+            }
         }
 
         private static readonly Color TagFamily = new Color(0.62f, 0.22f, 0.12f);
@@ -652,7 +815,7 @@ namespace FishAndChill.UI
         /// </summary>
         private void BuildGearPanel()
         {
-            Image panel = UiFactory.Sliced(_windowRect, "Matériel", SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+            Image panel = UiFactory.Sliced(_bagPage, "Matériel", SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
             UiFactory.Center(panel.rectTransform, new Vector2(-530f, -10f), new Vector2(600f, 640f));
             RectTransform rect = panel.rectTransform;
 
@@ -770,7 +933,7 @@ namespace FishAndChill.UI
                 int column = i % SlotColumns;
                 int row = i / SlotColumns;
                 var position = new Vector2(gridLeft + SlotWidth * 0.5f + column * (SlotWidth + SlotGap), 135f - row * (SlotHeight + SlotGap));
-                Image frame = UiFactory.Sliced(_windowRect, $"Place {i + 1}", _roundCard != null ? _roundCard : SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
+                Image frame = UiFactory.Sliced(_bagPage, $"Place {i + 1}", _roundCard != null ? _roundCard : SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
                 UiFactory.Center(frame.rectTransform, position, new Vector2(SlotWidth, SlotHeight));
 
                 // Fond d'eau avec le poisson (à l'échelle de sa taille).
