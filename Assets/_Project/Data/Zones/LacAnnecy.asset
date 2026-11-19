@@ -46,3 +46,9 @@ MonoBehaviour:
     _weight: 30
   _mapPosition: {x: 0.52, y: 0.74}
   _region: Haute-Savoie, France
+  _climate:
+    _clear: 35
+    _cloudy: 25
+    _rain: 20
+    _storm: 5
+    _fog: 15

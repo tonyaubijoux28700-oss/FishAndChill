@@ -23,7 +23,7 @@ namespace FishAndChill.Collection
         public static readonly string[] Columns =
         {
             "Id", "Nom", "Scientifique", "Zone", "Rarete", "Nature", "Forme", "TailleMin", "TailleMax", "Prix", "Frequence",
-            "Vitesse", "LargeurZone", "Reussites", "Rates", "Combat", "Heure", "Appats", "Description", "Couleur",
+            "Vitesse", "LargeurZone", "Reussites", "Rates", "Combat", "Heure", "Meteo", "Appats", "Description", "Couleur",
             "Dessin", "Dos", "Flancs", "Ventre", "Nageoires", "Motif", "CouleurMotif", "Queue", "Oeil", "Extras",
         };
 
@@ -122,6 +122,7 @@ namespace FishAndChill.Collection
             row.Shape = ParseShape(Cell("Forme"), row.Kind, row.Id);
             row.Fight = ParseFight(Cell("Combat"), row.Id);
             row.Time = ParseTime(Cell("Heure"), row.Id);
+            row.Weather = ParseWeather(Cell("Meteo"), row.Id);
             row.SizeCm = new Vector2(Float(Cell("TailleMin"), 10f, "TailleMin", row.Id), Float(Cell("TailleMax"), 30f, "TailleMax", row.Id));
             if (row.SizeCm.y < row.SizeCm.x)
             {
@@ -212,6 +213,11 @@ namespace FishAndChill.Collection
         private static ActiveTime ParseTime(string v, string id) => Pick(v, ActiveTime.Always, "Heure", id,
             ("toujours", ActiveTime.Always), ("always", ActiveTime.Always), ("jour", ActiveTime.Day), ("day", ActiveTime.Day),
             ("nuit", ActiveTime.Night), ("night", ActiveTime.Night));
+
+        private static WeatherNeed ParseWeather(string v, string id) => Pick(v, WeatherNeed.Any, "Meteo", id,
+            ("toustemps", WeatherNeed.Any), ("toujours", WeatherNeed.Any), ("any", WeatherNeed.Any), ("pluie", WeatherNeed.Rain),
+            ("rain", WeatherNeed.Rain), ("orage", WeatherNeed.Storm), ("storm", WeatherNeed.Storm), ("brouillard", WeatherNeed.Fog),
+            ("fog", WeatherNeed.Fog), ("beau", WeatherNeed.Clear), ("beautemps", WeatherNeed.Clear), ("clear", WeatherNeed.Clear));
 
         private static float Float(string v, float fallback, string column, string id)
         {

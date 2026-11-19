@@ -556,7 +556,7 @@ namespace FishAndChill.UI
             _rarityText.text = s.Rarity.DisplayName();
             _timeIcon.sprite = s.ActiveTime == ActiveTime.Night ? _moon : _sun;
             _timeIcon.color = Color.white;
-            _timeText.text = s.ActiveTime == ActiveTime.Always ? "Toute la journée" : DayCycleMath.ActiveText(s.ActiveTime);
+            _timeText.text = TimeAndWeatherText(s);
             _zoneText.text = zone != null ? zone.DisplayName : string.Empty;
 
             if (!known)
@@ -595,6 +595,19 @@ namespace FishAndChill.UI
 
             string text = $"<color=#2E6B2A>Appât préféré : {bait.DisplayName.ToLowerInvariant()}</color>";
             return newLine ? "\n" + text : " " + text + ".";
+        }
+
+        /// <summary>« Toute la journée », « Mord la nuit », « Sous la pluie », « Le jour, par temps d'orage »…</summary>
+        private static string TimeAndWeatherText(FishSpecies s)
+        {
+            string weather = WeatherMath.NeedText(s.Weather);
+            if (weather.Length == 0)
+            {
+                return s.ActiveTime == ActiveTime.Always ? "Toute la journée" : DayCycleMath.ActiveText(s.ActiveTime);
+            }
+
+            string time = s.ActiveTime == ActiveTime.Day ? "Le jour, " : s.ActiveTime == ActiveTime.Night ? "La nuit, " : string.Empty;
+            return time.Length > 0 ? time + weather : char.ToUpperInvariant(weather[0]) + weather.Substring(1);
         }
 
         private static string LowerFirst(string text) => string.IsNullOrEmpty(text) ? text : char.ToLowerInvariant(text[0]) + text.Substring(1);
@@ -807,6 +820,9 @@ namespace FishAndChill.UI
             UiFactory.Center(_timeIcon.rectTransform, new Vector2(-95f, -28f), new Vector2(30f, 30f));
             _timeText = InkLabel(page, "Heure (texte)", 22, TextAnchor.MiddleLeft, Ink);
             UiFactory.Center(_timeText.rectTransform, new Vector2(10f, -28f), new Vector2(180f, 30f));
+            _timeText.resizeTextForBestFit = true;   // « Le jour, sous la pluie » : rapetisse au lieu de déborder
+            _timeText.resizeTextMaxSize = _timeText.fontSize;
+            _timeText.resizeTextMinSize = Mathf.Max(10, _timeText.fontSize * 2 / 3);
             _zoneText = InkLabel(page, "Zone", 22, TextAnchor.MiddleRight, InkSoft);
             UiFactory.Center(_zoneText.rectTransform, new Vector2(220f, -28f), new Vector2(200f, 30f));
 

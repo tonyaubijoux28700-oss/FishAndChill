@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.18039216, g: 0.5411765, b: 0.5176471, a: 1}
   _description: "\xC9norme labre \xE0 grosse bosse sur le front. Il peut vivre 30 ans et mange m\xEAme les \xE9toiles de mer toxiques."
   _activeTime: 1
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 750595756ec469f41bfa6ec5a002c143, type: 3}
   _miniSprite: {fileID: 21300000, guid: 8e1213ae46d215441b9797b03f072adb, type: 3}

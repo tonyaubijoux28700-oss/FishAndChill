@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.9098039, g: 0.7607843, b: 0.22745098, a: 1}
   _description: "Les jeunes nagent devant les requins et les m\xE9rous comme des pilotes. Les adultes perdent leurs bandes noires."
   _activeTime: 1
+  _weather: 0
   _sprite: {fileID: 21300000, guid: a1d645a2f8f2fbc41825b7976ac0f70b, type: 3}
   _miniSprite: {fileID: 21300000, guid: ac4425b5c12d5cc40998431c48759a19, type: 3}

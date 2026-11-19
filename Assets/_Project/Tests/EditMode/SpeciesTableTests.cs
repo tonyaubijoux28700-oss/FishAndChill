@@ -42,6 +42,23 @@ namespace FishAndChill.Tests
             Assert.That(row.Kind, Is.EqualTo(CreatureKind.Fish));
             Assert.That(row.Fight, Is.EqualTo(FightStyle.Calm));
             Assert.That(row.Time, Is.EqualTo(ActiveTime.Always));
+            Assert.That(row.Weather, Is.EqualTo(WeatherNeed.Any), "pas de colonne Meteo : par tous les temps");
+        }
+
+        [Test]
+        public void Meteo_IsReadInFrench()
+        {
+            string csv = "Id;Nom;Scientifique;Zone;Rarete;TailleMin;TailleMax;Meteo\n" +
+                         "a;A;A a;LacAnnecy;rare;10;20;pluie\nb;B;B b;LacAnnecy;rare;10;20;Orage\n" +
+                         "c;C;C c;LacAnnecy;rare;10;20;brouillard\nd;D;D d;LacAnnecy;rare;10;20;beau temps\ne;E;E e;LacAnnecy;rare;10;20;\n";
+            SpeciesTable.Result result = SpeciesTable.Parse(csv);
+
+            Assert.That(result.Errors, Is.Empty);
+            Assert.That(result.Rows[0].Weather, Is.EqualTo(WeatherNeed.Rain));
+            Assert.That(result.Rows[1].Weather, Is.EqualTo(WeatherNeed.Storm));
+            Assert.That(result.Rows[2].Weather, Is.EqualTo(WeatherNeed.Fog));
+            Assert.That(result.Rows[3].Weather, Is.EqualTo(WeatherNeed.Clear));
+            Assert.That(result.Rows[4].Weather, Is.EqualTo(WeatherNeed.Any));
         }
 
         [Test]

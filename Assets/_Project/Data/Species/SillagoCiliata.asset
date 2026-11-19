@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.84705883, g: 0.8039216, b: 0.6666667, a: 1}
   _description: "Fouille le sable des plages avec sa bouche pointue. Le poisson pr\xE9f\xE9r\xE9 des p\xEAcheurs australiens au bord de l'eau."
   _activeTime: 0
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 089220b6babfc33438d760fcbb2b21ae, type: 3}
   _miniSprite: {fileID: 21300000, guid: 4f6186af39bf6584c9fc21227bc3978e, type: 3}

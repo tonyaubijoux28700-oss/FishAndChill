@@ -37,6 +37,11 @@ namespace FishAndChill.World
         [SerializeField] private Color _lampColor = new Color(1f, 0.78f, 0.42f);
         [SerializeField] private Color _indoorColor = new Color(1f, 0.97f, 0.92f);
 
+        [SerializeField, Tooltip("Météo : assombrit et grise le ciel, éclairs d'orage.")]
+        private WeatherSystem _weather;
+
+        private float _baseGlobalIntensity = -1f;
+
         private readonly List<Light2D> _lights = new List<Light2D>();
         private readonly List<float> _baseIntensity = new List<float>();
         private float _hour = -1f;
@@ -134,7 +139,17 @@ namespace FishAndChill.World
             bool indoors = InteriorBuilding.Occupied != null;
             if (_globalLight != null)
             {
-                _globalLight.color = indoors ? _indoorColor : DayCycleMath.SkyColor(_hour);
+                if (_baseGlobalIntensity < 0f) _baseGlobalIntensity = _globalLight.intensity;
+                Color sky = DayCycleMath.SkyColor(_hour);
+                float flash = 0f;
+                if (_weather != null && !indoors)
+                {
+                    sky *= _weather.Tint;
+                    flash = _weather.Flash;
+                }
+
+                _globalLight.color = indoors ? _indoorColor : Color.Lerp(sky, new Color(0.92f, 0.95f, 1f), flash * 0.85f);
+                _globalLight.intensity = _baseGlobalIntensity * (1f + flash * 0.9f);
             }
 
             float level = indoors ? 0f : DayCycleMath.LampLevel(_hour);

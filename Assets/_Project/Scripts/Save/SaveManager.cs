@@ -23,6 +23,7 @@ namespace FishAndChill.Save
         [SerializeField] private FishingController _fishing;
         [SerializeField] private ZoneTravel _travel;
         [SerializeField] private DayNightCycle _cycle;
+        [SerializeField] private WeatherSystem _weather;
 
         [SerializeField, Tooltip("Zones dont les espèces peuvent figurer dans la sauvegarde.")]
         private FishingZone[] _zones = new FishingZone[0];
@@ -252,6 +253,8 @@ namespace FishAndChill.Save
             data.PlaySeconds = _playSeconds;
             data.SavedAtTicks = System.DateTime.Now.Ticks;
             data.Hour = _cycle != null ? _cycle.Hour : 8f;
+            data.Weather = _weather != null ? (int)_weather.Current : -1;
+            data.WeatherHours = _weather != null ? _weather.HoursLeft : 0f;
             data.Rewards = new List<string>(_progress.ClaimedRewards);
             foreach (string id in _progress.Baits.Owned)
             {
@@ -363,6 +366,11 @@ namespace FishAndChill.Save
             if (_cycle != null)
             {
                 _cycle.SetHour(data.Hour);
+            }
+
+            if (_weather != null && data.Weather >= 0 && System.Enum.IsDefined(typeof(Weather), data.Weather))
+            {
+                _weather.SetWeather((Weather)data.Weather, data.WeatherHours);
             }
         }
     }

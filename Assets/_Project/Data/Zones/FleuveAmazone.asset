@@ -48,3 +48,9 @@ MonoBehaviour:
     _weight: 7
   _mapPosition: {x: 0.35, y: 0.44}
   _region: "Amazonas, Br\xE9sil"
+  _climate:
+    _clear: 20
+    _cloudy: 20
+    _rain: 40
+    _storm: 15
+    _fog: 5

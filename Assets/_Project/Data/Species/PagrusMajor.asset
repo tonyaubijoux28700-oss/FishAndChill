@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.9411765, g: 0.56078434, b: 0.52156866, a: 1}
   _description: "Le \xAB roi des poissons \xBB au Japon : sa couleur rouge porte bonheur, on le sert pour les f\xEAtes."
   _activeTime: 0
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 25ede37464fbf804582a23e7ecde13df, type: 3}
   _miniSprite: {fileID: 21300000, guid: b2737ff67c1371d4199b2a27437a8fa3, type: 3}

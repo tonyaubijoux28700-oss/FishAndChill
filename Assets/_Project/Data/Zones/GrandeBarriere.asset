@@ -46,3 +46,9 @@ MonoBehaviour:
     _weight: 2
   _mapPosition: {x: 0.88, y: 0.34}
   _region: Queensland, Australie
+  _climate:
+    _clear: 55
+    _cloudy: 20
+    _rain: 15
+    _storm: 10
+    _fog: 0

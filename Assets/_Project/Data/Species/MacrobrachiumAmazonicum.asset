@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.61960787, g: 0.69803923, b: 0.65882355, a: 1}
   _description: "Crevette d'eau douce aux pinces tr\xE8s longues. Elle sort la nuit fouiller le fond des berges."
   _activeTime: 2
+  _weather: 0
   _sprite: {fileID: 21300000, guid: ec1b0a6c71517b6449623447dc7e62de, type: 3}
   _miniSprite: {fileID: 21300000, guid: db41be341df8e3c43a0f60429cee4763, type: 3}

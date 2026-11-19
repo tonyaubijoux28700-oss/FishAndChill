@@ -1,4 +1,4 @@
-# Cycle jour/nuit et minimap
+# Cycle jour/nuit, météo et minimap
 
 > Détail du projet, sorti de CLAUDE.md pour l'alléger. À lire quand on travaille sur ce domaine.
 
@@ -21,6 +21,26 @@
 - **Espèces de jour / de nuit** : `FishSpecies.ActiveTime` (`Always`, `Day` 6 h-20 h, `Night` 19 h-7 h), réglé dans la colonne Heure de la table des espèces d'après le vrai comportement (perroquet, chirurgien, sergent-major, brochet, perche le
   jour ; mérou paon, crabe, langouste, écrevisse la nuit). Le tirage ignore les espèces inactives
   (`FishingController`), l'index affiche « Mord le jour / la nuit ». Calculs dans `DayCycleMath` (testés).
+
+
+## Météo
+
+
+- **Le temps** (`World/WeatherSystem`, objet « Météo » sous « Partie ») : beau temps, nuageux, pluie, orage ou brouillard
+  (`Weather`), tiré selon le **climat de la zone** (`FishingZone.Climate`, `WeatherClimate` : fréquence de chaque temps,
+  réglée par `PrototypeSetup.SetClimate` d'après le vrai climat : orages des tropiques, forêt pluviale, brumes du lac
+  alpin et de la côte japonaise). Il dure 3 à 7 heures de jeu puis change ; un voyage tire le temps de la nouvelle zone.
+  Nouvelle partie au beau temps. Sauvegardé (`SaveData.Weather`, `WeatherHours` ; -1 = ancienne sauvegarde).
+  Règles dans `WeatherMath` (testé) : tirage, durée, teinte du ciel, attente avant la touche (pluie ×0,82, orage ×0,75),
+  `Allows` pour les espèces. Affiché dans l'en-tête (« Lac d'Annecy   8h10   Pluie »).
+- **Rendu** : la lumière globale prend la teinte de l'heure multipliée par celle du temps (`WeatherSystem.Tint`, fondu
+  de quelques secondes) ; en orage, éclairs (double flash) toutes les 6-16 s. `World/WeatherEffects` autour de la
+  caméra : gouttes en biais qui éclatent en petits ronds, nappes de brume tramées qui dérivent (dessins `Editor/WeatherArt`
+  → `Art/Weather/`, 16 px par case, sprites éclairés donc assombris la nuit). Rien à l'intérieur ni sur l'écran titre.
+- **Espèces et météo** : `FishSpecies.Weather` (`WeatherNeed`, colonne Meteo de la table) : truite fario, barramundi,
+  tambaqui, anguille du Japon, grenouille rieuse sous la pluie ; gymnote électrique et requin-tigre pendant l'orage ;
+  lotte et crabe-araignée géant dans le brouillard ; grand barracuda par beau temps. L'index l'affiche
+  (« Le jour, sous la pluie »).
 
 
 ## Minimap

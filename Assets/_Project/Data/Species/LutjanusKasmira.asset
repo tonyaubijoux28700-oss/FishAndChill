@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.98039216, g: 0.81960785, b: 0.23921569, a: 1}
   _description: "Se repose en grands bancs le jour et part chasser la nuit sur le r\xE9cif."
   _activeTime: 2
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 2cdc7780eb2fa81428b585059740e9e8, type: 3}
   _miniSprite: {fileID: 21300000, guid: 17683b162e63fb344a90508bf7d01a91, type: 3}

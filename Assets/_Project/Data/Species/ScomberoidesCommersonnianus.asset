@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.78431374, g: 0.8235294, b: 0.85490197, a: 1}
   _description: "Grand chasseur argent\xE9 des eaux claires, c\xE9l\xE8bre pour ses sauts spectaculaires une fois accroch\xE9."
   _activeTime: 1
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 96cd54b17177e834fa66276feb76dc42, type: 3}
   _miniSprite: {fileID: 21300000, guid: 2759580a42cf487429253f7401409542, type: 3}

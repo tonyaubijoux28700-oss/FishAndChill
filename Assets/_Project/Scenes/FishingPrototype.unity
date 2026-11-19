@@ -6074,7 +6074,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 982003548}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &332295274
@@ -6143,6 +6144,7 @@ MonoBehaviour:
   _fishing: {fileID: 1235020156}
   _travel: {fileID: 332295279}
   _cycle: {fileID: 332295281}
+  _weather: {fileID: 982003546}
   _zones:
   - {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
   - {fileID: 11400000, guid: e71143147af136242879c044a37974a4, type: 2}
@@ -6322,6 +6324,7 @@ MonoBehaviour:
   _startHour: 8
   _lampColor: {r: 1, g: 0.78, b: 0.42, a: 1}
   _indoorColor: {r: 1, g: 0.97, b: 0.92, a: 1}
+  _weather: {fileID: 982003546}
 --- !u!1 &343519370
 GameObject:
   m_ObjectHideFlags: 0
@@ -1102234,6 +1102237,78 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &982003545
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 982003548}
+  - component: {fileID: 982003546}
+  - component: {fileID: 982003547}
+  m_Layer: 0
+  m_Name: "M\xE9t\xE9o"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &982003546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 982003545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7836301f859b995458854f872cab5801, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.WeatherSystem
+  _cycle: {fileID: 332295281}
+  _fishing: {fileID: 1235020156}
+  _fadeSeconds: 6
+--- !u!114 &982003547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 982003545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a46de696bce6964bb9b75bb516a160a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.WeatherEffects
+  _weather: {fileID: 982003546}
+  _drop: {fileID: 21300000, guid: 661005282fe0cf24baba921450268422, type: 3}
+  _splash:
+  - {fileID: 21300000, guid: cdfa8a635ad27994eb5a823c323ca664, type: 3}
+  - {fileID: 21300000, guid: 1556e4d36ff0a3745848d41c6bf9489e, type: 3}
+  - {fileID: 21300000, guid: 6e8c902098fda3a48a2bd1a73b33d032, type: 3}
+  _fog: {fileID: 21300000, guid: 8705fbf61b8ab4c45b35b3bc7b1d3e1c, type: 3}
+  _maxDrops: 170
+  _fogPuffs: 10
+  _sortingOrder: 400
+  _rainVelocity: {x: -3.2, y: -17}
+  _wind: {x: 0.35, y: 0.05}
+--- !u!4 &982003548
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 982003545}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 332295273}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &998233998
 GameObject:
   m_ObjectHideFlags: 0
@@ -1278589,6 +1278664,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FishAndChill::FishAndChill.Fishing.FishingController
   _zone: {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
   _cycle: {fileID: 332295281}
+  _weather: {fileID: 982003546}
   _spots:
   - {fileID: 463936905}
   - {fileID: 127868608}

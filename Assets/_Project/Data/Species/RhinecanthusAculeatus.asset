@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.8392157, g: 0.78039217, b: 0.61960787, a: 1}
   _description: "Son nom hawa\xEFen, humuhumunukunukuapua'a, est l'un des plus longs du monde. Il grogne quand on l'attrape !"
   _activeTime: 1
+  _weather: 0
   _sprite: {fileID: 21300000, guid: b8163298d5e9094498092ab02bd752f7, type: 3}
   _miniSprite: {fileID: 21300000, guid: 127732d006074174c9d60c9cf9556ae2, type: 3}

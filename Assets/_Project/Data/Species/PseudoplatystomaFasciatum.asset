@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.6, g: 0.61960787, b: 0.5803922, a: 1}
   _description: "Grand poisson-chat ray\xE9 comme un tigre. Il chasse la nuit en sentant ses proies avec ses barbillons."
   _activeTime: 2
+  _weather: 0
   _sprite: {fileID: 21300000, guid: e76d260a2b934254d8d0f43ba19e025b, type: 3}
   _miniSprite: {fileID: 21300000, guid: 5a706c887d726b44e8e09e0990c6d97c, type: 3}

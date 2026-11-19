@@ -37,6 +37,9 @@ namespace FishAndChill.Fishing
         [SerializeField, Tooltip("Horloge : certaines espèces ne mordent que le jour ou la nuit.")]
         private DayNightCycle _cycle;
 
+        [SerializeField, Tooltip("Météo : certaines espèces ne mordent que sous la pluie, l'orage ou le brouillard ; la touche vient plus vite quand le temps se gâte.")]
+        private WeatherSystem _weather;
+
         [SerializeField, Tooltip("Coins de pêche de chaque zone (bancs, bulles, chasses).")]
         private FishingSpots[] _spots = new FishingSpots[0];
 
@@ -148,6 +151,8 @@ namespace FishAndChill.Fishing
         public FishingState State { get; private set; } = FishingState.Idle;
         /// <summary>Horloge du jeu (null sans cycle jour/nuit).</summary>
         public DayNightCycle Cycle => _cycle;
+        /// <summary>La météo (null si la pêche n'en a pas).</summary>
+        public WeatherSystem Forecast => _weather;
 
         public FishingZone Zone => _zone;
 
@@ -416,8 +421,9 @@ namespace FishAndChill.Fishing
             // L'appât accroché attire ses espèces favorites (et selon lui les rares, ou celles de nuit).
             Bait bait = _progress != null ? _progress.EquippedBait : null;
             bool night = hour >= 20f || hour < 6f;
+            World.Weather weather = _weather != null ? _weather.Current : World.Weather.Clear;
             HookedSpecies = _zone.PickSpecies(_random, species =>
-                DayCycleMath.IsActive(species.ActiveTime, hour)
+                DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
                     ? gear.RarityMultiplier(species.Rarity) * (inSpot ? FishingSpotRules.SpeciesMultiplier(spotKind, species) : 1f)
                         * (bait != null ? bait.Multiplier(species, night) : 1f)
                     : 0f);
@@ -434,7 +440,8 @@ namespace FishAndChill.Fishing
             Vector2 range = HookedSpecies.SizeRangeCm;
             HookedSizeCm = Mathf.Lerp(range.x, range.y, (float)_random.NextDouble());
             float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble())
-                * gear.BiteWaitFactor * (InSpot ? FishingSpotRules.WaitFactor(SpotKind) : 1f) * (bait != null ? bait.BiteWaitFactor : 1f);
+                * gear.BiteWaitFactor * (InSpot ? FishingSpotRules.WaitFactor(SpotKind) : 1f) * (bait != null ? bait.BiteWaitFactor : 1f)
+                * WeatherMath.BiteWaitFactor(weather);
 
             // Une utilisation de l'appât part à chaque lancer ; le dernier parti, on revient à l'appât de départ.
             _baitNotice = null;

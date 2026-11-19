@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.61960787, g: 0.5803922, b: 0.29803923, a: 1}
   _description: "Pendant les crues, il nage dans la for\xEAt inond\xE9e et broie les fruits et les graines qui tombent des arbres."
   _activeTime: 0
+  _weather: 1
   _sprite: {fileID: 21300000, guid: 3d0ecaf59841a5045b18f9e594221627, type: 3}
   _miniSprite: {fileID: 21300000, guid: a82a849debd8c3a4f8688338b3d5ac3c, type: 3}

@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.4392157, g: 0.29803923, b: 0.18039216, a: 1}
   _description: "Tortue camoufl\xE9e en tas de feuilles mortes. Elle aspire les poissons d'un coup en ouvrant grand la bouche."
   _activeTime: 2
+  _weather: 0
   _sprite: {fileID: 21300000, guid: ac443d9abb8cce440882d4eb434b6dc6, type: 3}
   _miniSprite: {fileID: 21300000, guid: 24367ff037f0a5e4e878be7bd7312275, type: 3}

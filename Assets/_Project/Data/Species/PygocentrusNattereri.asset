@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.69803923, g: 0.72156864, b: 0.69803923, a: 1}
   _description: "Chasse en bancs. Sa r\xE9putation est exag\xE9r\xE9e : il mange surtout des poissons faibles ou bless\xE9s et des restes."
   _activeTime: 0
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 036aedc93a18e484d906bbc48f6e3fcb, type: 3}
   _miniSprite: {fileID: 21300000, guid: 9579468ebb09f5741ae3ae6e1a6be391, type: 3}

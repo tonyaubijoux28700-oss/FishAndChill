@@ -33,9 +33,15 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Pays ou région réelle, affiché sur la carte du monde.")]
         private string _region;
 
+        [SerializeField, Tooltip("Climat : fréquence relative de chaque temps.")]
+        private WeatherClimate _climate = new WeatherClimate();
+
         public string DisplayName => string.IsNullOrEmpty(_displayName) ? name : _displayName;
         public Vector2 MapPosition => _mapPosition;
         public string Region => _region;
+
+        /// <summary>Le climat de la zone : la fréquence de chaque temps (beau, nuageux, pluie, orage, brouillard).</summary>
+        public WeatherClimate Climate => _climate;
 
         /// <summary>Identifiant stable de la zone (nom de l'asset), pour la sauvegarde.</summary>
         public string Id => name;

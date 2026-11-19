@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.8, g: 0.8509804, b: 0.7490196, a: 1}
   _description: "Broute les algues en grands bancs. Ses rayures lui valent son surnom de \xAB bagnard \xBB."
   _activeTime: 1
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 6911d6633bb070a45a992d103d4fea69, type: 3}
   _miniSprite: {fileID: 21300000, guid: 13099517e30604b45b5af61c4ef030df, type: 3}

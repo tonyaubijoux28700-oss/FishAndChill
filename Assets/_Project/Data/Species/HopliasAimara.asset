@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.3529412, g: 0.2901961, b: 0.20392157, a: 1}
   _description: "Grand chasseur aux dents pointues qui guette ses proies dans les eaux calmes. Il ne l\xE2che jamais prise."
   _activeTime: 2
+  _weather: 0
   _sprite: {fileID: 21300000, guid: dc5659dc48614aa45b2705dbf23b9130, type: 3}
   _miniSprite: {fileID: 21300000, guid: e55e097e1a907894bbfaf550d506f034, type: 3}

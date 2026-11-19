@@ -68,6 +68,7 @@ namespace FishAndChill.Fishing
         {
             _controller.StateChanged += OnStateChanged;
             _controller.ZoneChanged += RefreshHeaderIfReady;
+            if (_controller.Forecast != null) _controller.Forecast.Changed += OnWeatherChanged;
             _controller.QtePressed += OnQtePressed;
             _controller.Nibbled += OnNibbled;
             _controller.FishCaught += OnFishCaught;
@@ -81,6 +82,7 @@ namespace FishAndChill.Fishing
         {
             _controller.StateChanged -= OnStateChanged;
             _controller.ZoneChanged -= RefreshHeaderIfReady;
+            if (_controller.Forecast != null) _controller.Forecast.Changed -= OnWeatherChanged;
             _controller.QtePressed -= OnQtePressed;
             _controller.Nibbled -= OnNibbled;
             _controller.FishCaught -= OnFishCaught;
@@ -915,6 +917,8 @@ namespace FishAndChill.Fishing
             }
         }
 
+        private void OnWeatherChanged(World.Weather weather) => RefreshHeaderIfReady();
+
         private void RefreshHeaderIfReady()
         {
             if (_header != null)
@@ -932,6 +936,11 @@ namespace FishAndChill.Fishing
             if (_controller.Cycle != null)
             {
                 zone += "      " + World.DayCycleMath.TimeText(Mathf.Floor(_controller.Cycle.Hour * 6f) / 6f);
+            }
+
+            if (_controller.Forecast != null)
+            {
+                zone += "      " + World.WeatherMath.Name(_controller.Forecast.Current);
             }
 
             _header.text = $"{zone}\nAquarium : {inAquarium} espèce{(inAquarium > 1 ? "s" : string.Empty)}     Captures : {log.TotalCatches}";

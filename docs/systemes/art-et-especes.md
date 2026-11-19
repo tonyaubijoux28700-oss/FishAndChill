@@ -71,7 +71,8 @@
   Erreurs de la table (valeur inconnue, nombre mal écrit) affichées dans la console, la ligne est sautée.
 - Valeurs en français, sans souci des accents : Rarete (commune, peu commune, rare, épique, légendaire), Nature
   (poisson, crustacé, reptile, amphibien), Forme (ombre sous l'eau : poisson, crabe, langouste, tortue, grenouille),
-  Combat (calme, nerveux, fuyant, rush, lourd), Heure (toujours, jour, nuit). Nombres avec virgule ou point.
+  Combat (calme, nerveux, fuyant, rush, lourd), Heure (toujours, jour, nuit), Meteo (vide = par tous les temps, pluie, orage, brouillard, beau ; « pluie » mord aussi
+  pendant l'orage). Nombres avec virgule ou point.
   Vitesse, LargeurZone, Reussites, Rates, Prix, Frequence vides = valeurs par défaut de la rareté (`SpeciesTable.Default…`).
 - **Dessin** : une fiche dessinée à la main dans le code (`MahanaFishArt`, `AnnecyFishArt`, `AmazonFishArt`, `JapanFishArt`,
   `ExtraFishArt`, `PikeArt`, `CreatureArt`…) reste prioritaire. Sinon, colonne Dessin = silhouette (`FishArchetypes` :

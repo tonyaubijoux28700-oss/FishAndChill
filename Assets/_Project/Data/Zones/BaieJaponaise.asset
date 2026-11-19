@@ -48,3 +48,9 @@ MonoBehaviour:
     _weight: 7
   _mapPosition: {x: 0.85, y: 0.67}
   _region: Shizuoka, Japon
+  _climate:
+    _clear: 35
+    _cloudy: 25
+    _rain: 20
+    _storm: 5
+    _fog: 15

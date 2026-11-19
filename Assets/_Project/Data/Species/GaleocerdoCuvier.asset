@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.47843137, g: 0.5411765, b: 0.5411765, a: 1}
   _description: "Le grand pr\xE9dateur des oc\xE9ans tropicaux, marqu\xE9 de rayures sombres comme un tigre. Il ne s'approche de l'atoll qu'\xE0 la tomb\xE9e de la nuit."
   _activeTime: 2
+  _weather: 2
   _sprite: {fileID: 21300000, guid: 47606f9ddf54fea43b3be388c185e60d, type: 3}
   _miniSprite: {fileID: 21300000, guid: 908b99e8fb74edf42877bab12356a0e2, type: 3}

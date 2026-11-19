@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.49019608, g: 0.5176471, b: 0.38039216, a: 1}
   _description: "Petit poisson des eaux fra\xEEches qui vit en bancs serr\xE9s. Au printemps, le m\xE2le a le ventre rouge vif."
   _activeTime: 1
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 727ac7fbc42a8cc42a31a22be927c8cb, type: 3}
   _miniSprite: {fileID: 21300000, guid: 47d75d70a57ac914bb99ba288502b212, type: 3}

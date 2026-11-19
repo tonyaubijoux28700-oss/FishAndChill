@@ -97,7 +97,67 @@ namespace FishAndChill.Editor
             CreateOrUpdateZone(startPath, "Île Mahana",
                 "Île tropicale fictive : lagon turquoise, plages de sable blanc et cocotiers. Point de départ de l'aventure.",
                 MahanaWater, rows, new Vector2(0.12f, 0.36f), "Polynésie (île fictive)");
+
+            // Climat de chaque zone, d'après le vrai : beau, nuageux, pluie, orage, brouillard.
+            SetClimate(startPath, new WeatherClimate(50f, 20f, 18f, 12f, 0f));          // tropiques : averses et orages
+            SetClimate(LakeZonePath, new WeatherClimate(35f, 25f, 20f, 5f, 15f));       // lac alpin : brumes du matin
+            SetClimate(AmazonZonePath, new WeatherClimate(20f, 20f, 40f, 15f, 5f));     // forêt pluviale
+            SetClimate(JapanZonePath, new WeatherClimate(35f, 25f, 20f, 5f, 15f));      // côte japonaise : pluie et brume de mer
+            SetClimate(ReefZonePath, new WeatherClimate(55f, 20f, 15f, 10f, 0f));
+            SetClimate(AtollZonePath, new WeatherClimate(60f, 20f, 15f, 5f, 0f));
             return startPath;
+        }
+
+        /// <summary>L'objet « Météo » : le temps qu'il fait et ses effets (dessins de Editor/WeatherArt → Art/Weather).</summary>
+        private static WeatherSystem BuildWeather(Transform parent, DayNightCycle cycle, FishingController controller)
+        {
+            Transform existing = parent.Find("Météo");
+            GameObject go = existing != null ? existing.gameObject : new GameObject("Météo");
+            go.transform.SetParent(parent, false);
+            var system = go.GetComponent<WeatherSystem>();
+            if (system == null) system = go.AddComponent<WeatherSystem>();
+            var effects = go.GetComponent<WeatherEffects>();
+            if (effects == null) effects = go.AddComponent<WeatherEffects>();
+
+            const string folder = "Assets/_Project/Art/Weather";
+            EnsureFolder(folder);
+            var center = new Vector2(0.5f, 0.5f);
+            int ppu = WeatherArt.PixelsPerUnit;
+            Sprite drop = PixelArt.Save($"{folder}/Goutte.png", WeatherArt.Drop(), ppu, center);
+            var splash = new Sprite[WeatherArt.SplashFrames];
+            for (int i = 0; i < splash.Length; i++)
+            {
+                splash[i] = PixelArt.Save($"{folder}/Eclaboussure_{i}.png", WeatherArt.Splash(i), ppu, center);
+            }
+
+            Sprite fog = PixelArt.Save($"{folder}/Brume.png", WeatherArt.Fog(), ppu, center);
+
+            var systemSo = new SerializedObject(system);
+            systemSo.FindProperty("_cycle").objectReferenceValue = cycle;
+            systemSo.FindProperty("_fishing").objectReferenceValue = controller;
+            systemSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var effectsSo = new SerializedObject(effects);
+            effectsSo.FindProperty("_weather").objectReferenceValue = system;
+            effectsSo.FindProperty("_drop").objectReferenceValue = drop;
+            effectsSo.FindProperty("_fog").objectReferenceValue = fog;
+            SetSprites(effectsSo.FindProperty("_splash"), splash);
+            effectsSo.ApplyModifiedPropertiesWithoutUndo();
+            return system;
+        }
+
+        private static void SetClimate(string zonePath, WeatherClimate climate)
+        {
+            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>(zonePath);
+            var so = new SerializedObject(zone);
+            SerializedProperty c = so.FindProperty("_climate");
+            c.FindPropertyRelative("_clear").floatValue = climate.Weight(Weather.Clear);
+            c.FindPropertyRelative("_cloudy").floatValue = climate.Weight(Weather.Cloudy);
+            c.FindPropertyRelative("_rain").floatValue = climate.Weight(Weather.Rain);
+            c.FindPropertyRelative("_storm").floatValue = climate.Weight(Weather.Storm);
+            c.FindPropertyRelative("_fog").floatValue = climate.Weight(Weather.Fog);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(zone);
         }
 
         /// <summary>Une zone et ses espèces : les lignes de la table dont la colonne Zone porte le nom de l'asset.</summary>
@@ -155,6 +215,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_description").stringValue = data.Description;
             so.FindProperty("_fightStyle").enumValueIndex = (int)data.Fight;
             so.FindProperty("_activeTime").enumValueIndex = (int)data.Time;
+            so.FindProperty("_weather").enumValueIndex = (int)data.Weather;
             so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color, data);
             so.FindProperty("_miniSprite").objectReferenceValue = FishArt.GenerateMini(data.Id);
             so.ApplyModifiedPropertiesWithoutUndo();
@@ -542,6 +603,18 @@ namespace FishAndChill.Editor
             saveSo.ApplyModifiedPropertiesWithoutUndo();
             var controllerCycleSo = new SerializedObject(controller);
             controllerCycleSo.FindProperty("_cycle").objectReferenceValue = cycle;
+            controllerCycleSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Météo : temps tiré selon le climat de la zone, ciel teinté, pluie, brume et éclairs (objet « Météo »).
+            WeatherSystem weather = BuildWeather(partie.transform, cycle, controller);
+            cycleSo.Update();
+            cycleSo.FindProperty("_weather").objectReferenceValue = weather;
+            cycleSo.ApplyModifiedPropertiesWithoutUndo();
+            saveSo.Update();
+            saveSo.FindProperty("_weather").objectReferenceValue = weather;
+            saveSo.ApplyModifiedPropertiesWithoutUndo();
+            controllerCycleSo.Update();
+            controllerCycleSo.FindProperty("_weather").objectReferenceValue = weather;
             controllerCycleSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Écran titre (3 emplacements de sauvegarde), posé sur l'île tant qu'aucune partie n'est choisie.

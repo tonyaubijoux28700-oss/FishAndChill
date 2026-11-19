@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.85882354, g: 0.85882354, b: 0.81960785, a: 1}
   _description: "Ses dents soud\xE9es en bec cassent les oursins et les coquillages. Ses bandes s'effacent avec l'\xE2ge."
   _activeTime: 0
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 08e9b659e8edf914c916f4bb1b85db7a, type: 3}
   _miniSprite: {fileID: 21300000, guid: ea18e1ffae536b341922435426d55a5d, type: 3}

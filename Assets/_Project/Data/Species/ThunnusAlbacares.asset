@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.16470589, g: 0.22745098, b: 0.41568628, a: 1}
   _description: "Fuseau d'acier aux nageoires jaunes, p\xEAch\xE9 aux Maldives \xE0 la canne, un par un, comme depuis des si\xE8cles."
   _activeTime: 1
+  _weather: 0
   _sprite: {fileID: 21300000, guid: b9d64ce026731a54d821218c9678cc7b, type: 3}
   _miniSprite: {fileID: 21300000, guid: e16e283be09983c469849a54d3a8a41c, type: 3}

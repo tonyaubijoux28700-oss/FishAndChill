@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.5411765, g: 0.47843137, b: 0.22745098, a: 1}
   _description: "La plus grande mur\xE8ne des r\xE9cifs : elle sort chasser la nuit et peut d\xE9passer deux m\xE8tres et demi."
   _activeTime: 2
+  _weather: 0
   _sprite: {fileID: 21300000, guid: a977ca8c8f7dbd54aaa8a233106215dc, type: 3}
   _miniSprite: {fileID: 21300000, guid: 381ffe372ba1d7c4d837bac95fb2d92f, type: 3}

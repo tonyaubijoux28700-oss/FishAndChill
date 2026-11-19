@@ -32,6 +32,9 @@ namespace FishAndChill.Collection
         public FightStyle Fight;
         public ActiveTime Time;
 
+        /// <summary>Temps qu'il faut pour qu'elle morde (colonne Meteo).</summary>
+        public WeatherNeed Weather;
+
         /// <summary>Appâts préférés (mie, ver, crevette, leurre, lumineux, calmar).</summary>
         public string[] Baits = new string[0];
 

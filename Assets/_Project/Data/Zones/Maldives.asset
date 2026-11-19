@@ -46,3 +46,9 @@ MonoBehaviour:
     _weight: 2
   _mapPosition: {x: 0.69, y: 0.47}
   _region: "Oc\xE9an Indien, Maldives"
+  _climate:
+    _clear: 60
+    _cloudy: 20
+    _rain: 15
+    _storm: 5
+    _fog: 0

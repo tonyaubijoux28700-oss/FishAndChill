@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.38039216, g: 0.4, b: 0.23921569, a: 1}
   _description: "Elle na\xEEt en plein oc\xE9an, pr\xE8s des \xEEles Mariannes, puis remonte les rivi\xE8res du Japon."
   _activeTime: 2
+  _weather: 1
   _sprite: {fileID: 21300000, guid: 8f040603e9e605240a7de44d1d898519, type: 3}
   _miniSprite: {fileID: 21300000, guid: f8355b489ae5ad046a8b39d9a5f36bfc, type: 3}

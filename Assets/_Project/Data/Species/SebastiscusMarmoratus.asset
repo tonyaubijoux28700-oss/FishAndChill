@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.6392157, g: 0.29803923, b: 0.2, a: 1}
   _description: "Rascasse des rochers aux \xE9pines venimeuses. Les femelles donnent naissance \xE0 des petits d\xE9j\xE0 form\xE9s."
   _activeTime: 2
+  _weather: 0
   _sprite: {fileID: 21300000, guid: a897d6d5d79a11343a57bdc7140d7e9c, type: 3}
   _miniSprite: {fileID: 21300000, guid: b73479e64814e62458e86ef6a3fa2293, type: 3}

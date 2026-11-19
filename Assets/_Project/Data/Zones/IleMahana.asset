@@ -52,3 +52,9 @@ MonoBehaviour:
     _weight: 13
   _mapPosition: {x: 0.12, y: 0.36}
   _region: "Polyn\xE9sie (\xEEle fictive)"
+  _climate:
+    _clear: 50
+    _cloudy: 20
+    _rain: 18
+    _storm: 12
+    _fog: 0

@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.9411765, g: 0.36078432, b: 0.14117648, a: 1}
   _description: "\xC9norme poisson-chat \xE0 la queue rouge vif. Il avale presque tout ce qui passe, m\xEAme des fruits."
   _activeTime: 2
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 4fcecbda0615c644488f25ff63f36aa6, type: 3}
   _miniSprite: {fileID: 21300000, guid: 9228eb5ef7a1cee409681fa14b5727ea, type: 3}

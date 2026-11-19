@@ -42,6 +42,9 @@ namespace FishAndChill.Collection
         [SerializeField, Tooltip("Moment où l'espèce mord : à toute heure, le jour ou la nuit.")]
         private ActiveTime _activeTime;
 
+        [SerializeField, Tooltip("Temps qu'il faut pour qu'elle morde (par tous les temps, pluie, orage, brouillard, beau temps).")]
+        private WeatherNeed _weather;
+
         [SerializeField] private Sprite _sprite;
 
         [SerializeField, Tooltip("Petite version (≈ 32 px) qui nage dans l'aquarium.")]
@@ -60,6 +63,7 @@ namespace FishAndChill.Collection
         public Color PlaceholderColor => _placeholderColor;
         public Sprite Sprite => _sprite;
         public ActiveTime ActiveTime => _activeTime;
+        public WeatherNeed Weather => _weather;
         public string Description => _description;
 
         /// <summary>Sprite de l'aquarium (le grand dessin s'il n'y a pas de petite version).</summary>

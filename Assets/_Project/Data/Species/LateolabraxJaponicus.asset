@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.8, g: 0.8392157, b: 0.8392157, a: 1}
   _description: "Il change de nom en grandissant au Japon. Il chasse la nuit dans l'\xE9cume, pr\xE8s des rochers."
   _activeTime: 2
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 29be684579f4ddc4bbda2239efd3cf23, type: 3}
   _miniSprite: {fileID: 21300000, guid: 89d550767d5e54542b4353251c248b4f, type: 3}

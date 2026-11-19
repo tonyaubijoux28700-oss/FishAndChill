@@ -15,7 +15,7 @@ Conception : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   pêcheur, menu pause.
 - [docs/systemes/legendes.md](docs/systemes/legendes.md) : laboratoire, fragments, atelier des artefacts, réveil,
   remous, combat de légende (Tuna), style des dessins de boss.
-- [docs/systemes/jour-nuit-et-minimap.md](docs/systemes/jour-nuit-et-minimap.md) : cycle jour/nuit, lumières, minimap.
+- [docs/systemes/jour-nuit-et-minimap.md](docs/systemes/jour-nuit-et-minimap.md) : cycle jour/nuit, lumières, météo, minimap.
 - [docs/systemes/art-et-especes.md](docs/systemes/art-et-especes.md) : art généré par code, style en volume, table
   des espèces (`Data/Especes.csv`).
 

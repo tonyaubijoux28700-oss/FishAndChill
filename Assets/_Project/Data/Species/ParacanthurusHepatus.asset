@@ -29,5 +29,6 @@ MonoBehaviour:
   _placeholderColor: {r: 0.16470589, g: 0.36078432, b: 0.84705883, a: 1}
   _description: "Bleu roi \xE0 motif noir et queue jaune. Quand il a peur, il se coince dans le corail et fait le mort."
   _activeTime: 1
+  _weather: 0
   _sprite: {fileID: 21300000, guid: 80aa005a3749e2045a665c7135c17ef7, type: 3}
   _miniSprite: {fileID: 21300000, guid: 13b2d729e94cdbb4d9357465a0eb4680, type: 3}
