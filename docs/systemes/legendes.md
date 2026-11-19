@@ -69,6 +69,13 @@
   légende). Le menu de test (**FishAndChill → Légendes (test)**) agit sur la légende de la zone où l'on est (sinon Tuna) et
   « Aller au remous » choisit le remous actif.
 
+- **Tempête des boss** (`World/LegendStorm`, sur l'objet « Météo » ; règles `LegendStormMath`, testé) : pour chaque boss réveillé,
+  la tempête monte à mesure qu'on s'approche de son remous (rien au-delà de 30 cases, au comble à 6 cases) et pendant
+  tout le combat, puis retombe en s'éloignant ou après la victoire. Ciel presque noir et violacé, déluge couché par le
+  vent, brume, lanternes allumées même de jour, éclairs toutes les 1 à 3 s, et **vraie foudre dessinée** (`WeatherArt.Bolt`,
+  3 tracés, pied = point d'impact) qui frappe souvent le remous, avec une lueur d'impact et une secousse de la caméra
+  (`CameraFollow.Shake`). L'en-tête affiche « Tempête ». Le temps de la zone reprend ensuite son cours.
+
 ## Dessins des légendes
 
 

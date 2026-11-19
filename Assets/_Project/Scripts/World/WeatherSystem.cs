@@ -16,6 +16,9 @@ namespace FishAndChill.World
         [SerializeField] private DayNightCycle _cycle;
         [SerializeField] private FishingController _fishing;
 
+        [SerializeField, Tooltip("Tempête des boss : ciel noir, déluge et foudre près du remous d'un boss réveillé.")]
+        private LegendStorm _legendStorm;
+
         [SerializeField, Min(0.1f), Tooltip("Durée du fondu d'un temps à l'autre, en secondes.")]
         private float _fadeSeconds = 6f;
 
@@ -45,8 +48,17 @@ namespace FishAndChill.World
         /// <summary>Le temps vient de changer.</summary>
         public event Action<Weather> Changed;
 
-        /// <summary>Un éclair vient de frapper (pour la secousse ou le son, plus tard).</summary>
-        public event Action Lightning;
+        /// <summary>Intensité de la tempête des boss (0 à 1).</summary>
+        public float Epic => _legendStorm != null ? _legendStorm.Intensity : 0f;
+
+        /// <summary>Cœur de la tempête des boss (le remous).</summary>
+        public Vector2 StormCenter => _legendStorm != null ? _legendStorm.Center : Vector2.zero;
+
+        /// <summary>Nom affiché : « Tempête » quand la tempête d'un boss gronde, sinon le temps qu'il fait.</summary>
+        public string DisplayName => Epic > 0.45f ? "Tempête" : WeatherMath.Name(Current);
+
+        /// <summary>Un éclair vient de frapper ; donne l'intensité de la tempête des boss à ce moment (0 pour un orage ordinaire).</summary>
+        public event Action<float> Lightning;
 
         private void Awake()
         {
@@ -132,27 +144,29 @@ namespace FishAndChill.World
 
             float dt = Time.deltaTime;
             float k = dt <= 0f ? 0f : 1f - Mathf.Exp(-dt * 3f / _fadeSeconds);
-            _tint = Color.Lerp(_tint, WeatherMath.SkyTint(Current), k);
-            Rain = Mathf.Lerp(Rain, WeatherMath.RainAmount(Current), k);
-            Fog = Mathf.Lerp(Fog, WeatherMath.FogAmount(Current), k);
+            float epic = Epic;
+            Color targetTint = Color.Lerp(WeatherMath.SkyTint(Current), LegendStormMath.Tint, epic);
+            _tint = epic > 0.01f ? targetTint : Color.Lerp(_tint, targetTint, k);   // la tempête a déjà son propre fondu
+            Rain = Mathf.Max(Mathf.Lerp(Rain, WeatherMath.RainAmount(Current), k), epic);
+            Fog = Mathf.Max(Mathf.Lerp(Fog, WeatherMath.FogAmount(Current), k), epic * 0.3f);
 
             // Éclairs d'orage : un double flash de temps en temps.
             _flashAge += dt;
-            if (Current == Weather.Storm && InteriorBuilding.Occupied == null)
+            if ((Current == Weather.Storm || epic > 0.15f) && InteriorBuilding.Occupied == null)
             {
-                _lightningTimer -= dt;
+                _lightningTimer = Mathf.Min(_lightningTimer, LegendStormMath.LightningInterval(epic, 1f)) - dt;
                 if (_lightningTimer <= 0f)
                 {
-                    _lightningTimer = NextLightning();
+                    _lightningTimer = LegendStormMath.LightningInterval(epic, (float)_random.NextDouble());
                     _flashAge = 0f;
-                    Lightning?.Invoke();
+                    Lightning?.Invoke(epic);
                 }
             }
 
             Flash = FlashAt(_flashAge);
         }
 
-        private float NextLightning() => Mathf.Lerp(6f, 16f, (float)(_random?.NextDouble() ?? 0.5));
+        private float NextLightning() => LegendStormMath.LightningInterval(0f, (float)(_random?.NextDouble() ?? 0.5));
 
         /// <summary>Deux éclats rapprochés qui s'éteignent vite.</summary>
         private static float FlashAt(float age)

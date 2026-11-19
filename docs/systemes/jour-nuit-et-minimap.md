@@ -33,6 +33,7 @@
   Nouvelle partie au beau temps. Sauvegardé (`SaveData.Weather`, `WeatherHours` ; -1 = ancienne sauvegarde).
   Règles dans `WeatherMath` (testé) : tirage, durée, teinte du ciel, attente avant la touche (pluie ×0,82, orage ×0,75),
   `Allows` pour les espèces. Affiché dans l'en-tête (« Lac d'Annecy   8h10   Pluie »).
+- **Tempête des boss** : voir docs/systemes/legendes.md (`LegendStorm`, intensité `WeatherSystem.Epic`).
 - **Rendu** : la lumière globale prend la teinte de l'heure multipliée par celle du temps (`WeatherSystem.Tint`, fondu
   de quelques secondes) ; en orage, éclairs (double flash) toutes les 6-16 s. `World/WeatherEffects` autour de la
   caméra : gouttes en biais qui éclatent en petits ronds, nappes de brume tramées qui dérivent (dessins `Editor/WeatherArt`

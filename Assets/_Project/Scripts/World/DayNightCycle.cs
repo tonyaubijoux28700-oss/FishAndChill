@@ -152,7 +152,8 @@ namespace FishAndChill.World
                 _globalLight.intensity = _baseGlobalIntensity * (1f + flash * 0.9f);
             }
 
-            float level = indoors ? 0f : DayCycleMath.LampLevel(_hour);
+            // La tempête d'un boss plonge le monde dans le noir : les lanternes s'allument même en plein jour.
+            float level = indoors ? 0f : Mathf.Max(DayCycleMath.LampLevel(_hour), _weather != null ? _weather.Epic * 0.8f : 0f);
             for (int i = 0; i < _lights.Count; i++)
             {
                 // Léger vacillement, décalé d'une lumière à l'autre.

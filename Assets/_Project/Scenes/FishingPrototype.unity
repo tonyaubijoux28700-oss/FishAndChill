@@ -1102248,6 +1102248,7 @@ GameObject:
   - component: {fileID: 982003548}
   - component: {fileID: 982003546}
   - component: {fileID: 982003547}
+  - component: {fileID: 982003549}
   m_Layer: 0
   m_Name: "M\xE9t\xE9o"
   m_TagString: Untagged
@@ -1102269,6 +1102270,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: FishAndChill::FishAndChill.World.WeatherSystem
   _cycle: {fileID: 332295281}
   _fishing: {fileID: 1235020156}
+  _legendStorm: {fileID: 982003549}
   _fadeSeconds: 6
 --- !u!114 &982003547
 MonoBehaviour:
@@ -1102289,6 +1102291,17 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 1556e4d36ff0a3745848d41c6bf9489e, type: 3}
   - {fileID: 21300000, guid: 6e8c902098fda3a48a2bd1a73b33d032, type: 3}
   _fog: {fileID: 21300000, guid: 8705fbf61b8ab4c45b35b3bc7b1d3e1c, type: 3}
+  _bolts:
+  - {fileID: 21300000, guid: 066f61e8301f92b4095a066aa22543c8, type: 3}
+  - {fileID: 21300000, guid: 14a63e5842977cd44bdbdddc05ccc2d5, type: 3}
+  - {fileID: 21300000, guid: d1ddd9b9ce9884e459e79e1e04f56746, type: 3}
+  _impact:
+  - {fileID: 21300000, guid: dbdf382fab10e1e479b0e2ea9e2a99a3, type: 3}
+  - {fileID: 21300000, guid: a41e6c04db786804887c913e2a3d2c93, type: 3}
+  - {fileID: 21300000, guid: 24522952f2d49cf4db1009030421e0dc, type: 3}
+  _glowMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  _cameraFollow: {fileID: 519420033}
+  _stormDrops: 170
   _maxDrops: 170
   _fogPuffs: 10
   _sortingOrder: 400
@@ -1102309,6 +1102322,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 332295273}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &982003549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 982003545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d43f4ecf847dc7c4fa7121cd0a0d1ddf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.LegendStorm
+  _fishing: {fileID: 1235020156}
+  _player: {fileID: 1141459285}
 --- !u!1 &998233998
 GameObject:
   m_ObjectHideFlags: 0

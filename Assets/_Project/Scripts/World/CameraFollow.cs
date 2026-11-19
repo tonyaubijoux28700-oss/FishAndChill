@@ -46,6 +46,24 @@ namespace FishAndChill.World
             SnapToTarget();
         }
 
+        private Vector3 _lastShake;
+        private float _shakeStrength;
+        private float _shakeTime;
+        private float _shakeDuration;
+
+        /// <summary>Secoue la caméra (coup de foudre…) : décalage de <paramref name="strength"/> cases qui s'éteint en <paramref name="seconds"/> s.</summary>
+        public void Shake(float strength, float seconds)
+        {
+            if (strength < _shakeStrength * (1f - _shakeTime / Mathf.Max(0.01f, _shakeDuration)))
+            {
+                return;   // une secousse plus forte est déjà en cours
+            }
+
+            _shakeStrength = strength;
+            _shakeDuration = Mathf.Max(0.01f, seconds);
+            _shakeTime = 0f;
+        }
+
         private void LateUpdate()
         {
             if (_target == null)
@@ -53,10 +71,22 @@ namespace FishAndChill.World
                 return;
             }
 
+            // La secousse s'ajoute à la position suivie sans la perturber (on la retire avant de suivre).
+            Vector3 basePosition = transform.position - _lastShake;
             Vector3 desired = DesiredPosition();
-            transform.position = _smoothTime > 0f
-                ? Vector3.SmoothDamp(transform.position, desired, ref _velocity, _smoothTime)
+            basePosition = _smoothTime > 0f
+                ? Vector3.SmoothDamp(basePosition, desired, ref _velocity, _smoothTime)
                 : desired;
+            Vector3 shake = Vector3.zero;
+            if (_shakeTime < _shakeDuration)
+            {
+                _shakeTime += Time.unscaledDeltaTime;
+                float s = _shakeStrength * (1f - _shakeTime / _shakeDuration);
+                shake = new Vector3(Random.Range(-s, s), Random.Range(-s, s), 0f);
+            }
+
+            _lastShake = shake;
+            transform.position = basePosition + shake;
         }
 
         /// <summary>Place la caméra directement sur la cible, sans glissement.</summary>
@@ -65,6 +95,7 @@ namespace FishAndChill.World
             if (_target != null)
             {
                 transform.position = DesiredPosition();
+                _lastShake = Vector3.zero;
                 _velocity = Vector3.zero;
             }
         }

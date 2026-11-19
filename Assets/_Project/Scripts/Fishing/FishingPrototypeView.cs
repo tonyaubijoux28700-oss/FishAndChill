@@ -940,7 +940,7 @@ namespace FishAndChill.Fishing
 
             if (_controller.Forecast != null)
             {
-                zone += "      " + World.WeatherMath.Name(_controller.Forecast.Current);
+                zone += "      " + _controller.Forecast.DisplayName;
             }
 
             _header.text = $"{zone}\nAquarium : {inAquarium} espèce{(inAquarium > 1 ? "s" : string.Empty)}     Captures : {log.TotalCatches}";

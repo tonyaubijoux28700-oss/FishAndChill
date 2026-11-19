@@ -109,7 +109,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>L'objet « Météo » : le temps qu'il fait et ses effets (dessins de Editor/WeatherArt → Art/Weather).</summary>
-        private static WeatherSystem BuildWeather(Transform parent, DayNightCycle cycle, FishingController controller)
+        private static WeatherSystem BuildWeather(Transform parent, DayNightCycle cycle, FishingController controller, Transform player)
         {
             Transform existing = parent.Find("Météo");
             GameObject go = existing != null ? existing.gameObject : new GameObject("Météo");
@@ -118,6 +118,8 @@ namespace FishAndChill.Editor
             if (system == null) system = go.AddComponent<WeatherSystem>();
             var effects = go.GetComponent<WeatherEffects>();
             if (effects == null) effects = go.AddComponent<WeatherEffects>();
+            var storm = go.GetComponent<LegendStorm>();
+            if (storm == null) storm = go.AddComponent<LegendStorm>();
 
             const string folder = "Assets/_Project/Art/Weather";
             EnsureFolder(folder);
@@ -131,16 +133,38 @@ namespace FishAndChill.Editor
             }
 
             Sprite fog = PixelArt.Save($"{folder}/Brume.png", WeatherArt.Fog(), ppu, center);
+            var bolts = new Sprite[WeatherArt.BoltVariants];
+            for (int i = 0; i < bolts.Length; i++)
+            {
+                bolts[i] = PixelArt.Save($"{folder}/Foudre_{i}.png", WeatherArt.Bolt(i), ppu, new Vector2(0.5f, 0f));   // pied = impact
+            }
+
+            var impact = new Sprite[WeatherArt.ImpactFrames];
+            for (int i = 0; i < impact.Length; i++)
+            {
+                impact[i] = PixelArt.Save($"{folder}/Impact_{i}.png", WeatherArt.Impact(i), ppu, center);
+            }
+
+            var stormSo = new SerializedObject(storm);
+            stormSo.FindProperty("_fishing").objectReferenceValue = controller;
+            stormSo.FindProperty("_player").objectReferenceValue = player;
+            stormSo.ApplyModifiedPropertiesWithoutUndo();
 
             var systemSo = new SerializedObject(system);
             systemSo.FindProperty("_cycle").objectReferenceValue = cycle;
             systemSo.FindProperty("_fishing").objectReferenceValue = controller;
+            systemSo.FindProperty("_legendStorm").objectReferenceValue = storm;
             systemSo.ApplyModifiedPropertiesWithoutUndo();
 
             var effectsSo = new SerializedObject(effects);
             effectsSo.FindProperty("_weather").objectReferenceValue = system;
             effectsSo.FindProperty("_drop").objectReferenceValue = drop;
             effectsSo.FindProperty("_fog").objectReferenceValue = fog;
+            SetSprites(effectsSo.FindProperty("_bolts"), bolts);
+            SetSprites(effectsSo.FindProperty("_impact"), impact);
+            effectsSo.FindProperty("_glowMaterial").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Material>(
+                "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat");
+            effectsSo.FindProperty("_cameraFollow").objectReferenceValue = Object.FindAnyObjectByType<CameraFollow>();
             SetSprites(effectsSo.FindProperty("_splash"), splash);
             effectsSo.ApplyModifiedPropertiesWithoutUndo();
             return system;
@@ -606,7 +630,7 @@ namespace FishAndChill.Editor
             controllerCycleSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Météo : temps tiré selon le climat de la zone, ciel teinté, pluie, brume et éclairs (objet « Météo »).
-            WeatherSystem weather = BuildWeather(partie.transform, cycle, controller);
+            WeatherSystem weather = BuildWeather(partie.transform, cycle, controller, movement.transform);
             cycleSo.Update();
             cycleSo.FindProperty("_weather").objectReferenceValue = weather;
             cycleSo.ApplyModifiedPropertiesWithoutUndo();
