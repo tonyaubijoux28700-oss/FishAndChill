@@ -485,11 +485,6 @@ namespace FishAndChill.UI
                     text.Append($"<color=#FFD54D>Nouvelle espèce : {fish.Species.CommonName}</color>\n");
                 }
 
-                foreach (CaughtFish fish in result.Upgraded)
-                {
-                    text.Append($"Record ! {fish.Species.CommonName} de {fish.SizeCm:0} cm exposé\n");
-                }
-
                 if (result.LeftInBag > 0)
                 {
                     text.Append($"{result.LeftInBag} poisson(s) restent dans le sac pour le marchand\n");

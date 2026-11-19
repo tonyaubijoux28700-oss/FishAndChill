@@ -71,8 +71,8 @@
   **Visiteurs mis de côté** pour l'instant : `World/AquariumVisitors` et `MapSetup.BuildVisitors` (pêcheur recoloré,
   promenade devant les bassins, +1 toutes les 6 espèces) existent mais ne sont plus appelés. La faune de la zone
   (`AmbientLife`) se cache à l'intérieur des bâtiments. Obstacles : `AquariumBuilding.JellyfishColumns` / `Benches`. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
-  gros de chaque nouvelle espèce entre ; un poisson plus gros remplace l'exemplaire exposé (l'ancien revient dans le
-  sac) ; les doublons restent dans le sac pour le marchand. `FishShop` ne vend pas un record de taille.
+  gros de chaque nouvelle espèce entre ; **la taille ne compte pas ensuite** : une espèce déjà exposée n'est jamais
+  remplacée, même par un plus gros, et tous ses exemplaires restent dans le sac pour le marchand (`FishShop` les achète).
   Les poissons nagent dans le bassin (`AquariumTank`) avec leur petite version `FishSpecies.MiniSprite`
   (≈ 32 px, réduite au tiers du grand dessin par `FishArt.GenerateMini` → `Art/Fish/Mini/`), entre le fond (ordre -5) et
   la vitre (`Aquarium_Vitre.png`, ordre -3). L'index des poissons indique les espèces exposées.

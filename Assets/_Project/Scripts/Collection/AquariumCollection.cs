@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace FishAndChill.Collection
 {
     /// <summary>
-    /// L'aquarium : un exemplaire de chaque espèce (le plus gros qu'on y ait déposé).
-    /// Au dépôt, le plus gros poisson de chaque nouvelle espèce y entre ; un poisson plus gros que celui de
-    /// l'aquarium prend sa place (l'ancien revient dans le sac, pour le marchand). Les doublons restent dans le sac.
+    /// L'aquarium : un exemplaire de chaque espèce, le premier qu'on y dépose.
+    /// Au dépôt, le plus gros poisson de chaque nouvelle espèce du sac y entre. La taille ne compte pas ensuite : une
+    /// espèce déjà exposée n'est jamais remplacée, tous ses exemplaires restent dans le sac pour le marchand.
     /// </summary>
     public sealed class AquariumCollection
     {
@@ -58,20 +58,13 @@ namespace FishAndChill.Collection
                 }
             }
 
-            // Records : on échange avec l'exemplaire de l'aquarium (les places du sac ne bougent pas).
+            // Seules les espèces absentes entrent ; une espèce déjà exposée ne change plus, même pour un plus gros.
             var newSlots = new List<int>();
             foreach (KeyValuePair<string, int> entry in biggest)
             {
-                CaughtFish current = SpecimenOf(entry.Key);
-                if (current == null)
+                if (!Contains(entry.Key))
                 {
                     newSlots.Add(entry.Value);
-                }
-                else if (bag.Fish[entry.Value].SizeCm > current.SizeCm)
-                {
-                    CaughtFish record = bag.Replace(entry.Value, current);
-                    _species[entry.Key] = record;
-                    result.Upgraded.Add(record);
                 }
             }
 

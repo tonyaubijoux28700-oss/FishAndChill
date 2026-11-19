@@ -114,7 +114,7 @@ Les données doivent être faciles à ajouter en masse, par exemple par import d
 ## Économie et matériel
 
 - Les pièces viennent de la vente des doublons au marchand.
-- **[À décider]** : peut-on vendre un exemplaire plus grand pour améliorer son record ?
+- La taille ne compte pas pour l'aquarium : une espèce déjà exposée n'est jamais remplacée par un plus gros, qui se vend.
 - Le matériel est amélioré par catégorie :
   - **Canne** : facilite le QTE (zone de réussite plus large, curseur plus lent).
   - **Hameçons** : réduisent les décrochages ; nécessaires pour les gros poissons.

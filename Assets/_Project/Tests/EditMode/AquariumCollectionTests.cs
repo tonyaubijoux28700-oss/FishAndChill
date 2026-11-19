@@ -60,7 +60,7 @@ namespace FishAndChill.Tests
         }
 
         [Test]
-        public void Deposit_BiggerFish_ReplacesTheSpecimen_OldOneGoesBackToTheBag()
+        public void Deposit_BiggerFish_DoesNotReplaceTheSpecimen_StaysInTheBag()
         {
             var aquarium = new AquariumCollection();
             var bag = new Inventory(3);
@@ -71,10 +71,10 @@ namespace FishAndChill.Tests
             bag.TryAdd(TestFish.Fish(Pike, 95f));
             DepositResult result = aquarium.Deposit(bag);
 
-            Assert.That(result.Upgraded.Count, Is.EqualTo(1));
-            Assert.That(aquarium.SpecimenOf("pike").SizeCm, Is.EqualTo(95f));
-            Assert.That(bag.Count, Is.EqualTo(1), "la perche est entrée, l'ancien brochet a pris la place du nouveau");
-            Assert.That(bag.Fish[0].SizeCm, Is.EqualTo(60f));
+            Assert.That(result.NewSpecies.Count, Is.EqualTo(1), "seule la perche entre");
+            Assert.That(aquarium.SpecimenOf("pike").SizeCm, Is.EqualTo(60f), "la taille ne compte pas : le premier reste exposé");
+            Assert.That(bag.Count, Is.EqualTo(1), "le gros brochet reste dans le sac pour le marchand");
+            Assert.That(bag.Fish[0].SizeCm, Is.EqualTo(95f));
             Assert.That(aquarium.SpeciesCount, Is.EqualTo(2));
         }
 

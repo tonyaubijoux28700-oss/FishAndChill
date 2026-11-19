@@ -15,7 +15,7 @@ namespace FishAndChill.World
     /// - la salle Japon (24×18 cases) : jardin zen, shōji, bassin d'eau de mer aux rochers et algues ;
     /// - la salle Grande Barrière (24×18 cases), au bout : cabane de plage, fresque marine, bassin de coraux.
     /// Chaque bassin montre les espèces de sa zone. Devant l'un ou l'autre, E dépose le sac : chaque nouvelle espèce entre,
-    /// un poisson plus gros remplace celui exposé ; les doublons restent dans le sac.
+    /// une espèce déjà exposée ne change plus (la taille ne compte pas) ; les doublons restent dans le sac.
     /// </summary>
     public sealed class AquariumBuilding : InteriorBuilding
     {

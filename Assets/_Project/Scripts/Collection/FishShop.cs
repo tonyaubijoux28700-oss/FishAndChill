@@ -41,9 +41,8 @@ namespace FishAndChill.Collection
                 return true;
             }
 
-            // Le plus gros du sac : gardé si l'espèce manque à l'aquarium, ou s'il bat le record de l'aquarium.
-            CaughtFish specimen = aquarium?.SpecimenOf(fish.SpeciesId);
-            return specimen != null && fish.SizeCm <= specimen.SizeCm;
+            // Le plus gros du sac : gardé seulement si l'espèce manque à l'aquarium (la taille ne compte pas ensuite).
+            return aquarium != null && aquarium.Contains(fish.SpeciesId);
         }
 
         /// <summary>Vend le poisson de la place <paramref name="slot"/> ; renvoie le gain (0 si refusé).</summary>
