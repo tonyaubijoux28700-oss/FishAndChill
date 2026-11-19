@@ -126,11 +126,11 @@ namespace FishAndChill.Fishing
         public void Show(LegendFish legend, int coins)
         {
             FishSpecies species = legend.Species;
-            _fishImage.sprite = species != null ? species.Sprite : null;
+            _fishImage.sprite = legend.Art;
             _name.text = legend.Title;
             _size.text = species != null
-                ? $"{species.CommonName} — {legend.SizeCm:0} cm   (d'habitude : {species.SizeRangeCm.y:0} cm au plus)"
-                : $"{legend.SizeCm:0} cm";
+                ? $"{legend.KindName} — {legend.SizeCm:0} cm   ({species.CommonName.ToLowerInvariant()} : {species.SizeRangeCm.y:0} cm au plus d'habitude)"
+                : $"{legend.KindName} — {legend.SizeCm:0} cm";
             _line.text = $"L'artefact « {legend.ArtifactName} » repose, apaisé. Le Dr Hina Teva n'en croira pas ses yeux !";
             _coins.text = coins > 0 ? $"+{coins} pièces" : string.Empty;
             _age = 0f;

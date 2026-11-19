@@ -8,7 +8,7 @@ namespace FishAndChill.Editor
 {
     /// <summary>
     /// Crée ou met à jour les poissons de légende (Data/Legendes) et dessine leurs artefacts (Art/Legendes).
-    /// Pour l'instant : le Vieux Ulua, carangue géante de l'île Mahana, et son Idole de corail en 4 fragments.
+    /// Pour l'instant : Tuna, la murène géante de l'île Mahana, et son Idole de corail en 4 fragments.
     /// Appelé par le menu du prototype, après la création des espèces et des zones.
     /// </summary>
     public static class LegendSetup
@@ -33,36 +33,54 @@ namespace FishAndChill.Editor
                 centers[i] = LegendArt.PieceCenter(i);
             }
 
-            var species = AssetDatabase.LoadAssetAtPath<FishSpecies>("Assets/_Project/Data/Species/CaranxIgnobilis.asset");
-            if (species == null)
+            // Tuna : une murène javanaise monstrueuse (la vraie vit aussi en Polynésie et dépasse rarement 3 m), qui porte
+            // le nom de l'anguille géante d'une légende polynésienne (de sa tête enterrée serait né le premier cocotier).
+            var species = FindSpecies("gymnothorax-javanicus", "Assets/_Project/Data/Species/GymnothoraxJavanicus.asset");
+            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/IleMahana.asset");
+            const string path = Folder + "/Tuna.asset";
+            if (AssetDatabase.LoadAssetAtPath<LegendFish>(path) == null && AssetDatabase.LoadAssetAtPath<LegendFish>($"{Folder}/VieuxUlua.asset") != null)
             {
-                foreach (string guid in AssetDatabase.FindAssets("t:FishSpecies"))
-                {
-                    var s = AssetDatabase.LoadAssetAtPath<FishSpecies>(AssetDatabase.GUIDToAssetPath(guid));
-                    if (s != null && s.Id == "caranx-ignobilis") species = s;
-                }
+                AssetDatabase.MoveAsset($"{Folder}/VieuxUlua.asset", path);   // l'ancienne fiche (même GUID, la scène reste reliée)
             }
 
-            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/IleMahana.asset");
-            LegendFish ulua = LoadOrCreate($"{Folder}/VieuxUlua.asset");
-            ulua.Configure("vieux-ulua", "Le Vieux Ulua", species, zone, 210f, "Idole de corail", LegendArt.IdolFragments,
+            LegendFish tuna = LoadOrCreate(path);
+            tuna.Configure("tuna", "Tuna", species, zone, 420f, "Idole de corail", LegendArt.IdolFragments,
                 FragmentRules.DefaultChance, idol, fragments, centers, silhouette, new[]
                 {
                     "Un morceau de corail rose, sculpté d'une couronne. Il est étrangement tiède dans ta main.",
                     "Un des yeux de nacre de l'idole, serti d'or, te fixe depuis ce fragment. On jurerait qu'il bouge.",
-                    "Un bras sculpté, poli par la mer. Des écailles d'argent géantes y sont restées accrochées.",
-                    "Le socle de l'idole. Gravé dessous : « Ulua, roi du lagon, dort sous la passe ».",
+                    "Un bras sculpté, poli par la mer. Une longue dent recourbée y est restée plantée.",
+                    "Le socle de l'idole. Gravé dessous : « Tuna, gardien du lagon, dort sous la passe ».",
                 });
-            // Le combat, d'après la vraie carangue géante : elle file vers le large, puis sonde et tire de tout son poids
-            // (elle est réputée casser les lignes), et finit par se débattre en surface.
-            ulua.ConfigureFight(new[]
+            Sprite art = PixelArt.Save($"{ArtFolder}/Tuna.png", MorayArt.Draw(), ppu, pivot);
+            tuna.ConfigureLook("Murène géante", art, BodyShape.Moray);
+            // Le combat, d'après les vraies murènes : elle file se réfugier dans son trou, puis s'enroule autour du corail
+            // et tire de tout son poids, et finit par se tordre dans tous les sens.
+            tuna.ConfigureFight(new[]
             {
-                new LegendPhase(FightStyle.Rusher, new QteDifficulty(1.25f, 0.20f, 3, 2), "Il fonce vers la passe !"),
-                new LegendPhase(FightStyle.Heavy, new QteDifficulty(1.1f, 0.22f, 4, 2), "Il sonde et tire de tout son poids !"),
-                new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il s'affole près de la surface !"),
+                new LegendPhase(FightStyle.Rusher, new QteDifficulty(1.25f, 0.20f, 3, 2), "Il file se réfugier dans sa grotte !"),
+                new LegendPhase(FightStyle.Heavy, new QteDifficulty(1.1f, 0.22f, 4, 2), "Il s'enroule autour du corail et tire !"),
+                new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il se tord dans tous les sens !"),
             }, 600);
-            EditorUtility.SetDirty(ulua);
-            return new[] { ulua };
+            EditorUtility.SetDirty(tuna);
+            return new[] { tuna };
+        }
+
+        private static FishSpecies FindSpecies(string id, string path)
+        {
+            var species = AssetDatabase.LoadAssetAtPath<FishSpecies>(path);
+            if (species != null)
+            {
+                return species;
+            }
+
+            foreach (string guid in AssetDatabase.FindAssets("t:FishSpecies"))
+            {
+                var s = AssetDatabase.LoadAssetAtPath<FishSpecies>(AssetDatabase.GUIDToAssetPath(guid));
+                if (s != null && s.Id == id) return s;
+            }
+
+            return null;
         }
 
         private static LegendFish LoadOrCreate(string path)

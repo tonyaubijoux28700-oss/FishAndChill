@@ -11,5 +11,8 @@ namespace FishAndChill.Collection
 
         /// <summary>Les poissons de légende : tête énorme, mâchoire dentelée, épines, barbillons, queue déchirée, yeux qui luisent.</summary>
         Monster,
+
+        /// <summary>Murène géante : long corps qui ondule tout entier, tête massive à la gueule ouverte, yeux qui luisent.</summary>
+        Moray,
     }
 }

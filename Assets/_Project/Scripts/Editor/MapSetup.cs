@@ -334,7 +334,7 @@ namespace FishAndChill.Editor
             FishingSpots japanSpots = BuildSpots(mapObject.transform, "Coins de pêche de la baie", worldMap, 3, japanDock.Area);
             FishingSpots reefSpots = BuildSpots(mapObject.transform, "Coins de pêche du récif", worldMap, 4, reefDock.Area);
             FishingSpots atollSpots = BuildSpots(mapObject.transform, "Coins de pêche de l'atoll", worldMap, 5, atollDock.Area);
-            // Remous légendaire de l'île (le Vieux Ulua) : visible une fois la légende réveillée au laboratoire.
+            // Remous légendaire de l'île (Tuna) : visible une fois la légende réveillée au laboratoire.
             BuildLegendSpot(mapObject.transform, "Remous légendaire de l'île", worldMap, 0, islandDock.Area);
             spotList.arraySize = 6;
             spotList.GetArrayElementAtIndex(5).objectReferenceValue = atollSpots;

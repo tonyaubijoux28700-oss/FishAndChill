@@ -15,8 +15,17 @@ namespace FishAndChill.Collection
         [SerializeField, Tooltip("Identifiant unique et stable (sauvegarde). Ne pas changer une fois publié.")]
         private string _id;
 
-        [SerializeField, Tooltip("Nom de la légende, ex. « Le Vieux Ulua ».")]
+        [SerializeField, Tooltip("Nom de la légende, ex. « Tuna ».")]
         private string _title;
+
+        [SerializeField, Tooltip("Ce qu'elle est, ex. « Murène géante » (sous son nom sur la carte de victoire).")]
+        private string _kindName;
+
+        [SerializeField, Tooltip("Le dessin de la légende (de profil, tête à droite), pour la carte de victoire et le trophée.")]
+        private Sprite _art;
+
+        [SerializeField, Tooltip("Sa silhouette sous l'eau.")]
+        private BodyShape _shadowShape = BodyShape.Monster;
 
         [SerializeField, Tooltip("L'espèce réelle dont la légende est un individu géant.")]
         private FishSpecies _species;
@@ -61,6 +70,9 @@ namespace FishAndChill.Collection
         public string Id => string.IsNullOrEmpty(_id) ? name : _id;
         public string Title => string.IsNullOrEmpty(_title) ? name : _title;
         public FishSpecies Species => _species;
+        public string KindName => string.IsNullOrEmpty(_kindName) ? (_species != null ? _species.CommonName : "Légende") : _kindName;
+        public Sprite Art => _art != null ? _art : _species != null ? _species.Sprite : null;
+        public BodyShape ShadowShape => _shadowShape;
         public FishingZone Zone => _zone;
         public float SizeCm => _sizeCm;
         public System.Collections.Generic.IReadOnlyList<LegendPhase> Phases => _phases;
@@ -81,6 +93,14 @@ namespace FishAndChill.Collection
         public string FragmentLine(int index) => _fragmentLines != null && index >= 0 && index < _fragmentLines.Length ? _fragmentLines[index] : string.Empty;
 
 #if UNITY_EDITOR
+        /// <summary>Règle l'apparence (menu de génération).</summary>
+        public void ConfigureLook(string kindName, Sprite art, BodyShape shadowShape)
+        {
+            _kindName = kindName;
+            _art = art;
+            _shadowShape = shadowShape;
+        }
+
         /// <summary>Règle le combat (menu de génération).</summary>
         public void ConfigureFight(LegendPhase[] phases, int rewardCoins)
         {

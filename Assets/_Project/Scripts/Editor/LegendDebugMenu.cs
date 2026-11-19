@@ -10,7 +10,7 @@ namespace FishAndChill.Editor
     /// <summary>
     /// Menu d'essai des poissons de légende (FishAndChill → Légendes), utilisable seulement pendant une partie en Play
     /// mode : donner des fragments, réveiller le gardien, aller au laboratoire ou au remous, remettre à zéro.
-    /// Agit sur la première légende (le Vieux Ulua) et sur la partie en cours (sauvegardée comme une vraie partie).
+    /// Agit sur la première légende (Tuna) et sur la partie en cours (sauvegardée comme une vraie partie).
     /// </summary>
     public static class LegendDebugMenu
     {

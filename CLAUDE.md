@@ -57,9 +57,10 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   effacé dès que le combat commence ; flash doré pour une légendaire. L'espèce reste secrète jusqu'à la prise.
 - Le poisson sous l'eau : silhouette vue de dessus (`FishShadowSprites` : fuseau au museau pointu, pectorales en ailes,
   pelviennes, queue en croissant, dos plus sombre, bords et nageoires estompés, tout le corps qui ondule), dessinée
-  d'avance en 16 directions × 3 images × 4 tailles (18/26/36 px, 72 px pour les légendes), jamais tournée. Les légendes
-  ont leur forme `BodyShape.Monster` (tête énorme à crocs, yeux qui luisent, grandes épines, barbillons, queue
-  déchirée). **La position suivie est la gueule** (`FishingPrototypeView.BodyCenter`) : le poisson attend juste devant
+  d'avance en 16 directions × 3 images × 4 tailles (18/26/36 px, 72 px pour les légendes), jamais tournée. Chaque
+  légende a sa forme (`LegendFish.ShadowShape`) : `BodyShape.Moray` pour Tuna (long corps qui ondule tout entier, tête
+  massive à la gueule ouverte, yeux qui luisent), `BodyShape.Monster` en réserve (tête à crocs, épines, barbillons,
+  queue déchirée). **La position suivie est la gueule** (`FishingPrototypeView.BodyCenter`) : le poisson attend juste devant
   l'appât, museau tourné vers lui, avance jusqu'à l'hameçon à chaque titillement ; il arrive de biais (une légende
   presque de côté). Pendant la pêche, la caméra glisse vers le bouchon (`CameraFollow.LookAhead`).
 - **On ne pêche pas que des poissons** : `FishSpecies` (nom de classe gardé) a un `Kind` (`CreatureKind` : poisson,
@@ -197,7 +198,9 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   des **poissons de légende** (boss) : fragments d'artefact pêchés → artefact complet donné à la scientifique → boss
   invoqué dans sa zone, combat en 3 phases.
 - **Poissons de légende** (`Collection/LegendFish`, ScriptableObjects dans `Data/Legendes/`, générés par `LegendSetup` ;
-  champ `_legends` du `FishingController`). Premier : **le Vieux Ulua** (carangue géante de 210 cm, île Mahana), artefact
+  champ `_legends` du `FishingController`). Premier : **Tuna**, murène géante de 420 cm de l'île Mahana (espèce de base la
+  murène javanaise ; nom de l'anguille géante d'une légende polynésienne), dessin `MorayArt` → `Art/Legendes/Tuna.png`
+  (`LegendFish.Art`, `KindName`), artefact
   **Idole de corail** en 4 fragments (`LegendArt` : idole en volume, fragments aux cassures dentelées dans le même cadre,
   silhouette ; `Art/Legendes/`). **Fragments** (`FragmentRules`, testé) : dans la zone de la légende, une prise réussie
   sur ≈ 33 (3 %, ×2 dans un coin de pêche, ≈ 130 prises pour l'artefact) est un fragment, jamais en double, plus aucun
@@ -218,7 +221,7 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   `PlaceNext()`. La scientifique dit combien il en manque, invite à les poser, puis réagit à l'artefact complet.
   Par script : `FishingController.DebugFindFragment()`.
   **Réveil** : artefact complet → Espace dans l'atelier (`ArtifactWorkshop.Summon`) : l'idole tremble, étincelles,
-  éclair blanc, bandeau « Le Vieux Ulua s'est réveillé ! », état `Summoned` ; l'idole trône ensuite sur le socle du labo.
+  éclair blanc, bandeau « Tuna s'est réveillé ! », état `Summoned` ; l'idole trône ensuite sur le socle du labo.
   **Remous légendaire** (`World/LegendSpot`, objet « Remous légendaire de l'île », `MapSetup.BuildLegendSpot`, relié à
   sa légende par `PrototypeSetup`) : visible seulement tant que la légende est réveillée ; eau libre fixe (graine) à
   portée de lancer d'une rive, remous sombre qui respire, ondes, ombre géante qui tourne (cachée quand la ligne est
@@ -227,8 +230,8 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   **Combat de légende** (`Fishing/Core/LegendFight`, testé ; phases `LegendPhase` dans la fiche, `LegendFish.Phases`) :
   phases enchaînées, chacune une jauge `QteChallenge` avec son style (matériel appliqué), pause de 1,3 s entre deux
   (appuis ignorés, titre « Phase N ! »), endurance sur tout le combat ; un échec = elle s'échappe (reste réveillée, on
-  retente). Vieux Ulua : rush (« Il fonce vers la passe ! »), lourd (« Il sonde et tire de tout son poids ! »), nerveux
-  (« Il s'affole près de la surface ! »). Vue : barre d'endurance au-dessus de la jauge, cri de la phase en grand (du côté
+  retente). Tuna : rush (« Il file se réfugier dans sa grotte ! »), lourd (« Il s'enroule autour du corail et tire ! »),
+  nerveux (« Il se tord dans tous les sens ! »). Vue : barre d'endurance au-dessus de la jauge, cri de la phase en grand (du côté
   libre de l'écran), secousse et flash. Victoire : `LegendBeaten`, état `Beaten`, `RewardCoins` (600), carte
   `Fishing/LegendVictoryCard` (la bête en grand, rayons dorés, confettis), le remous disparaît. Par script :
   `FishingController.DebugWinLegendPhase()`. À faire : trophée à l'aquarium, légende dans le carnet.
@@ -490,6 +493,15 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 ## Collaboration
 
 - Le propriétaire du projet parle français : répondre en français.
+
+## Dessins des légendes (boss)
+
+- Ce sont de **vrais monstres marins**, pas des poissons, dans le style très détaillé et sombre de `Editor/MorayArt`
+  et `Editor/LagoonDragonArt` (outils communs dans `Editor/CreatureShapes` : épine dorsale avec repère local pour
+  peindre écailles et motifs qui suivent la courbe, tubes qui s'affinent, courbes, polygones). Une créature unique et
+  cohérente avec sa zone, de plus en plus impressionnante au fil des zones.
+- `LagoonDragonArt` (dragon des mers : crête d'épines et membrane déchirée, cornes, gueule à crocs) est **réservé à une
+  zone plus avancée** ; il n'est encore utilisé nulle part.
 
 ## Style « en volume » (en cours d'application)
 

@@ -971,7 +971,7 @@ namespace FishAndChill.Fishing
                 float sizeCm = _controller.HookedSizeCm;
                 _fishSize = _controller.HookedLegend != null ? 3 : sizeCm < 35f ? 0 : sizeCm < 80f ? 1 : 2;
                 // Poisson, crabe, langouste, tortue ou grenouille : la silhouette suit l'espèce.
-                _hookedShape = _controller.HookedLegend != null ? BodyShape.Monster
+                _hookedShape = _controller.HookedLegend != null ? _controller.HookedLegend.ShadowShape
                     : _controller.HookedSpecies != null ? _controller.HookedSpecies.BodyShape : BodyShape.Fish;
 
                 // Le poisson se tient sous le bouchon, mais toujours entièrement dans l'eau ; il arrive du large.

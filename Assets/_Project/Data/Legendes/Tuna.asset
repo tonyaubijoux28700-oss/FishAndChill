@@ -10,13 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4994546c4687664eb5edd8a7a9bb9e2, type: 3}
-  m_Name: VieuxUlua
+  m_Name: Tuna
   m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.LegendFish
-  _id: vieux-ulua
-  _title: Le Vieux Ulua
-  _species: {fileID: 11400000, guid: f9e130c52fab5304da835ea89eda9b98, type: 2}
+  _id: tuna
+  _title: Tuna
+  _kindName: "Mur\xE8ne g\xE9ante"
+  _art: {fileID: 21300000, guid: dc19c1086b3ab8941a449ea423a903f2, type: 3}
+  _shadowShape: 6
+  _species: {fileID: 11400000, guid: 040cbb2c9bee0194f948cc349dff99cd, type: 2}
   _zone: {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
-  _sizeCm: 210
+  _sizeCm: 420
   _phases:
   - _style: 3
     _difficulty:
@@ -24,21 +27,21 @@ MonoBehaviour:
       _zoneWidth: 0.2
       _requiredHits: 3
       _maxMisses: 2
-    _cry: Il fonce vers la passe !
+    _cry: "Il file se r\xE9fugier dans sa grotte !"
   - _style: 4
     _difficulty:
       _cursorSpeed: 1.1
       _zoneWidth: 0.22
       _requiredHits: 4
       _maxMisses: 2
-    _cry: Il sonde et tire de tout son poids !
+    _cry: Il s'enroule autour du corail et tire !
   - _style: 1
     _difficulty:
       _cursorSpeed: 1.55
       _zoneWidth: 0.17
       _requiredHits: 4
       _maxMisses: 2
-    _cry: "Il s'affole pr\xE8s de la surface !"
+    _cry: Il se tord dans tous les sens !
   _rewardCoins: 600
   _artifactName: Idole de corail
   _fragmentCount: 4
@@ -58,5 +61,5 @@ MonoBehaviour:
   _fragmentLines:
   - "Un morceau de corail rose, sculpt\xE9 d'une couronne. Il est \xE9trangement ti\xE8de dans ta main."
   - Un des yeux de nacre de l'idole, serti d'or, te fixe depuis ce fragment. On jurerait qu'il bouge.
-  - "Un bras sculpt\xE9, poli par la mer. Des \xE9cailles d'argent g\xE9antes y sont rest\xE9es accroch\xE9es."
-  - "Le socle de l'idole. Grav\xE9 dessous : \xAB Ulua, roi du lagon, dort sous la passe \xBB."
+  - "Un bras sculpt\xE9, poli par la mer. Une longue dent recourb\xE9e y est rest\xE9e plant\xE9e."
+  - "Le socle de l'idole. Grav\xE9 dessous : \xAB Tuna, gardien du lagon, dort sous la passe \xBB."

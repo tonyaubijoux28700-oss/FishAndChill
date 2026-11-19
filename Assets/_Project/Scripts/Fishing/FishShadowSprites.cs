@@ -105,6 +105,7 @@ namespace FishAndChill.Fishing
                         case BodyShape.Turtle: tone = Turtle(u, v, phase, out core) ? BodyTone : None; break;
                         case BodyShape.Frog: tone = Frog(u, v, phase, out core) ? BodyTone : None; break;
                         case BodyShape.Monster: tone = Monster(u, v, phase); break;
+                        case BodyShape.Moray: tone = Moray(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -282,6 +283,65 @@ namespace FishAndChill.Fishing
             }
 
             return None;
+        }
+
+        // ---------- Murène géante ----------
+
+        /// <summary>
+        /// Murène vue de dessus : long corps qui ondule tout entier (de plus en plus vers la queue), sans nageoires
+        /// séparées, frange estompée le long des bords ; tête massive et musclée, gueule ouverte en V avec des crocs,
+        /// deux yeux qui luisent, haut sur la tête.
+        /// </summary>
+        private static int Moray(float u, float v, int phase)
+        {
+            float s = Mathf.Clamp01((1f - u) * 0.5f);                                   // 0 au museau, 1 au bout de la queue
+            v -= Mathf.Sin(u * 5.2f + phase * 1.1f) * 0.11f * Mathf.Pow(s, 0.9f);      // l'onde qui parcourt tout le corps
+            float av = Mathf.Abs(v);
+
+            if (InEllipse(u, av, 0.70f, 0.12f, 0.04f, 0.032f))
+            {
+                return EyeTone;
+            }
+
+            float width = MorayWidth(u);
+            if (width <= 0f)
+            {
+                return None;
+            }
+
+            // Gueule ouverte : un V découpé dans le bout du museau, bordé de crocs.
+            if (u > 0.80f)
+            {
+                float gape = (u - 0.80f) * 0.62f;
+                if (av < gape)
+                {
+                    bool fang = av > gape - 0.025f && Mathf.Repeat(u * 34f, 1f) < 0.45f;
+                    return fang ? EdgeTone : None;
+                }
+            }
+
+            if (av <= width)
+            {
+                if (av > width * 0.80f) return EdgeTone;                                // la frange de nageoire, estompée
+                bool spine = av < width * 0.32f && u > -0.7f && u < 0.6f;
+                return spine ? CoreTone : BodyTone;
+            }
+
+            return None;
+        }
+
+        /// <summary>Demi-largeur de la murène : tête massive, cou épais, corps long qui s'affine jusqu'à une queue fine.</summary>
+        private static float MorayWidth(float u)
+        {
+            if (u > 1f || u < -1f) return 0f;
+            if (u >= 0.55f)
+            {
+                float t = (u - 0.55f) / 0.45f;
+                return 0.23f * Mathf.Pow(Mathf.Max(0f, 1f - Mathf.Pow(t, 2.6f)), 0.5f);
+            }
+
+            float r = Mathf.InverseLerp(-1f, 0.55f, u);
+            return 0.03f + 0.19f * Mathf.Pow(r, 0.65f);
         }
 
         /// <summary>Demi-largeur du corps de la légende : tête énorme et carrée, corps qui s'affine vite.</summary>

@@ -117,7 +117,7 @@ namespace FishAndChill.World
             _angle += dt * 0.45f;
             var offset = new Vector2(Mathf.Cos(_angle), Mathf.Sin(_angle) * 0.75f) * 1.05f;
             var heading = new Vector2(-Mathf.Sin(_angle), Mathf.Cos(_angle) * 0.75f);
-            _shadow.sprite = _shadows.Get(BodyShape.Monster, 0, heading, (int)(t * 4f));
+            _shadow.sprite = _shadows.Get(_legend.ShadowShape, 0, heading, (int)(t * 4f));
             _shadow.transform.position = Center + offset;
 
             // Ondes qui s'élargissent depuis le centre.
