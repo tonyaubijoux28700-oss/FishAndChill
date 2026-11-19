@@ -614,17 +614,27 @@ namespace FishAndChill.Editor
                 spot = go.AddComponent<LegendSpot>();
             }
 
-            var ring = new Sprite[3];
-            for (int i = 0; i < 3; i++)
+            // Remous et ondes dessinés à la taille du jeu (16 px par case) : nets, jamais agrandis.
+            const string folder = "Assets/_Project/Art/Ambient";
+            var center = new Vector2(0.5f, 0.5f);
+            var eddy = new Sprite[LegendSpotArt.EddyFrames];
+            for (int i = 0; i < eddy.Length; i++)
             {
-                ring[i] = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/_Project/Art/Ambient/Rond_{i}.png");
+                eddy[i] = PixelArt.Save($"{folder}/Remous_{i}.png", LegendSpotArt.Eddy(i), LegendSpotArt.PixelsPerUnit, center);
+            }
+
+            var waves = new Sprite[LegendSpotArt.WaveFrames];
+            for (int i = 0; i < waves.Length; i++)
+            {
+                waves[i] = PixelArt.Save($"{folder}/Remous_Onde_{i}.png", LegendSpotArt.Wave(i), LegendSpotArt.PixelsPerUnit, center);
             }
 
             var so = new SerializedObject(spot);
             so.FindProperty("_map").objectReferenceValue = map;
             so.FindProperty("_region").intValue = region;
             so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 5f, dock.yMin - 5f, dock.width + 10f, dock.height + 10f);
-            SetSprites(so.FindProperty("_ring"), ring);
+            SetSprites(so.FindProperty("_eddyFrames"), eddy);
+            SetSprites(so.FindProperty("_waveFrames"), waves);
             so.ApplyModifiedPropertiesWithoutUndo();
             return spot;
         }

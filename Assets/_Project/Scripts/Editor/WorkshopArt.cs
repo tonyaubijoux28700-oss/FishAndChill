@@ -6,8 +6,8 @@ namespace FishAndChill.Editor
 {
     /// <summary>
     /// Décor de l'atelier des artefacts, dans le style en volume, à l'échelle de l'interface (1 pixel = 4 unités) :
-    /// l'établi du laboratoire (plateau de bois sombre éclairé par la lampe, tapis de feutre, carnet ouvert avec le croquis
-    /// de l'idole, loupe, pinceau, bocal d'eau de mer), la dalle de pierre gravée où l'on assemble l'artefact, les cases de
+    /// l'établi du laboratoire (plateau de bois sombre éclairé par la lampe, tapis de feutre, carnet ouvert où l'atelier pose le
+    /// croquis de l'artefact choisi, loupe, pinceau, bocal d'eau de mer), la dalle de pierre gravée où l'on assemble l'artefact, les cases de
     /// velours du plateau à fragments et les fiches de papier épinglées de la liste des légendes.
     /// Positions calées sur la mise en page de <see cref="UI.ArtifactWorkshop"/>. y depuis le haut pendant le dessin.
     /// </summary>
@@ -25,7 +25,6 @@ namespace FishAndChill.Editor
         private static readonly Color Paper = C(0.93f, 0.88f, 0.74f);
         private static readonly Color Ink = C(0.26f, 0.18f, 0.12f);
         private static readonly Color Brass = C(0.84f, 0.64f, 0.30f);
-        private static readonly Color Glow = C(0.40f, 1f, 0.90f);
 
         /// <summary>Unités d'interface (origine au centre, y vers le haut) → pixels du dessin (origine en haut à gauche).</summary>
         private static Vector2 Ui(float x, float y) => new Vector2((x + 750f) / 4f, (450f - y) / 4f);
@@ -64,7 +63,7 @@ namespace FishAndChill.Editor
             Vector2 ta = Ui(-225, -275), tb = Ui(680, -395);
             cv.Piece(Box(ta.x, ta.y, tb.x, tb.y), WoodLight, 3f, (x, y, c) => (x + y / 3) % 9 == 0 ? Darker(c, 0.85f) : c);
 
-            // Carnet ouvert à droite, avec le croquis de l'idole et des notes.
+            // Carnet ouvert à droite, avec des notes.
             Vector2 n0 = Ui(470, 370), n1 = Ui(715, 70);
             cv.Piece(Box(n0.x - 2, n0.y - 2, n1.x + 2, n1.y + 2), C(0.36f, 0.16f, 0.12f), 2f);               // couverture
             cv.Piece(Box(n0.x, n0.y, n1.x, n1.y), Paper, 2f, (x, y, c) =>
@@ -74,11 +73,7 @@ namespace FishAndChill.Editor
                 if (x > mid + 4 && x < n1.x - 4 && (y - (int)n0.y) % 5 == 0 && Hash(x / 6, y) > 0.3f) return Color.Lerp(c, Ink, 0.55f);   // notes
                 return c;
             });
-            Vector2 sk = new Vector2(n0.x + (n1.x - n0.x) * 0.25f, (n0.y + n1.y) * 0.5f);
-            cv.Piece(Union(Ellipse(sk.x, sk.y - 12, 8, 7), Box(sk.x - 5, sk.y - 6, sk.x + 5, sk.y + 12), Box(sk.x - 8, sk.y + 12, sk.x + 8, sk.y + 16)),
-                Paper, 1f, (x, y, c) => Hash(x, y) < 0.55f ? Color.Lerp(c, Ink, 0.7f) : c, 0.95f, 0.85f);   // croquis à l'encre
-            cv.Piece(Ellipse(sk.x - 3, sk.y - 13, 1.6f, 1.6f), Glow, 1f);
-            cv.Piece(Ellipse(sk.x + 3, sk.y - 13, 1.6f, 1.6f), Glow, 1f);
+            // La page de gauche reste blanche : l'atelier y pose le croquis de l'artefact choisi (ArtifactWorkshop).
 
             // Loupe en laiton posée en biais.
             Vector2 lens = Ui(560, 0);

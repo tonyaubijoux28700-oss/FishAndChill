@@ -36,7 +36,7 @@
   suivant : il s'envole en arc jusqu'à sa place (rotation, rebond), éclair, secousse, étincelles ; le dernier illumine
   l'artefact d'un halo doré. Haut/Bas change d'artefact, E/Échap ferme. Décor (`Editor/WorkshopArt` →
   `Art/UI/Atelier/`, `ArtifactWorkshop.Look` dans le champ `_workshopLook` du `LabBuilding`, 1 pixel = 4 unités) :
-  l'établi du labo (bois sombre éclairé par la lampe, tapis de feutre, carnet ouvert au croquis de l'idole, loupe,
+  l'établi du labo (bois sombre éclairé par la lampe, tapis de feutre, carnet ouvert où l'atelier pose le croquis de l'artefact choisi (`_sketch`), loupe,
   pinceau, bocal), dalle de pierre gravée pour l'artefact, cases de velours du plateau, fiches de papier épinglées. Par script : `lab.Workshop.Open()`,
   `PlaceNext()`. La scientifique dit combien il en manque, invite à les poser, puis réagit à l'artefact complet.
   Par script : `FishingController.DebugFindFragment()`.
@@ -44,7 +44,7 @@
   éclair blanc, bandeau « Tuna s'est réveillé ! », état `Summoned` ; l'idole trône ensuite sur le socle du labo.
   **Remous légendaire** (`World/LegendSpot`, objets « Remous légendaire de l'île » et « … du lac », `MapSetup.BuildLegendSpot`, relié à
   sa légende par `PrototypeSetup`) : visible seulement tant que la légende est réveillée ; eau libre fixe (graine) à
-  portée de lancer d'une rive, remous sombre qui respire, ondes, ombre géante qui tourne (cachée quand la ligne est
+  portée de lancer d'une rive, remous en spirale qui tourne et ondes (`Editor/LegendSpotArt` → `Art/Ambient/Remous_*.png`, à 16 px par case, jamais agrandis), ombre géante qui tourne (cachée quand la ligne est
   dedans), gros point doré sur la minimap. Le lancer y va tout seul (visée) ; dedans, c'est la légende qui mord
   (`FishingController.HookedLegend`, attente 5-8 s, ombre géante de 72 px sous le bouchon).
   **Combat de légende** (`Fishing/Core/LegendFight`, testé ; phases `LegendPhase` dans la fiche, `LegendFish.Phases`) :

@@ -39,6 +39,7 @@ namespace FishAndChill.UI
         private RectTransform _panel;
         private RectTransform _frame;
         private Image _silhouette;
+        private Image _sketch;
         private Image _halo;
         private Image _flash;
         private Text _artifactName;
@@ -205,7 +206,7 @@ namespace FishAndChill.UI
 
             _summonAge = 0f;
             _help.text = string.Empty;
-            _status.text = "L'idole s'éveille…";
+            _status.text = "L'artefact s'éveille…";
             return true;
         }
 
@@ -233,7 +234,7 @@ namespace FishAndChill.UI
                         _bannerAge = 0f;
                         Summoned?.Invoke(legend);
                         Refresh();
-                        _status.text = $"Il t'attend au remous légendaire, du côté de « {zone} ».";
+                        _status.text = $"Il t'attend au remous de « {zone} ».";
                     }
                 }
 
@@ -504,6 +505,12 @@ namespace FishAndChill.UI
 
             _artifactName.text = discovered ? selected.ArtifactName : "Artefact inconnu";
             _silhouette.sprite = selected.Silhouette;
+            if (_sketch != null)
+            {
+                _sketch.sprite = discovered ? selected.Silhouette : null;
+                _sketch.enabled = _sketch.sprite != null;
+            }
+
             while (_pieces.Count < selected.FragmentCount)
             {
                 Image piece = UiFactory.Plain(_silhouette.rectTransform, $"Morceau {_pieces.Count + 1}", Color.white);
@@ -523,8 +530,8 @@ namespace FishAndChill.UI
             string zoneName = selected.Zone != null ? selected.Zone.DisplayName : "sa zone";
             _status.color = complete ? Gold : Color.white;
             LegendState state = _progress.Legends.State(selected.Id);
-            _status.text = state == LegendState.Summoned ? $"{selected.Title} est réveillé : il t'attend au remous légendaire, du côté de « {zoneName} »."
-                : state == LegendState.Beaten ? $"{selected.Title} a été vaincu. L'idole repose, apaisée."
+            _status.text = state == LegendState.Summoned ? $"{selected.Title} est réveillé ! Il t'attend au remous de « {zoneName} »."
+                : state == LegendState.Beaten ? $"{selected.Title} a été vaincu. L'artefact repose, apaisé."
                 : complete ? "Artefact complet ! Espace : réveiller le gardien"
                 : !discovered ? $"Aucun fragment trouvé. Ils se pêchent du côté de « {zoneName} »."
                 : inHand > 0 ? $"{placed} / {selected.FragmentCount} posés — Espace : poser le fragment suivant"
@@ -581,6 +588,12 @@ namespace FishAndChill.UI
                 bench.sprite = _look.Bench;
                 bench.raycastTarget = false;
                 UiFactory.Stretch(bench.rectTransform, 14f);
+
+                // Sur la page de gauche du carnet, le croquis à l'encre de l'artefact choisi.
+                _sketch = UiFactory.Plain(_panel, "Croquis du carnet", new Color(0.50f, 0.30f, 0.15f, 1f));
+                _sketch.raycastTarget = false;
+                _sketch.preserveAspect = true;
+                UiFactory.Center(_sketch.rectTransform, new Vector2(531f, 215f), new Vector2(92f, 122f));
             }
 
             UiFactory.TitlePlaque(_panel, _skin, "Atelier des artefacts", 36, new Vector2(0f, 450f), new Vector2(560f, 72f), out _);
@@ -636,6 +649,10 @@ namespace FishAndChill.UI
             _status = UiFactory.Label(_panel, "État", 25, TextAnchor.MiddleCenter, Color.white);
             _status.horizontalOverflow = HorizontalWrapMode.Wrap;
             UiFactory.Center(_status.rectTransform, new Vector2(110f, -205f), new Vector2(900f, 40f));
+            // Sous la dalle : un texte trop long rapetisse au lieu de déborder sur le cadre.
+            _status.resizeTextForBestFit = true;
+            _status.resizeTextMaxSize = _status.fontSize;
+            _status.resizeTextMinSize = Mathf.Max(10, _status.fontSize * 2 / 3);
 
             // Plateau des fragments en poche, en bas.
             _trayTitle = UiFactory.Label(_panel, "Titre plateau", 22, TextAnchor.MiddleLeft, Muted);

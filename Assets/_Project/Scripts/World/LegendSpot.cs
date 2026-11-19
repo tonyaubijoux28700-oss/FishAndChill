@@ -20,7 +20,8 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Zone à éviter (ponton).")] private Rect _avoid;
         [SerializeField] private LegendFish _legend;
         [SerializeField] private PlayerProgress _progress;
-        [SerializeField, Tooltip("Rond dans l'eau qui s'élargit (3 images).")] private Sprite[] _ring = new Sprite[0];
+        [SerializeField, Tooltip("Le remous qui tourne (images à la taille du jeu, jamais agrandies).")] private Sprite[] _eddyFrames = new Sprite[0];
+        [SerializeField, Tooltip("Une onde, de la plus petite à la plus grande (une image par taille).")] private Sprite[] _waveFrames = new Sprite[0];
 
         private SpriteRenderer _eddy;
         private SpriteRenderer _shadow;
@@ -58,12 +59,11 @@ namespace FishAndChill.World
             transform.position = Center;
             _shadows = new FishShadowSprites(72);
 
-            _eddy = Make("Remous légendaire", -8, _ring.Length > 1 ? _ring[1] : null);
-            _eddy.transform.localScale = new Vector3(3.2f, 3.2f, 1f);
+            _eddy = Make("Remous légendaire", -8, _eddyFrames.Length > 0 ? _eddyFrames[0] : null);
             _shadow = Make("Ombre géante", -17, null);
             for (int i = 0; i < _waves.Length; i++)
             {
-                _waves[i] = Make("Vague", -7, _ring.Length > 0 ? _ring[0] : null);
+                _waves[i] = Make("Vague", -7, null);
                 _waveAge[i] = i * 0.9f;
             }
 
@@ -104,10 +104,14 @@ namespace FishAndChill.World
             float t = Time.time;
             float dt = Time.deltaTime;
 
-            // Remous sombre qui respire.
+            // Remous sombre qui tourne et respire (seulement l'opacité : le dessin reste net, jamais agrandi).
             float beat = 0.5f + 0.5f * Mathf.Sin(t * 1.4f);
-            _eddy.color = new Color(0.08f, 0.20f, 0.34f, 0.55f + 0.3f * beat);
-            _eddy.transform.localScale = Vector3.one * (3f + 0.35f * beat);
+            if (_eddyFrames.Length > 0)
+            {
+                _eddy.sprite = _eddyFrames[(int)(t * 7f) % _eddyFrames.Length];
+            }
+
+            _eddy.color = new Color(1f, 1f, 1f, 0.75f + 0.25f * beat);
 
             // L'ombre géante tourne lentement, la queue qui ondule ; elle disparaît quand c'est la ligne qu'elle suit
             // (la pêche dessine alors sa propre ombre sous le bouchon).
@@ -126,7 +130,11 @@ namespace FishAndChill.World
                 _waveAge[i] += dt;
                 if (_waveAge[i] > 2.7f) _waveAge[i] -= 2.7f;
                 float a = _waveAge[i] / 2.7f;
-                _waves[i].transform.localScale = Vector3.one * Mathf.Lerp(1.2f, 4.6f, a);
+                if (_waveFrames.Length > 0)
+                {
+                    _waves[i].sprite = _waveFrames[Mathf.Min(_waveFrames.Length - 1, (int)(a * _waveFrames.Length))];
+                }
+
                 _waves[i].color = new Color(0.92f, 0.98f, 1f, (1f - a) * 0.8f);
             }
         }
