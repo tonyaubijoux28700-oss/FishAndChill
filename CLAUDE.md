@@ -55,8 +55,13 @@ Conception détaillée : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
   étincelles de la couleur de la rareté qui jaillissent du bouchon (7 / 14 / 18, deux gerbes pour une légendaire) ;
   épique et légendaire : bandeau en haut (« Quelque chose de gros a mordu ! », « Une prise LÉGENDAIRE a mordu ! »),
   effacé dès que le combat commence ; flash doré pour une légendaire. L'espèce reste secrète jusqu'à la prise.
-- Le poisson sous l'eau : silhouette vue de dessus (`FishShadowSprites` : tête ronde, pectorales, queue fourchue qui
-  ondule), dessinée d'avance en 16 directions × 3 positions de queue × 3 tailles (18/26/36 px), jamais tournée.
+- Le poisson sous l'eau : silhouette vue de dessus (`FishShadowSprites` : fuseau au museau pointu, pectorales en ailes,
+  pelviennes, queue en croissant, dos plus sombre, bords et nageoires estompés, tout le corps qui ondule), dessinée
+  d'avance en 16 directions × 3 images × 4 tailles (18/26/36 px, 72 px pour les légendes), jamais tournée. Les légendes
+  ont leur forme `BodyShape.Monster` (tête énorme à crocs, yeux qui luisent, grandes épines, barbillons, queue
+  déchirée). **La position suivie est la gueule** (`FishingPrototypeView.BodyCenter`) : le poisson attend juste devant
+  l'appât, museau tourné vers lui, avance jusqu'à l'hameçon à chaque titillement ; il arrive de biais (une légende
+  presque de côté). Pendant la pêche, la caméra glisse vers le bouchon (`CameraFollow.LookAhead`).
 - **On ne pêche pas que des poissons** : `FishSpecies` (nom de classe gardé) a un `Kind` (`CreatureKind` : poisson,
   crustacé, reptile, amphibien) et une `BodyShape` (silhouette sous l'eau : poisson, crabe, langouste, tortue,
   grenouille, toutes dans `FishShadowSprites`, chacune animée). Dans l'aquarium, seuls les poissons nagent : les

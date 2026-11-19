@@ -19,6 +19,15 @@ namespace FishAndChill.Fishing
         private static readonly Color Body = new Color(0.03f, 0.12f, 0.20f, 0.58f);
         private static readonly Color Core = new Color(0.02f, 0.08f, 0.14f, 0.72f);
 
+        /// <summary>Bord du corps et nageoires : plus transparents, l'eau les estompe.</summary>
+        private static readonly Color Edge = new Color(0.04f, 0.14f, 0.22f, 0.36f);
+
+        /// <summary>Yeux d'une légende : une lueur pâle dans l'ombre.</summary>
+        private static readonly Color Eye = new Color(0.72f, 1f, 0.92f, 0.95f);
+
+        // Tons d'un pixel de silhouette.
+        private const int None = 0, EdgeTone = 1, BodyTone = 2, CoreTone = 3, EyeTone = 4;
+
         private readonly int[] _lengths;
         private readonly Dictionary<BodyShape, Sprite[,,]> _byShape = new Dictionary<BodyShape, Sprite[,,]>();
 
@@ -87,18 +96,21 @@ namespace FishAndChill.Fishing
                     float u = (dx * cos + dy * sin) / half;
                     float v = (-dx * sin + dy * cos) / half;
 
-                    bool core;
-                    bool inside;
+                    bool core = false;
+                    int tone;
                     switch (shape)
                     {
-                        case BodyShape.Crab: inside = Crab(u, v, phase, out core); break;
-                        case BodyShape.Lobster: inside = Lobster(u, v, phase, out core); break;
-                        case BodyShape.Turtle: inside = Turtle(u, v, phase, out core); break;
-                        case BodyShape.Frog: inside = Frog(u, v, phase, out core); break;
-                        default: inside = Fish(u, v, phase, out core); break;
+                        case BodyShape.Crab: tone = Crab(u, v, phase, out core) ? BodyTone : None; break;
+                        case BodyShape.Lobster: tone = Lobster(u, v, phase, out core) ? BodyTone : None; break;
+                        case BodyShape.Turtle: tone = Turtle(u, v, phase, out core) ? BodyTone : None; break;
+                        case BodyShape.Frog: tone = Frog(u, v, phase, out core) ? BodyTone : None; break;
+                        case BodyShape.Monster: tone = Monster(u, v, phase); break;
+                        default: tone = Fish(u, v, phase); break;
                     }
 
-                    texture.SetPixel(x, y, inside ? (core ? Core : Body) : Color.clear);
+                    if (tone == BodyTone && core) tone = CoreTone;
+                    Color color = tone == EdgeTone ? Edge : tone == BodyTone ? Body : tone == CoreTone ? Core : tone == EyeTone ? Eye : Color.clear;
+                    texture.SetPixel(x, y, color);
                 }
             }
 
@@ -111,6 +123,18 @@ namespace FishAndChill.Fishing
             float a = (u - cu) / ru;
             float b = (v - cv) / rv;
             return a * a + b * b <= 1f;
+        }
+
+        /// <summary>Segment qui s'affine : épaisseur <paramref name="baseThickness"/> au départ, <paramref name="tipThickness"/> au bout.</summary>
+        private static bool OnTaper(float u, float v, float u0, float v0, float u1, float v1, float baseThickness, float tipThickness)
+        {
+            float du = u1 - u0;
+            float dv = v1 - v0;
+            float t = Mathf.Clamp01(((u - u0) * du + (v - v0) * dv) / (du * du + dv * dv));
+            float pu = u0 + du * t - u;
+            float pv = v0 + dv * t - v;
+            float thickness = Mathf.Lerp(baseThickness, tipThickness, t);
+            return pu * pu + pv * pv <= thickness * thickness;
         }
 
         /// <summary>Segment épais de (u0, v0) à (u1, v1).</summary>
@@ -126,44 +150,152 @@ namespace FishAndChill.Fishing
 
         // ---------- Poisson ----------
 
-        private static bool Fish(float u, float v, int phase, out bool core)
+        /// <summary>
+        /// Poisson vu de dessus : fuseau au museau pointu, plus large au premier tiers, pédoncule fin, queue en croissant ;
+        /// pectorales en ailes inclinées vers l'arrière, petites pelviennes ; le dos plus sombre le long de l'épine, les
+        /// bords et les nageoires estompés par l'eau. Tout le corps ondule (la tête bouge à peine, la queue beaucoup).
+        /// </summary>
+        private static int Fish(float u, float v, int phase)
         {
-            core = false;
-            // La queue ondule : l'arrière du corps se décale sur le côté, de plus en plus vers le bout.
-            if (u < 0f)
-            {
-                v -= phase * 0.55f * u * u * 0.45f;
-            }
-
+            float s = Mathf.Clamp01((1f - u) * 0.5f);              // 0 au museau, 1 au bout de la queue
+            v -= phase * 0.20f * s * s;                             // ondulation de tout le corps
             float av = Mathf.Abs(v);
-            if (u >= -0.62f && u <= 1f)
+
+            float width = FishWidth(u);
+            if (width > 0f && av <= width)
             {
-                float t = (u + 0.62f) / 1.62f;
-                float width = 0.30f * Mathf.Sin(Mathf.Pow(t, 0.8f) * Mathf.PI * 0.92f) + 0.05f;
-                if (u > 0.82f)
+                if (av > width * 0.78f) return EdgeTone;            // flancs estompés
+                bool spine = av < width * 0.30f && u > -0.35f && u < 0.85f;
+                return spine ? CoreTone : BodyTone;
+            }
+
+            // Pectorales : ailes fines qui partent derrière la tête et filent vers l'arrière, en battant un peu.
+            float flap = phase * 0.03f;
+            if (OnSegment(u, av, 0.46f, 0.17f, 0.20f + flap, 0.40f, 0.055f) || OnSegment(u, av, 0.40f, 0.16f, 0.26f + flap, 0.34f, 0.07f))
+            {
+                return EdgeTone;
+            }
+
+            // Pelviennes, plus petites, au milieu du ventre.
+            if (OnSegment(u, av, 0.02f, 0.10f, -0.12f, 0.22f, 0.035f))
+            {
+                return EdgeTone;
+            }
+
+            // Queue en croissant : deux lobes qui s'écartent derrière le pédoncule.
+            if (u < -0.52f && u >= -1f)
+            {
+                float k = (-0.52f - u) / 0.48f;
+                float outer = 0.06f + k * 0.40f;
+                float notch = Mathf.Max(0f, k - 0.45f) * 0.55f;   // l'échancrure du milieu
+                if (av <= outer && av >= notch)
                 {
-                    width *= Mathf.Sqrt(Mathf.Max(0f, 1f - (u - 0.82f) / 0.18f));
+                    return k > 0.75f ? EdgeTone : BodyTone;
                 }
+            }
 
-                if (av <= width)
+            return None;
+        }
+
+        /// <summary>Demi-largeur du corps du poisson à la position <paramref name="u"/> (0 hors du corps).</summary>
+        private static float FishWidth(float u)
+        {
+            if (u > 1f || u < -0.56f) return 0f;
+            if (u >= 0.32f)
+            {
+                float t = (u - 0.32f) / 0.68f;                        // de la plus grande largeur au museau
+                return 0.25f * Mathf.Pow(Mathf.Max(0f, 1f - Mathf.Pow(t, 2.3f)), 0.6f);
+            }
+
+            float r = Mathf.InverseLerp(-0.56f, 0.32f, u);            // du pédoncule à la plus grande largeur
+            return 0.05f + 0.20f * Mathf.Pow(Mathf.SmoothStep(0f, 1f, r), 0.85f);
+        }
+
+        // ---------- Légende (monstre) ----------
+
+        /// <summary>
+        /// La silhouette d'une légende, qui ne ressemble à aucun poisson ordinaire : tête énorme et carrée à la mâchoire
+        /// dentelée, deux yeux pâles qui luisent dans l'ombre, rangées d'épines recourbées tout le long des flancs, longs
+        /// barbillons qui traînent en ondulant, corps qui serpente et queue immense, déchirée.
+        /// </summary>
+        private static int Monster(float u, float v, int phase)
+        {
+            float s = Mathf.Clamp01((1f - u) * 0.5f);
+            v -= phase * 0.16f * s * s + Mathf.Sin(s * 7f + phase * 1.3f) * 0.035f * s;   // le corps serpente
+            float av = Mathf.Abs(v);
+
+            // Yeux : deux lueurs pâles, haut sur la tête.
+            if (InEllipse(u, av, 0.70f, 0.17f, 0.045f, 0.035f))
+            {
+                return EyeTone;
+            }
+
+            float width = MonsterWidth(u);
+            if (width > 0f && av <= width)
+            {
+                // Mâchoire : quatre gros crocs découpés dans le bout du museau.
+                float tooth = Mathf.Abs(Mathf.Repeat(av * 5.5f, 1f) - 0.5f) * 2f;   // 0 au milieu d'un croc, 1 entre deux
+                if (u > 0.97f - (1f - tooth) * 0.10f && av > 0.03f) return None;
+                if (av > width * 0.86f) return EdgeTone;
+                bool spine = av < width * 0.34f && u > -0.5f && u < 0.62f;
+                return spine ? CoreTone : BodyTone;
+            }
+
+            // Quatre grandes épines épaisses, recourbées vers l'arrière, sur l'avant des flancs.
+            for (int k = 0; k < 4; k++)
+            {
+                float su = 0.40f - k * 0.21f;
+                float sw = MonsterWidth(su);
+                float length = 0.26f - k * 0.04f;
+                if (sw > 0f && OnTaper(u, av, su, sw - 0.03f, su - length * 0.8f, sw + length, 0.065f - k * 0.008f, 0.012f))
                 {
-                    core = InEllipse(u, av, 0.2f, 0f, 0.55f, width * 0.55f);
-                    return true;
+                    return BodyTone;
                 }
             }
 
-            if (InEllipse(u, av, 0.26f, 0.40f, 0.12f, 0.09f))
+            // Longs barbillons qui partent des coins de la gueule et traînent vers l'arrière en ondulant.
+            float lag = phase * 0.05f;
+            if (OnSegment(u, av, 0.90f, 0.24f, 0.72f, 0.42f + lag, 0.022f) || OnSegment(u, av, 0.72f, 0.42f + lag, 0.48f, 0.50f - lag, 0.018f)
+                || OnSegment(u, av, 0.48f, 0.50f - lag, 0.28f, 0.60f + lag, 0.014f))
             {
-                return true; // nageoires pectorales
+                return EdgeTone;
             }
 
-            if (u < -0.58f && u >= -1f)
+            // Pectorales larges comme des ailes, plus basses que les épines, qui battent lentement.
+            float beat = phase * 0.04f;
+            if (OnTaper(u, av, 0.30f, 0.24f, -0.02f, 0.48f + beat, 0.11f, 0.03f))
             {
-                float k = (-0.58f - u) / 0.42f;
-                return av <= 0.08f + k * 0.42f && av >= Mathf.Max(0f, k - 0.5f) * 0.5f; // queue fourchue
+                return EdgeTone;
             }
 
-            return false;
+            // Queue immense en croissant, déchirée de deux grandes encoches.
+            if (u < -0.56f && u >= -1f)
+            {
+                float k = (-0.56f - u) / 0.44f;
+                float outer = 0.09f + k * 0.58f;
+                float notch = Mathf.Max(0f, k - 0.55f) * 1.1f;
+                bool torn = k > 0.55f && (Mathf.Abs(av - outer * 0.62f) < 0.05f || Mathf.Abs(av - outer * 0.86f) < 0.035f && k > 0.8f);
+                if (av <= outer && av >= notch && !torn)
+                {
+                    return k > 0.72f ? EdgeTone : BodyTone;
+                }
+            }
+
+            return None;
+        }
+
+        /// <summary>Demi-largeur du corps de la légende : tête énorme et carrée, corps qui s'affine vite.</summary>
+        private static float MonsterWidth(float u)
+        {
+            if (u > 1f || u < -0.6f) return 0f;
+            if (u >= 0.45f)
+            {
+                float t = (u - 0.45f) / 0.55f;
+                return 0.34f * Mathf.Pow(Mathf.Max(0f, 1f - Mathf.Pow(t, 4f)), 0.4f);   // tête carrée, front large
+            }
+
+            float r = Mathf.InverseLerp(-0.6f, 0.45f, u);
+            return 0.07f + 0.27f * Mathf.Pow(r, 1.4f);
         }
 
         // ---------- Crabe ----------

@@ -40,6 +40,7 @@ namespace FishAndChill.Fishing
         private BodyShape _hookedShape = BodyShape.Fish;
         private Vector2 _fishAnchor;
         private Vector2 _fishPosition;
+        private World.CameraFollow _cameraFollow;
         private Vector2 _fishHeading = Vector2.right;
         private float _tailTimer;
         private int _tailFrame = 1;
@@ -237,6 +238,17 @@ namespace FishAndChill.Fishing
             _shadow.gameObject.SetActive(lineOut && state != FishingState.Casting);
             _rod.Clear();
             _lineDots.Clear();
+
+            // Pendant la pêche, la caméra glisse vers le bouchon (et le poisson) pour qu'on les voie en entier.
+            if (_cameraFollow == null && Camera.main != null) _cameraFollow = Camera.main.GetComponent<World.CameraFollow>();
+            if (_cameraFollow != null)
+            {
+                bool watch = lineOut && state != FishingState.Casting && _player != null;
+                Vector2 focus = _controller.HookedLegend != null ? BodyCenter(_fishPosition, _fishHeading) : _castPoint;
+                Vector2 look = watch ? Vector2.ClampMagnitude((focus - (Vector2)_player.position) * 0.55f, 3.5f) : Vector2.zero;
+                _cameraFollow.LookAhead = look;
+            }
+
             if (!lineOut)
             {
                 return;
@@ -292,16 +304,19 @@ namespace FishAndChill.Fishing
                     }
 
                 {
-                    // Le poisson arrive du large et tourne autour de l'appât ; il fonce dessus à chaque titillement.
-                    Vector2 approach = Vector2.Lerp(_shadowStart, _fishAnchor, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(_controller.PhaseProgress * 1.6f)));
-                    Vector2 across = new Vector2(-_fishHeading.y, _fishHeading.x);
-                    Vector2 desired = approach + across * Mathf.Sin(time * 2.4f) * 0.25f;
+                    // Le poisson arrive du large et s'arrête juste devant l'appât, le museau tourné vers lui, en
+                    // ondulant ; à chaque titillement il avance d'un coup jusqu'à l'hameçon, puis recule un peu.
+                    Vector2 fromBait = (_shadowStart - _fishAnchor).sqrMagnitude > 0.0001f ? (_shadowStart - _fishAnchor).normalized : Vector2.right;
+                    Vector2 hover = _fishAnchor + fromBait * 0.45f;
+                    Vector2 approach = Vector2.Lerp(_shadowStart, hover, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(_controller.PhaseProgress * 1.6f)));
+                    Vector2 across = new Vector2(-fromBait.y, fromBait.x);
+                    Vector2 desired = approach + across * Mathf.Sin(time * 1.7f) * 0.12f;
                     if (_nibbleTimer > 0f)
                     {
-                        desired = Vector2.Lerp(desired, _fishAnchor, 0.8f);
+                        desired = _fishAnchor;
                     }
 
-                    shadow = MoveFish(desired, 1.6f);
+                    shadow = MoveFish(desired, _nibbleTimer > 0f ? 2.6f : 1.2f, _fishAnchor);
                     sag = 0.3f;
                     break;
                 }
@@ -313,7 +328,7 @@ namespace FishAndChill.Fishing
                     float sink = Mathf.Clamp01(_biteAge / 0.3f);
                     bobber += new Vector2(Mathf.Sin(time * 55f) * 0.04f * (1f - sink), -0.22f * sink);
                     bobberAlpha = Mathf.Lerp(1f, 0.25f, sink);
-                    shadow = MoveFish(_fishAnchor + new Vector2(Mathf.Sin(time * 20f) * 0.06f, 0f), 3f);
+                    shadow = MoveFish(_fishAnchor + new Vector2(Mathf.Sin(time * 20f) * 0.06f, 0f), 3f, _fishAnchor);
                     tip = restTip + Vector2.down * 0.12f * sink;   // la canne plie un peu
                     sag = 0.02f;
                     break;
@@ -350,7 +365,9 @@ namespace FishAndChill.Fishing
             int frame = _tailFrame == 3 ? 1 : _tailFrame;   // 0, 1, 2, 1… : la queue va et vient
             _shadow.sprite = _fishShadows.Get(_hookedShape, _fishSize, _fishHeading, frame);
             _shadow.transform.rotation = Quaternion.identity;
-            _shadow.transform.position = new Vector3(Mathf.Round(shadow.x * 16f) / 16f, Mathf.Round(shadow.y * 16f) / 16f, 0f);
+            // La position suivie est la gueule du poisson (au bout du fil) : le corps s'étend derrière elle.
+            Vector2 body = BodyCenter(shadow, _fishHeading);
+            _shadow.transform.position = new Vector3(Mathf.Round(body.x * 16f) / 16f, Mathf.Round(body.y * 16f) / 16f, 0f);
 
             // La canne : poignée en liège, blank bleu nuit, scion rouge.
             _rod.DrawCurve(hand, tip, 0.04f, t => t < 0.22f ? RodCork : t > 0.9f ? RodTip : RodBlank, thickness: 2);
@@ -364,12 +381,20 @@ namespace FishAndChill.Fishing
         /// <summary>Demi-longueur de la silhouette, en cases, selon la taille.</summary>
         private float FishHalfLength => (_fishSize == 0 ? 18 : _fishSize == 1 ? 26 : _fishSize == 2 ? 36 : 72) / 32f;
 
-        /// <summary>Le poisson entier (museau, queue, flancs) est-il dans l'eau à cet endroit ?</summary>
-        private bool FitsInWater(Vector2 center, Vector2 heading)
+        /// <summary>Centre du corps quand la gueule est en <paramref name="mouth"/> et que le poisson regarde vers <paramref name="heading"/>.</summary>
+        private Vector2 BodyCenter(Vector2 mouth, Vector2 heading)
+        {
+            Vector2 along = heading.sqrMagnitude > 0.0001f ? heading.normalized : Vector2.right;
+            return mouth - along * FishHalfLength * 0.9f;
+        }
+
+        /// <summary>Le poisson entier (museau, queue, flancs), gueule en <paramref name="mouth"/>, est-il dans l'eau ?</summary>
+        private bool FitsInWater(Vector2 mouth, Vector2 heading)
         {
             float half = FishHalfLength + 0.1f;
             Vector2 along = heading.sqrMagnitude > 0.0001f ? heading.normalized : Vector2.right;
             Vector2 across = new Vector2(-along.y, along.x);
+            Vector2 center = BodyCenter(mouth, along);
             return _controller.IsWater(center)
                 && _controller.IsWater(center + along * half)
                 && _controller.IsWater(center - along * half)
@@ -381,11 +406,16 @@ namespace FishAndChill.Fishing
         /// Rapproche le poisson de <paramref name="desired"/> (vitesse en cases par seconde), sans jamais lui faire
         /// toucher le sable : s'il ne tient pas dans l'eau là-bas, il reste où il est. Met à jour sa direction de nage.
         /// </summary>
-        private Vector2 MoveFish(Vector2 desired, float speed)
+        private Vector2 MoveFish(Vector2 desired, float speed, Vector2? lookAt = null)
         {
             Vector2 next = Vector2.MoveTowards(_fishPosition, desired, speed * Time.deltaTime);
             Vector2 step = next - _fishPosition;
             Vector2 heading = step.sqrMagnitude > 0.00002f ? step.normalized : _fishHeading;
+            // Près de l'appât, il garde le museau tourné vers lui (même quand il recule un peu).
+            if (lookAt.HasValue && (lookAt.Value - next).sqrMagnitude < 1.5f && (lookAt.Value - next).sqrMagnitude > 0.0025f)
+            {
+                heading = (lookAt.Value - next).normalized;
+            }
             if (FitsInWater(next, heading))
             {
                 _fishPosition = next;
@@ -405,7 +435,7 @@ namespace FishAndChill.Fishing
             for (int k = 0; k <= 20; k++)
             {
                 Vector2 candidate = castPoint + away * (k * 0.12f);
-                if (FitsInWater(candidate, -away) && FitsInWater(candidate, new Vector2(-away.y, away.x)))
+                if (FitsInWater(candidate, -away))
                 {
                     return candidate;
                 }
@@ -419,7 +449,10 @@ namespace FishAndChill.Fishing
         /// </summary>
         private Vector2 FindStartSpot(Vector2 anchor, Vector2 away)
         {
-            float[] angles = { 0f, 25f, -25f, 50f, -50f, 80f, -80f, 120f, -120f };
+            // De biais plutôt que pile en face : on voit le poisson arriver (et une légende s'étale en travers de l'écran).
+            float[] angles = _controller.HookedLegend != null
+                ? new[] { 80f, -80f, 60f, -60f, 100f, -100f, 40f, -40f, 0f }
+                : new[] { 40f, -40f, 60f, -60f, 20f, -20f, 0f, 90f, -90f, 120f, -120f };
             foreach (float distance in new[] { 2.5f, 1.8f, 1.2f })
             {
                 foreach (float angle in angles)
@@ -938,7 +971,8 @@ namespace FishAndChill.Fishing
                 float sizeCm = _controller.HookedSizeCm;
                 _fishSize = _controller.HookedLegend != null ? 3 : sizeCm < 35f ? 0 : sizeCm < 80f ? 1 : 2;
                 // Poisson, crabe, langouste, tortue ou grenouille : la silhouette suit l'espèce.
-                _hookedShape = _controller.HookedSpecies != null ? _controller.HookedSpecies.BodyShape : BodyShape.Fish;
+                _hookedShape = _controller.HookedLegend != null ? BodyShape.Monster
+                    : _controller.HookedSpecies != null ? _controller.HookedSpecies.BodyShape : BodyShape.Fish;
 
                 // Le poisson se tient sous le bouchon, mais toujours entièrement dans l'eau ; il arrive du large.
                 Vector2 away = (_castPoint - (Vector2)_player.position).normalized;

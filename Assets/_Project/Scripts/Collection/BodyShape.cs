@@ -8,5 +8,8 @@ namespace FishAndChill.Collection
         Lobster,
         Turtle,
         Frog,
+
+        /// <summary>Les poissons de légende : tête énorme, mâchoire dentelée, épines, barbillons, queue déchirée, yeux qui luisent.</summary>
+        Monster,
     }
 }

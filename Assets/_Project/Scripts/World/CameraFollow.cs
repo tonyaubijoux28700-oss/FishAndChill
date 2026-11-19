@@ -27,6 +27,9 @@ namespace FishAndChill.World
             _boundsOverride = bounds;
         }
 
+        /// <summary>Décalage vers ce qu'il faut regarder (ex. le bouchon pendant la pêche) ; la caméra y glisse en douceur.</summary>
+        public Vector2 LookAhead { get; set; }
+
         public Transform Target
         {
             get => _target;
@@ -68,7 +71,7 @@ namespace FishAndChill.World
 
         private Vector3 DesiredPosition()
         {
-            Vector2 center = _target.position;
+            Vector2 center = (Vector2)_target.position + (_boundsOverride.HasValue ? Vector2.zero : LookAhead);
             if (_camera != null && _camera.orthographic && (_boundsOverride.HasValue || _map != null))
             {
                 var halfExtents = new Vector2(_camera.orthographicSize * _camera.aspect, _camera.orthographicSize);
