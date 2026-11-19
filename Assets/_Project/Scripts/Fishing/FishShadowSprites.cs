@@ -338,22 +338,22 @@ namespace FishAndChill.Fishing
         private static int Crayfish(float u, float v, int phase)
         {
             float av = Mathf.Abs(v);
-            if (InEllipse(u, av, 0.36f, 0.06f, 0.035f, 0.035f)) return EyeTone;
+            if (InEllipse(u, av, 0.38f, 0.07f, 0.035f, 0.035f)) return EyeTone;
 
             // Carapace, rostre, abdomen en anneaux, éventail.
-            if (InEllipse(u, v, 0.12f, 0f, 0.24f, 0.15f) || (u > 0.3f && u < 0.42f && av < (0.42f - u) * 0.5f))
+            if (InEllipse(u, v, 0.12f, 0f, 0.27f, 0.2f) || (u > 0.3f && u < 0.46f && av < (0.46f - u) * 0.6f))
             {
-                return av < 0.07f ? CoreTone : BodyTone;
+                return av < 0.1f ? CoreTone : BodyTone;
             }
 
             if (u > -0.55f && u <= -0.1f)
             {
-                float width = 0.12f - (-0.1f - u) * 0.06f;
+                float width = 0.16f - (-0.1f - u) * 0.08f;
                 bool ring = Mathf.Repeat(u * 11f, 1f) < 0.2f;
                 if (av <= width) return ring && av > width - 0.03f ? EdgeTone : BodyTone;
             }
 
-            if (u > -0.78f && u <= -0.55f && av <= 0.08f + (-0.55f - u) * 0.9f) return EdgeTone;
+            if (u > -0.8f && u <= -0.55f && av <= 0.1f + (-0.55f - u) * 1.1f) return BodyTone;
 
             // Quatre paires de pattes, qui avancent en alternance.
             for (int k = 0; k < 4; k++)
@@ -362,7 +362,7 @@ namespace FishAndChill.Fishing
                 float step = (k % 2 == 0 ? 1 : -1) * phase * 0.04f;
                 float side = Mathf.Sign(v);
                 float sway = side > 0 ? step : -step;
-                if (OnSegment(u, av, u0, 0.1f, u0 - 0.12f + sway, 0.34f, 0.022f)) return EdgeTone;
+                if (OnSegment(u, av, u0, 0.14f, u0 - 0.12f + sway, 0.42f, 0.03f)) return EdgeTone;
             }
 
             // Les pinces : bras puis paume et deux doigts qui s'ouvrent (phase).
@@ -371,10 +371,10 @@ namespace FishAndChill.Fishing
             {
                 float big = side < 0 ? 1.35f : 1f;
                 float sv = v * side;
-                if (OnSegment(u, sv, 0.32f, 0.08f, 0.52f, 0.26f, 0.035f * big)) return BodyTone;
-                if (InEllipse(u, sv, 0.66f, 0.28f, 0.12f * big, 0.07f * big)) return BodyTone;
-                if (OnSegment(u, sv, 0.74f, 0.28f - open, 0.98f, 0.26f - open * 1.4f, 0.03f * big)) return BodyTone;
-                if (OnSegment(u, sv, 0.74f, 0.28f + open, 0.96f, 0.30f + open * 1.4f, 0.03f * big)) return BodyTone;
+                if (OnSegment(u, sv, 0.32f, 0.1f, 0.52f, 0.28f, 0.05f * big)) return BodyTone;
+                if (InEllipse(u, sv, 0.66f, 0.3f, 0.14f * big, 0.09f * big)) return BodyTone;
+                if (OnSegment(u, sv, 0.74f, 0.28f - open, 0.98f, 0.26f - open * 1.4f, 0.04f * big)) return BodyTone;
+                if (OnSegment(u, sv, 0.74f, 0.28f + open, 0.96f, 0.32f + open * 1.4f, 0.04f * big)) return BodyTone;
             }
 
             // Antennes.

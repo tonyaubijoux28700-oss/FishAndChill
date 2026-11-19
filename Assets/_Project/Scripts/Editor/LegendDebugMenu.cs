@@ -10,7 +10,8 @@ namespace FishAndChill.Editor
     /// <summary>
     /// Menu d'essai des poissons de légende (FishAndChill → Légendes), utilisable seulement pendant une partie en Play
     /// mode : donner des fragments, réveiller le gardien, aller au laboratoire ou au remous, remettre à zéro.
-    /// Agit sur la première légende (Tuna) et sur la partie en cours (sauvegardée comme une vraie partie).
+    /// Agit sur la légende de la zone où l'on se trouve (sinon la première, Tuna) et sur la partie en cours (sauvegardée
+    /// comme une vraie partie).
     /// </summary>
     public static class LegendDebugMenu
     {
@@ -18,7 +19,8 @@ namespace FishAndChill.Editor
 
         private static FishingController Fishing => Object.FindAnyObjectByType<FishingController>();
 
-        private static LegendFish FirstLegend(FishingController fishing) => fishing != null && fishing.Legends.Count > 0 ? fishing.Legends[0] : null;
+        private static LegendFish FirstLegend(FishingController fishing)
+            => fishing == null ? null : fishing.LegendOfZone != null ? fishing.LegendOfZone : fishing.Legends.Count > 0 ? fishing.Legends[0] : null;
 
         private static bool InGame() => EditorApplication.isPlaying && Save.SaveManager.InGame && Fishing != null && FirstLegend(Fishing) != null;
 
@@ -60,7 +62,7 @@ namespace FishAndChill.Editor
             }
 
             legends.Summon(legend.Id);
-            Debug.Log($"[FishAndChill] {legend.Title} : {legends.State(legend.Id)}. Le remous légendaire est dans le lagon de Mahana.");
+            Debug.Log($"[FishAndChill] {legend.Title} : {legends.State(legend.Id)}. Son remous est dans « {(legend.Zone != null ? legend.Zone.DisplayName : "sa zone")} ».");
         }
 
         [MenuItem(Root + "Aller au laboratoire (devant le socle)")]
@@ -76,13 +78,18 @@ namespace FishAndChill.Editor
         [MenuItem(Root + "Aller au remous légendaire")]
         private static void GoToEddy()
         {
-            var spot = Object.FindAnyObjectByType<LegendSpot>();
+            LegendSpot spot = null;
+            foreach (LegendSpot s in Object.FindObjectsByType<LegendSpot>())
+            {
+                if (s.Active) spot = s;
+            }
+
             var map = Object.FindAnyObjectByType<WorldMap>();
             var player = Object.FindAnyObjectByType<PlayerMovement>();
-            if (spot == null || map == null || player == null) return;
-            if (!spot.Active)
+            if (map == null || player == null) return;
+            if (spot == null)
             {
-                Debug.LogWarning("[FishAndChill] Le remous n'est pas là : réveille d'abord le gardien (ou retourne sur l'île Mahana).");
+                Debug.LogWarning("[FishAndChill] Pas de remous ici : réveille d'abord le gardien, ou va dans la zone de sa légende.");
                 return;
             }
 

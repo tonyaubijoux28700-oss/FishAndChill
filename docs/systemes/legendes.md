@@ -66,7 +66,8 @@
   fond ! »), nerveux (« Il claque des pinces dans tous les sens ! »), un peu plus dur que Tuna, 800 pièces. Remous dans la
   région 1. **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
   `Center` / `Silhouette`), un `BuildLegendSpot` dans la région de sa zone (`PrototypeSetup.RegionOf` relie remous et
-  légende). Le menu de test agit toujours sur la première légende (Tuna).
+  légende). Le menu de test (**FishAndChill → Légendes (test)**) agit sur la légende de la zone où l'on est (sinon Tuna) et
+  « Aller au remous » choisit le remous actif.
 
 ## Dessins des légendes
 
