@@ -49,6 +49,14 @@ namespace FishAndChill.World
         /// <summary>Heure actuelle, de 0 à 24.</summary>
         public float Hour => _hour;
 
+        private double _totalHours = -1.0;
+
+        /// <summary>Heures de jeu écoulées depuis le début de la partie (sommeil compris) : l'attente des casiers.</summary>
+        public double TotalHours => _totalHours >= 0.0 ? _totalHours : Mathf.Max(0f, _hour);
+
+        /// <summary>Reprend le compteur d'heures de la sauvegarde.</summary>
+        public void RestoreTotalHours(double totalHours) => _totalHours = System.Math.Max(0.0, totalHours);
+
         private void Awake()
         {
             if (_globalLight == null)
@@ -72,7 +80,13 @@ namespace FishAndChill.World
         /// <summary>Règle l'heure (reprise d'une sauvegarde, tests).</summary>
         public void SetHour(float hour)
         {
-            _hour = DayCycleMath.Wrap(hour);
+            float wrapped = DayCycleMath.Wrap(hour);
+            if (_hour >= 0f)
+            {
+                _totalHours = TotalHours + Mathf.Repeat(wrapped - _hour, 24f); // le temps avance toujours (sommeil)
+            }
+
+            _hour = wrapped;
             Apply();
         }
 
@@ -130,7 +144,9 @@ namespace FishAndChill.World
             }
 
             // Time.deltaTime : l'heure s'arrête pendant la pause (timeScale = 0).
+            float before = _hour;
             _hour = DayCycleMath.Advance(_hour, Time.deltaTime, _secondsPerDay);
+            _totalHours = TotalHours + Mathf.Repeat(_hour - before, 24f);
             Apply();
         }
 

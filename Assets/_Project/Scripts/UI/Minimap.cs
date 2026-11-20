@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using FishAndChill.Collection;
 using FishAndChill.Fishing;
 using FishAndChill.Player;
 using FishAndChill.World;
@@ -36,6 +37,7 @@ namespace FishAndChill.UI
             public float MarkerSize;
             public readonly List<RectTransform> Landmarks = new List<RectTransform>();
             public readonly List<Image> Spots = new List<Image>();
+            public readonly List<Image> Traps = new List<Image>();
             public readonly List<Image> Clouds = new List<Image>();
         }
 
@@ -133,6 +135,8 @@ namespace FishAndChill.UI
         private Sprite _arrowSprite;
         private Sprite _ringSprite;
         private Sprite _spotSprite;
+        private Sprite _trapSprite;
+        private PlayerProgress _progress;
         private Sprite _cloudSprite;
 
         /// <summary>Titre de la carte (nom de la zone).</summary>
@@ -155,6 +159,7 @@ namespace FishAndChill.UI
             _cycle = FindAnyObjectByType<DayNightCycle>();
             _spotSources = FindObjectsByType<FishingSpots>();
             _legendSources = FindObjectsByType<LegendSpot>();
+            _progress = FindAnyObjectByType<PlayerProgress>();
             for (int i = 0; i < CloudCount; i++) _cloudX[i] = i / (float)CloudCount;
             CreateSprites();
             BuildUi();
@@ -595,6 +600,7 @@ namespace FishAndChill.UI
             }
 
             UpdateSpots(view, OnMap);
+            UpdateTraps(view, OnMap);
 
             // Ombres de nuages qui traversent la carte, plus discrètes la nuit.
             float cloudAlpha = 0.16f * Mathf.Clamp01(sky.grayscale * 1.4f);
@@ -605,6 +611,26 @@ namespace FishAndChill.UI
                 float y = ((i * 0.37f + 0.2f) % 1f - 0.5f) * size.y;
                 cloud.rectTransform.anchoredPosition = new Vector2(x, y);
                 cloud.color = new Color(0.02f, 0.05f, 0.10f, cloudAlpha);
+            }
+        }
+
+        /// <summary>Les bouées des casiers posés dans la zone affichée.</summary>
+        private void UpdateTraps(MapView view, Func<Vector2, Vector2> onMap)
+        {
+            IReadOnlyList<Gear.PlacedTrap> placed = _progress != null && _progress.Traps != null ? _progress.Traps.Placed : null;
+            int used = 0;
+            for (int i = 0; placed != null && i < placed.Count && used < view.Traps.Count; i++)
+            {
+                var at = new Vector2(placed[i].X, placed[i].Y);
+                if (!_worldBounds.Contains(at)) continue;
+                Image marker = view.Traps[used++];
+                marker.gameObject.SetActive(true);
+                marker.rectTransform.anchoredPosition = onMap(MinimapMath.WorldToNormalized(at, _worldBounds));
+            }
+
+            for (int i = used; i < view.Traps.Count; i++)
+            {
+                view.Traps[i].gameObject.SetActive(false);
             }
         }
 
@@ -751,6 +777,15 @@ namespace FishAndChill.UI
                 view.Spots.Add(spot);
             }
 
+            for (int i = 0; i < 6; i++)
+            {
+                Image trap = UiFactory.Plain(image.rectTransform, "Bouée de casier", Color.white);
+                trap.sprite = _trapSprite;
+                trap.rectTransform.sizeDelta = Vector2.one * markerSize * 1.5f;
+                trap.gameObject.SetActive(false);
+                view.Traps.Add(trap);
+            }
+
             foreach (Landmark place in _landmarks)
             {
                 Image landmark = UiFactory.Plain(image.rectTransform, string.IsNullOrEmpty(place.Name) ? "Lieu" : place.Name, place.Icon != null ? Color.white : _landmarkColor);
@@ -809,6 +844,14 @@ namespace FishAndChill.UI
                 if (d > 4.4f) return Color.white;
                 if (d < 2.2f) return Color.white;
                 return new Color(1f, 1f, 1f, 0.3f);
+            });
+            // Bouée de casier : rond rouge et blanc cerclé de sombre.
+            _trapSprite = MakeSprite(16, (x, y) =>
+            {
+                float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(8f, 8f));
+                if (d > 7.2f) return Color.clear;
+                if (d > 5.9f) return new Color(0.10f, 0.06f, 0.06f);
+                return y >= 7 && y <= 9 ? new Color(0.98f, 0.96f, 0.92f) : new Color(0.90f, 0.20f, 0.16f);
             });
             _cloudSprite = MakeSprite(32, (x, y) =>
             {

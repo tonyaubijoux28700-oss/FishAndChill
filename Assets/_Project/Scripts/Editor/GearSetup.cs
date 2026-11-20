@@ -62,6 +62,25 @@ namespace FishAndChill.Editor
             return catalog;
         }
 
+        /// <summary>Le casier à crustacés (vendu avec les sacs) : ses dessins et sa fiche dans <c>Data/Gear/Casier.asset</c>.</summary>
+        public static TrapDefinition CreateTrap()
+        {
+            PixelArt.EnsureFolder(Folder);
+            PixelArt.EnsureFolder($"{IconFolder}/Materiel");
+            Sprite icon = PixelArt.Save($"{IconFolder}/Materiel/Casier.png", TrapArt.Trap(), 16, new Vector2(0.5f, 0.5f));
+            var frames = new Sprite[2];
+            for (int i = 0; i < frames.Length; i++)
+            {
+                frames[i] = PixelArt.Save($"Assets/_Project/Art/Ambient/Casier_Bouee_{i}.png", TrapArt.Buoy(i), VolumeCanvas.PixelsPerUnit, new Vector2(0.5f, 0.3f));
+            }
+
+            var trap = LoadOrCreate<TrapDefinition>($"{Folder}/Casier.asset");
+            trap.Configure(icon, frames);
+            EditorUtility.SetDirty(trap);
+            AssetDatabase.SaveAssets();
+            return trap;
+        }
+
         private static GearLine Line(string fileName, GearCategory category, string displayName, Sprite icon, params GearLevel[] levels)
         {
             var line = LoadOrCreate<GearLine>($"{Folder}/{fileName}.asset");

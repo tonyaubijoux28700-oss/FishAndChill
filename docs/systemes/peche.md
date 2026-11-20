@@ -20,7 +20,7 @@
   `Fishing/Core/FishingSpotRules`, testées) : 3 coins à la fois, en eau libre, chacun face à une rive où l'on peut se tenir
   (2,2 à 4,2 cases) ; durée 70-140 s ou 2 prises (`Consume`), puis il réapparaît ailleurs avec une autre sorte.
   `School` (banc : ombres qui tournent sous l'eau, touche ×0,45 du temps, communes favorisées), `Bubbles` (bulles :
-  crustacés, tortue, grenouille ×4), `Frenzy` (chasse : éclaboussures, petits poissons qui sautent, rares à légendaires
+  tortue, grenouille ×4 ; les crustacés ne mordent plus à la canne : voir les casiers dans `batiments-et-progression.md`), `Frenzy` (chasse : éclaboussures, petits poissons qui sautent, rares à légendaires
   ×2,5 à 3,5). Remous permanent qui pulse sur chaque coin. **Visée** : face à un coin à portée (à moins de 32°), le
   lancer y va tout seul (`FishingSpotRules.Assist`, dans `FishingController.TryFindCastPoint`) ; message propre au coin
   quand le bouchon y tombe (`FishingController.InSpot`, `SpotKind`).

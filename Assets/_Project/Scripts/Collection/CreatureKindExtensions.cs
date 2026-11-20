@@ -15,5 +15,8 @@ namespace FishAndChill.Collection
 
         /// <summary>Dans l'aquarium, seuls les poissons nagent : les autres se tiennent au fond.</summary>
         public static bool LivesOnBottom(this CreatureKind kind) => kind != CreatureKind.Fish;
+
+        /// <summary>Les crustacés ne s'attrapent qu'au casier, jamais à la canne.</summary>
+        public static bool CaughtInTrap(this CreatureKind kind) => kind == CreatureKind.Crustacean;
     }
 }

@@ -434,15 +434,16 @@ namespace FishAndChill.Fishing
             // L'animal qui accompagne le joueur : le perroquet repère les rares, le chat fait mordre plus vite.
             Pets.PetDefinition pet = _progress != null ? _progress.EquippedPet : null;
             float petRare = pet != null ? pet.RareMultiplier : 1f;
+            // Les crustacés ne mordent jamais à la canne : ils ne s'attrapent qu'au casier.
             HookedSpecies = _zone.PickSpecies(_random, species =>
-                DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
+                !species.Kind.CaughtInTrap() && DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
                     ? gear.RarityMultiplier(species.Rarity) * (inSpot ? FishingSpotRules.SpeciesMultiplier(spotKind, species) : 1f)
                         * (bait != null ? bait.Multiplier(species, night) : 1f)
                         * Pets.PetMath.RarityFactor(species.Rarity, petRare)
                     : 0f);
             if (HookedSpecies == null)
             {
-                HookedSpecies = _zone.PickSpecies(_random, species => gear.RarityMultiplier(species.Rarity));
+                HookedSpecies = _zone.PickSpecies(_random, species => species.Kind.CaughtInTrap() ? 0f : gear.RarityMultiplier(species.Rarity));
             }
             if (HookedSpecies == null)
             {
@@ -817,6 +818,21 @@ namespace FishAndChill.Fishing
                 }
             }
 
+            return true;
+        }
+
+        /// <summary>
+        /// Affiche un message dans le bandeau de la pêche (casiers…), seulement quand la ligne n'est pas à l'eau.
+        /// Faux si une pêche est en cours.
+        /// </summary>
+        public bool ShowNote(string message, float seconds)
+        {
+            if (State != FishingState.Idle && State != FishingState.Result)
+            {
+                return false;
+            }
+
+            StartPhase(FishingState.Result, Mathf.Max(1f, seconds), message);
             return true;
         }
 

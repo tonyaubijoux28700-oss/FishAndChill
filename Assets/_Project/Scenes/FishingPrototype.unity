@@ -26667,6 +26667,7 @@ GameObject:
   - component: {fileID: 332295282}
   - component: {fileID: 332295283}
   - component: {fileID: 332295284}
+  - component: {fileID: 332295285}
   m_Layer: 0
   m_Name: Partie
   m_TagString: Untagged
@@ -26690,6 +26691,7 @@ MonoBehaviour:
   _gearCatalog: {fileID: 11400000, guid: b80ceee97379132469132946d853edeb, type: 2}
   _baitCatalog: {fileID: 11400000, guid: e9db892b3be59334a8a1a7a06f093408, type: 2}
   _petCatalog: {fileID: 11400000, guid: bd00befb17b3f0943b54e6b5e7e6b711, type: 2}
+  _trap: {fileID: 11400000, guid: 0c179f0cbf4d60c4faf85dc1ffc0e237, type: 2}
 --- !u!114 &332295272
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27029,6 +27031,33 @@ MonoBehaviour:
   _player: {fileID: 1141459283}
   _progress: {fileID: 332295271}
   _shop: {fileID: 2129499070}
+--- !u!114 &332295285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332295270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfc80ba0954a7ca4080e67a5795218d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.CrustaceanTraps
+  _progress: {fileID: 332295271}
+  _player: {fileID: 1141459283}
+  _fishing: {fileID: 1235020156}
+  _cycle: {fileID: 332295281}
+  _map: {fileID: 1254510490}
+  _zones:
+  - {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
+  - {fileID: 11400000, guid: e71143147af136242879c044a37974a4, type: 2}
+  - {fileID: 11400000, guid: 8a5236730c657e747b4596b02007df66, type: 2}
+  - {fileID: 11400000, guid: 1f23c7bcb94141241a3822bb70be8c18, type: 2}
+  - {fileID: 11400000, guid: b3bab3c8683334044805b234f309ae0b, type: 2}
+  - {fileID: 11400000, guid: 3b48e273813a1bc43ba7dfd094286920, type: 2}
+  _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
+  _liftRadius: 2.2
+  _spacing: 1.5
 --- !u!1 &335281838
 GameObject:
   m_ObjectHideFlags: 0

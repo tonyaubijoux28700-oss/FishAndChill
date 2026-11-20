@@ -142,6 +142,7 @@ namespace FishAndChill.UI
                 else if (CurrentTab == Tab.Bag)
                 {
                     if (slot == 0) BuyGear(GearCategory.Bag);
+                    else if (slot == 1) BuyTrap();
                 }
                 else
                 {
@@ -199,7 +200,7 @@ namespace FishAndChill.UI
                 case Tab.Rods: _help.text = "1 à 5 : acheter, ou prendre une canne déjà à toi" + end; Say(GearGreeting, Muted); break;
                 case Tab.Hooks: _help.text = "1 à 4 : acheter, ou prendre un hameçon déjà à toi" + end; Say(HookGreeting, Muted); break;
                 case Tab.Baits: _help.text = "1 à 6 : acheter un paquet" + end; Say(BaitGreeting, Muted); break;
-                default: _help.text = "1 : acheter le sac suivant" + end; Say(BagGreeting, Muted); break;
+                default: _help.text = "1 : acheter le sac suivant   •   2 : acheter un casier" + end; Say(BagGreeting, Muted); break;
             }
             Refresh();
         }
@@ -393,8 +394,14 @@ namespace FishAndChill.UI
                 return;
             }
 
-            EnsureGearRows(1);
-            for (int i = 0; i < _gearRows.Count; i++)
+            TrapDefinition trap = _progress.Trap;
+            EnsureGearRows(trap != null ? 2 : 1);
+            if (trap != null)
+            {
+                RefreshTrapRow(_gearRows[1], trap);
+            }
+
+            for (int i = 0; i < 1; i++)
             {
                 RowView row = _gearRows[i];
                 GearLine line = shown;
@@ -418,6 +425,49 @@ namespace FishAndChill.UI
                 row.Price.text = $"{next.Price} pièces";
                 row.Price.color = _progress.Wallet.Coins >= next.Price ? Gold : TooExpensive;
             }
+        }
+
+        /// <summary>La ligne du casier à crustacés, sous le sac : combien on en a, combien sont dans l'eau, son prix.</summary>
+        private void RefreshTrapRow(RowView row, TrapDefinition trap)
+        {
+            TrapSet traps = _progress.Traps;
+            row.Picture.sprite = trap.Icon;
+            row.Label.text = $"2.   {trap.DisplayName}   ({traps.Owned}/{trap.MaxOwned})";
+            row.Label.color = Color.white;
+            string placed = traps.Placed.Count > 0 ? $"   ({traps.Placed.Count} dans l'eau)" : string.Empty;
+            row.Detail.text = "Les crustacés ne s'attrapent qu'au casier : C devant l'eau pour le poser." + placed;
+            row.Detail.color = Muted;
+            if (traps.Owned >= trap.MaxOwned)
+            {
+                row.Price.text = "MAX";
+                row.Price.color = Gold;
+            }
+            else
+            {
+                row.Price.text = $"{trap.Price} pièces";
+                row.Price.color = _progress.Wallet.Coins >= trap.Price ? Gold : TooExpensive;
+            }
+        }
+
+        /// <summary>Achète un casier à crustacés.</summary>
+        public TrapPurchase BuyTrap()
+        {
+            TrapDefinition trap = _progress.Trap;
+            TrapPurchase result = _progress.BuyTrap();
+            switch (result)
+            {
+                case TrapPurchase.Bought:
+                    Say("« Un bon casier ! Pose-le près de la rive et reviens dans une demi-journée. »", Good);
+                    break;
+                case TrapPurchase.NotEnoughCoins:
+                    Say($"« Il te manque {trap.Price - _progress.Wallet.Coins} pièces pour un casier. »", TooExpensive);
+                    break;
+                case TrapPurchase.AtMax:
+                    Say($"« Tu as déjà {trap.MaxOwned} casiers, c'est bien assez ! »", Gold);
+                    break;
+            }
+
+            return result;
         }
 
         /// <summary>Une ligne par objet de la famille : possédé, en main, ou son prix.</summary>
@@ -590,7 +640,7 @@ namespace FishAndChill.UI
             _rodTab = TabPlaque("Cannes", -270f);
             _hookTab = TabPlaque("Hameçons", 0f);
             _baitTab = TabPlaque("Appâts", 270f);
-            _bagTab = TabPlaque("Sacs", 540f);
+            _bagTab = TabPlaque("Sacs, casiers", 540f);
 
             _feedback = AddText(panel.rectTransform, "Marchand", 28, TextAnchor.MiddleCenter);
             _feedback.horizontalOverflow = HorizontalWrapMode.Wrap;
