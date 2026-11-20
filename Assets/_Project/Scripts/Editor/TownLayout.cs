@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using FishAndChill.World;
 using UnityEngine;
 
@@ -99,9 +100,9 @@ namespace FishAndChill.Editor
                 : new Vector2Int((int)(sx / count), (int)(sy / count));
         }
 
-        public static Result Build(TerrainType[,] terrain, Vector2Int spawn, Vector2Int shop, Vector2Int aquarium, Vector2Int house, Vector2Int lab, Vector2Int petShop, int seed)
+        public static Result Build(TerrainType[,] terrain, Vector2Int spawn, Vector2Int shop, Vector2Int aquarium, Vector2Int house, Vector2Int lab, Vector2Int petShop, IReadOnlyList<Vector2Int> villagers, int seed)
         {
-            var layout = new Layout(terrain, shop, aquarium, house, lab, petShop);
+            var layout = new Layout(terrain, shop, aquarium, house, lab, petShop, villagers);
             layout.PavePlazas();
             List<List<Vector2Int>> segments = layout.PavePaths(spawn);
             layout.ReserveAroundPaving(2);
@@ -110,6 +111,7 @@ namespace FishAndChill.Editor
             layout.DecorateHouse();
             layout.DecorateLab();
             layout.DecoratePetShop();
+            layout.DecorateVillagers();
             layout.LightPaths(segments);
             layout.PlaceSignpost(segments);
             layout.ScatterNature(seed);
@@ -128,15 +130,17 @@ namespace FishAndChill.Editor
             private readonly Vector2Int _house;
             private readonly Vector2Int _lab;
             private readonly Vector2Int _petShop;
+            private readonly IReadOnlyList<Vector2Int> _villagers;
             private int _avenueEnd;
 
             public readonly Result Result;
 
-            public Layout(TerrainType[,] terrain, Vector2Int shop, Vector2Int aquarium, Vector2Int house, Vector2Int lab, Vector2Int petShop)
+            public Layout(TerrainType[,] terrain, Vector2Int shop, Vector2Int aquarium, Vector2Int house, Vector2Int lab, Vector2Int petShop, IReadOnlyList<Vector2Int> villagers)
             {
                 _house = house;
                 _lab = lab;
                 _petShop = petShop;
+                _villagers = villagers ?? new List<Vector2Int>();
                 _terrain = terrain;
                 _width = terrain.GetLength(0);
                 _height = terrain.GetLength(1);
@@ -151,6 +155,10 @@ namespace FishAndChill.Editor
                 Block(house.x - 3, house.y, house.x + 3, house.y + 4);
                 Block(lab.x - 3, lab.y, lab.x + 3, lab.y + 4);
                 Block(petShop.x - 3, petShop.y, petShop.x + 3, petShop.y + 4);
+                foreach (Vector2Int home in _villagers)
+                {
+                    Block(home.x - 2, home.y, home.x + 2, home.y + 4);
+                }
             }
 
             private bool Inside(int x, int y) => x >= 0 && y >= 0 && x < _width && y < _height;
@@ -224,8 +232,8 @@ namespace FishAndChill.Editor
                     }
                 }
 
-                // Petite cour pavée devant la maison, le laboratoire et l'animalerie.
-                foreach (Vector2Int door in new[] { _house, _lab, _petShop })
+                // Petite cour pavée devant la maison, le laboratoire, l'animalerie et chaque maison d'habitant.
+                foreach (Vector2Int door in new[] { _house, _lab, _petShop }.Concat(_villagers))
                 {
                     for (int x = door.x - 2; x <= door.x + 2; x++)
                     {
@@ -284,6 +292,46 @@ namespace FishAndChill.Editor
                             for (int dy = -1; dy <= 1; dy++)
                             {
                                 Pave(cell.x + dx, cell.y + dy, grassOnly: true);
+                            }
+                        }
+                    }
+                }
+
+                // Maisons des habitants : chacune rejoint le pavé le plus proche (chemins déjà tracés, cours, parvis),
+                // dans l'ordre, pour que les petits chemins se raccordent entre eux au lieu de tous traverser l'île.
+                foreach (Vector2Int home in _villagers)
+                {
+                    var exit = new Vector2Int(home.x, home.y - 3);
+                    Vector2Int? target = null;
+                    int bestDistance = int.MaxValue;
+                    for (int x = 0; x < _width; x++)
+                    {
+                        for (int y = 0; y < _height; y++)
+                        {
+                            bool ownYard = Mathf.Abs(x - home.x) <= 2 && y >= home.y - 2 && y < home.y;
+                            if (!Result.Paved[x, y] || ownYard) continue;
+                            int distance = Mathf.Abs(x - exit.x) + Mathf.Abs(y - exit.y);
+                            if (distance < bestDistance && BestZPath(exit, new Vector2Int(x, y), verticalFirst: true).Count > 0)
+                            {
+                                bestDistance = distance;
+                                target = new Vector2Int(x, y);
+                            }
+                        }
+                    }
+
+                    if (!target.HasValue) continue;
+                    List<List<Vector2Int>> link = BestZPath(exit, target.Value, verticalFirst: true);
+                    segments.AddRange(link);
+                    foreach (List<Vector2Int> segment in link)
+                    {
+                        foreach (Vector2Int cell in segment)
+                        {
+                            for (int dx = -1; dx <= 1; dx++)
+                            {
+                                for (int dy = -1; dy <= 1; dy++)
+                                {
+                                    Pave(cell.x + dx, cell.y + dy, grassOnly: true);
+                                }
                             }
                         }
                     }
@@ -505,6 +553,17 @@ namespace FishAndChill.Editor
                 Put(px + 4, py + 1, DecorKind.BushFlowers, 0);
                 Put(px + 3, py - 3, DecorKind.Lamp);
                 Put(px - 4, py + 4, DecorKind.Bush, 1);
+            }
+
+            /// <summary>Maisons des habitants : un massif fleuri ou un buisson à côté de chacune, en alternant les côtés.</summary>
+            public void DecorateVillagers()
+            {
+                for (int i = 0; i < _villagers.Count; i++)
+                {
+                    Vector2Int home = _villagers[i];
+                    int side = i % 2 == 0 ? -3 : 3;
+                    Put(home.x + side, home.y + 1, i % 3 == 0 ? DecorKind.Bush : DecorKind.BushFlowers, i % 3);
+                }
             }
 
             /// <summary>Un lampadaire toutes les <see cref="LampSpacing"/> cases, toujours du même côté du chemin.</summary>

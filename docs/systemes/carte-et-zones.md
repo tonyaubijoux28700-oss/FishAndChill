@@ -103,4 +103,12 @@
   caisses de la boutique, panneau indicateur, buissons et rochers. Les cocotiers évitent tout ça (`Result.Reserved`).
   **Décor et troncs de cocotiers sont solides** : leur pied (`TownLayout.Footprint` / `PalmFootprint`) est enregistré
   dans `WorldMap._staticObstacles` à la génération ; `CanStandAt` teste la boîte du joueur contre chaque obstacle.
+- **Maisons des habitants** (`Editor/VillageArt`, style en volume, 128×128 px, 4 cases de large ; façades seules, on
+  n'y entre pas encore) : **trois**, éparpillées aux coins libres de l'île par `MapSetup.FindVillagerSite` (départs
+  nord-ouest, nord-est, sud-est ; 14 cases au moins de l'aquarium, 12 des autres bâtiments, 22 entre elles) : cabane du
+  pêcheur (planches bleues, toit de palmes, filet, bouée), maison pastel (enduit pêche, tuiles, volets verts) et
+  chaumière de pierre (chaume moussu, porte ronde, lanterne). `VillageArt` a aussi la maison jaune à véranda (modèle 2)
+  et une maison pastel lavande (`tint` 1), pas encore posées. Objets « Maison d'habitant N » (`Art/Buildings/Hameau/`),
+  pied solide 3,8×2,4. Chacune a sa petite cour pavée et un chemin vers le pavé le plus proche (`TownLayout.PavePaths`),
+  un buisson ou un massif à côté (`DecorateVillagers`).
 

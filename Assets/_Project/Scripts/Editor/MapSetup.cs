@@ -237,8 +237,20 @@ namespace FishAndChill.Editor
             Vector2Int petShopCell = FindBuildingSite(terrain, center + new Vector2Int(-16, -12), aquariumCell, 14, halfWidth: 5, front: 6, back: 7, anyDirection: true,
                 alsoAvoid: new[] { shopCell, houseCell, labCell });
 
+            // Trois maisons d'habitants, éparpillées aux trois coins libres de l'île (nord-ouest, nord-est, sud-est),
+            // à 12 cases au moins des autres bâtiments, 14 de l'aquarium et 22 entre elles.
+            var villagerCells = new List<Vector2Int>();
+            var taken = new List<Vector2Int> { shopCell, houseCell, labCell, petShopCell, lighthouseCell, spawn };
+            foreach (Vector2Int start in new[] { new Vector2Int(-18, 16), new Vector2Int(18, 16), new Vector2Int(20, -14) })
+            {
+                Vector2Int? site = FindVillagerSite(terrain, center + start, aquariumCell, taken, villagerCells);
+                if (!site.HasValue) continue;
+                villagerCells.Add(site.Value);
+                taken.Add(site.Value);
+            }
+
             // Parvis, chemins pavés et décor autour des bâtiments.
-            TownLayout.Result town = TownLayout.Build(terrain, spawn, shopCell, aquariumCell, houseCell, labCell, petShopCell, seed);
+            TownLayout.Result town = TownLayout.Build(terrain, spawn, shopCell, aquariumCell, houseCell, labCell, petShopCell, villagerCells, seed);
             FillDualLayer(pavingLayer, bounds, width, height, (x, y) => town.Paved[x, y], tiles.PavingEdges, tiles.PavingFull, seed + 5);
             // Pied de chaque élément de décor et tronc de chaque cocotier : infranchissables.
             var staticObstacles = new List<Rect>();
@@ -277,6 +289,28 @@ namespace FishAndChill.Editor
             // Pied du phare : infranchissable.
             var lighthousePosition = new Vector3(bounds.xMin + lighthouseCell.x + 0.5f, bounds.yMin + lighthouseCell.y, 0f);
             staticObstacles.Add(new Rect(lighthousePosition.x - 0.95f, lighthousePosition.y - 0.1f, 1.9f, 0.9f));
+
+            // Maisons des habitants (façades seules pour l'instant) : pied de chaque façade solide.
+            const string villageFolder = "Assets/_Project/Art/Buildings/Hameau";
+            PixelArt.EnsureFolder(villageFolder);
+            (int variant, int tint)[] villageLooks = { (0, 0), (1, 0), (3, 0) };   // cabane du pêcheur, maison pastel, chaumière
+            for (int i = 0; i < 8; i++)
+            {
+                GameObject old = GameObject.Find($"Maison d'habitant {i + 1}");
+                if (i >= villagerCells.Count && old != null) Object.DestroyImmediate(old);
+            }
+
+            for (int i = 0; i < villagerCells.Count; i++)
+            {
+                (int variant, int tint) look = villageLooks[i % villageLooks.Length];
+                Sprite facade = PixelArt.Save($"{villageFolder}/Maison_{look.variant}_{look.tint}.png", VillageArt.House(look.variant, look.tint),
+                    VolumeCanvas.PixelsPerUnit, VillageArt.Pivot);
+                GameObject home = EnsureObject($"Maison d'habitant {i + 1}", null);
+                var foot = new Vector3(bounds.xMin + villagerCells[i].x + 0.5f, bounds.yMin + villagerCells[i].y, 0f);
+                home.transform.position = foot;
+                SetSprite(home, facade, 10);
+                staticObstacles.Add(new Rect(foot.x - 1.9f, foot.y - 0.1f, 3.8f, 2.4f));
+            }
 
             // Ponton de l'île : sur la plage sud, à côté du point de départ, vers le large.
             DockInfo islandDock = BuildDock(mapObject.transform, "Ponton - Île Mahana", terrain, bounds, spawn, Vector2Int.down);
@@ -1720,6 +1754,50 @@ namespace FishAndChill.Editor
             return spawn + Vector2Int.up * 6;
         }
 
+        /// <summary>
+        /// Case d'une maison d'habitant (pied de la façade), cherchée en anneaux autour de <paramref name="start"/> : sur la
+        /// terre ferme avec sa petite cour, à 14 cases au moins de l'aquarium et 12 des autres bâtiments. Null s'il n'y a
+        /// pas la place.
+        /// </summary>
+        private static Vector2Int? FindVillagerSite(TerrainType[,] terrain, Vector2Int start, Vector2Int aquarium, List<Vector2Int> taken, List<Vector2Int> villagers)
+        {
+            int width = terrain.GetLength(0);
+            int height = terrain.GetLength(1);
+            bool Land(int x, int y) => x >= 0 && y >= 0 && x < width && y < height && !IslandGenerator.IsWater(terrain, x, y);
+            for (int radius = 0; radius <= 14; radius++)
+            {
+                for (int dx = -radius; dx <= radius; dx++)
+                {
+                    for (int dy = -radius; dy <= radius; dy++)
+                    {
+                        if (Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy)) != radius) continue;
+                        var home = new Vector2Int(start.x + dx, start.y + dy);
+                        bool fits = Mathf.Max(Mathf.Abs(home.x - aquarium.x), Mathf.Abs(home.y - aquarium.y)) >= 14;
+                        foreach (Vector2Int other in taken)
+                        {
+                            fits &= Mathf.Max(Mathf.Abs(home.x - other.x), Mathf.Abs(home.y - other.y)) >= 12;
+                        }
+
+                        foreach (Vector2Int other in villagers)
+                        {
+                            fits &= Mathf.Max(Mathf.Abs(home.x - other.x), Mathf.Abs(home.y - other.y)) >= 22;   // bien éparpillées
+                        }
+
+                        for (int x = home.x - 4; x <= home.x + 4 && fits; x++)
+                        {
+                            for (int y = home.y - 5; y <= home.y + 6 && fits; y++)
+                            {
+                                fits = Land(x, y);
+                            }
+                        }
+
+                        if (fits) return home;
+                    }
+                }
+            }
+
+            return null;
+        }
         /// <summary>
         /// Case du phare : la terre la plus au nord, avec un peu de terre autour (2 cases de large) pour son socle.
         /// </summary>
