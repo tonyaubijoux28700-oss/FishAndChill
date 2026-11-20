@@ -78,6 +78,14 @@ namespace FishAndChill.UI
         private Text _zoneCounter;
         private bool _zoneListFocused = true;
 
+        // Souris : zones cliquables (colonne, carnet, icône) et ce que le pointeur survole (-1 : rien).
+        private RectTransform _iconRect;
+        private RectTransform _columnRect;
+        private RectTransform _zoneViewRect;
+        private RectTransform _bookRect;
+        private int _hoverZone = -1;
+        private int _hoverCell = -1;
+
         [SerializeField, Tooltip("Zones dont les espèces figurent dans l'index, dans l'ordre de la colonne des zones.")]
         private FishingZone[] _zones = new FishingZone[0];
 
@@ -262,14 +270,124 @@ namespace FishAndChill.UI
                     ShowZone((_zone + zoneStep + _zoneSpecies.Count) % _zoneSpecies.Count);
                 }
 
+                if (!HandleMouse())
+                {
+                    return;
+                }
+
                 Animate();
                 AnimateZoneList(Time.unscaledDeltaTime);
                 AnimateFlip(Time.unscaledDeltaTime);
             }
-            else if (IndexInput.TogglePressedThisFrame() && CanOpenNow())
+            else if ((IndexInput.TogglePressedThisFrame() || IconClickedThisFrame()) && CanOpenNow())
             {
                 Open();
             }
+        }
+
+        // ---------- Souris ----------
+
+        private static bool Over(RectTransform rect, Vector2 screen) =>
+            rect != null && rect.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(rect, screen, null);
+
+        /// <summary>Clic sur l'icône du livre (carnet fermé).</summary>
+        private bool IconClickedThisFrame()
+        {
+            Mouse mouse = Mouse.current;
+            return mouse != null && mouse.leftButton.wasPressedThisFrame && Over(_iconRect, mouse.position.ReadValue());
+        }
+
+        /// <summary>
+        /// Souris, carnet ouvert : survol (zone ou case éclairée), clic sur une zone ou une espèce, molette pour faire
+        /// défiler la colonne des zones ou tourner les pages d'espèces, clic à côté du carnet pour le fermer.
+        /// Renvoie faux si le carnet vient d'être fermé.
+        /// </summary>
+        private bool HandleMouse()
+        {
+            _hoverZone = -1;
+            _hoverCell = -1;
+            Mouse mouse = Mouse.current;
+            if (mouse == null)
+            {
+                return true;
+            }
+
+            Vector2 screen = mouse.position.ReadValue();
+            bool overColumn = Over(_columnRect, screen);
+            if (Over(_zoneViewRect, screen))
+            {
+                for (int i = 0; i < _zoneEntries.Count; i++)
+                {
+                    if (Over(_zoneEntries[i].Rect, screen))
+                    {
+                        _hoverZone = i;
+                        break;
+                    }
+                }
+            }
+
+            for (int i = 0; i < _cells.Count; i++)
+            {
+                if (Over(_cells[i].Frame.rectTransform, screen))
+                {
+                    _hoverCell = i;
+                    break;
+                }
+            }
+
+            float wheel = mouse.scroll.ReadValue().y;
+            if (wheel != 0f)
+            {
+                int step = wheel > 0f ? -1 : 1;
+                if (overColumn)
+                {
+                    // Fait défiler la liste sans changer de zone (elle revient sur la zone choisie au prochain changement).
+                    float max = ZoneListScroll.MaxOffset(_zoneEntries.Count, ZoneRowHeight, ZoneRowGap, _zoneViewHeight);
+                    _zoneScrollTarget = Mathf.Clamp(_zoneScrollTarget + step * (ZoneRowHeight + ZoneRowGap), 0f, max);
+                }
+                else if (Over(_bookRect, screen) && Current.Count > PerPage)
+                {
+                    // Page d'espèces suivante / précédente, à la même place dans la grille.
+                    int page = SpeciesIndex.PageOf(_selected, PerPage) + step;
+                    int pages = (Current.Count + PerPage - 1) / PerPage;
+                    if (page >= 0 && page < pages)
+                    {
+                        Select(Mathf.Min(page * PerPage + _selected % PerPage, Current.Count - 1));
+                    }
+                }
+            }
+
+            if (!mouse.leftButton.wasPressedThisFrame)
+            {
+                return true;
+            }
+
+            if (_hoverZone >= 0)
+            {
+                if (_hoverZone != _zone)
+                {
+                    TurnPage(_hoverZone > _zone ? 1 : -1);
+                    ShowZone(_hoverZone);
+                }
+
+                FocusZoneList(true);
+            }
+            else if (_hoverCell >= 0)
+            {
+                int number = SpeciesIndex.PageOf(_selected, PerPage) * PerPage + _hoverCell;
+                if (number < Current.Count)
+                {
+                    if (_zoneListFocused) FocusZoneList(false);
+                    Select(number);
+                }
+            }
+            else if (!overColumn && !Over(_bookRect, screen))
+            {
+                Close();
+                return false;
+            }
+
+            return true;
         }
 
         private static int ZoneStepThisFrame()
@@ -632,6 +750,12 @@ namespace FishAndChill.UI
             _moreAbove.gameObject.SetActive(ZoneListScroll.MoreAbove(_zoneScroll));
             _moreBelow.gameObject.SetActive(ZoneListScroll.MoreBelow(_zoneScroll, _zoneEntries.Count, ZoneRowHeight, ZoneRowGap, _zoneViewHeight));
 
+            // Zone survolée à la souris : son nom passe en or.
+            for (int i = 0; i < _zoneEntries.Count; i++)
+            {
+                _zoneEntries[i].Name.color = i == _zone ? Color.white : i == _hoverZone ? Gold : new Color(0.86f, 0.84f, 0.8f);
+            }
+
             if (_zone < _zoneEntries.Count)
             {
                 float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 6f);
@@ -735,8 +859,9 @@ namespace FishAndChill.UI
             for (int i = 0; i < _cells.Count; i++)
             {
                 bool selected = first + i == _selected;
-                _cells[i].Frame.color = selected ? Color.Lerp(Color.white, Gold, 0.35f + 0.4f * pulse) : CellTint;
-                _cells[i].Frame.rectTransform.localScale = Vector3.one * (selected ? 1.05f : 1f);
+                bool hovered = i == _hoverCell;   // survolée à la souris : case éclaircie, un peu plus grande
+                _cells[i].Frame.color = selected ? Color.Lerp(Color.white, Gold, 0.35f + 0.4f * pulse) : hovered ? Color.Lerp(CellTint, Color.white, 0.6f) : CellTint;
+                _cells[i].Frame.rectTransform.localScale = Vector3.one * (selected ? 1.05f : hovered ? 1.03f : 1f);
             }
 
             _detailFish.rectTransform.anchoredPosition = new Vector2(Mathf.Sin(Time.unscaledTime * 1.3f) * 6f, Mathf.Sin(Time.unscaledTime * 2.6f) * 4f);
@@ -783,6 +908,7 @@ namespace FishAndChill.UI
             var book = bookObject.GetComponent<RectTransform>();
             UiFactory.Center(book, BookCenter, new Vector2(1580f, 880f));
             book.localScale = Vector3.one * BookScale;
+            _bookRect = book;
 
             Image cover = UiFactory.Sliced(book, "Couverture", _cover, new Color(0.40f, 0.22f, 0.12f));
             UiFactory.Center(cover.rectTransform, new Vector2(0f, 0f), new Vector2(1580f, 880f));
@@ -828,6 +954,7 @@ namespace FishAndChill.UI
         {
             Image frame = UiFactory.Sliced(parent, "Colonne des zones", _cover, new Color(0.40f, 0.22f, 0.12f));
             RectTransform column = frame.rectTransform;
+            _columnRect = column;
             UiFactory.Center(column, ColumnCenter, ColumnSize);
 
             Image paper = UiFactory.Sliced(column, "Feuille", _page, new Color(0.96f, 0.91f, 0.78f));
@@ -838,6 +965,7 @@ namespace FishAndChill.UI
             var viewObject = new GameObject("Vue des zones", typeof(RectTransform), typeof(RectMask2D));
             viewObject.transform.SetParent(column, false);
             var view = viewObject.GetComponent<RectTransform>();
+            _zoneViewRect = view;
             view.anchorMin = Vector2.zero;
             view.anchorMax = Vector2.one;
             view.offsetMin = new Vector2(16f, ColumnBand);
@@ -1038,6 +1166,7 @@ namespace FishAndChill.UI
         {
             Image iconBase = UiFactory.Sliced(root, "Index", SkinSprite(s => s.Slot), SkinTint(new Color(0.12f, 0.2f, 0.27f)));
             RectTransform iconRect = iconBase.rectTransform;
+            _iconRect = iconRect;
             float x = 24f + IconSize + 22f + IconSize * 0.5f;
             UiFactory.Place(iconRect, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f), new Vector2(x, 24f + IconSize * 0.5f), new Vector2(IconSize, IconSize));
 
