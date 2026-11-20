@@ -54,11 +54,15 @@
   avec leur ombre. 14 espèces (table des espèces) : 12 poissons (`AmazonFishArt` : piranha, oscar, pléco,
   discus, tucunaré, tambaqui, arowana, surubim, payara, pirarara, gymnote électrique, arapaïma légendaire), matamata et
   crevette d'Amazonie (`AmazonCreatureArt`). Salle Amazonie à l'aquarium (voir Aquarium).
-- **Baie d'Izu** (4e zone, région 3, Japon) : `BayGenerator` (mer au sud qui s'enfonce en arrondi, plage de sable gris,
-  collines ; testé), 90×64 cases, à `JapanGap` = 20 cases à l'est du fleuve, `MapSetup.BuildJapan` (tuiles `JapanArt` : mer
-  profonde, sable volcanique, mousse et pétales ; cerisiers, pins noirs tordus et bambous solides ; lanternes de pierre
-  solides nommées `Lampadaire_Toro`, donc allumées la nuit ; torii rouge dans l'eau). Ponton au fond de la baie, vers
-  le sud. Vie (`BuildJapanLife`, `JapanLifeArt`) : canards mandarins, pétales de cerisier, grues du Japon. 14 espèces
+- **Baie d'Izu** (4e zone, région 3, Japon) : plan dessiné `World/BayPlan` (90×64 cases, testé : mer au sud qui s'enfonce
+  en arrondi entre deux caps rocheux, plage de sable volcanique, plateau inaccessible et falaise au nord avec le **mont
+  Fuji**, ruisseau descendu d'une cascade et franchi par un **pont rouge** praticable (`JapanBridgeArea`), **sanctuaire**
+  shinto dans l'axe d'une allée de dalles avec torii et lanternes, **torii dans l'eau** dans le même axe, hameau de deux
+  maisons de pêcheurs et une barque, **onsen** fumant, bambouseraie, érables autour du sanctuaire, cerisiers, pins noirs,
+  rochers mariés dans la mer), à `JapanGap` = 20 cases à l'est du fleuve, `MapSetup.BuildJapan` (tuiles `JapanArt` : mer,
+  sable volcanique, mousse et pétales ; arbres, lanternes `Lampadaire_ToroPierre` allumées la nuit, rochers, fleurs, dalles
+  et terre dans `JapanTerrainArt` ; repères dans `JapanLandmarkArt` ; falaise et cascade de `LakeTerrainArt`). Ponton au
+  bout d'un petit chemin, vers le sud. `BayGenerator` n'est plus utilisé. Vie (`BuildJapanLife`, `JapanLifeArt`) : canards mandarins, pétales de cerisier, grues du Japon. 14 espèces
   (table des espèces, dessins `JapanFishArt`, crabe-araignée géant dans `JapanCreatureArt`), thon rouge
   légendaire. Salle Japon à l'aquarium (voir Aquarium).
 - **Grande Barrière** (5e zone, région 4, Queensland) : `ReefGenerator` (terre au nord, plage de sable blanc, brousse,

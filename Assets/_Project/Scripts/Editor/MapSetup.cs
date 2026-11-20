@@ -306,7 +306,7 @@ namespace FishAndChill.Editor
             // La baie japonaise, à l'est du fleuve.
             TileSet japanTiles = CreateJapanTiles();
             var japanBounds = new BoundsInt(amazonBounds.xMax + JapanGap, -BaySettings.Height / 2, 0, BaySettings.Width, BaySettings.Height, 1);
-            DockInfo japanDock = BuildJapan(mapObject.transform, japanBounds, japanTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, decorMap, staticObstacles);
+            DockInfo japanDock = BuildJapan(mapObject.transform, japanBounds, japanTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
 
             // La côte de la Grande Barrière, à l'est de la baie.
             TileSet reefTiles = CreateReefTiles();
@@ -334,7 +334,7 @@ namespace FishAndChill.Editor
             var reefRegion = new Rect(reefBounds.xMin, reefBounds.yMin, reefBounds.size.x, reefBounds.size.y);
             var atollRegion = new Rect(atollBounds.xMin, atollBounds.yMin, atollBounds.size.x, atollBounds.size.y);
             worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion },
-                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, LakeBridgeArea, AmazonBridgeArea });
+                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea });
             BuildAtollLife(mapObject.transform, worldMap, player.transform, atollDock.Area);
             BuildReefLife(mapObject.transform, worldMap, player.transform, reefDock.Area);
             BuildJapanLife(mapObject.transform, worldMap, player.transform, japanDock.Area);
@@ -1192,15 +1192,24 @@ namespace FishAndChill.Editor
             return set;
         }
 
-        /// <summary>Dessine la baie (sans effacer le reste) : plage, collines de cerisiers, pins et bambous, lanternes, torii.</summary>
+        /// <summary>
+        /// Dessine la baie d'après son plan (<see cref="BayPlan"/>) dans les couches de la carte, sans effacer le reste :
+        /// mer, plage, mousse, allée de dalles et chemin côtier, falaise et cascade, mont Fuji, sanctuaire, torii (sur
+        /// l'allée et dans l'eau), lanternes, pont rouge, maisons de pêcheurs et barque, onsen, rochers mariés, rochers de
+        /// la côte, cerisiers, pins, érables, bambous et fleurs ; puis le ponton.
+        /// </summary>
         private static DockInfo BuildJapan(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
-            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap decorMap, List<Rect> obstacles)
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap pavingLayer, Tilemap decorMap, List<Rect> obstacles)
         {
-            TerrainType[,] terrain = BayGenerator.Generate(BaySettings);
+            BayPlan plan = BayPlan.Build();
+            TerrainType[,] terrain = plan.Terrain;
             int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
             int width = terrain.GetLength(0);
             int height = terrain.GetLength(1);
             int seed = BaySettings.Seed;
+            Vector3Int Cell(int x, int y) => new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0);
+            Vector3 World(float x, float y) => new Vector3(bounds.xMin + x, bounds.yMin + y, 0f);
+            void Solid(float cx, float y, float w, float h) => obstacles.Add(new Rect(bounds.xMin + cx - w * 0.5f, bounds.yMin + y, w, h));
 
             var waterTiles = new TileBase[width * height];
             var landTiles = new TileBase[width * height];
@@ -1211,14 +1220,8 @@ namespace FishAndChill.Editor
                     int index = x + y * width;
                     float hash = IslandGenerator.CellHash(x, y, seed);
                     waterTiles[index] = tiles.Deep[hash < 0.5f ? 0 : 1];
-                    if (terrain[x, y] == TerrainType.Sand)
-                    {
-                        landTiles[index] = tiles.Sand[hash < 0.9f ? 0 : hash < 0.96f ? 1 : 2];
-                    }
-                    else if (terrain[x, y] == TerrainType.Grass)
-                    {
-                        landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
-                    }
+                    if (terrain[x, y] == TerrainType.Sand) landTiles[index] = tiles.Sand[hash < 0.9f ? 0 : hash < 0.96f ? 1 : 2];
+                    else if (terrain[x, y] == TerrainType.Grass) landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
                 }
             }
 
@@ -1228,90 +1231,153 @@ namespace FishAndChill.Editor
             FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
             FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
 
-            // Ponton au fond de la baie, vers le sud (la mer).
-            int cx = width / 2;
-            int cy = 0;
-            while (cy < height - 2 && terrain[cx, cy] == TerrainType.Water)
+            // Chemin côtier de terre claire, puis allée et parvis de dalles (double grille, couche des pavés).
+            var earth = new TransitionArt.Style
             {
-                cy++;
+                Fill = JapanTerrainArt.EarthFill(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.58f, 0.50f, 0.40f), InnerBlend = 0.7f,
+                OuterBand = 0.06f, OuterColor = JapanArt.Moss(new Color(0.30f, 0.52f, 0.26f)), DitherOuter = true,
+            };
+            Tile[] earthEdges = SaveEdges("BaieChemin", earth);
+            Tile[] earthFull = { earthEdges[15], SaveTile("Bords/BaieChemin_15b", JapanTerrainArt.EarthFill(1), Vector2.one * 0.5f, TileArt.Size) };
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Path[x, y], earthEdges, earthFull, seed + 5, false);
+            var slabs = new TransitionArt.Style
+            {
+                Fill = JapanTerrainArt.StoneFill(0),
+                InnerBand = 0.07f, InnerColor = new Color(0.44f, 0.44f, 0.44f), InnerBlend = 1f,
+                OuterBand = 0.05f, OuterColor = JapanArt.Moss(new Color(0.30f, 0.52f, 0.26f)), DitherOuter = true,
+            };
+            Tile[] slabEdges = SaveEdges("BaieDalles", slabs);
+            Tile[] slabFull = { slabEdges[15], SaveTile("Bords/BaieDalles_15b", JapanTerrainArt.StoneFill(1), Vector2.one * 0.5f, TileArt.Size) };
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Stone[x, y], slabEdges, slabFull, seed + 6, false);
+
+            // Falaise au pied du plateau et cascade du ruisseau (même couche que celles du lac).
+            Tilemap cliffLayer = EnsureTilemap(mapRoot, "Rendu - Falaises", -10, TilemapRenderer.Mode.Chunk);
+            var cliffTop = SaveTile("Baie_Falaise_Haut", LakeTerrainArt.CliffTop(JapanArt.Moss(TileArt.Grass(0))), Vector2.one * 0.5f, TileArt.Size);
+            var faces = new Tile[3];
+            var bases = new Tile[3];
+            for (int i = 0; i < 3; i++)
+            {
+                faces[i] = SaveTile($"Baie_Falaise_Paroi_{i}", LakeTerrainArt.CliffFace(i), Vector2.one * 0.5f, TileArt.Size);
+                bases[i] = SaveTile($"Baie_Falaise_Pied_{i}", LakeTerrainArt.CliffBase(i), Vector2.one * 0.5f, TileArt.Size);
             }
 
-            DockInfo dock = BuildDock(mapRoot, "Ponton - Baie japonaise", terrain, bounds, new Vector2Int(cx, cy + 1), Vector2Int.down);
-            Vector2 dockCell = dock.Area.center - new Vector2(bounds.xMin, bounds.yMin);
-            var taken = new bool[width, height];
-            void Put(int x, int y, Tile tile)
+            var waterfall = new Tile[3, 3];
+            for (int c = 0; c < 3; c++)
             {
-                taken[x, y] = true;
-                decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tile);
-            }
-
-            void Solid(int x, int y, float w, float h)
-            {
-                obstacles.Add(new Rect(bounds.xMin + x + 0.5f - w * 0.5f, bounds.yMin + y + 0.1f, w, h));
-            }
-
-            // Deux lanternes de pierre de part et d'autre du pied du ponton, puis d'autres le long de la plage.
-            int lanternY = Mathf.RoundToInt(dock.Area.yMax - bounds.yMin) + 1;
-            foreach (int lx in new[] { Mathf.RoundToInt(dockCell.x) - 3, Mathf.RoundToInt(dockCell.x) + 2 })
-            {
-                if (lx > 0 && lx < width && lanternY < height && terrain[lx, lanternY] != TerrainType.Water)
+                for (int r = 0; r < 3; r++)
                 {
-                    Put(lx, lanternY, tiles.Reeds[0]);
-                    Solid(lx, lanternY, 0.7f, 0.4f);
+                    int column = c, row = r;
+                    waterfall[c, r] = SaveAnimatedWater($"Baie_Cascade_{c}_{r}", f => LakeTerrainArt.Waterfall(column, row, f));
                 }
             }
 
-            // Le torii, planté dans l'eau de la baie, à côté du ponton.
-            int tx = cx + 9;
-            int ty = Mathf.FloorToInt(BayGenerator.ShoreAt(BaySettings, tx + 0.5f)) - 6;
-            if (tx < width && ty > 0 && terrain[tx, ty] == TerrainType.Water)
+            for (int x = 0; x < width; x++)
             {
-                Put(tx, ty, tiles.Lilies[0]);
+                int ridge = plan.Ridge[x];
+                int variant = Mathf.FloorToInt(IslandGenerator.CellHash(x, 0, seed + 11) * 3f) % 3;
+                int fall = x - (plan.Waterfall.x - 1);
+                if (fall >= 0 && fall < 3)
+                {
+                    for (int r = 0; r < 3; r++) cliffLayer.SetTile(Cell(x, ridge - 2 + r), waterfall[fall, r]);
+                }
+                else
+                {
+                    if (ridge < height) cliffLayer.SetTile(Cell(x, ridge), cliffTop);
+                    cliffLayer.SetTile(Cell(x, ridge - 1), faces[variant]);
+                    cliffLayer.SetTile(Cell(x, ridge - 2), bases[variant]);
+                }
+
+                obstacles.Add(new Rect(bounds.xMin + x, bounds.yMin + ridge - 2, 1f, height - ridge + 2));
             }
 
-            for (int y = 1; y < height - 1; y++)
+            // Ponton au bout du petit chemin, vers le sud (BuildDock essaie d'abord 3 cases à droite du point donné).
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Baie japonaise", terrain, bounds, plan.DockFoot - new Vector2Int(3, 0), Vector2Int.down);
+
+            // Pont rouge sur le ruisseau : on y marche comme sur le ponton.
+            if (plan.Bridge.width > 0)
             {
-                for (int x = 1; x < width - 1; x++)
-                {
-                    float hash = IslandGenerator.CellHash(x, y, seed + 7);
-                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 5 && Mathf.Abs(y - dockCell.y) <= 8;
-                    if (taken[x, y] || nearDock) continue;
-                    bool besideWater = terrain[x, y - 1] == TerrainType.Water || terrain[x, y + 1] == TerrainType.Water;
-                    if (terrain[x, y] == TerrainType.Sand && !besideWater && terrain[x, y + 1] == TerrainType.Grass && hash < 0.06f
-                        && !taken[x - 1, y] && !taken[x + 1, y] && !taken[x - 2, y] && !taken[x + 2, y])
-                    {
-                        Put(x, y, tiles.Reeds[0]);
-                        Solid(x, y, 0.7f, 0.4f);
-                    }
-                }
+                Sprite bridge = PixelArt.Save($"{TilesFolder}/Baie_PontRouge.png", JapanLandmarkArt.RedBridge(plan.Bridge.width, plan.Bridge.height), TileArt.Size,
+                    new Vector2(3f / (plan.Bridge.width * 16 + 6), 4f / (plan.Bridge.height * 16 + 8)));
+                GameObject bridgeObject = EnsureObject("Pont rouge de la baie", mapRoot);
+                bridgeObject.transform.position = World(plan.Bridge.xMin, plan.Bridge.yMin);
+                SetSprite(bridgeObject, bridge, -9).spriteSortPoint = SpriteSortPoint.Center;
+                JapanBridgeArea = new Rect(bounds.xMin + plan.Bridge.xMin - 0.2f, bounds.yMin + plan.Bridge.yMin, plan.Bridge.width + 0.4f, plan.Bridge.height);
             }
 
-            // Collines boisées : cerisiers, pins noirs et touffes de bambous.
-            var trees = new List<Vector2Int>();
-            for (int y = 0; y < height; y++)
+            // Grands repères en volume (32 px par case), triés comme le joueur.
+            GameObject Landmark(string name, string file, Color[,] pixels, Vector2 pivot, float x, float y, int order = 10)
             {
-                for (int x = 0; x < width; x++)
-                {
-                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 9;
-                    if (terrain[x, y] != TerrainType.Grass || nearDock || taken[x, y] || IslandGenerator.CellHash(x, y, seed + 1) > 0.075f)
-                    {
-                        continue;
-                    }
+                Sprite sprite = PixelArt.Save(file, pixels, VolumeCanvas.PixelsPerUnit, pivot);
+                GameObject go = EnsureObject(name, mapRoot);
+                go.transform.position = World(x, y);
+                SetSprite(go, sprite, order);
+                return go;
+            }
 
-                    if (trees.Exists(other => Mathf.Abs(other.x - x) < 3 && Mathf.Abs(other.y - y) < 2))
-                    {
-                        continue;
-                    }
+            const string buildings = "Assets/_Project/Art/Buildings";
+            Landmark("Mont Fuji", $"{TilesFolder}/Baie_Fuji.png", JapanLandmarkArt.Fuji(), JapanLandmarkArt.FujiPivot, plan.Fuji.x + 0.5f, plan.Fuji.y);
+            Landmark("Sanctuaire de la baie", $"{buildings}/Baie_Sanctuaire.png", JapanLandmarkArt.Shrine(), JapanLandmarkArt.ShrinePivot, plan.Shrine.x + 0.5f, plan.Shrine.y);
+            Solid(plan.Shrine.x + 0.5f, plan.Shrine.y + 0.2f, 4.8f, 2.6f);
+            Solid(plan.Shrine.x + 0.5f - 2.75f, plan.Shrine.y - 0.1f, 0.6f, 0.5f);   // chiens-lions
+            Solid(plan.Shrine.x + 0.5f + 2.75f, plan.Shrine.y - 0.1f, 0.6f, 0.5f);
+            Landmark("Torii de l'allée", $"{TilesFolder}/Baie_Torii.png", JapanLandmarkArt.Torii(false), JapanLandmarkArt.ToriiPivot, plan.GateTorii.x + 0.5f, plan.GateTorii.y);
+            Solid(plan.GateTorii.x + 0.5f - 1.31f, plan.GateTorii.y - 0.05f, 0.6f, 0.4f);   // piliers
+            Solid(plan.GateTorii.x + 0.5f + 1.31f, plan.GateTorii.y - 0.05f, 0.6f, 0.4f);
+            Landmark("Torii dans l'eau", $"{TilesFolder}/Baie_ToriiEau.png", JapanLandmarkArt.Torii(true), JapanLandmarkArt.ToriiPivot, plan.SeaTorii.x + 0.5f, plan.SeaTorii.y);
+            for (int i = 0; i < plan.Houses.Count; i++)
+            {
+                Vector2Int house = plan.Houses[i];
+                Landmark($"Maison de pêcheur {i + 1}", $"{buildings}/Baie_Maison_{i % 2}.png", JapanLandmarkArt.House(i % 2), JapanLandmarkArt.HousePivot, house.x + 0.5f, house.y);
+                Solid(house.x + 0.5f, house.y - 0.1f, 3.5f, 1.9f);
+            }
 
-                    trees.Add(new Vector2Int(x, y));
-                    obstacles.Add(TownLayout.PalmFootprint(new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f)));
-                    float pick = IslandGenerator.CellHash(x, y, seed + 3);
-                    decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), pick < 0.45f ? tiles.Palm : pick < 0.8f ? tiles.Rocks[0] : tiles.Rocks[1]);
-                }
+            Landmark("Onsen", $"{buildings}/Baie_Onsen.png", JapanLandmarkArt.Onsen(), JapanLandmarkArt.OnsenPivot, plan.Onsen.x + 0.5f, plan.Onsen.y);
+            Solid(plan.Onsen.x + 0.5f, plan.Onsen.y - 0.1f, 5.2f, 2.6f);
+            GameObject boat = Landmark("Barque de pêcheur", $"{TilesFolder}/Baie_Barque.png", JapanLandmarkArt.Boat(), Vector2.one * 0.5f, plan.Boat.x + 0.5f, plan.Boat.y + 0.5f);
+            boat.GetComponent<SpriteRenderer>().spriteSortPoint = SpriteSortPoint.Center;
+            Solid(plan.Boat.x + 0.5f, plan.Boat.y + 0.15f, 3.2f, 0.7f);
+            Landmark("Rochers mariés", $"{TilesFolder}/Baie_RochersMaries.png", JapanLandmarkArt.WeddedRocks(), new Vector2(0.5f, 0.1f), plan.WeddedRocks.x + 0.5f, plan.WeddedRocks.y);
+
+            // Lanternes de pierre (le nom contient « Lampadaire » : elles s'allument la nuit), rochers, fleurs, arbres.
+            Tile lantern = SaveTile("Decor/Lampadaire_ToroPierre", JapanTerrainArt.StoneLantern(), JapanTerrainArt.LanternPivot, TileArt.Size);
+            foreach (Vector2Int l in plan.Lanterns)
+            {
+                decorMap.SetTile(Cell(l.x, l.y), lantern);
+                Solid(l.x + 0.5f, l.y + 0.1f, 0.7f, 0.4f);
+            }
+
+            Tile[] rocks = { SaveTile("Decor/Baie_Rocher_0", JapanTerrainArt.CoastRock(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Decor/Baie_Rocher_1", JapanTerrainArt.CoastRock(1), Vector2.one * 0.5f, TileArt.Size) };
+            foreach (Vector2Int r in plan.Rocks)
+            {
+                decorMap.SetTile(Cell(r.x, r.y), rocks[(r.x + r.y) % 2]);
+                if (terrain[r.x, r.y] != TerrainType.Water) Solid(r.x + 0.5f, r.y + 0.15f, 0.8f, 0.5f);
+            }
+
+            Tile[] flowers = { SaveTile("Decor/Iris", JapanTerrainArt.Flowers(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Decor/Camelias", JapanTerrainArt.Flowers(1), Vector2.one * 0.5f, TileArt.Size) };
+            foreach (Vector2Int f in plan.Flowers) decorMap.SetTile(Cell(f.x, f.y), flowers[(f.x + f.y) % 2]);
+
+            Tile sakura = SaveTile("Baie_Cerisier", JapanTerrainArt.Sakura(), JapanTerrainArt.TreePivot, TileArt.Size);
+            Tile maple = SaveTile("Baie_Erable", JapanTerrainArt.Maple(), JapanTerrainArt.TreePivot, TileArt.Size);
+            Tile[] pines = { SaveTile("Baie_PinNoir_0", JapanTerrainArt.BlackPine(0), JapanTerrainArt.TreePivot, TileArt.Size),
+                SaveTile("Baie_PinNoir_1", JapanTerrainArt.BlackPine(1), JapanTerrainArt.TreePivot, TileArt.Size) };
+            Tile[] bamboo = { SaveTile("Baie_Bambous_0", JapanTerrainArt.Bamboo(0), JapanTerrainArt.BambooPivot, TileArt.Size),
+                SaveTile("Baie_Bambous_1", JapanTerrainArt.Bamboo(1), JapanTerrainArt.BambooPivot, TileArt.Size) };
+            foreach ((Vector2Int cell, BayPlan.Plant kind) in plan.Trees)
+            {
+                Tile tile = kind == BayPlan.Plant.Sakura ? sakura : kind == BayPlan.Plant.Maple ? maple
+                    : kind == BayPlan.Plant.Pine ? pines[(cell.x + cell.y) % 2] : bamboo[cell.x % 2];
+                decorMap.SetTile(Cell(cell.x, cell.y), tile);
+                if (!plan.Plateau[cell.x, cell.y]) obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
             }
 
             return dock;
         }
+
+        /// <summary>Le pont rouge de la baie (on y marche comme sur un ponton) ; posé par <see cref="BuildJapan"/>.</summary>
+        private static Rect JapanBridgeArea;
 
         /// <summary>Tuiles du récif : celles de l'île recolorées (mer de corail, sable blanc, brousse), arbres et coraux.</summary>
         private static TileSet CreateReefTiles()
