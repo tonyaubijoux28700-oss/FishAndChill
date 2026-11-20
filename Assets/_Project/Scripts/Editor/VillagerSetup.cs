@@ -39,7 +39,7 @@ namespace FishAndChill.Editor
             {
                 Save("tavita", "Tavita", Look(3, 0, 5, 1, 2, 1),
                     new NpcExtras { Beard = new Color(0.86f, 0.86f, 0.84f), Beanie = new Color(0.22f, 0.36f, 0.66f), Pants = new Color(0.24f, 0.30f, 0.46f) },
-                    6f, 18f, 4f, 1.3f, 3f, 8f,
+                    7f, 17.5f, 4f, 1.3f, 3f, 8f,
                     new VillagerLines
                     {
                         Intro = new[]

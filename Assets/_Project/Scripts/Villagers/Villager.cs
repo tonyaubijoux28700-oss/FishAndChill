@@ -101,6 +101,15 @@ namespace FishAndChill.Villagers
 
             float dt = Time.deltaTime;
             bool outsideTime = IsOutsideTime();
+
+            // La nuit tombée, celui qui n'est pas encore rentré (trajet long, coincé) rentre d'un coup chez lui
+            // (sauf en pleine conversation : il rentrera juste après).
+            if (_state != State.Home && !_talking && VillagerSchedule.IsDark(Hour))
+            {
+                transform.position = DoorStep;
+                _state = State.Home;
+            }
+
             _moving = false;
             switch (_state)
             {
@@ -155,7 +164,8 @@ namespace FishAndChill.Villagers
             ApplySprite();
         }
 
-        private bool IsOutsideTime() => _profile == null || VillagerSchedule.IsOutside(Hour, _profile.LeaveHour, _profile.HomeHour);
+        /// <summary>Dehors seulement aux heures de sortie, et jamais une fois la nuit tombée.</summary>
+        private bool IsOutsideTime() => !VillagerSchedule.IsDark(Hour) && (_profile == null || VillagerSchedule.IsOutside(Hour, _profile.LeaveHour, _profile.HomeHour));
 
         private void BeginReturn()
         {

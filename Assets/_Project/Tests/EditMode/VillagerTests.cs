@@ -33,6 +33,16 @@ namespace FishAndChill.Tests
         }
 
         [Test]
+        public void IsDark_FromNightfallToDawn()
+        {
+            Assert.That(VillagerSchedule.IsDark(12f), Is.False);
+            Assert.That(VillagerSchedule.IsDark(18.5f), Is.False);   // crépuscule : on rentre encore à pied
+            Assert.That(VillagerSchedule.IsDark(20f), Is.True);
+            Assert.That(VillagerSchedule.IsDark(2f), Is.True);
+            Assert.That(VillagerSchedule.IsDark(8f), Is.False);
+        }
+
+        [Test]
         public void WanderTarget_StaysInsideTheRadius()
         {
             var random = new System.Random(4);

@@ -14,6 +14,9 @@ namespace FishAndChill.Villagers
                 : hour >= leaveHour || hour < homeHour;   // sortie le soir, retour le lendemain
         }
 
+        /// <summary>Nuit noire (lampadaires tout allumés, de 19 h 30 à l'aube) : tout le monde doit être rentré.</summary>
+        public static bool IsDark(float hour) => World.DayCycleMath.LampLevel(hour) >= 0.999f;
+
         /// <summary>Prochain but de balade : un point au hasard dans le disque autour du coin préféré.</summary>
         public static Vector2 WanderTarget(System.Random random, Vector2 anchor, float radius)
         {

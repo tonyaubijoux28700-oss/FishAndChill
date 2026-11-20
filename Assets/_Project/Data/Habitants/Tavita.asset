@@ -31,8 +31,8 @@ MonoBehaviour:
     HairFlower: {r: 0, g: 0, b: 0, a: 0}
     Glasses: 0
     Child: 0
-  _leaveHour: 6
-  _homeHour: 18
+  _leaveHour: 7
+  _homeHour: 17.5
   _wanderRadius: 4
   _speed: 1.3
   _minPause: 3
