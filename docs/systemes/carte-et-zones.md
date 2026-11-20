@@ -97,7 +97,7 @@
   la boutique près du départ. Aménagement **ordonné** : parvis symétrique devant l'aquarium + allée centrale de 3 cases
   dans l'axe de la porte (lampadaires en paires), chemins **droits à angles droits** de 3 cases (`BestZPath` : un seul
   virage choisi pour éviter l'eau, les bâtiments et le sable) : plage → bout de l'allée, boutique → chemin principal
-  en T. Décor de l'aquarium posé en miroir (`Mirror`, variantes imposées), lampadaires réguliers à 3 cases minimum
+  en T. Décor de l'aquarium posé en miroir (`Mirror`, variantes imposées), lampadaires espacés (deux aux coins avant du parvis, paires toutes les 7 cases dans l'allée, un toutes les 12 cases le long des chemins, `LampSpacing`) à 4 cases minimum
   les uns des autres. Pavés sur la couche `Rendu - Pavés` (double grille, bords arrondis). Décor sur `Décor`
   (`DecorArt`, `Art/Tiles/Decor/`) : haies au pied des façades, massifs, lampadaires, tonneaux et
   caisses de la boutique, panneau indicateur, buissons et rochers. Les cocotiers évitent tout ça (`Result.Reserved`).

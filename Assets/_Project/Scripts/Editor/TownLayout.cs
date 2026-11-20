@@ -48,7 +48,7 @@ namespace FishAndChill.Editor
         private const int PlazaHalfWidth = 7;
         private const int PlazaDepth = 5;
         private const int AvenueLength = 6;
-        private const int LampSpacing = 6;
+        private const int LampSpacing = 12;
 
         /// <summary>
         /// Zone infranchissable d'un élément de décor : seulement son pied (on passe derrière un lampadaire, pas à
@@ -406,9 +406,9 @@ namespace FishAndChill.Editor
                         return;
                     }
 
-                    // Pas deux lampadaires collés : au moins 3 cases entre eux.
+                    // Pas deux lampadaires serrés : au moins 4 cases entre eux (une paire de part et d'autre de l'allée).
                     bool bothLamps = kind == DecorKind.Lamp && other.Kind == DecorKind.Lamp;
-                    if (bothLamps && Mathf.Abs(other.Cell.x - x) < 3 && Mathf.Abs(other.Cell.y - y) < 3)
+                    if (bothLamps && Mathf.Abs(other.Cell.x - x) < 4 && Mathf.Abs(other.Cell.y - y) < 4)
                     {
                         return;
                     }
@@ -436,10 +436,9 @@ namespace FishAndChill.Editor
 
                 Mirror(4, ay - 3, DecorKind.FlowerBed, 0, allowOnPaving: true);
 
-                // Lampadaires aux quatre coins du parvis, puis en paires le long de l'allée.
-                Mirror(PlazaHalfWidth + 1, ay - 1, DecorKind.Lamp);
+                // Lampadaires aux deux coins avant du parvis, puis en paires espacées le long de l'allée.
                 Mirror(PlazaHalfWidth + 1, ay - PlazaDepth, DecorKind.Lamp);
-                for (int y = ay - PlazaDepth - 2; y >= _avenueEnd; y -= 3)
+                for (int y = ay - PlazaDepth - 6; y >= _avenueEnd; y -= 7)
                 {
                     Mirror(2, y, DecorKind.Lamp);
                 }
@@ -478,13 +477,12 @@ namespace FishAndChill.Editor
                 Put(hx + 4, hy + 4, DecorKind.Bush, 0);
             }
 
-            /// <summary>Laboratoire : deux lampadaires encadrant la cour, des rochers et un buisson sur les côtés.</summary>
+            /// <summary>Laboratoire : un lampadaire au bord de la cour, des rochers et un buisson sur les côtés.</summary>
             public void DecorateLab()
             {
                 int lx = _lab.x;
                 int ly = _lab.y;
                 Put(lx - 3, ly - 3, DecorKind.Lamp);
-                Put(lx + 3, ly - 3, DecorKind.Lamp);
                 Put(lx - 4, ly + 1, DecorKind.Bush, 1);
                 Put(lx + 4, ly + 1, DecorKind.Crates, allowOnPaving: true);
                 Put(lx + 4, ly + 4, DecorKind.Rock, 0);
