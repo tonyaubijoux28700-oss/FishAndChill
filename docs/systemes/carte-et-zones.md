@@ -103,12 +103,20 @@
   caisses de la boutique, panneau indicateur, buissons et rochers. Les cocotiers évitent tout ça (`Result.Reserved`).
   **Décor et troncs de cocotiers sont solides** : leur pied (`TownLayout.Footprint` / `PalmFootprint`) est enregistré
   dans `WorldMap._staticObstacles` à la génération ; `CanStandAt` teste la boîte du joueur contre chaque obstacle.
-- **Maisons des habitants** (`Editor/VillageArt`, style en volume, 128×128 px, 4 cases de large ; façades seules, on
-  n'y entre pas encore) : **trois**, éparpillées aux coins libres de l'île par `MapSetup.FindVillagerSite` (départs
-  nord-ouest, nord-est, sud-est ; 14 cases au moins de l'aquarium, 12 des autres bâtiments, 22 entre elles) : cabane du
-  pêcheur (planches bleues, toit de palmes, filet, bouée), maison pastel (enduit pêche, tuiles, volets verts) et
-  chaumière de pierre (chaume moussu, porte ronde, lanterne). `VillageArt` a aussi la maison jaune à véranda (modèle 2)
-  et une maison pastel lavande (`tint` 1), pas encore posées. Objets « Maison d'habitant N » (`Art/Buildings/Hameau/`),
-  pied solide 3,8×2,4. Chacune a sa petite cour pavée et un chemin vers le pavé le plus proche (`TownLayout.PavePaths`),
-  un buisson ou un massif à côté (`DecorateVillagers`).
+- **Maisons des habitants** (`World/VillagerHouseBuilding`, façades `Editor/VillageArt` 128×128 px, intérieurs
+  `Editor/HomeArt` 288×224 px = 9×7 cases, style en volume) : **trois**, éparpillées aux coins libres de l'île par
+  `MapSetup.FindVillagerSite` (départs nord-ouest, nord-est, sud-est ; 14 cases au moins de l'aquarium, 12 des autres
+  bâtiments, 22 entre elles), posées par `MapSetup.BuildVillagerHouse` (modèles `VillagerLooks` = 0, 1, 3). On y entre
+  comme dans les autres bâtiments ; pièces hors de l'île, espacées de 14 cases (la caméra voit plus haut qu'une pièce de
+  7 cases). Meubles peints dans le décor, pieds infranchissables (`HomeArt.Obstacles` → `_furniture`), habitants
+  debout et solides (`HomeArt.Residents` → `_residents`, dessins `CharacterArt`) :
+  - cabane du pêcheur (planches bleues, toit de palmes) : poêle, poisson empaillé, filet, bouée, tonneaux, table au
+    poisson grillé ; **le vieux pêcheur** (ciré jaune, bonnet à pompon, barbe grise) ;
+  - maison pastel (enduit pêche, tuiles) : canapé, bibliothèque, table fleurie, jouets ; **la maman** (robe rouge à
+    fleurs, hibiscus) et **l'enfant** (t-shirt rayé) ;
+  - chaumière de pierre : cheminée et chaudron, fauteuil à bascule, petit lit à courtepointe, chat endormi ; **la
+    grand-mère** (chignon blanc, lunettes, gilet violet).
+  Les habitants ne parlent pas encore. `VillageArt` a aussi la maison jaune à véranda (modèle 2) et une maison pastel
+  lavande (`tint` 1), pas encore posées. Chaque maison a sa petite cour pavée, un chemin vers le pavé le plus proche
+  (`TownLayout.PavePaths`) et un buisson à côté (`DecorateVillagers`).
 

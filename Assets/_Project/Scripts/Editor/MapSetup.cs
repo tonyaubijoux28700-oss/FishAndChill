@@ -290,28 +290,6 @@ namespace FishAndChill.Editor
             var lighthousePosition = new Vector3(bounds.xMin + lighthouseCell.x + 0.5f, bounds.yMin + lighthouseCell.y, 0f);
             staticObstacles.Add(new Rect(lighthousePosition.x - 0.95f, lighthousePosition.y - 0.1f, 1.9f, 0.9f));
 
-            // Maisons des habitants (façades seules pour l'instant) : pied de chaque façade solide.
-            const string villageFolder = "Assets/_Project/Art/Buildings/Hameau";
-            PixelArt.EnsureFolder(villageFolder);
-            (int variant, int tint)[] villageLooks = { (0, 0), (1, 0), (3, 0) };   // cabane du pêcheur, maison pastel, chaumière
-            for (int i = 0; i < 8; i++)
-            {
-                GameObject old = GameObject.Find($"Maison d'habitant {i + 1}");
-                if (i >= villagerCells.Count && old != null) Object.DestroyImmediate(old);
-            }
-
-            for (int i = 0; i < villagerCells.Count; i++)
-            {
-                (int variant, int tint) look = villageLooks[i % villageLooks.Length];
-                Sprite facade = PixelArt.Save($"{villageFolder}/Maison_{look.variant}_{look.tint}.png", VillageArt.House(look.variant, look.tint),
-                    VolumeCanvas.PixelsPerUnit, VillageArt.Pivot);
-                GameObject home = EnsureObject($"Maison d'habitant {i + 1}", null);
-                var foot = new Vector3(bounds.xMin + villagerCells[i].x + 0.5f, bounds.yMin + villagerCells[i].y, 0f);
-                home.transform.position = foot;
-                SetSprite(home, facade, 10);
-                staticObstacles.Add(new Rect(foot.x - 1.9f, foot.y - 0.1f, 3.8f, 2.4f));
-            }
-
             // Ponton de l'île : sur la plage sud, à côté du point de départ, vers le large.
             DockInfo islandDock = BuildDock(mapObject.transform, "Ponton - Île Mahana", terrain, bounds, spawn, Vector2Int.down);
 
@@ -434,6 +412,23 @@ namespace FishAndChill.Editor
             var petShopPosition = new Vector3(bounds.xMin + petShopCell.x + 0.5f, bounds.yMin + petShopCell.y, 0f);
             var petShopInterior = new Vector2(bounds.xMax + 20f, bounds.yMin + 30f);
             PetShopBuilding petShop = BuildPetShop(petShopPosition, petShopInterior, worldMap, player.GetComponent<PlayerMovement>(), follow);
+
+            // Maisons des habitants : on y entre ; intérieurs au-dessus de celui de l'animalerie, bien espacés (la caméra
+            // voit plus haut que ces petites pièces).
+            for (int i = 0; i < villagerCells.Count; i++)
+            {
+                var foot = new Vector3(bounds.xMin + villagerCells[i].x + 0.5f, bounds.yMin + villagerCells[i].y, 0f);
+                BuildVillagerHouse(i, foot, new Vector2(bounds.xMax + 20f, bounds.yMin + 44f + i * 14f), worldMap, player.GetComponent<PlayerMovement>(), follow);
+            }
+
+            for (int i = villagerCells.Count; i < 8; i++)
+            {
+                foreach (string name in new[] { $"Maison d'habitant {i + 1}", $"Maison d'habitant {i + 1} - Intérieur" })
+                {
+                    GameObject old = GameObject.Find(name);
+                    if (old != null) Object.DestroyImmediate(old);
+                }
+            }
 
             BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, atollTiles, shop, aquarium, house.transform, lighthouse.transform, lab.transform, petShop.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker, atollDock.Marker });
             return new Buildings
@@ -2027,6 +2022,75 @@ namespace FishAndChill.Editor
             keeperObject.transform.position = petShop.KeeperSpot;
             SetSprite(keeperObject, keeper, 10);
             return petShop;
+        }
+
+        /// <summary>Modèle de façade de chaque maison d'habitant (cabane du pêcheur, maison pastel, chaumière).</summary>
+        private static readonly int[] VillagerLooks = { 0, 1, 3 };
+
+        /// <summary>
+        /// Une maison d'habitant : façade sur l'île (<see cref="VillageArt"/>), pièce hors de l'île (<see cref="HomeArt"/>)
+        /// avec ses habitants debout ; meubles et habitants infranchissables.
+        /// </summary>
+        private static void BuildVillagerHouse(int index, Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow)
+        {
+            const string folder = "Assets/_Project/Art/Buildings/Hameau";
+            PixelArt.EnsureFolder(folder);
+            int ppu = VolumeCanvas.PixelsPerUnit;
+            int look = VillagerLooks[index % VillagerLooks.Length];
+            Sprite facade = PixelArt.Save($"{folder}/Maison_{look}_0.png", VillageArt.House(look), ppu, VillageArt.Pivot);
+            Sprite interior = PixelArt.Save($"{folder}/Maison_{look}_Interieur.png", HomeArt.Interior(look), ppu, Vector2.zero);
+
+            GameObject go = EnsureObject($"Maison d'habitant {index + 1}", null);
+            go.transform.position = position;
+            SetSprite(go, facade, 10);
+            var house = go.GetComponent<VillagerHouseBuilding>();
+            if (house == null)
+            {
+                house = go.AddComponent<VillagerHouseBuilding>();
+            }
+
+            var so = new SerializedObject(house);
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_camera").objectReferenceValue = follow;
+            so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
+            so.FindProperty("_footprint").vector2Value = new Vector2(3.8f, 2.4f);
+            Rect[] furniture = HomeArt.Obstacles(look);
+            SerializedProperty furnitureList = so.FindProperty("_furniture");
+            furnitureList.arraySize = furniture.Length;
+            for (int i = 0; i < furniture.Length; i++) furnitureList.GetArrayElementAtIndex(i).rectValue = furniture[i];
+            (string Name, Vector2 Feet)[] residents = HomeArt.Residents(look);
+            SerializedProperty residentList = so.FindProperty("_residents");
+            residentList.arraySize = residents.Length;
+            for (int i = 0; i < residents.Length; i++) residentList.GetArrayElementAtIndex(i).vector2Value = residents[i].Feet;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            GameObject room = EnsureObject($"Maison d'habitant {index + 1} - Intérieur", null);
+            room.transform.position = interiorOrigin;
+            GameObject floor = EnsureObject("Sol et murs", room.transform);
+            floor.transform.localPosition = Vector3.zero;
+            SetSprite(floor, interior, -5).spriteSortPoint = SpriteSortPoint.Center;
+            for (int i = 0; i < 4; i++)
+            {
+                Transform old = room.transform.Find($"Habitant {i + 1}");
+                if (old != null && i >= residents.Length) Object.DestroyImmediate(old.gameObject);
+            }
+
+            for (int i = 0; i < residents.Length; i++)
+            {
+                Color[,] pixels = residents[i].Name switch
+                {
+                    "Vieux pêcheur" => CharacterArt.OldFisherman(),
+                    "Maman" => CharacterArt.Mother(),
+                    "Enfant" => CharacterArt.Child(),
+                    _ => CharacterArt.Grandmother(),
+                };
+                string file = residents[i].Name switch { "Vieux pêcheur" => "Vieux_Pecheur", "Maman" => "Maman", "Enfant" => "Enfant", _ => "Grand_Mere" };
+                Sprite sprite = PixelArt.Save($"Assets/_Project/Art/Characters/{file}.png", pixels, TileArt.Size, CharacterArt.Pivot);
+                GameObject resident = EnsureObject($"Habitant {i + 1}", room.transform);
+                resident.transform.position = interiorOrigin + residents[i].Feet;
+                SetSprite(resident, sprite, 10);
+            }
         }
 
         /// <summary>Le phare, au pied de sa case : la nuit, sa lanterne s'allume et un faisceau balaie la mer.</summary>

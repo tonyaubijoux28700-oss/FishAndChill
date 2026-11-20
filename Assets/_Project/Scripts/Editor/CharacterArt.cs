@@ -515,5 +515,165 @@ namespace FishAndChill.Editor
             c.Paint(8, 11, Color.Lerp(KeeperSkin, Lips, 0.6f));
             return c.Render();
         }
+
+        // ---------- Habitants de l'île ----------
+
+        /// <summary>
+        /// Corps d'habitant commun (de face, 16×24) : chaussures, jambes ou jupe, haut, bras et visage. Le reste
+        /// (cheveux, chapeau, détails) est ajouté par chacun.
+        /// </summary>
+        private static Canvas Villager(Color skin, Color top, Color legs, Color shoes, bool skirt, int sleeveEnd = 17)
+        {
+            var c = new Canvas();
+            c.Cylinder(5, 21, 6, 22, legs, skirt ? Part.Shirt : Part.Shorts);
+            c.Cylinder(9, 21, 10, 22, legs, skirt ? Part.Shirt : Part.Shorts);
+            if (skirt)
+            {
+                c.Cylinder(4, 19, 11, 22, legs, Part.Shirt);
+            }
+
+            c.Cylinder(5, 23, 6, 23, shoes, Part.Sandal);
+            c.Cylinder(9, 23, 10, 23, shoes, Part.Sandal);
+            c.Cylinder(3, 13, 12, 20, top, Part.Shirt, roundTop: true);
+            foreach ((int x, float light) in new[] { (2, 1f), (13, 0.72f) })
+            {
+                for (int y = 13; y <= 18; y++)
+                {
+                    bool sleeve = y <= sleeveEnd;
+                    c.Set(x, y, sleeve ? top : skin, sleeve ? Part.Shirt : Part.Skin, y == 18 ? light + 0.1f : light);
+                }
+            }
+
+            c.Ellipse(8f, 9.8f, 3.75f, 3.1f, skin, Part.Skin);
+            for (int x = 5; x <= 10; x++)
+            {
+                for (int y = 8; y <= 11; y++)
+                {
+                    if (c.Is(x, y, Part.Skin)) c.Light[x, y] = Mathf.Max(c.Light[x, y], 1f);
+                }
+            }
+
+            return c;
+        }
+
+        private static void Face(Canvas c, Color skin, int drop = 0, bool smile = true)
+        {
+            c.Flat(6, 9 + drop, Eye, Part.Skin);
+            c.Flat(9, 9 + drop, Eye, Part.Skin);
+            c.Paint(5, 10 + drop, Color.Lerp(skin, Blush, 0.35f));
+            c.Paint(10, 10 + drop, Color.Lerp(skin, Blush, 0.35f));
+            if (smile)
+            {
+                c.Paint(7, 11 + drop, Color.Lerp(skin, Lips, 0.55f));
+                c.Paint(8, 11 + drop, Color.Lerp(skin, Lips, 0.55f));
+            }
+        }
+
+        /// <summary>Le vieux pêcheur : ciré jaune, bonnet de laine bleu à pompon, grande barbe grise, bottes.</summary>
+        public static Color[,] OldFisherman()
+        {
+            Color skin = new Color(0.80f, 0.56f, 0.40f);
+            Color slicker = new Color(0.98f, 0.80f, 0.20f);
+            Color beard = new Color(0.86f, 0.86f, 0.84f);
+            var c = Villager(skin, slicker, new Color(0.24f, 0.30f, 0.46f), new Color(0.22f, 0.24f, 0.26f), false);
+            for (int y = 14; y <= 19; y++) c.Paint(7, y, Color.Lerp(slicker, Color.black, 0.18f), Part.Shirt);   // fermeture du ciré
+            Face(c, skin, smile: false);
+            c.Ellipse(8f, 12.4f, 3.4f, 2.3f, beard, Part.Hair);   // barbe
+            c.Set(7, 11, beard, Part.Hair, 1f);
+            c.Set(8, 11, beard, Part.Hair, 1f);
+            c.Ellipse(8f, 6.2f, 4.1f, 2.4f, new Color(0.22f, 0.36f, 0.66f), Part.Hat);   // bonnet
+            for (int x = 4; x <= 11; x++) c.Set(x, 7, new Color(0.18f, 0.28f, 0.54f), Part.Hat, 0.9f);
+            c.Ellipse(8f, 3.6f, 1.4f, 1.2f, new Color(0.92f, 0.30f, 0.26f), Part.Hat);  // pompon
+            return c.Render();
+        }
+
+        /// <summary>La maman : robe rouge à fleurs blanches, longs cheveux noirs, fleur d'hibiscus à l'oreille.</summary>
+        public static Color[,] Mother()
+        {
+            Color skin = new Color(0.66f, 0.44f, 0.30f);
+            Color dress = new Color(0.86f, 0.26f, 0.30f);
+            var c = Villager(skin, dress, dress, new Color(0.56f, 0.36f, 0.22f), true, sleeveEnd: 14);
+            foreach ((int x, int y) in new[] { (5, 15), (9, 14), (11, 17), (6, 19), (9, 21), (5, 22) })
+            {
+                c.Paint(x, y, new Color(0.98f, 0.94f, 0.90f), Part.Shirt);   // fleurs de la robe
+            }
+
+            Face(c, skin);
+            Color hair = new Color(0.12f, 0.08f, 0.07f);
+            c.Ellipse(8f, 6.3f, 4f, 2.2f, hair, Part.Hair);
+            for (int y = 8; y <= 15; y++)
+            {
+                c.Set(3, y, hair, Part.Hair, 0.95f);
+                c.Set(4, y, hair, Part.Hair, 1f);
+                c.Set(11, y, hair, Part.Hair, 0.75f);
+                c.Set(12, y, hair, Part.Hair, 0.7f);
+            }
+
+            c.Flat(11, 6, new Color(1f, 0.46f, 0.56f), Part.Hat);
+            c.Flat(12, 7, new Color(1f, 0.46f, 0.56f), Part.Hat);
+            c.Flat(11, 7, new Color(1f, 0.86f, 0.36f), Part.Hat);
+            return c.Render();
+        }
+
+        /// <summary>L'enfant : plus petit, t-shirt à rayures bleues, short orange, cheveux bruns en épis.</summary>
+        public static Color[,] Child()
+        {
+            Color skin = new Color(0.70f, 0.48f, 0.32f);
+            Color shirt = new Color(0.98f, 0.98f, 0.94f);
+            var c = new Canvas();
+            c.Cylinder(5, 22, 6, 22, skin, Part.Skin);
+            c.Cylinder(9, 22, 10, 22, skin, Part.Skin);
+            c.Cylinder(5, 23, 6, 23, new Color(0.30f, 0.56f, 0.86f), Part.Sandal);
+            c.Cylinder(9, 23, 10, 23, new Color(0.30f, 0.56f, 0.86f), Part.Sandal);
+            c.Cylinder(4, 19, 11, 21, new Color(0.96f, 0.64f, 0.26f), Part.Shorts);
+            c.Cylinder(4, 15, 11, 19, shirt, Part.Shirt, roundTop: true);
+            for (int x = 4; x <= 11; x++)
+            {
+                c.Paint(x, 16, new Color(0.26f, 0.48f, 0.84f), Part.Shirt);
+                c.Paint(x, 18, new Color(0.26f, 0.48f, 0.84f), Part.Shirt);
+            }
+
+            foreach ((int x, float light) in new[] { (3, 1f), (12, 0.72f) })
+            {
+                for (int y = 15; y <= 19; y++) c.Set(x, y, y <= 16 ? shirt : skin, y <= 16 ? Part.Shirt : Part.Skin, light);
+            }
+
+            c.Ellipse(8f, 12.2f, 3.6f, 3f, skin, Part.Skin);
+            for (int x = 5; x <= 10; x++)
+            {
+                for (int y = 11; y <= 14; y++)
+                {
+                    if (c.Is(x, y, Part.Skin)) c.Light[x, y] = Mathf.Max(c.Light[x, y], 1f);
+                }
+            }
+
+            Color hair = new Color(0.36f, 0.22f, 0.12f);
+            c.Ellipse(8f, 9f, 3.9f, 2f, hair, Part.Hair);
+            foreach ((int x, int y) in new[] { (5, 7), (7, 6), (9, 6), (11, 7) }) c.Set(x, y, hair, Part.Hair, 1.05f);
+            Face(c, skin, drop: 3);
+            return c.Render();
+        }
+
+        /// <summary>La grand-mère : chignon blanc, lunettes rondes, gilet violet sur un chemisier, longue jupe grise.</summary>
+        public static Color[,] Grandmother()
+        {
+            Color skin = new Color(0.94f, 0.78f, 0.66f);
+            Color cardigan = new Color(0.56f, 0.40f, 0.70f);
+            var c = Villager(skin, cardigan, new Color(0.52f, 0.52f, 0.56f), new Color(0.30f, 0.20f, 0.14f), true);
+            for (int y = 14; y <= 18; y++) c.Paint(7, y, new Color(0.96f, 0.94f, 0.88f), Part.Shirt);   // chemisier
+            c.Paint(8, 15, new Color(0.96f, 0.94f, 0.88f), Part.Shirt);
+            Face(c, skin);
+            Color white = new Color(0.94f, 0.94f, 0.92f);
+            c.Ellipse(8f, 6.4f, 3.9f, 2.1f, white, Part.Hair);
+            c.Set(4, 8, white, Part.Hair, 0.95f);
+            c.Set(11, 8, white, Part.Hair, 0.75f);
+            c.Ellipse(8f, 3.6f, 2f, 1.6f, white, Part.Hair);   // chignon
+            Color frame = new Color(0.62f, 0.46f, 0.30f);
+            c.Paint(5, 9, frame);
+            c.Paint(7, 9, frame);
+            c.Paint(8, 9, frame);
+            c.Paint(10, 9, frame);
+            return c.Render();
+        }
     }
 }
