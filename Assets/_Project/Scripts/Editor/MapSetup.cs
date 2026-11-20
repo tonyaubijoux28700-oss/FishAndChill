@@ -296,7 +296,7 @@ namespace FishAndChill.Editor
             // Le lac d'Annecy, loin à l'est (au-delà des intérieurs des bâtiments), avec son propre ponton.
             TileSet lakeTiles = CreateLakeTiles();
             var lakeBounds = new BoundsInt(bounds.xMax + LakeGap, -LakeSettings.Height / 2, 0, LakeSettings.Width, LakeSettings.Height, 1);
-            DockInfo lakeDock = BuildLake(mapObject.transform, lakeBounds, lakeTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, decorMap, staticObstacles);
+            DockInfo lakeDock = BuildLake(mapObject.transform, lakeBounds, lakeTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
 
             // Le fleuve amazonien, encore plus à l'est, avec son ponton.
             TileSet amazonTiles = CreateAmazonTiles();
@@ -334,7 +334,7 @@ namespace FishAndChill.Editor
             var reefRegion = new Rect(reefBounds.xMin, reefBounds.yMin, reefBounds.size.x, reefBounds.size.y);
             var atollRegion = new Rect(atollBounds.xMin, atollBounds.yMin, atollBounds.size.x, atollBounds.size.y);
             worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion },
-                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area });
+                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, LakeBridgeArea });
             BuildAtollLife(mapObject.transform, worldMap, player.transform, atollDock.Area);
             BuildReefLife(mapObject.transform, worldMap, player.transform, reefDock.Area);
             BuildJapanLife(mapObject.transform, worldMap, player.transform, japanDock.Area);
@@ -694,15 +694,22 @@ namespace FishAndChill.Editor
             }
         }
 
-        /// <summary>Dessine le lac dans les couches de la carte (sans effacer l'île), ses sapins et son ponton.</summary>
+        /// <summary>
+        /// Dessine le lac d'après son plan (<see cref="LakePlan"/>) dans les couches de la carte, sans effacer l'île :
+        /// eau, galets et prés, chemin de terre, falaise et cascade au pied des montagnes, prairie fleurie, forêts,
+        /// roseaux, nénuphars, rochers, herbes hautes, îlot, passerelle, chalet et montagnes enneigées ; puis le ponton.
+        /// </summary>
         private static DockInfo BuildLake(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
-            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap decorMap, List<Rect> obstacles)
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap pavingLayer, Tilemap decorMap, List<Rect> obstacles)
         {
-            TerrainType[,] terrain = LakeGenerator.Generate(LakeSettings);
+            LakePlan plan = LakePlan.Build();
+            TerrainType[,] terrain = plan.Terrain;
             int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
             int width = terrain.GetLength(0);
             int height = terrain.GetLength(1);
             int seed = LakeSettings.Seed;
+            Vector3Int Cell(int x, int y) => new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0);
+            Vector3 World(float x, float y) => new Vector3(bounds.xMin + x, bounds.yMin + y, 0f);
 
             var waterTiles = new TileBase[width * height];
             var landTiles = new TileBase[width * height];
@@ -713,93 +720,198 @@ namespace FishAndChill.Editor
                     int index = x + y * width;
                     float hash = IslandGenerator.CellHash(x, y, seed);
                     waterTiles[index] = tiles.Deep[hash < 0.5f ? 0 : 1];
-                    if (terrain[x, y] == TerrainType.Sand)
-                    {
-                        landTiles[index] = tiles.Sand[hash < 0.88f ? 0 : hash < 0.95f ? 1 : 2];
-                    }
-                    else if (terrain[x, y] == TerrainType.Grass)
-                    {
-                        landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
-                    }
+                    if (terrain[x, y] == TerrainType.Sand) landTiles[index] = tiles.Sand[hash < 0.88f ? 0 : hash < 0.95f ? 1 : 2];
+                    else if (terrain[x, y] == TerrainType.Grass) landTiles[index] = tiles.Grass[0];
                 }
             }
 
             waterMap.SetTilesBlock(bounds, waterTiles);
             landMap.SetTilesBlock(bounds, landTiles);
-            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance, tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
+            // Hauts-fonds étroits (2 cases) : le lac est petit, le bleu profond garde une forme ronde.
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= 2, tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
             FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
-            FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
-
-            // Ponton sur la rive sud, vers le nord (le large du lac).
-            int cx = width / 2;
-            int cy = height / 2;
-            while (cy > 1 && terrain[cx, cy] == TerrainType.Water)
+            // Herbe unie partout ; les fleurs ne poussent que dans la prairie et autour du chalet.
+            FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, new[] { tiles.GrassFull[0], tiles.GrassFull[0] }, seed + 4, false);
+            bool Flower(int x, int y) => x >= 0 && y >= 0 && x < width && y < height && plan.Flowers[x, y];
+            for (int x = 0; x < width - 1; x++)
             {
-                cy--;
+                for (int y = 0; y < height - 1; y++)
+                {
+                    if (Flower(x, y) && Flower(x + 1, y) && Flower(x, y + 1) && Flower(x + 1, y + 1))
+                    {
+                        grassLayer.SetTile(Cell(x, y), tiles.GrassFull[IslandGenerator.CellHash(x, y, seed + 9) < 0.5f ? 1 : 2]);
+                    }
+                }
             }
 
-            DockInfo dock = BuildDock(mapRoot, "Ponton - Lac d'Annecy", terrain, bounds, new Vector2Int(cx, cy - 1), Vector2Int.up);
+            // Chemin de terre battue (double grille, sur la couche des pavés de l'île).
+            var dirt = new TransitionArt.Style
+            {
+                Fill = LakeTerrainArt.DirtFill(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.50f, 0.37f, 0.24f), InnerBlend = 0.7f,
+                OuterBand = 0.06f, OuterColor = LakeArt.Meadow(new Color(0.30f, 0.52f, 0.26f)), DitherOuter = true,
+            };
+            Tile[] dirtEdges = SaveEdges("LacChemin", dirt);
+            Tile[] dirtFull = { dirtEdges[15], SaveTile("Bords/LacChemin_15b", LakeTerrainArt.DirtFill(1), Vector2.one * 0.5f, TileArt.Size) };
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Path[x, y], dirtEdges, dirtFull, seed + 5, false);
+
+            // Falaise au pied des montagnes (couche « Rendu - Falaises », au-dessus du sol) et cascade animée.
+            Tilemap cliffLayer = EnsureTilemap(mapRoot, "Rendu - Falaises", -10, TilemapRenderer.Mode.Chunk);
+            cliffLayer.ClearAllTiles();
+            cliffLayer.transform.localPosition = Vector3.zero;
+            var cliffTop = SaveTile("Lac_Falaise_Haut", LakeTerrainArt.CliffTop(LakeArt.Meadow(TileArt.Grass(0))), Vector2.one * 0.5f, TileArt.Size);
+            var faces = new Tile[3];
+            var bases = new Tile[3];
+            for (int i = 0; i < 3; i++)
+            {
+                faces[i] = SaveTile($"Lac_Falaise_Paroi_{i}", LakeTerrainArt.CliffFace(i), Vector2.one * 0.5f, TileArt.Size);
+                bases[i] = SaveTile($"Lac_Falaise_Pied_{i}", LakeTerrainArt.CliffBase(i), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            var waterfall = new Tile[3, 3];
+            for (int c = 0; c < 3; c++)
+            {
+                for (int r = 0; r < 3; r++)
+                {
+                    int column = c, row = r;
+                    waterfall[c, r] = SaveAnimatedWater($"Lac_Cascade_{c}_{r}", f => LakeTerrainArt.Waterfall(column, row, f));
+                }
+            }
+
+            for (int x = 0; x < width; x++)
+            {
+                int ridge = plan.Ridge[x];
+                int variant = Mathf.FloorToInt(IslandGenerator.CellHash(x, 0, seed + 11) * 3f) % 3;
+                int fall = x - (plan.Waterfall.x - 1);
+                if (fall >= 0 && fall < 3)
+                {
+                    for (int r = 0; r < 3; r++) cliffLayer.SetTile(Cell(x, ridge - 2 + r), waterfall[fall, r]);
+                }
+                else
+                {
+                    if (ridge < height) cliffLayer.SetTile(Cell(x, ridge), cliffTop);
+                    cliffLayer.SetTile(Cell(x, ridge - 1), faces[variant]);
+                    cliffLayer.SetTile(Cell(x, ridge - 2), bases[variant]);
+                }
+
+                // Plateau et falaise : infranchissables (un rectangle par colonne).
+                obstacles.Add(new Rect(bounds.xMin + x, bounds.yMin + ridge - 2, 1f, height - ridge + 2));
+            }
+
+            // Ponton sur la rive sud, au bout du petit chemin, vers le nord.
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Lac d'Annecy", terrain, bounds, plan.DockFoot, Vector2Int.up);
             Vector2 dockCell = dock.Area.center - new Vector2(bounds.xMin, bounds.yMin);
             var taken = new bool[width, height];
             bool NearDock(int x, int y, int margin) => Mathf.Abs(x - dockCell.x) <= 3 + margin && Mathf.Abs(y - dockCell.y) <= 5 + margin;
             void Put(int x, int y, Tile tile)
             {
                 taken[x, y] = true;
-                decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tile);
+                decorMap.SetTile(Cell(x, y), tile);
             }
 
+            // Passerelle sur le torrent : on y marche comme sur le ponton.
+            if (plan.Bridge.width > 0)
+            {
+                Sprite bridge = PixelArt.Save($"{TilesFolder}/Lac_Passerelle.png", LakeLandmarkArt.Bridge(plan.Bridge.width, plan.Bridge.height), TileArt.Size, new Vector2(0f, 2f / (plan.Bridge.height * 16 + 4)));
+                GameObject bridgeObject = EnsureObject("Passerelle du lac", mapRoot);
+                bridgeObject.transform.position = World(plan.Bridge.xMin, plan.Bridge.yMin);
+                SetSprite(bridgeObject, bridge, -9).spriteSortPoint = SpriteSortPoint.Center;
+                LakeBridgeArea = new Rect(bounds.xMin + plan.Bridge.xMin - 0.2f, bounds.yMin + plan.Bridge.yMin, plan.Bridge.width + 0.4f, plan.Bridge.height);
+                for (int x = plan.Bridge.xMin; x < plan.Bridge.xMax; x++)
+                {
+                    for (int y = plan.Bridge.yMin; y < plan.Bridge.yMax; y++) taken[x, y] = true;
+                }
+            }
+
+            // Chalet savoyard au bout de la presqu'île.
+            Sprite chalet = PixelArt.Save("Assets/_Project/Art/Buildings/Lac_Chalet.png", LakeLandmarkArt.Chalet(), VolumeCanvas.PixelsPerUnit, LakeLandmarkArt.ChaletPivot);
+            GameObject chaletObject = EnsureObject("Chalet du lac", mapRoot);
+            chaletObject.transform.position = World(plan.Chalet.x + 0.5f, plan.Chalet.y);
+            SetSprite(chaletObject, chalet, 10);
+            obstacles.Add(new Rect(bounds.xMin + plan.Chalet.x + 0.5f - 1.8f, bounds.yMin + plan.Chalet.y - 0.1f, 3.6f, 2.4f));
+            for (int x = plan.Chalet.x - 2; x <= plan.Chalet.x + 2; x++)
+            {
+                for (int y = plan.Chalet.y; y <= plan.Chalet.y + 3; y++) taken[x, y] = true;
+            }
+
+            // Montagnes enneigées au fond, sur le plateau.
+            for (int i = 0; i < 3; i++)
+            {
+                Sprite mountain = PixelArt.Save($"{TilesFolder}/Lac_Montagne_{i % 2}.png", LakeLandmarkArt.Mountain(i % 2), VolumeCanvas.PixelsPerUnit, LakeLandmarkArt.MountainPivot);
+                GameObject mountainObject = EnsureObject($"Montagne du lac {i + 1}", mapRoot);
+                mountainObject.transform.position = World(13f + i * 27f, height - 7f + (i == 1 ? 1f : 0f));
+                SetSprite(mountainObject, mountain, 10);
+            }
+
+            Tile[] flowerClumps = { SaveTile("Lac_Fleurs_0", LakeTerrainArt.FlowerClump(0), new Vector2(0.5f, 1f / 16f), TileArt.Size),
+                SaveTile("Lac_Fleurs_1", LakeTerrainArt.FlowerClump(1), new Vector2(0.5f, 1f / 16f), TileArt.Size),
+                SaveTile("Lac_Fleurs_2", LakeTerrainArt.FlowerClump(2), new Vector2(0.5f, 1f / 16f), TileArt.Size) };
+            Tile[] broadleaves = { SaveTile("Lac_Hetre", LakeTerrainArt.Broadleaf(0), LakeTerrainArt.TreePivot, TileArt.Size),
+                SaveTile("Lac_Bouleau", LakeTerrainArt.Broadleaf(1), LakeTerrainArt.TreePivot, TileArt.Size) };
+            Tile[] tallGrass = { SaveTile("Lac_HerbesHautes_0", LakeTerrainArt.TallGrass(0), new Vector2(0.5f, 1f / 16f), TileArt.Size),
+                SaveTile("Lac_HerbesHautes_1", LakeTerrainArt.TallGrass(1), new Vector2(0.5f, 1f / 16f), TileArt.Size) };
             for (int y = 1; y < height - 1; y++)
             {
                 for (int x = 1; x < width - 1; x++)
                 {
+                    if (taken[x, y] || plan.Path[x, y] || plan.Plateau[x, y] || plan.Cliff[x, y]) continue;
                     float hash = IslandGenerator.CellHash(x, y, seed + 7);
                     bool besideWater = terrain[x + 1, y] == TerrainType.Water || terrain[x - 1, y] == TerrainType.Water
                         || terrain[x, y + 1] == TerrainType.Water || terrain[x, y - 1] == TerrainType.Water;
                     if (terrain[x, y] == TerrainType.Sand && besideWater && hash < 0.22f && !NearDock(x, y, 1))
                     {
-                        // Roseaux sur la rive, au ras de l'eau (on passe à travers : décor bas).
-                        Put(x, y, tiles.Reeds[hash < 0.11f ? 0 : 1]);
+                        Put(x, y, tiles.Reeds[hash < 0.11f ? 0 : 1]);   // roseaux au ras de l'eau
                     }
                     else if (terrain[x, y] == TerrainType.Water && distance[x, y] >= 2 && distance[x, y] <= 4 && hash < 0.07f && !NearDock(x, y, 3))
                     {
-                        // Nénuphars près des bords, en eau calme.
-                        Put(x, y, tiles.Lilies[Mathf.FloorToInt(hash / 0.07f * 3f) % 3]);
+                        Put(x, y, tiles.Lilies[Mathf.FloorToInt(hash / 0.07f * 3f) % 3]);   // nénuphars en eau calme
                     }
-                    else if (terrain[x, y] != TerrainType.Water && !besideWater && hash > 0.985f && !NearDock(x, y, 2))
+                    else if (terrain[x, y] == TerrainType.Grass && y + 1 < height && plan.Cliff[x, y + 1] && hash < 0.18f)
                     {
-                        // Rochers, solides comme un tronc.
-                        Put(x, y, tiles.Rocks[hash > 0.993f ? 1 : 0]);
+                        // Éboulis au pied de la falaise.
+                        Put(x, y, tiles.Rocks[hash < 0.09f ? 1 : 0]);
                         obstacles.Add(new Rect(bounds.xMin + x + 0.1f, bounds.yMin + y + 0.15f, 0.8f, 0.45f));
+                    }
+                    else if (plan.Flowers[x, y] && hash < 0.45f)
+                    {
+                        Put(x, y, flowerClumps[Mathf.FloorToInt(hash / 0.45f * 3f) % 3]);   // touffes de fleurs de la prairie
+                    }
+                    else if (terrain[x, y] == TerrainType.Grass && !plan.Flowers[x, y] && plan.Forest[x, y] < 0.3f && hash > 0.93f)
+                    {
+                        Put(x, y, tallGrass[hash > 0.965f ? 1 : 0]);   // herbes hautes (on passe à travers)
                     }
                 }
             }
 
+            foreach (Vector2Int rock in plan.WaterRocks)
+            {
+                Put(rock.x, rock.y, tiles.Rocks[(rock.x + rock.y) % 2]);
+            }
 
-            // Forêt de sapins sur les prés, plus dense que les cocotiers, jamais près du ponton.
-            var pines = new List<Vector2Int>();
+            // Forêts : sapins selon la densité du plan (un sapin au moins tous les deux pas), l'îlot et son arbre.
+            var pines = new List<Vector2Int> { plan.IsletTree };
+            decorMap.SetTile(Cell(plan.IsletTree.x, plan.IsletTree.y), tiles.Palm);
+            obstacles.Add(TownLayout.PalmFootprint(World(plan.IsletTree.x + 0.5f, plan.IsletTree.y + 0.5f)));
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 7;
-                    if (terrain[x, y] != TerrainType.Grass || nearDock || taken[x, y] || IslandGenerator.CellHash(x, y, seed + 1) > 0.09f)
-                    {
-                        continue;
-                    }
-
-                    if (pines.Exists(other => Mathf.Abs(other.x - x) < 2 && Mathf.Abs(other.y - y) < 2))
-                    {
-                        continue;
-                    }
-
+                    float density = plan.Forest[x, y];
+                    if (density <= 0f || taken[x, y] || NearDock(x, y, 1) || IslandGenerator.CellHash(x, y, seed + 1) > density) continue;
+                    if (pines.Exists(other => Mathf.Abs(other.x - x) < 2 && Mathf.Abs(other.y - y) < 2)) continue;
                     pines.Add(new Vector2Int(x, y));
-                    obstacles.Add(TownLayout.PalmFootprint(new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f)));
-                    decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tiles.Palm);
+                    if (!plan.Plateau[x, y]) obstacles.Add(TownLayout.PalmFootprint(World(x + 0.5f, y + 0.5f)));
+                    // Sapins en montagne ; en bas, un tiers de feuillus (hêtres, bouleaux) mêlés aux sapins.
+                    float kind = IslandGenerator.CellHash(x, y, seed + 21);
+                    decorMap.SetTile(Cell(x, y), plan.Plateau[x, y] || kind > 0.35f ? tiles.Palm : broadleaves[kind < 0.15f ? 1 : 0]);
                 }
             }
 
             return dock;
         }
+
+        /// <summary>La passerelle du lac (on y marche comme sur un ponton) ; posée par <see cref="BuildLake"/>.</summary>
+        private static Rect LakeBridgeArea;
 
         /// <summary>Tuiles du fleuve : celles de l'île recolorées (eau brune, vase, jungle), grands arbres et décor.</summary>
         private static TileSet CreateAmazonTiles()

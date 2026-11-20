@@ -25,10 +25,13 @@
   chevesne, tanche, carpe commune, lotte) dessinée dans `ExtraFishArt`.
   Palmiers sur la Tilemap `Décor` (tronc bloquant).
 - **Plusieurs zones sur la même grille** : chaque zone est une **région** de `WorldMap` (`SetRegions`, `CurrentRegion`) ;
-  `WorldBounds` (caméra, minimap) ne donne que la région actuelle. **Lac d'Annecy** : `LakeGenerator` (île retournée :
-  eau au centre, galets, prés ; testé), 80×60 cases, à `LakeGap` = 200 cases à l'est de l'île (au-delà des intérieurs),
-  construit par `MapSetup.BuildLake` dans les mêmes Tilemaps (tuiles de l'île recolorées par `LakeArt` : eau alpine,
-  galets, prés ; sapins). 13 espèces : 11 poissons (`AnnecyFishArt` + `PikeArt` + `ExtraFishArt`), écrevisse signal et grenouille rieuse
+  `WorldBounds` (caméra, minimap) ne donne que la région actuelle. **Lac d'Annecy** : plan dessiné `World/LakePlan`
+  (80×60 cases : montagnes enneigées au nord sur un plateau inaccessible, falaise, cascade animée et torrent franchi par
+  une passerelle praticable, lac en trois bassins, presqu'île avec chalet savoyard, îlot et son sapin, rive de galets,
+  chemin de terre qui fait le tour, prairie fleurie, forêts de sapins mêlés de hêtres et bouleaux), à `LakeGap` = 200 cases
+  à l'est de l'île (au-delà des intérieurs), construit par `MapSetup.BuildLake` dans les mêmes Tilemaps (tuiles de l'île
+  recolorées par `LakeArt` ; falaise, cascade, chemin, fleurs, feuillus dans `LakeTerrainArt` ; chalet, montagnes et
+  passerelle dans `LakeLandmarkArt`). 13 espèces : 11 poissons (`AnnecyFishArt` + `PikeArt` + `ExtraFishArt`), écrevisse signal et grenouille rieuse
   (`FreshwaterCreatureArt`). Sur place, **pêche seulement** (aquarium et marchand à Mahana).
   **Décor** (`BuildLake`) : roseaux sur la rive au bord de l'eau, nénuphars à 2-4 cases du bord, rochers solides,
   prés fleuris (gentianes, marguerites ; `LakeArt`). **Vie** (`World/AmbientLife`, objet « Vie du lac », dessins
