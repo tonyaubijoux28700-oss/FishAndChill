@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23d68f532bb20704b964015875425fe7, type: 3}
+  m_Name: Chat
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Pets.PetDefinition
+  _id: chat
+  _displayName: Chat
+  _kind: 0
+  _price: 300
+  _bonusText: Les poissons mordent un peu plus vite.
+  _biteWaitFactor: 0.85
+  _rareMultiplier: 1
+  _coinChancePerSecond: 0
+  _coinMin: 5
+  _coinMax: 15
+  _down:
+  - {fileID: 21300000, guid: dd63d9c5aa9fe5d4e843846f6d81068c, type: 3}
+  - {fileID: 21300000, guid: 8e93b813bb584c64f867e3c04685a819, type: 3}
+  - {fileID: 21300000, guid: 5b380b13d1ab1874780417ec0e46d3fd, type: 3}
+  _up:
+  - {fileID: 21300000, guid: 181d8cd7042320f4f820e65b0b0671b5, type: 3}
+  - {fileID: 21300000, guid: 2eeae278098e67041b028e084d5db996, type: 3}
+  - {fileID: 21300000, guid: 9786f403f5f97b248894e09358fb63f5, type: 3}
+  _side:
+  - {fileID: 21300000, guid: a215c4c0fa70eea42ba6dfb56de91051, type: 3}
+  - {fileID: 21300000, guid: 5e479cac84b215e4a90fcc2dc2ba1657, type: 3}
+  - {fileID: 21300000, guid: 2a8b7c1969b4e404ead3f87e0c209e7b, type: 3}
+  _flies: 0

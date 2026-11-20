@@ -422,10 +422,14 @@ namespace FishAndChill.Fishing
             Bait bait = _progress != null ? _progress.EquippedBait : null;
             bool night = hour >= 20f || hour < 6f;
             World.Weather weather = _weather != null ? _weather.Current : World.Weather.Clear;
+            // L'animal qui accompagne le joueur : le perroquet repère les rares, le chat fait mordre plus vite.
+            Pets.PetDefinition pet = _progress != null ? _progress.EquippedPet : null;
+            float petRare = pet != null ? pet.RareMultiplier : 1f;
             HookedSpecies = _zone.PickSpecies(_random, species =>
                 DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
                     ? gear.RarityMultiplier(species.Rarity) * (inSpot ? FishingSpotRules.SpeciesMultiplier(spotKind, species) : 1f)
                         * (bait != null ? bait.Multiplier(species, night) : 1f)
+                        * Pets.PetMath.RarityFactor(species.Rarity, petRare)
                     : 0f);
             if (HookedSpecies == null)
             {
@@ -441,7 +445,7 @@ namespace FishAndChill.Fishing
             HookedSizeCm = Mathf.Lerp(range.x, range.y, (float)_random.NextDouble());
             float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble())
                 * gear.BiteWaitFactor * (InSpot ? FishingSpotRules.WaitFactor(SpotKind) : 1f) * (bait != null ? bait.BiteWaitFactor : 1f)
-                * WeatherMath.BiteWaitFactor(weather);
+                * WeatherMath.BiteWaitFactor(weather) * (pet != null ? pet.BiteWaitFactor : 1f);
 
             // Une utilisation de l'appât part à chaque lancer ; le dernier parti, on revient à l'appât de départ.
             _baitNotice = null;

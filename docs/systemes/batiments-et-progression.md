@@ -91,8 +91,21 @@
   de celui du laboratoire) : papier peint à pattes, parquet, rayon de croquettes, perroquet en cage, colliers et laisses,
   arbre à chat, clapier, panier du chien ; comptoir (`Animalerie_Comptoir.png`, chat endormi) et vendeur roux au tablier
   vert d'eau (`CharacterArt.PetKeeper`). Obstacles : `PetShopBuilding.Counter` / `Shelf` / `CatTree` / `Hutch` /
-  `DogBed`. Icône sur la minimap. **Pas encore de vente** : les animaux de compagnie qui suivent le joueur viendront
-  plus tard (emplacement « ANIMAL » déjà dans l'inventaire).
+  `DogBed`. Icône sur la minimap.
+  **Animaux de compagnie** (`Scripts/Pets`, données `PetDefinition` / `PetCatalog` dans `Data/Animaux/`, images
+  `Editor/PetArt` dans `Art/Animaux/` : 3 directions × 3 images, la gauche en miroir ; générés et posés par
+  `Editor/PetSetup`) : **chat** roux tigré (300 pièces, les poissons mordent un peu plus vite : attente × 0,85),
+  **bouledogue** français fauve (300 pièces, trouve parfois 5 à 15 pièces en marchant : une chance sur 75 par seconde
+  de marche, bulle avec une pièce `BubbleArt.Coin`), **perroquet** vert qui vole à hauteur d'épaule (450 pièces, rares
+  et plus × 1,35 ; `PetMath.RarityFactor`). Achat chez le vendeur (`UI/PetShopMenu`, objet « Partie », canvas ordre 13) :
+  devant le comptoir « E : parler au vendeur », une carte par animal (portrait, bonus, prix ou « Avec toi ») et une carte
+  « Aucun animal » ; Gauche / Droite, E ou Espace : acheter (il accompagne aussitôt le joueur) ou reprendre un animal
+  déjà à soi, Échap : fermer. Un seul animal à la fois (`PetCollection`, testée : achat, choix, rechargement), gardé
+  dans `PlayerProgress.Pets` et sauvegardé (`SaveData.Pets`, `EquippedPet`). Il suit le joueur (`Pets/PetFollower`,
+  objet « Animal de compagnie ») le long de son chemin à une case derrière lui (`PetMath.FollowPoint`), s'arrête avec
+  lui et le rejoint d'un coup après une porte ou un voyage (plus de 5 cases d'écart). Bonus appliqués par
+  `FishingController` (tirage des espèces et attente de la touche). L'emplacement « ANIMAL » de l'inventaire montre son
+  portrait et son nom.
 - **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu, **une tour**. Façade
   `AquariumArt.TowerExterior` (192×320 px, pivot `TowerPivot`) : en bas l'ancien bâtiment sans son dôme (perron,
   colonnes, 4 vitrines, rosace), au-dessus 4 étages de carreaux et de bandeaux de laiton, hublots où nagent des poissons,
@@ -138,7 +151,7 @@
   **grande fenêtre « Mon inventaire »** au centre (joueur `Locked`, E/Échap ferme) : à gauche la **vitrine « Mon matériel »** (fond de feutre :
   la **canne entière** en grand, `GearLevel.Illustration` = `GearArt.RodLarge` 96×160 affiché ×3, son fil qui finit au pixel
   (86, 62) où pendent l'**hameçon** et l'**appât** accroché, le sac en bas et, à côté, l'**emplacement « ANIMAL »**
-  (`InventoryHud.BuildPetSlot`, empreinte `PetShopArt.PawIcon`, « Aucun » : vide en attendant les compagnons de
+  (`InventoryHud.BuildPetSlot` : portrait et nom de l'animal qui accompagne le joueur, sinon empreinte `PetShopArt.PawIcon` et « Aucun » ; achat à
   l'animalerie) ; étiquettes nom, effet, niveau en pierres), à
   droite **« Mes poissons »** en grille de 3 colonnes (dessins à l'échelle, places pas encore achetées verrouillées,
   6 cases affichées). Une icône 32×32 par objet (`GearArt`, `Art/UI/Materiel/`, posée par `GearSetup` via

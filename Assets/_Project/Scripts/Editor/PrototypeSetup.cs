@@ -352,6 +352,7 @@ namespace FishAndChill.Editor
             var progressSo = new SerializedObject(progress);
             progressSo.FindProperty("_gearCatalog").objectReferenceValue = GearSetup.CreateOrUpdate();
             progressSo.FindProperty("_baitCatalog").objectReferenceValue = BaitSetup.CreateOrUpdate();
+            progressSo.FindProperty("_petCatalog").objectReferenceValue = PetSetup.CreateOrUpdate();
             progressSo.ApplyModifiedPropertiesWithoutUndo();
 
             so = new SerializedObject(controller);
@@ -679,6 +680,9 @@ namespace FishAndChill.Editor
             dialogueSo.FindProperty("_skin").objectReferenceValue = skin;
             dialogueSo.FindProperty("_player").objectReferenceValue = movement;
             dialogueSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Animaux de compagnie : celui qui suit le joueur, et la boutique du vendeur de l'animalerie.
+            PetSetup.Place(partie, movement, progress, skin);
 
             // Écran titre (3 emplacements de sauvegarde), posé sur l'île tant qu'aucune partie n'est choisie.
             var titleScreen = partie.GetComponent<UI.TitleScreen>();

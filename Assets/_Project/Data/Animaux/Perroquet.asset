@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23d68f532bb20704b964015875425fe7, type: 3}
+  m_Name: Perroquet
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Pets.PetDefinition
+  _id: perroquet
+  _displayName: Perroquet
+  _kind: 2
+  _price: 450
+  _bonusText: "Rep\xE8re les poissons rares : un peu plus de chances d'en attraper."
+  _biteWaitFactor: 1
+  _rareMultiplier: 1.35
+  _coinChancePerSecond: 0
+  _coinMin: 5
+  _coinMax: 15
+  _down:
+  - {fileID: 21300000, guid: 47c19abcdd8af534790594275494e9f1, type: 3}
+  - {fileID: 21300000, guid: 09432873b60ca3d459ee6bfb703c8fcb, type: 3}
+  - {fileID: 21300000, guid: 83270c48bbd31fe4f828d9ff8c615ffb, type: 3}
+  _up:
+  - {fileID: 21300000, guid: 3964b6f31dd89a048b12b5b1e2b130f9, type: 3}
+  - {fileID: 21300000, guid: 2043becc7080dd149b7710621dbd0809, type: 3}
+  - {fileID: 21300000, guid: 65a8f0a199c4df343949bf3945d23d45, type: 3}
+  _side:
+  - {fileID: 21300000, guid: 84d08956215655b479272cd152980614, type: 3}
+  - {fileID: 21300000, guid: c7568b7c1c3d30b44ab3fbed883f087c, type: 3}
+  - {fileID: 21300000, guid: 1d95af2f4538cc84bb73aff44a164335, type: 3}
+  _flies: 1

@@ -1,10 +1,11 @@
 using System;
 using FishAndChill.Gear;
+using FishAndChill.Pets;
 using UnityEngine;
 
 namespace FishAndChill.Collection
 {
-    /// <summary>La progression du joueur pendant la partie : sac, aquarium, pièces et matériel.</summary>
+    /// <summary>La progression du joueur pendant la partie : sac, aquarium, pièces, matériel et animaux.</summary>
     public sealed class PlayerProgress : MonoBehaviour
     {
         [SerializeField, Min(1), Tooltip("Places dans le sac au début du jeu.")]
@@ -16,6 +17,9 @@ namespace FishAndChill.Collection
         [SerializeField, Tooltip("Les appâts vendus par le marchand (le premier est celui du départ, gratuit et illimité).")]
         private BaitCatalog _baitCatalog;
 
+        [SerializeField, Tooltip("Les animaux de compagnie vendus à l'animalerie.")]
+        private PetCatalog _petCatalog;
+
         public event Action Changed;
 
         public Inventory Bag { get; private set; }
@@ -25,6 +29,21 @@ namespace FishAndChill.Collection
         public GearCatalog GearCatalog => _gearCatalog;
         public BaitCatalog BaitCatalog => _baitCatalog;
         public BaitBag Baits { get; private set; }
+
+        /// <summary>Animaux de compagnie achetés, et celui qui accompagne le joueur.</summary>
+        public PetCollection Pets { get; private set; }
+
+        public PetCatalog PetCatalog => _petCatalog;
+
+        /// <summary>L'animal qui accompagne le joueur (null : aucun).</summary>
+        public PetDefinition EquippedPet
+        {
+            get
+            {
+                EnsureCreated();
+                return _petCatalog != null ? _petCatalog.Find(Pets.Equipped) : null;
+            }
+        }
 
         /// <summary>Poissons de légende : fragments d'artefact pêchés et étape de chacun.</summary>
         public LegendProgress Legends { get; private set; }
@@ -61,6 +80,8 @@ namespace FishAndChill.Collection
             Wallet = new Wallet();
             Gear = new GearLoadout();
             Baits = new BaitBag();
+            Pets = new PetCollection();
+            Pets.Changed += RaiseChanged;
             Legends = new LegendProgress();
             Legends.Changed += RaiseChanged;
             if (_baitCatalog != null && _baitCatalog.Default != null)

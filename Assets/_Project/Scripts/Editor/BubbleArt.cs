@@ -34,6 +34,27 @@ namespace FishAndChill.Editor
 
         public static Color[,] Wide() => Bubble(20, 16);
 
+        /// <summary>Bulle avec une pièce d'or (le bouledogue a trouvé des pièces), 12×15, même pivot que <see cref="Exclamation"/>.</summary>
+        public static Color[,] Coin()
+        {
+            Color[,] p = Bubble(12, 15);
+            for (int x = 0; x < 12; x++)
+            {
+                for (int y = 5; y < 14; y++)
+                {
+                    float u = (x + 0.5f - 6f) / 3.6f, v = (y + 0.5f - 9f) / 3.6f;
+                    float d = u * u + v * v;
+                    if (d > 1f) continue;
+                    p[x, y] = d > 0.6f ? GoldDark : (x + y) % 5 == 0 ? new Color(1f, 0.94f, 0.60f) : Gold;
+                }
+            }
+
+            p[6, 10] = GoldDark;
+            p[6, 9] = GoldDark;
+            p[6, 8] = GoldDark;
+            return p;
+        }
+
         /// <summary>Bulle arrondie à fond crème, ombrée en bas, pointe au milieu du bas.</summary>
         private static Color[,] Bubble(int width, int height)
         {

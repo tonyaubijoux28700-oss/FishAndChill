@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc86c48f623937d48a8a3e4cae8d8a28, type: 3}
+  m_Name: Animaux
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Pets.PetCatalog
+  _pets:
+  - {fileID: 11400000, guid: 60615afc3d5614447b64e082a2919b8e, type: 2}
+  - {fileID: 11400000, guid: 22976e9359dfb554bb29cafd6264bfbd, type: 2}
+  - {fileID: 11400000, guid: 4ddc64817c292d5499c103077892f945, type: 2}

@@ -73,6 +73,10 @@ namespace FishAndChill.Save
         /// <summary>Commandes en cours des habitants.</summary>
         public List<Villagers.VillagerRequest> VillagerRequests = new List<Villagers.VillagerRequest>();
 
+        /// <summary>Animaux de compagnie achetés, et celui qui accompagne le joueur (vide : aucun).</summary>
+        public List<string> Pets = new List<string>();
+        public string EquippedPet;
+
         [Serializable]
         public sealed class BaitStock
         {

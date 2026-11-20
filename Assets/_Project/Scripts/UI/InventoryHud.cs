@@ -56,6 +56,7 @@ namespace FishAndChill.UI
         private GearLabel _baitLabel;
         private GearLabel _bagLabel;
         private Text _petName;
+        private Image _petImage;
         private Text _fishTitle;
 
         [SerializeField] private PlayerProgress _progress;
@@ -273,7 +274,7 @@ namespace FishAndChill.UI
             }
 
             // Devant l'ascenseur de l'aquarium, E ouvre le menu des étages (et pendant le trajet).
-            if (FishAndChill.UI.ElevatorMenu.Busy || DialogueBox.Busy || (_aquarium != null && _aquarium.PlayerAtElevator >= 0))
+            if (FishAndChill.UI.ElevatorMenu.Busy || DialogueBox.Busy || PetShopMenu.Busy || (_aquarium != null && _aquarium.PlayerAtElevator >= 0))
             {
                 return false;
             }
@@ -471,6 +472,18 @@ namespace FishAndChill.UI
             _bagImage.sprite = bag?.Icon;
             _bagImage.enabled = _bagImage.sprite != null;
             FillLabel(_bagLabel, bag?.Name, bag != null ? ShopMenu.EffectText(GearCategory.Bag, bag) : string.Empty, bagLevel, bagMax);
+
+            // L'animal qui accompagne le joueur : son portrait et son nom, sinon l'empreinte en creux et « Aucun ».
+            FishAndChill.Pets.PetDefinition pet = _progress.EquippedPet;
+            if (_petImage != null)
+            {
+                _petImage.sprite = pet != null && pet.Portrait != null ? pet.Portrait : _petPaw;
+                _petImage.color = pet != null ? Color.white : new Color(0.62f, 0.48f, 0.34f, 0.75f);
+                _petImage.enabled = _petImage.sprite != null;
+                UiFactory.Center(_petImage.rectTransform, new Vector2(0f, pet != null ? -2f : -4f), pet != null ? new Vector2(70f, 63f) : new Vector2(44f, 44f));
+            }
+
+            if (_petName != null) _petName.text = pet != null ? pet.DisplayName : "Aucun";
         }
 
         private static void FillLabel(GearLabel label, string name, string effect, int level, int max)
@@ -908,6 +921,7 @@ namespace FishAndChill.UI
             UiFactory.Place(family.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -8f), new Vector2(-12f, 26f));
 
             Image paw = UiFactory.Plain(rect, "Patte", new Color(0.62f, 0.48f, 0.34f, 0.75f));   // empreinte en creux : emplacement vide
+            _petImage = paw;
             paw.sprite = _petPaw;
             paw.enabled = _petPaw != null;
             paw.preserveAspect = true;

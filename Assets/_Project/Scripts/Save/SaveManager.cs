@@ -258,6 +258,8 @@ namespace FishAndChill.Save
             data.Rewards = new List<string>(_progress.ClaimedRewards);
             data.MetVillagers = Villagers.VillagerMemory.Capture();
             data.VillagerRequests = Villagers.VillagerRequests.Capture();
+            data.Pets = new List<string>(_progress.Pets.Owned);
+            data.EquippedPet = _progress.Pets.Equipped;
             foreach (string id in _progress.Baits.Owned)
             {
                 data.Baits.Add(new SaveData.BaitStock { Id = id, Count = _progress.Baits.Count(id) });
@@ -374,6 +376,7 @@ namespace FishAndChill.Save
 
             Villagers.VillagerMemory.Load(data.MetVillagers);
             Villagers.VillagerRequests.Load(data.VillagerRequests);
+            _progress.Pets.Load(data.Pets, data.EquippedPet);
             if (_weather != null && data.Weather >= 0 && System.Enum.IsDefined(typeof(Weather), data.Weather))
             {
                 _weather.SetWeather((Weather)data.Weather, data.WeatherHours);
