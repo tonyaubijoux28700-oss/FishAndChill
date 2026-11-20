@@ -1057,7 +1057,7 @@ namespace FishAndChill.Fishing
             PlayerProgress progress = _controller.Progress;
             int count = progress != null ? progress.Bag.Count : -1;
             int capacity = progress != null ? progress.Bag.Capacity : -1;
-            _catchCard.Show(fish, isNew, bagFull, count, capacity, _controller.LastBeatenRecord);
+            _catchCard.Show(fish, isNew, bagFull, count, capacity, _controller.LastBeatenRecord, progress != null ? progress.SellFactor : 1f);
             _cardWasBagFull = bagFull;
         }
 

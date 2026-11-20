@@ -344,7 +344,16 @@ namespace FishAndChill.Fishing
                     // Canne et hameçon : chacun a sa spécialité (tension, rushs, nerveux, fuyants).
                     GearEffects fightGear = GearEffects;
                     float tensionRate = fightGear.TensionFactor > 0f ? fightGear.TensionFactor : 1f;
-                    Challenge = new QteChallenge(fightGear.Apply(HookedSpecies.Difficulty), _random, HookedSpecies.FightStyle, tensionRate,
+                    QteDifficulty difficulty = fightGear.Apply(HookedSpecies.Difficulty);
+                    // La grosse araignée élargit la zone de réussite (pas contre les légendes).
+                    Pets.PetDefinition fightPet = _progress != null ? _progress.EquippedPet : null;
+                    if (fightPet != null && fightPet.ZoneFactor > 1f && difficulty != null)
+                    {
+                        difficulty = new QteDifficulty(difficulty.CursorSpeed, Pets.PetMath.ZoneWidth(difficulty.ZoneWidth, fightPet.ZoneFactor),
+                            difficulty.RequiredHits, difficulty.MaxMisses);
+                    }
+
+                    Challenge = new QteChallenge(difficulty, _random, HookedSpecies.FightStyle, tensionRate,
                         fightGear.NervousFactor > 0f ? fightGear.NervousFactor : 1f, fightGear.RushFactor > 0f ? fightGear.RushFactor : 1f,
                         fightGear.DriftFactor > 0f ? fightGear.DriftFactor : 1f);
                     StartPhase(FishingState.Reeling, 0f, FightHint(HookedSpecies.FightStyle));
@@ -442,7 +451,8 @@ namespace FishAndChill.Fishing
             }
 
             Vector2 range = HookedSpecies.SizeRangeCm;
-            HookedSizeCm = Mathf.Lerp(range.x, range.y, (float)_random.NextDouble());
+            // Le crocodile fait pencher la taille vers les gros poissons.
+            HookedSizeCm = Mathf.Lerp(range.x, range.y, Pets.PetMath.SizeRoll((float)_random.NextDouble(), pet != null ? pet.SizeBias : 1f));
             float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble())
                 * gear.BiteWaitFactor * (InSpot ? FishingSpotRules.WaitFactor(SpotKind) : 1f) * (bait != null ? bait.BiteWaitFactor : 1f)
                 * WeatherMath.BiteWaitFactor(weather) * (pet != null ? pet.BiteWaitFactor : 1f);
@@ -734,7 +744,7 @@ namespace FishAndChill.Fishing
 
             string detail = isNew
                 ? "Nouvelle espèce ! Garde-la pour l'aquarium."
-                : $"Doublon : le marchand te l'achètera {FishShop.PriceOf(fish)} pièces.";
+                : $"Doublon : le marchand te l'achètera {FishShop.PriceOf(fish, _progress != null ? _progress.SellFactor : 1f)} pièces.";
 
             StartPhase(FishingState.Result, _catchResultSeconds, $"{header}\n{detail}");
             FishCaught?.Invoke(fish, isNew, false);

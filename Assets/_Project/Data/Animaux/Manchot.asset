@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23d68f532bb20704b964015875425fe7, type: 3}
+  m_Name: Manchot
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Pets.PetDefinition
+  _id: manchot
+  _displayName: Manchot
+  _kind: 3
+  _price: 450
+  _bonusText: "Le marchand t'ach\xE8te tes poissons 20 % plus cher."
+  _biteWaitFactor: 1
+  _rareMultiplier: 1
+  _coinChancePerSecond: 0
+  _coinMin: 5
+  _coinMax: 15
+  _sellFactor: 1.2
+  _sizeBias: 1
+  _zoneFactor: 1
+  _down:
+  - {fileID: 21300000, guid: 726cf08bed7889c43bb03e0b104f50a5, type: 3}
+  - {fileID: 21300000, guid: 101ed2029648e6849ac8fd4b19a578f4, type: 3}
+  - {fileID: 21300000, guid: 6eb3208180be8c849b808edfb2ecb2d0, type: 3}
+  _up:
+  - {fileID: 21300000, guid: 9c5a956501bb7d84395577d5fb91e617, type: 3}
+  - {fileID: 21300000, guid: c5fe804f8efcdfd468e0d634c3524a63, type: 3}
+  - {fileID: 21300000, guid: e7bc6acaa7d3673408947dcc8bdd7a4c, type: 3}
+  _side:
+  - {fileID: 21300000, guid: 7edb83a2b1e8c5c4389f68f692823d65, type: 3}
+  - {fileID: 21300000, guid: 3ff2bda34aabf6847847cdc0f79e0e98, type: 3}
+  - {fileID: 21300000, guid: 57664228fce047f429dce2f1a5000090, type: 3}
+  _flies: 0

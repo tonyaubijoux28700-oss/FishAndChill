@@ -156,7 +156,8 @@ namespace FishAndChill.Fishing
 
         /// <summary>Carte de prise avec l'état du sac (<paramref name="bagCount"/> &lt; 0 : pas de sac).</summary>
         /// <param name="beatenRecord">Ancien record de l'espèce que cette prise vient de battre (0 = pas de record).</param>
-        public void Show(CaughtFish fish, bool isNew, bool bagFull, int bagCount, int bagCapacity, float beatenRecord = 0f)
+        /// <param name="priceFactor">Bonus de vente de l'animal (manchot), 1 sans bonus.</param>
+        public void Show(CaughtFish fish, bool isNew, bool bagFull, int bagCount, int bagCapacity, float beatenRecord = 0f, float priceFactor = 1f)
         {
             FishSpecies species = fish.Species;
             Color rarityColor = species.Rarity.DisplayColor();
@@ -191,7 +192,7 @@ namespace FishAndChill.Fishing
             else
             {
                 _valueCaption.text = "VALEUR";
-                _value.text = $"{FishShop.PriceOf(fish)} pièces";
+                _value.text = $"{FishShop.PriceOf(fish, priceFactor)} pièces";
                 _value.color = Gold;
             }
 

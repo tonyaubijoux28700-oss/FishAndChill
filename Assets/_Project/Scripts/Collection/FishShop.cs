@@ -14,7 +14,8 @@ namespace FishAndChill.Collection
         public const float MinPriceFactor = 0.8f;
         public const float MaxPriceFactor = 1.3f;
 
-        public static int PriceOf(CaughtFish fish)
+        /// <summary>Prix d'un poisson ; <paramref name="factor"/> : bonus de l'animal (manchot), 1 sans bonus.</summary>
+        public static int PriceOf(CaughtFish fish, float factor = 1f)
         {
             if (fish == null || fish.Species == null)
             {
@@ -23,7 +24,7 @@ namespace FishAndChill.Collection
 
             Vector2 range = fish.Species.SizeRangeCm;
             float t = range.y > range.x ? Mathf.InverseLerp(range.x, range.y, fish.SizeCm) : 0.5f;
-            return Mathf.Max(1, Mathf.RoundToInt(fish.Species.BasePrice * Mathf.Lerp(MinPriceFactor, MaxPriceFactor, t)));
+            return Mathf.Max(1, Mathf.RoundToInt(fish.Species.BasePrice * Mathf.Lerp(MinPriceFactor, MaxPriceFactor, t) * Mathf.Max(1f, factor)));
         }
 
         /// <summary>Le marchand accepte-t-il d'acheter le poisson de la place <paramref name="slot"/> ?</summary>
@@ -46,7 +47,7 @@ namespace FishAndChill.Collection
         }
 
         /// <summary>Vend le poisson de la place <paramref name="slot"/> ; renvoie le gain (0 si refusé).</summary>
-        public static int Sell(Inventory bag, int slot, Wallet wallet, AquariumCollection aquarium)
+        public static int Sell(Inventory bag, int slot, Wallet wallet, AquariumCollection aquarium, float factor = 1f)
         {
             if (bag == null || wallet == null || !IsSellable(bag.Fish, slot, aquarium))
             {
@@ -54,20 +55,20 @@ namespace FishAndChill.Collection
             }
 
             CaughtFish sold = bag.RemoveAt(slot);
-            int price = PriceOf(sold);
+            int price = PriceOf(sold, factor);
             wallet.Add(price);
             return price;
         }
 
         /// <summary>Vend tous les doublons du sac ; renvoie le gain total.</summary>
-        public static int SellAll(Inventory bag, Wallet wallet, AquariumCollection aquarium)
+        public static int SellAll(Inventory bag, Wallet wallet, AquariumCollection aquarium, float factor = 1f)
         {
             int total = 0;
             for (int slot = bag.Count - 1; slot >= 0; slot--)
             {
                 if (IsSellable(bag.Fish, slot, aquarium))
                 {
-                    total += Sell(bag, slot, wallet, aquarium);
+                    total += Sell(bag, slot, wallet, aquarium, factor);
                 }
             }
 

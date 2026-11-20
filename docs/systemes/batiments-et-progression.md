@@ -97,9 +97,14 @@
   `Editor/PetSetup`) : **chat** roux tigré (300 pièces, les poissons mordent un peu plus vite : attente × 0,85),
   **bouledogue** français fauve (300 pièces, trouve parfois 5 à 15 pièces en marchant : une chance sur 75 par seconde
   de marche, bulle avec une pièce `BubbleArt.Coin`), **perroquet** vert qui vole à hauteur d'épaule (450 pièces, rares
-  et plus × 1,35 ; `PetMath.RarityFactor`). Achat chez le vendeur (`UI/PetShopMenu`, objet « Partie », canvas ordre 13) :
-  devant le comptoir « E : parler au vendeur », une carte par animal (portrait, bonus, prix ou « Avec toi ») et une carte
-  « Aucun animal » ; Gauche / Droite, E ou Espace : acheter (il accompagne aussitôt le joueur) ou reprendre un animal
+  et plus × 1,35 ; `PetMath.RarityFactor`), **manchot** qui se dandine (450 pièces, le marchand paie × 1,2 :
+  `PetDefinition.SellFactor`, `PlayerProgress.SellFactor` passé à `FishShop.PriceOf` / `Sell` / `SellAll`, prix montré
+  sur la carte de prise et chez le marchand), **crocodile** (500 pièces, prises plus grosses : `PetMath.SizeRoll`, tirage
+  de taille penché vers le haut, `SizeBias` 1,8), **grosse araignée** mygale aux genoux orange (400 pièces, zone de
+  réussite du QTE × 1,2 sans dépasser 60 % : `PetMath.ZoneWidth`, pas contre les légendes). Achat chez le vendeur
+  (`UI/PetShopMenu`, objet « Partie », canvas ordre 13) : devant le comptoir « E : parler au vendeur », une carte par
+  animal (portrait, bonus, prix ou « Avec toi ») et une carte « Aucun animal », sur deux rangées de 4 ;
+  Gauche / Droite (Haut / Bas : rangée), E ou Espace : acheter (il accompagne aussitôt le joueur) ou reprendre un animal
   déjà à soi, Échap : fermer. Un seul animal à la fois (`PetCollection`, testée : achat, choix, rechargement), gardé
   dans `PlayerProgress.Pets` et sauvegardé (`SaveData.Pets`, `EquippedPet`). Il suit le joueur (`Pets/PetFollower`,
   objet « Animal de compagnie ») le long de son chemin à une case derrière lui (`PetMath.FollowPoint`), s'arrête avec

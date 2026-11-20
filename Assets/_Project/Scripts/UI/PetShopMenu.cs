@@ -10,14 +10,15 @@ namespace FishAndChill.UI
 {
     /// <summary>
     /// La boutique du vendeur de l'animalerie : devant le comptoir, « E : parler au vendeur » ouvre une fenêtre avec une
-    /// carte par animal (portrait, nom, bonus, prix ou « Avec toi ») et une carte « Aucun animal ». Gauche / Droite pour
+    /// carte par animal (portrait, nom, bonus, prix ou « Avec toi ») et une carte « Aucun animal ». Gauche / Droite (Haut / Bas : rangée) pour
     /// choisir, E ou Espace : acheter (il accompagne aussitôt le joueur) ou prendre avec soi un animal déjà acheté,
     /// Échap : fermer. Le sac ne s'ouvre pas pendant ce temps (<see cref="Busy"/>).
     /// </summary>
     public sealed class PetShopMenu : MonoBehaviour
     {
-        private const float CardWidth = 330f;
-        private const float CardHeight = 400f;
+        private const float CardWidth = 340f;
+        private const float CardHeight = 350f;
+        private const int PerRow = 4;
 
         private static readonly Color Gold = new Color(1.00f, 0.84f, 0.30f);
         private static readonly Color Muted = new Color(0.66f, 0.72f, 0.78f);
@@ -72,7 +73,7 @@ namespace FishAndChill.UI
                 }
 
                 (int dx, int dy) = IndexInput.NavigationThisFrame();
-                int step = dx != 0 ? dx : -dy;
+                int step = dx != 0 ? dx : -dy * PerRow;
                 if (step != 0)
                 {
                     _selected = Mathf.Clamp(_selected + step, 0, Pets.Count);
@@ -188,25 +189,27 @@ namespace FishAndChill.UI
 
         private Card CreateCard(int index, int count)
         {
-            float x = (index - (count - 1) * 0.5f) * (CardWidth + 24f);
+            int row = index / PerRow, inRow = Mathf.Min(PerRow, count - row * PerRow);
+            float x = (index % PerRow - (inRow - 1) * 0.5f) * (CardWidth + 24f);
+            float y = 180f - row * (CardHeight + 24f);
             var card = new Card();
             card.Frame = UiFactory.Sliced(_window.GetComponent<RectTransform>(), $"Animal {index + 1}", _skin != null ? _skin.Slot : null, Color.white);
             RectTransform rect = card.Frame.rectTransform;
-            UiFactory.Center(rect, new Vector2(x, 10f), new Vector2(CardWidth, CardHeight));
+            UiFactory.Center(rect, new Vector2(x, y), new Vector2(CardWidth, CardHeight));
             Image backdrop = UiFactory.Sliced(rect, "Fond", _skin != null ? _skin.WaterBackdrop : null, new Color(1f, 1f, 1f, 0.4f));
-            UiFactory.Center(backdrop.rectTransform, new Vector2(0f, 80f), new Vector2(220f, 180f));
+            UiFactory.Center(backdrop.rectTransform, new Vector2(0f, 75f), new Vector2(220f, 150f));
             card.Portrait = UiFactory.Plain(rect, "Portrait", Color.white);
             card.Portrait.preserveAspect = true;
-            UiFactory.Center(card.Portrait.rectTransform, new Vector2(0f, 76f), new Vector2(200f, 180f));
+            UiFactory.Center(card.Portrait.rectTransform, new Vector2(0f, 73f), new Vector2(190f, 150f));
             card.Name = UiFactory.Label(rect, "Nom", 30, TextAnchor.MiddleCenter, Gold);
             UiFactory.Bold(card.Name);
-            UiFactory.Center(card.Name.rectTransform, new Vector2(0f, -40f), new Vector2(300f, 40f));
+            UiFactory.Center(card.Name.rectTransform, new Vector2(0f, -26f), new Vector2(300f, 40f));
             card.Bonus = UiFactory.Label(rect, "Bonus", 21, TextAnchor.UpperCenter, Color.white);
             card.Bonus.horizontalOverflow = HorizontalWrapMode.Wrap;
-            UiFactory.Center(card.Bonus.rectTransform, new Vector2(0f, -96f), new Vector2(290f, 80f));
+            UiFactory.Center(card.Bonus.rectTransform, new Vector2(0f, -82f), new Vector2(310f, 72f));
             card.Price = UiFactory.Label(rect, "Prix", 26, TextAnchor.MiddleCenter, Gold);
             UiFactory.Bold(card.Price);
-            UiFactory.Center(card.Price.rectTransform, new Vector2(0f, -172f), new Vector2(300f, 36f));
+            UiFactory.Center(card.Price.rectTransform, new Vector2(0f, -150f), new Vector2(300f, 36f));
             return card;
         }
 
@@ -231,13 +234,13 @@ namespace FishAndChill.UI
 
             Image window = UiFactory.Sliced(root, "Fenêtre de l'animalerie", _skin != null ? _skin.Panel : null, _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
             _window = window.gameObject;
-            UiFactory.Center(window.rectTransform, new Vector2(0f, 10f), new Vector2(1500f, 640f));
-            UiFactory.TitlePlaque(window.rectTransform, _skin, "Animalerie", 30, new Vector2(0f, 320f), new Vector2(420f, 64f), out _);
+            UiFactory.Center(window.rectTransform, new Vector2(0f, 0f), new Vector2(1560f, 960f));
+            UiFactory.TitlePlaque(window.rectTransform, _skin, "Animalerie", 30, new Vector2(0f, 480f), new Vector2(420f, 64f), out _);
             _message = UiFactory.Label(window.rectTransform, "Message", 24, TextAnchor.MiddleCenter, Muted);
-            UiFactory.Center(_message.rectTransform, new Vector2(0f, 250f), new Vector2(1400f, 34f));
+            UiFactory.Center(_message.rectTransform, new Vector2(0f, 405f), new Vector2(1400f, 34f));
             Text help = UiFactory.Label(window.rectTransform, "Aide", 22, TextAnchor.MiddleCenter, Muted);
-            help.text = "Gauche / Droite : choisir   •   E ou Espace : acheter ou prendre avec toi   •   Échap : fermer";
-            UiFactory.Center(help.rectTransform, new Vector2(0f, -285f), new Vector2(1400f, 30f));
+            help.text = "Gauche / Droite / Haut / Bas : choisir   •   E ou Espace : acheter ou prendre avec toi   •   Échap : fermer";
+            UiFactory.Center(help.rectTransform, new Vector2(0f, -440f), new Vector2(1400f, 30f));
             _window.SetActive(false);
         }
     }

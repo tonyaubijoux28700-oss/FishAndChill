@@ -87,5 +87,24 @@ namespace FishAndChill.Tests
             Assert.That(PetMath.FollowPoint(trail, 2f), Is.EqualTo(new Vector2(2f, -1f)));
             Assert.That(PetMath.FollowPoint(trail, 10f), Is.EqualTo(new Vector2(2f, -2f)));
         }
+
+        [Test]
+        public void SizeRoll_CrocodileLeansTowardBigFish()
+        {
+            Assert.That(PetMath.SizeRoll(0.5f, 1f), Is.EqualTo(0.5f).Within(1e-5f), "sans bonus : tirage inchangé");
+            Assert.That(PetMath.SizeRoll(0f, 1.8f), Is.EqualTo(0f));
+            Assert.That(PetMath.SizeRoll(1f, 1.8f), Is.EqualTo(1f));
+            Assert.That(PetMath.SizeRoll(0.5f, 1.8f), Is.GreaterThan(0.65f));
+            Assert.That(PetMath.SizeRoll(0.5f, 0.5f), Is.EqualTo(0.5f).Within(1e-5f), "jamais de malus");
+        }
+
+        [Test]
+        public void ZoneWidth_SpiderWidensTheZone_UpTo60Percent()
+        {
+            Assert.That(PetMath.ZoneWidth(0.25f, 1.2f), Is.EqualTo(0.3f).Within(1e-5f));
+            Assert.That(PetMath.ZoneWidth(0.55f, 1.2f), Is.EqualTo(0.6f).Within(1e-5f));
+            Assert.That(PetMath.ZoneWidth(0.7f, 1.2f), Is.EqualTo(0.7f).Within(1e-5f), "déjà au-dessus : inchangé");
+            Assert.That(PetMath.ZoneWidth(0.25f, 1f), Is.EqualTo(0.25f).Within(1e-5f));
+        }
     }
 }

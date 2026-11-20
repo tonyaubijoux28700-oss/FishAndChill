@@ -17,6 +17,21 @@ namespace FishAndChill.Tests
         }
 
         [Test]
+        public void Penguin_SellsFishFor20PercentMore()
+        {
+            Assert.That(FishShop.PriceOf(TestFish.Fish(Pike, 120f), 1.2f), Is.EqualTo(62));   // 40 × 1,3 × 1,2
+            Assert.That(FishShop.PriceOf(TestFish.Fish(Pike, 120f), 0.5f), Is.EqualTo(52), "jamais de malus");
+
+            var bag = new Inventory(3);
+            bag.TryAdd(TestFish.Fish(Pike, 120f));
+            var aquarium = new AquariumCollection();
+            var wallet = new Wallet();
+            bag.TryAdd(TestFish.Fish(Pike, 40f));
+            Assert.That(FishShop.SellAll(bag, wallet, aquarium, 1.2f), Is.EqualTo(38));   // le petit : 40 × 0,8 × 1,2
+            Assert.That(wallet.Coins, Is.EqualTo(38));
+        }
+
+        [Test]
         public void SingleNewSpecies_IsNotSellable()
         {
             var bag = new Inventory(3);

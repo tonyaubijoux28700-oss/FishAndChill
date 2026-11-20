@@ -13,6 +13,24 @@ namespace FishAndChill.Pets
         }
 
         /// <summary>
+        /// Place de la prise dans la fourchette de taille (0 le plus petit, 1 le plus gros) à partir d'un tirage
+        /// <paramref name="roll"/> entre 0 et 1 : avec <paramref name="sizeBias"/> au-dessus de 1 (crocodile), le tirage
+        /// penche vers les gros. 1 : inchangé.
+        /// </summary>
+        public static float SizeRoll(float roll, float sizeBias)
+        {
+            float r = Mathf.Clamp01(roll);
+            return 1f - Mathf.Pow(1f - r, Mathf.Max(1f, sizeBias));
+        }
+
+        /// <summary>Zone de réussite du QTE élargie par l'animal (araignée), sans dépasser 60 % de la barre.</summary>
+        public static float ZoneWidth(float zoneWidth, float zoneFactor)
+        {
+            if (zoneWidth >= 0.6f) return zoneWidth;
+            return Mathf.Min(0.6f, zoneWidth * Mathf.Max(1f, zoneFactor));
+        }
+
+        /// <summary>
         /// Pièces trouvées pendant <paramref name="seconds"/> de marche (0 la plupart du temps) : une chance par seconde,
         /// puis un nombre entre <paramref name="min"/> et <paramref name="max"/>. Rien à l'arrêt.
         /// </summary>

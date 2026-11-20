@@ -6,5 +6,8 @@ namespace FishAndChill.Pets
         Cat,
         Dog,
         Parrot,
+        Penguin,
+        Crocodile,
+        Spider,
     }
 }

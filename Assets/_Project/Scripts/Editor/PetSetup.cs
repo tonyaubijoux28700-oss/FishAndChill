@@ -28,6 +28,12 @@ namespace FishAndChill.Editor
                 1f, 1f, 1f / 75f, false);
             PetDefinition parrot = Save("perroquet", "Perroquet", PetKind.Parrot, PetArt.Kind.Parrot, 450, "Repère les poissons rares : un peu plus de chances d'en attraper.",
                 1f, 1.35f, 0f, true);
+            PetDefinition penguin = Save("manchot", "Manchot", PetKind.Penguin, PetArt.Kind.Penguin, 450, "Le marchand t'achète tes poissons 20 % plus cher.",
+                1f, 1f, 0f, false, sell: 1.2f);
+            PetDefinition crocodile = Save("crocodile", "Crocodile", PetKind.Crocodile, PetArt.Kind.Crocodile, 500, "Les poissons que tu attrapes sont souvent plus gros.",
+                1f, 1f, 0f, false, sizeBias: 1.8f);
+            PetDefinition spider = Save("araignee", "Grosse araignée", PetKind.Spider, PetArt.Kind.Spider, 400, "Sa toile t'aide au combat : zone de réussite plus large.",
+                1f, 1f, 0f, false, zone: 1.2f);
 
             string path = $"{DataFolder}/Animaux.asset";
             var catalog = AssetDatabase.LoadAssetAtPath<PetCatalog>(path);
@@ -39,7 +45,7 @@ namespace FishAndChill.Editor
 
             var so = new SerializedObject(catalog);
             SerializedProperty list = so.FindProperty("_pets");
-            PetDefinition[] pets = { cat, dog, parrot };
+            PetDefinition[] pets = { cat, dog, parrot, penguin, crocodile, spider };
             list.arraySize = pets.Length;
             for (int i = 0; i < pets.Length; i++) list.GetArrayElementAtIndex(i).objectReferenceValue = pets[i];
             so.ApplyModifiedPropertiesWithoutUndo();
@@ -47,7 +53,7 @@ namespace FishAndChill.Editor
         }
 
         private static PetDefinition Save(string id, string displayName, PetKind kind, PetArt.Kind art, int price, string bonus,
-            float biteWait, float rare, float coinChance, bool flies)
+            float biteWait, float rare, float coinChance, bool flies, float sell = 1f, float sizeBias = 1f, float zone = 1f)
         {
             string path = $"{DataFolder}/{displayName}.asset";
             var pet = AssetDatabase.LoadAssetAtPath<PetDefinition>(path);
@@ -73,6 +79,9 @@ namespace FishAndChill.Editor
             so.FindProperty("_coinChancePerSecond").floatValue = coinChance;
             so.FindProperty("_coinMin").intValue = 5;
             so.FindProperty("_coinMax").intValue = 15;
+            so.FindProperty("_sellFactor").floatValue = sell;
+            so.FindProperty("_sizeBias").floatValue = sizeBias;
+            so.FindProperty("_zoneFactor").floatValue = zone;
             so.FindProperty("_flies").boolValue = flies;
             foreach ((string field, PetArt.Facing facing) in new[] { ("_down", PetArt.Facing.Down), ("_up", PetArt.Facing.Up), ("_side", PetArt.Facing.Side) })
             {

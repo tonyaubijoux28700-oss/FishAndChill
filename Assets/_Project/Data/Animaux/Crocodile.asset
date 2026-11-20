@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23d68f532bb20704b964015875425fe7, type: 3}
+  m_Name: Crocodile
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Pets.PetDefinition
+  _id: crocodile
+  _displayName: Crocodile
+  _kind: 4
+  _price: 500
+  _bonusText: Les poissons que tu attrapes sont souvent plus gros.
+  _biteWaitFactor: 1
+  _rareMultiplier: 1
+  _coinChancePerSecond: 0
+  _coinMin: 5
+  _coinMax: 15
+  _sellFactor: 1
+  _sizeBias: 1.8
+  _zoneFactor: 1
+  _down:
+  - {fileID: 21300000, guid: d680fb3a0451c6c45b722e0a3b9f243f, type: 3}
+  - {fileID: 21300000, guid: ca2d568c4a4659c46ab92fa382352cd1, type: 3}
+  - {fileID: 21300000, guid: 00a7e35b28b58f243aff2de63d2b034a, type: 3}
+  _up:
+  - {fileID: 21300000, guid: a6785d032b6fcdf449ac0be36967d613, type: 3}
+  - {fileID: 21300000, guid: cc6e2a9948223b447a54043c47eecab8, type: 3}
+  - {fileID: 21300000, guid: 5e796d761a7227949a530c5b01ae1999, type: 3}
+  _side:
+  - {fileID: 21300000, guid: df698daffb9e83342abbae6b4762a51a, type: 3}
+  - {fileID: 21300000, guid: 08f02b157386eb749aaa94de1562a322, type: 3}
+  - {fileID: 21300000, guid: ef59a59650348d641bf9a24fb1da7bed, type: 3}
+  _flies: 0

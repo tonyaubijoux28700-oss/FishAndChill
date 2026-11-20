@@ -45,6 +45,16 @@ namespace FishAndChill.Collection
             }
         }
 
+        /// <summary>Bonus du marchand donné par l'animal qui accompagne le joueur (manchot), 1 sans bonus.</summary>
+        public float SellFactor
+        {
+            get
+            {
+                PetDefinition pet = EquippedPet;
+                return pet != null ? Mathf.Max(1f, pet.SellFactor) : 1f;
+            }
+        }
+
         /// <summary>Poissons de légende : fragments d'artefact pêchés et étape de chacun.</summary>
         public LegendProgress Legends { get; private set; }
 

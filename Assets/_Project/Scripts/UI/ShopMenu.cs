@@ -217,7 +217,7 @@ namespace FishAndChill.UI
             }
 
             CaughtFish fish = bag.Fish[slot];
-            int earned = FishShop.Sell(bag, slot, _progress.Wallet, _progress.Aquarium);
+            int earned = FishShop.Sell(bag, slot, _progress.Wallet, _progress.Aquarium, _progress.SellFactor);
             if (earned > 0)
             {
                 Say($"« Marché conclu ! » {fish.Species.CommonName} vendu : +{earned} pièces", Good);
@@ -233,7 +233,7 @@ namespace FishAndChill.UI
         /// <summary>Vend tous les doublons du sac.</summary>
         public int SellAll()
         {
-            int earned = FishShop.SellAll(_progress.Bag, _progress.Wallet, _progress.Aquarium);
+            int earned = FishShop.SellAll(_progress.Bag, _progress.Wallet, _progress.Aquarium, _progress.SellFactor);
             if (earned > 0)
             {
                 Say($"« Je prends tout ça ! » +{earned} pièces", Good);
@@ -371,7 +371,7 @@ namespace FishAndChill.UI
                 row.Label.color = Color.white;
 
                 bool sellable = FishShop.IsSellable(bag.Fish, i, _progress.Aquarium);
-                row.Price.text = sellable ? $"{FishShop.PriceOf(fish)} pièces" : "Pour l'aquarium";
+                row.Price.text = sellable ? $"{FishShop.PriceOf(fish, _progress.SellFactor)} pièces" : "Pour l'aquarium";
                 row.Price.color = sellable ? Gold : Muted;
             }
         }
