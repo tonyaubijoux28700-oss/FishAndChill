@@ -36,7 +36,15 @@ namespace FishAndChill.Villagers
         [SerializeField] private PlayerProgress _progress;
         [SerializeField] private int _seed = 1;
 
+        [Header("Commandes")]
+        [SerializeField, Tooltip("Bulle « ! » : une nouvelle commande à écouter.")] private Sprite _exclamation;
+        [SerializeField, Tooltip("Bulle vide où se pose la petite image du poisson demandé, quand on l'a dans le sac.")] private Sprite _fishBubble;
+
         private static readonly List<Villager> All = new List<Villager>();
+
+        private SpriteRenderer _bubble;
+        private SpriteRenderer _bubbleFish;
+        private VillagerRequest _request;
 
         private SpriteRenderer _renderer;
         private CharacterSprites _sprites;
@@ -73,7 +81,11 @@ namespace FishAndChill.Villagers
             {
                 _sprites = CharacterSprites.Build(_profile.Look, _profile.Extras);
                 if (_indoor != null) _indoor.sprite = _sprites.Down[0];
+                _request = VillagerRequests.Get(_profile.Id);
+                EnsureRequest();
             }
+
+            BuildBubble();
 
             // Au lancement, chacun est déjà là où il doit être : dans son coin le jour, chez lui la nuit.
             if (IsOutsideTime())
@@ -116,6 +128,13 @@ namespace FishAndChill.Villagers
                 case State.Home:
                     if (outsideTime)
                     {
+                        // Un nouveau jour : une nouvelle commande s'il a été servi la veille.
+                        if (_request != null)
+                        {
+                            _request.DoneToday = false;
+                            EnsureRequest();
+                        }
+
                         _state = State.Leaving;
                         transform.position = DoorStep;
                         _target = _leader != null ? (Vector2)_leader.transform.position + _leaderOffset : _anchor;
@@ -162,6 +181,7 @@ namespace FishAndChill.Villagers
             else _walkTime = 0f;
             ApplyVisibility();
             ApplySprite();
+            UpdateBubble();
         }
 
         /// <summary>Dehors seulement aux heures de sortie, et jamais une fois la nuit tombée.</summary>
@@ -304,9 +324,135 @@ namespace FishAndChill.Villagers
                 AquariumSpecies = _progress != null && _progress.Aquarium != null ? _progress.Aquarium.SpeciesCount : 0,
             };
             VillagerMemory.MarkMet(id);
-            return VillagerDialogue.Pick(_profile != null ? _profile.Lines : null, context, _random.Next());
+            var pages = new List<string>(VillagerDialogue.Pick(_profile != null ? _profile.Lines : null, context, _random.Next()));
+            string requestLine = RequestLine(context.FirstMeeting);
+            if (requestLine != null)
+            {
+                if (!context.FirstMeeting) pages.Clear();   // la commande remplace la réplique du jour
+                pages.Add(requestLine);
+            }
+
+            return pages.ToArray();
         }
 
         public void EndTalk() => _talking = false;
+
+        // ---------- Commandes ----------
+
+        /// <summary>L'espèce demandée par la commande en cours (null s'il n'y en a pas).</summary>
+        public FishSpecies RequestedSpecies => _request != null && _request.IsOpen ? FindSpecies(_request.SpeciesId) : null;
+
+        /// <summary>Une commande s'il n'en a pas et n'a pas déjà été servi aujourd'hui (espèce de ses zones préférées).</summary>
+        private void EnsureRequest()
+        {
+            if (_request == null || _request.IsOpen || _request.DoneToday || _profile == null) return;
+            var candidates = new List<FishSpecies>();
+            foreach (FishingZone zone in _profile.Zones)
+            {
+                if (zone == null) continue;
+                foreach (FishingZone.SpeciesEntry entry in zone.Species) candidates.Add(entry.Species);
+            }
+
+            FishSpecies species = RequestRules.PickSpecies(_random, candidates);
+            _request.SpeciesId = species != null ? species.Id : null;
+            _request.Asked = false;
+        }
+
+        private FishSpecies FindSpecies(string id)
+        {
+            if (_profile == null) return null;
+            foreach (FishingZone zone in _profile.Zones)
+            {
+                if (zone == null) continue;
+                foreach (FishingZone.SpeciesEntry entry in zone.Species)
+                {
+                    if (entry.Species != null && entry.Species.Id == id) return entry.Species;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>Où en est la commande quand on lui parle : il la demande, la prend (et paie), ou la rappelle.</summary>
+        private string RequestLine(bool firstMeeting)
+        {
+            FishSpecies species = RequestedSpecies;
+            if (species == null || _profile == null) return null;
+            VillagerLines lines = _profile.Lines;
+            string name = species.CommonName;
+            if (!_request.Asked)
+            {
+                _request.Asked = true;
+                return Line(lines.Ask, name, 0);
+            }
+
+            int slot = DeliverySlot(species);
+            if (slot >= 0)
+            {
+                int reward = RequestRules.Reward(species.BasePrice, species.Rarity);
+                _progress.Bag.RemoveAt(slot);
+                _progress.Wallet.Add(reward);
+                _request.SpeciesId = null;
+                _request.Asked = false;
+                _request.DoneToday = true;
+                return Line(lines.Thanks, name, reward) + $" (+{reward} pièces)";
+            }
+
+            if (slot == RequestRules.KeepForAquarium) return Line(lines.KeepIt, name, 0);
+            return !firstMeeting && _random.Next(2) == 0 ? Line(lines.Waiting, name, 0) : null;
+        }
+
+        private string Line(string[] options, string fish, int coins)
+        {
+            if (options == null || options.Length == 0) return null;
+            return string.Format(options[_random.Next(options.Length)], fish, coins);
+        }
+
+        private int DeliverySlot(FishSpecies species)
+        {
+            if (_progress == null || _progress.Bag == null) return RequestRules.NoFish;
+            bool exposed = _progress.Aquarium != null && _progress.Aquarium.Contains(species.Id);
+            return RequestRules.DeliverySlot(_progress.Bag.Fish, species.Id, exposed);
+        }
+
+        private void BuildBubble()
+        {
+            var bubbleObject = new GameObject($"Bulle de {DisplayName}");
+            _bubble = bubbleObject.AddComponent<SpriteRenderer>();
+            _bubble.sortingOrder = 100;   // devant tout (papillons, feuillages)
+            var fishObject = new GameObject("Poisson demandé");
+            fishObject.transform.SetParent(bubbleObject.transform, false);
+            _bubbleFish = fishObject.AddComponent<SpriteRenderer>();
+            _bubbleFish.sortingOrder = 101;
+            bubbleObject.SetActive(false);
+        }
+
+        /// <summary>« ! » : une commande pas encore écoutée ; le poisson : on a dans le sac de quoi le servir.</summary>
+        private void UpdateBubble()
+        {
+            if (_bubble == null) return;
+            FishSpecies species = RequestedSpecies;
+            bool ask = species != null && !_request.Asked;
+            bool ready = species != null && _request.Asked && DeliverySlot(species) >= 0;
+            bool visible = (ask || ready) && !_talking && (_state != State.Home || (_indoor != null && _home != null && _home.IsPlayerInside));
+            _bubble.gameObject.SetActive(visible);
+            if (!visible) return;
+
+            _bubble.sprite = ask ? _exclamation : _fishBubble;
+            Transform body = _state == State.Home ? _indoor.transform : transform;
+            float height = _profile != null && _profile.Extras != null && _profile.Extras.Child ? 1.35f : 1.65f;
+            float bob = Mathf.Round(Mathf.Sin(Time.time * 3f) * 1.5f) / 16f;
+            _bubble.transform.position = body.position + new Vector3(0f, height + bob, 0f);
+
+            _bubbleFish.gameObject.SetActive(ready && species.MiniSprite != null);
+            if (ready && species.MiniSprite != null)
+            {
+                _bubbleFish.sprite = species.MiniSprite;
+                Vector2 size = species.MiniSprite.bounds.size;
+                float scale = Mathf.Min(1.0f / Mathf.Max(0.01f, size.x), 0.6f / Mathf.Max(0.01f, size.y));
+                _bubbleFish.transform.localScale = Vector3.one * scale;
+                _bubbleFish.transform.localPosition = new Vector3(0f, (3f + 6.5f) / 16f, 0f) - (Vector3)(species.MiniSprite.bounds.center * scale);
+            }
+        }
     }
 }

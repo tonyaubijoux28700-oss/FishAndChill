@@ -37,6 +37,8 @@ MonoBehaviour:
   _speed: 1.4
   _minPause: 2
   _maxPause: 6
+  _zones:
+  - {fileID: 11400000, guid: e71143147af136242879c044a37974a4, type: 2}
   _lines:
     Intro:
     - Bonjour ! Je suis Hinano, j'habite la maison rose avec mon fils Manu.
@@ -52,3 +54,11 @@ MonoBehaviour:
     - "Il se fait tard, Manu devrait d\xE9j\xE0 \xEAtre couch\xE9..."
     Aquarium:
     - "{0} esp\xE8ces \xE0 l'aquarium ! Manu les conna\xEEt toutes par leur nom."
+    Ask:
+    - "Je voudrais pr\xE9parer un plat de chez ma m\xE8re. Il me faudrait ce poisson du lac : {0}. Tu pourrais m'aider ?"
+    Waiting:
+    - "Le poisson pour mon plat ({0}), tu n'as pas oubli\xE9 ?"
+    Thanks:
+    - "Merci mille fois ! Avec \xE7a, ce soir ce sera la f\xEAte."
+    KeepIt:
+    - "Oh, c'est ton premier exemplaire ({0}) ? Garde-le pour l'aquarium, Manu serait d\xE9\xE7u sinon !"

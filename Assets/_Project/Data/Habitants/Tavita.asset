@@ -37,6 +37,9 @@ MonoBehaviour:
   _speed: 1.3
   _minPause: 3
   _maxPause: 8
+  _zones:
+  - {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
+  - {fileID: 11400000, guid: 3b48e273813a1bc43ba7dfd094286920, type: 2}
   _lines:
     Intro:
     - "Tiens, une nouvelle t\xEAte sur le ponton ! Moi c'est Tavita. \xC7a fait cinquante ans que je p\xEAche autour de Mahana."
@@ -56,3 +59,13 @@ MonoBehaviour:
     Aquarium:
     - "Il para\xEEt que ton aquarium a d\xE9j\xE0 {0} esp\xE8ces. Pas mal pour un d\xE9butant !"
     - "{0} esp\xE8ces \xE0 l'aquarium... Moi, \xE0 ton \xE2ge, je n'en connaissais pas la moiti\xE9."
+    Ask:
+    - "Dis donc, j'ai une envie de poisson grill\xE9. Celui-l\xE0 : {0}. Tu m'en rapporterais un ?"
+    - 'Tu sais ce qui me ferait plaisir ? Une belle prise : {0}. Comme au bon vieux temps.'
+    Waiting:
+    - "Toujours rien pour ma commande ({0}) ? Patience, \xE7a finira par mordre."
+    - "Je pense encore \xE0 ma commande : {0}..."
+    Thanks:
+    - Ah, {0} ! Tu as l'oeil, petit. Tiens, c'est pour toi.
+    KeepIt:
+    - C'est ton seul exemplaire ({0}) ? Mets-le d'abord dans ton aquarium, je peux attendre.

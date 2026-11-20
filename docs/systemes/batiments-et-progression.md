@@ -68,6 +68,16 @@
   (`VillagerLines`, choisies par `VillagerDialogue`, testé) : la présentation au premier échange (rencontres retenues
   par `VillagerMemory`, sauvegardées dans `SaveData.MetVillagers`), puis une réplique de tous les jours, de pluie, de
   nuit ou sur l'aquarium (« {0} » = espèces exposées). Le sac ne s'ouvre pas avec E quand un habitant est à portée.
+  **Commandes** (`VillagerRequest`, règles `RequestRules` testées, état de tous dans `VillagerRequests`, sauvegardé
+  dans `SaveData.VillagerRequests`) : chacun demande une espèce à la fois, tirée dans ses zones préférées
+  (`VillagerProfile._zones` : Tavita Mahana et Maldives, Hinano le lac, Manu Grande Barrière et Amazonie, Mamie Rose la
+  baie japonaise ; communes 3, peu communes 2, rares 1, jamais d'épique ni de légendaire). Bulle « ! » au-dessus de sa
+  tête (`BubbleArt.Exclamation`, `Art/UI/Bulle_Commande.png`) tant qu'il ne l'a pas demandée ; une fois demandée, bulle
+  avec la petite image du poisson (`BubbleArt.Wide` + `FishSpecies.MiniSprite`) quand on l'a dans le sac. En lui
+  parlant : il demande (`Lines.Ask`), prend le plus petit exemplaire et paie 2 × prix de base + 5 / 15 / 40 selon la
+  rareté (`Lines.Thanks` + « (+N pièces) »), refuse le seul exemplaire d'une espèce pas encore exposée (`Lines.KeepIt`),
+  ou rappelle sa commande une fois sur deux (`Lines.Waiting`). Servi : la commande suivante arrive le lendemain matin,
+  quand il ressort de chez lui (`DoneToday`).
 - **Animalerie** (`World/PetShopBuilding`, objet « Animalerie », dessins `Editor/PetShopArt`, style en volume 32 px
   par case) : au sud-ouest de l'île, entre la maison et la plage, loin du laboratoire (`MapSetup`, site cherché depuis
   centre + (-16, -12)), petite cour pavée et chemin vers le chemin principal (`TownLayout.DecoratePetShop` : massifs,

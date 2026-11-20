@@ -35,7 +35,7 @@ namespace FishAndChill.Editor
         public static VillagerProfile[] CreateOrUpdate()
         {
             PixelArt.EnsureFolder(Folder);
-            return new[]
+            VillagerProfile[] profiles =
             {
                 Save("tavita", "Tavita", Look(3, 0, 5, 1, 2, 1),
                     new NpcExtras { Beard = new Color(0.86f, 0.86f, 0.84f), Beanie = new Color(0.22f, 0.36f, 0.66f), Pants = new Color(0.24f, 0.30f, 0.46f) },
@@ -163,6 +163,47 @@ namespace FishAndChill.Editor
                         },
                     }),
             };
+
+            // Commandes : zones où chacun choisit ses poissons, et ce qu'il dit (« {0} » = nom du poisson).
+            Requests(profiles[0], new[] { "IleMahana", "Maldives" },
+                new[] { "Dis donc, j'ai une envie de poisson grillé. Celui-là : {0}. Tu m'en rapporterais un ?", "Tu sais ce qui me ferait plaisir ? Une belle prise : {0}. Comme au bon vieux temps." },
+                new[] { "Toujours rien pour ma commande ({0}) ? Patience, ça finira par mordre.", "Je pense encore à ma commande : {0}..." },
+                new[] { "Ah, {0} ! Tu as l'oeil, petit. Tiens, c'est pour toi." },
+                new[] { "C'est ton seul exemplaire ({0}) ? Mets-le d'abord dans ton aquarium, je peux attendre." });
+            Requests(profiles[1], new[] { "LacAnnecy" },
+                new[] { "Je voudrais préparer un plat de chez ma mère. Il me faudrait ce poisson du lac : {0}. Tu pourrais m'aider ?" },
+                new[] { "Le poisson pour mon plat ({0}), tu n'as pas oublié ?" },
+                new[] { "Merci mille fois ! Avec ça, ce soir ce sera la fête." },
+                new[] { "Oh, c'est ton premier exemplaire ({0}) ? Garde-le pour l'aquarium, Manu serait déçu sinon !" });
+            Requests(profiles[2], new[] { "GrandeBarriere", "FleuveAmazone" },
+                new[] { "Dis, tu pourrais m'attraper ce poisson : {0} ? C'est pour montrer à mes copains !", "J'ai vu ce poisson dans un livre : {0} ! Tu peux en attraper un ? Dis oui !" },
+                new[] { "Alors, mon poisson ({0}) ? Tu l'as trouvé ?", "J'en rêve toutes les nuits : {0}..." },
+                new[] { "Waouh, un vrai de vrai ! T'es le meilleur ! Tiens, c'est toute ma tirelire !" },
+                new[] { "Non, non, ton seul exemplaire ({0}), il doit aller dans le grand aquarium d'abord !" });
+            Requests(profiles[3], new[] { "BaieJaponaise" },
+                new[] { "Mon petit, il me faudrait ce poisson pour ma soupe : {0}. Ma vieille recette de famille." },
+                new[] { "Ma commande ({0}), quand tu auras un moment. Rien ne presse." },
+                new[] { "Tout frais ! Tu es un amour. Prends ça, et reviens goûter la soupe." },
+                new[] { "Ton seul exemplaire ({0}) ? Montre-le d'abord à tout le monde dans l'aquarium, voyons." });
+            return profiles;
+        }
+
+        private static void Requests(VillagerProfile profile, string[] zones, string[] ask, string[] waiting, string[] thanks, string[] keep)
+        {
+            var so = new SerializedObject(profile);
+            SerializedProperty list = so.FindProperty("_zones");
+            list.arraySize = zones.Length;
+            for (int i = 0; i < zones.Length; i++)
+            {
+                list.GetArrayElementAtIndex(i).objectReferenceValue = AssetDatabase.LoadAssetAtPath<FishingZone>($"Assets/_Project/Data/Zones/{zones[i]}.asset");
+            }
+
+            so.ApplyModifiedPropertiesWithoutUndo();
+            profile.Lines.Ask = ask;
+            profile.Lines.Waiting = waiting;
+            profile.Lines.Thanks = thanks;
+            profile.Lines.KeepIt = keep;
+            EditorUtility.SetDirty(profile);
         }
 
         private static VillagerProfile Save(string id, string displayName, CharacterLook look, NpcExtras extras, float leave, float home,
@@ -212,6 +253,8 @@ namespace FishAndChill.Editor
         {
             GameObject root = GameObject.Find("Habitants");
             if (root == null) root = new GameObject("Habitants");
+            Sprite exclamation = PixelArt.Save("Assets/_Project/Art/UI/Bulle_Commande.png", BubbleArt.Exclamation(), CharacterSprites.PixelsPerUnit, BubbleArt.ExclamationPivot);
+            Sprite fishBubble = PixelArt.Save("Assets/_Project/Art/UI/Bulle_Poisson.png", BubbleArt.Wide(), CharacterSprites.PixelsPerUnit, BubbleArt.WidePivot);
             var placed = new Villager[profiles.Length];
             for (int i = 0; i < profiles.Length; i++)
             {
@@ -249,6 +292,8 @@ namespace FishAndChill.Editor
                 so.FindProperty("_weather").objectReferenceValue = weather;
                 so.FindProperty("_progress").objectReferenceValue = progress;
                 so.FindProperty("_seed").intValue = 17 + i * 31;
+                so.FindProperty("_exclamation").objectReferenceValue = exclamation;
+                so.FindProperty("_fishBubble").objectReferenceValue = fishBubble;
                 so.ApplyModifiedPropertiesWithoutUndo();
                 placed[i] = villager;
             }

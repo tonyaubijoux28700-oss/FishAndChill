@@ -37,6 +37,9 @@ MonoBehaviour:
   _speed: 1.9
   _minPause: 0.4
   _maxPause: 1
+  _zones:
+  - {fileID: 11400000, guid: b3bab3c8683334044805b234f309ae0b, type: 2}
+  - {fileID: 11400000, guid: 8a5236730c657e747b4596b02007df66, type: 2}
   _lines:
     Intro:
     - Salut ! Moi c'est Manu, j'ai sept ans et demi !
@@ -53,3 +56,13 @@ MonoBehaviour:
     Aquarium:
     - "{0} esp\xE8ces ! Mon pr\xE9f\xE9r\xE9, c'est celui avec les grandes nageoires. Tu sais lequel ?"
     - Quand l'aquarium sera plein, je pourrai venir tous les jours ?
+    Ask:
+    - "Dis, tu pourrais m'attraper ce poisson : {0} ? C'est pour montrer \xE0 mes copains !"
+    - 'J''ai vu ce poisson dans un livre : {0} ! Tu peux en attraper un ? Dis oui !'
+    Waiting:
+    - "Alors, mon poisson ({0}) ? Tu l'as trouv\xE9 ?"
+    - "J'en r\xEAve toutes les nuits : {0}..."
+    Thanks:
+    - Waouh, un vrai de vrai ! T'es le meilleur ! Tiens, c'est toute ma tirelire !
+    KeepIt:
+    - Non, non, ton seul exemplaire ({0}), il doit aller dans le grand aquarium d'abord !

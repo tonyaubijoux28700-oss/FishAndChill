@@ -37,6 +37,8 @@ MonoBehaviour:
   _speed: 0.9
   _minPause: 4
   _maxPause: 10
+  _zones:
+  - {fileID: 11400000, guid: 1f23c7bcb94141241a3822bb70be8c18, type: 2}
   _lines:
     Intro:
     - Bonjour, mon petit. Je suis Rose, mais tout le monde m'appelle Mamie Rose.
@@ -52,3 +54,11 @@ MonoBehaviour:
     - "\xC0 mon \xE2ge, on se couche avec les poules. Bonne nuit, mon petit."
     Aquarium:
     - "{0} esp\xE8ces dans ton aquarium ! De mon temps, on les mangeait, maintenant on les admire."
+    Ask:
+    - 'Mon petit, il me faudrait ce poisson pour ma soupe : {0}. Ma vieille recette de famille.'
+    Waiting:
+    - Ma commande ({0}), quand tu auras un moment. Rien ne presse.
+    Thanks:
+    - "Tout frais ! Tu es un amour. Prends \xE7a, et reviens go\xFBter la soupe."
+    KeepIt:
+    - "Ton seul exemplaire ({0}) ? Montre-le d'abord \xE0 tout le monde dans l'aquarium, voyons."

@@ -70,6 +70,9 @@ namespace FishAndChill.Save
         /// <summary>Habitants déjà rencontrés (ils ne se présentent qu'une fois).</summary>
         public List<string> MetVillagers = new List<string>();
 
+        /// <summary>Commandes en cours des habitants.</summary>
+        public List<Villagers.VillagerRequest> VillagerRequests = new List<Villagers.VillagerRequest>();
+
         [Serializable]
         public sealed class BaitStock
         {

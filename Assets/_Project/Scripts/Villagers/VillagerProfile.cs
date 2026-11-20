@@ -25,6 +25,9 @@ namespace FishAndChill.Villagers
         [SerializeField, Min(0f)] private float _minPause = 2f;
         [SerializeField, Min(0f)] private float _maxPause = 6f;
 
+        [Header("Commandes")]
+        [SerializeField, Tooltip("Zones dont il demande les poissons (communs, peu communs, rares).")] private World.FishingZone[] _zones = new World.FishingZone[0];
+
         [SerializeField] private VillagerLines _lines = new VillagerLines();
 
         public string Id => _id;
@@ -38,5 +41,6 @@ namespace FishAndChill.Villagers
         public float MinPause => _minPause;
         public float MaxPause => _maxPause;
         public VillagerLines Lines => _lines;
+        public System.Collections.Generic.IReadOnlyList<World.FishingZone> Zones => _zones;
     }
 }
