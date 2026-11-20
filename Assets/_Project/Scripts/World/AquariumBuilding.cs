@@ -7,7 +7,9 @@ using UnityEngine;
 namespace FishAndChill.World
 {
     /// <summary>
-    /// L'aquarium, un des plus grands bâtiments du jeu, en deux salles (voir <see cref="InteriorBuilding"/> pour
+    /// L'aquarium, une tour : un étage par zone, desservis par un ascenseur (une cabine dans chaque salle, le menu des
+    /// étages dans <see cref="UI.ElevatorMenu"/>). La caméra ne montre que l'étage où l'on est. Les salles (voir
+    /// <see cref="InteriorBuilding"/> pour
     /// l'entrée et la sortie) :
     /// - le grand hall du lagon (30×18 cases) : bassin géant tropical sur tout le mur du fond, colonnes à méduses, bancs ;
     /// - la salle du lac (24×18 cases), à droite, par un passage voûté : bassin d'eau douce aux galets et roseaux ;
@@ -49,8 +51,33 @@ namespace FishAndChill.World
         public static readonly Rect ReefTank = new Rect(ReefRoomX + 2.4f, 12.4f, ReefRoomWidth - 4.8f, 4.4f);
         public static readonly Rect AtollTank = new Rect(AtollRoomX + 2.4f, 12.4f, AtollRoomWidth - 4.8f, 4.4f);
 
+        /// <summary>
+        /// Les étages : le hall au rez-de-chaussée, puis une salle par zone. Les salles restent côte à côte dans le monde,
+        /// mais sans passage entre elles : on va de l'une à l'autre par l'ascenseur, et la caméra ne montre que l'étage.
+        /// </summary>
+        public static readonly Rect[] Floors =
+        {
+            new Rect(0f, 0f, HallWidth, InteriorHeight),
+            new Rect(LakeRoomX, 0f, LakeRoomWidth, InteriorHeight),
+            new Rect(AmazonRoomX, 0f, AmazonRoomWidth, InteriorHeight),
+            new Rect(JapanRoomX, 0f, JapanRoomWidth, InteriorHeight),
+            new Rect(ReefRoomX, 0f, ReefRoomWidth, InteriorHeight),
+            new Rect(AtollRoomX, 0f, AtollRoomWidth, InteriorHeight),
+        };
+
+        /// <summary>Pied de l'ascenseur de chaque étage (relatif au coin de l'intérieur) ; on l'appelle en se plaçant devant.</summary>
+        public static readonly Vector2[] ElevatorSpots =
+        {
+            new Vector2(25.5f, 2.4f),                  // hall : à la place de la 2e colonne à méduses
+            new Vector2(LakeRoomX + 5f, 1.6f),
+            new Vector2(AmazonRoomX + 5f, 1.6f),
+            new Vector2(JapanRoomX + 5.2f, 1.6f),      // entre la lanterne de pierre et le premier rocher
+            new Vector2(ReefRoomX + 5f, 1.6f),
+            new Vector2(AtollRoomX + 5f, 1.6f),
+        };
+
         /// <summary>Colonnes à méduses (pied, relatif au coin de la salle).</summary>
-        public static readonly Vector2[] JellyfishColumns = { new Vector2(4.5f, 3.2f), new Vector2(25.5f, 3.2f) };
+        public static readonly Vector2[] JellyfishColumns = { new Vector2(4.5f, 3.2f) };
 
         /// <summary>Bancs face aux bassins (pied, relatif au coin de la salle).</summary>
         public static readonly Vector2[] Benches =
@@ -66,7 +93,115 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Optionnel : pas de dépôt pendant une partie de pêche.")]
         private FishingController _fishing;
 
+        [Header("Ascenseur")]
+        [SerializeField, Tooltip("Zone dont chaque étage expose les espèces (même ordre que Floors).")]
+        private FishingZone[] _floorZones = new FishingZone[0];
+
+        [SerializeField, Tooltip("L'ascenseur de chaque étage (même ordre que Floors).")]
+        private SpriteRenderer[] _elevators = new SpriteRenderer[0];
+
+        [SerializeField, Tooltip("Porte fermée, à moitié, ouverte.")]
+        private Sprite[] _elevatorFrames = new Sprite[0];
+
+        private float[] _doorOpen = new float[0];
+
         public event Action<DepositResult> Deposited;
+
+        /// <summary>L'étage où se trouve le joueur (0 = hall).</summary>
+        public int CurrentFloor { get; private set; }
+
+        public int FloorCount => Floors.Length;
+
+        /// <summary>La zone exposée à un étage (null si inconnue).</summary>
+        public FishingZone FloorZone(int floor) => floor >= 0 && floor < _floorZones.Length ? _floorZones[floor] : null;
+
+        /// <summary>La caméra ne montre que l'étage où l'on est.</summary>
+        protected override Rect CameraRect => WorldRect(Floors[Mathf.Clamp(CurrentFloor, 0, Floors.Length - 1)]);
+
+        public override void Enter()
+        {
+            CurrentFloor = 0;
+            base.Enter();
+        }
+
+        /// <summary>L'étage dont le joueur est devant l'ascenseur, ou -1.</summary>
+        public int PlayerAtElevator
+        {
+            get
+            {
+                if (!IsPlayerInside || Player == null)
+                {
+                    return -1;
+                }
+
+                Vector2 feet = (Vector2)Player.transform.position - InteriorOrigin;
+                for (int i = 0; i < ElevatorSpots.Length; i++)
+                {
+                    Vector2 e = ElevatorSpots[i];
+                    if (Mathf.Abs(feet.x - e.x) < 1.4f && feet.y < e.y - 0.05f && feet.y > e.y - 1.6f)
+                    {
+                        return i;
+                    }
+                }
+
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Emmène le joueur à un étage : devant les portes de son ascenseur, la caméra calée sur la salle. À appeler
+        /// pendant un fondu au noir (<see cref="UI.ElevatorMenu"/>). Public pour les tests.
+        /// </summary>
+        public void GoToFloor(int floor)
+        {
+            if (!IsPlayerInside || Player == null || floor < 0 || floor >= Floors.Length)
+            {
+                return;
+            }
+
+            CurrentFloor = floor;
+            Player.Teleport(InteriorOrigin + ElevatorSpots[floor] + new Vector2(0f, -1.1f), Vector2.down);
+            if (FollowCamera != null)
+            {
+                FollowCamera.SetBoundsOverride(CameraRect);
+                FollowCamera.SnapToTarget();
+            }
+
+            // Les portes de l'étage d'arrivée sont grandes ouvertes.
+            if (floor < _doorOpen.Length) _doorOpen[floor] = 1f;
+        }
+
+        /// <summary>Les portes s'ouvrent quand on s'approche et se referment quand on s'éloigne.</summary>
+        private void AnimateDoors()
+        {
+            if (_elevators.Length == 0 || _elevatorFrames.Length == 0)
+            {
+                return;
+            }
+
+            if (_doorOpen.Length != _elevators.Length)
+            {
+                _doorOpen = new float[_elevators.Length];
+            }
+
+            int near = -1;
+            if (IsPlayerInside && Player != null)
+            {
+                Vector2 feet = (Vector2)Player.transform.position - InteriorOrigin;
+                for (int i = 0; i < ElevatorSpots.Length && i < _elevators.Length; i++)
+                {
+                    if (Vector2.Distance(feet, ElevatorSpots[i] + new Vector2(0f, -1f)) < 2.6f) near = i;
+                }
+            }
+
+            for (int i = 0; i < _elevators.Length; i++)
+            {
+                if (_elevators[i] == null) continue;
+                _doorOpen[i] = Mathf.MoveTowards(_doorOpen[i], i == near ? 1f : 0f, Time.deltaTime * 4f);
+                int frame = Mathf.Clamp(Mathf.RoundToInt(_doorOpen[i] * (_elevatorFrames.Length - 1)), 0, _elevatorFrames.Length - 1);
+                _elevators[i].sprite = _elevatorFrames[frame];
+            }
+        }
 
         public override Vector2 InteriorSize => new Vector2(InteriorWidth, InteriorHeight);
 
@@ -105,20 +240,17 @@ namespace FishAndChill.World
 
         protected override void SetupInterior(WorldMap map)
         {
-            // Le passage voûté et le sol de la salle du lac.
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(HallWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(LakeRoomX + 0.7f, 0.15f), new Vector2(LakeRoomWidth - 1.4f, FloorTop - 0.15f)));
-            // Deuxième passage, au bout de la salle du lac, et la salle Amazonie.
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(AmazonRoomX - PassageWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(AmazonRoomX + 0.7f, 0.15f), new Vector2(AmazonRoomWidth - 1.4f, FloorTop - 0.15f)));
-            // Troisième passage, au bout de la salle Amazonie, et la salle Japon.
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(JapanRoomX - PassageWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(JapanRoomX + 0.7f, 0.15f), new Vector2(JapanRoomWidth - 1.4f, FloorTop - 0.15f)));
-            // Quatrième passage, au bout de la salle Japon, et la salle Grande Barrière.
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(ReefRoomX - PassageWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(ReefRoomX + 0.7f, 0.15f), new Vector2(ReefRoomWidth - 1.4f, FloorTop - 0.15f)));
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(AtollRoomX - PassageWidth - 1f, PassageBottom), new Vector2(PassageWidth + 2f, PassageTop - PassageBottom)));
-            map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(AtollRoomX + 0.7f, 0.15f), new Vector2(AtollRoomWidth - 1.4f, FloorTop - 0.15f)));
+            // Le sol de chaque salle, sans passage entre elles : on change d'étage par l'ascenseur.
+            for (int i = 1; i < Floors.Length; i++)
+            {
+                map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(Floors[i].x + 0.7f, 0.15f), new Vector2(Floors[i].width - 1.4f, FloorTop - 0.15f)));
+            }
+
+            foreach (Vector2 spot in ElevatorSpots)
+            {
+                Vector2 foot = InteriorOrigin + spot;
+                map.AddObstacle(new Rect(foot.x - 1.5f, foot.y - 0.1f, 3f, 1.1f));
+            }
 
             foreach (Vector2 spot in JellyfishColumns)
             {
@@ -141,6 +273,7 @@ namespace FishAndChill.World
         protected override void Update()
         {
             base.Update();
+            AnimateDoors();
             if (CanDeposit && InteractInput.PressedThisFrame())
             {
                 Deposit();

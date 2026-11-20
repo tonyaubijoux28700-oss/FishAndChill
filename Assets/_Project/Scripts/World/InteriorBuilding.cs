@@ -44,6 +44,11 @@ namespace FishAndChill.World
 
         public Rect InteriorRect => new Rect(_interiorOrigin, InteriorSize);
 
+        /// <summary>Ce que la caméra peut montrer à l'intérieur (toute la pièce ; l'aquarium : l'étage où l'on est).</summary>
+        protected virtual Rect CameraRect => InteriorRect;
+
+        protected CameraFollow FollowCamera => _camera;
+
         /// <summary>Sol où l'on peut marcher, relatif au coin bas-gauche de la pièce (sous le mur du fond).</summary>
         protected abstract Rect FloorArea { get; }
 
@@ -104,14 +109,14 @@ namespace FishAndChill.World
         }
 
         /// <summary>Entre dans le bâtiment. Public pour pouvoir le déclencher hors clavier (tests).</summary>
-        public void Enter()
+        public virtual void Enter()
         {
             IsPlayerInside = true;
             Occupied = this;
             _player.Teleport(InsideSpot, Vector2.up);
             if (_camera != null)
             {
-                _camera.SetBoundsOverride(InteriorRect);
+                _camera.SetBoundsOverride(CameraRect);
                 _camera.SnapToTarget();
                 Camera cam = _camera.GetComponent<Camera>();
                 _outsideBackground = cam.backgroundColor;

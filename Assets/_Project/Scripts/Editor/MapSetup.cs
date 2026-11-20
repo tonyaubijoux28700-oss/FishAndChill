@@ -1967,7 +1967,7 @@ namespace FishAndChill.Editor
         private static AquariumBuilding BuildAquarium(Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow, FishingController controller)
         {
             const string folder = "Assets/_Project/Art/Buildings";
-            Sprite exterior = PixelArt.Save($"{folder}/Aquarium.png", AquariumArt.Exterior(), TileArt.Size, AquariumArt.ExteriorPivot);
+            Sprite exterior = PixelArt.Save($"{folder}/Aquarium.png", AquariumArt.TowerExterior(), TileArt.Size, AquariumArt.TowerPivot);   // la tour des bassins
             Sprite interior = PixelArt.Save($"{folder}/Aquarium_Interieur.png", AquariumArt.Interior(), TileArt.Size, Vector2.zero);
             Sprite glass = PixelArt.Save($"{folder}/Aquarium_Vitre.png", AquariumArt.TankGlass(), TileArt.Size, Vector2.zero);
 
@@ -2004,7 +2004,7 @@ namespace FishAndChill.Editor
 
             // Salle du lac, à droite du grand hall par un passage voûté.
             Color[,] lakeRoomPixels = AquariumLifeArt.LakeRoom();
-            AquariumAmazonArt.OpenRightPassage(lakeRoomPixels); // passage vers la salle Amazonie
+            AquariumAmazonArt.CloseLeftPassage(lakeRoomPixels); // plus de passage : on change d'étage par l'ascenseur
             Sprite lakeRoom = PixelArt.Save($"{folder}/Aquarium_SalleDuLac.png", lakeRoomPixels, TileArt.Size, Vector2.zero);
             Sprite lakeGlass = PixelArt.Save($"{folder}/Aquarium_SalleDuLac_Vitre.png", AquariumLifeArt.LakeTankGlass(), TileArt.Size, Vector2.zero);
             GameObject lakeObject = EnsureObject("Salle du lac", room.transform);
@@ -2017,7 +2017,7 @@ namespace FishAndChill.Editor
             // Salle Amazonie, au bout de la salle du lac par un second passage.
             float amazonX = AquariumBuilding.AmazonRoomX - AquariumBuilding.PassageWidth;
             Color[,] amazonRoomPixels = AquariumAmazonArt.AmazonRoom();
-            AquariumAmazonArt.OpenRightPassage(amazonRoomPixels); // passage vers la salle Japon
+            AquariumAmazonArt.CloseLeftPassage(amazonRoomPixels);
             Sprite amazonRoom = PixelArt.Save($"{folder}/Aquarium_SalleAmazonie.png", amazonRoomPixels, TileArt.Size, Vector2.zero);
             Sprite amazonGlass = PixelArt.Save($"{folder}/Aquarium_SalleAmazonie_Vitre.png", AquariumAmazonArt.TankGlass(), TileArt.Size, Vector2.zero);
             GameObject amazonObject = EnsureObject("Salle Amazonie", room.transform);
@@ -2030,7 +2030,7 @@ namespace FishAndChill.Editor
             // Salle Japon, au bout de la salle Amazonie par un troisième passage.
             float japanX = AquariumBuilding.JapanRoomX - AquariumBuilding.PassageWidth;
             Color[,] japanRoomPixels = AquariumJapanArt.JapanRoom();
-            AquariumAmazonArt.OpenRightPassage(japanRoomPixels); // passage vers la salle Grande Barrière
+            AquariumAmazonArt.CloseLeftPassage(japanRoomPixels);
             Sprite japanRoom = PixelArt.Save($"{folder}/Aquarium_SalleJapon.png", japanRoomPixels, TileArt.Size, Vector2.zero);
             Sprite japanGlass = PixelArt.Save($"{folder}/Aquarium_SalleJapon_Vitre.png", AquariumJapanArt.TankGlass(), TileArt.Size, Vector2.zero);
             GameObject japanObject = EnsureObject("Salle Japon", room.transform);
@@ -2043,7 +2043,7 @@ namespace FishAndChill.Editor
             // Salle Grande Barrière, au bout de la salle Japon.
             float reefX = AquariumBuilding.ReefRoomX - AquariumBuilding.PassageWidth;
             Color[,] reefRoomPixels = AquariumReefArt.ReefRoom();
-            AquariumAmazonArt.OpenRightPassage(reefRoomPixels); // passage vers la salle Maldives
+            AquariumAmazonArt.CloseLeftPassage(reefRoomPixels);
             Sprite reefRoom = PixelArt.Save($"{folder}/Aquarium_SalleRecif.png", reefRoomPixels, TileArt.Size, Vector2.zero);
             Sprite reefGlass = PixelArt.Save($"{folder}/Aquarium_SalleRecif_Vitre.png", AquariumReefArt.TankGlass(), TileArt.Size, Vector2.zero);
             GameObject reefObject = EnsureObject("Salle Grande Barrière", room.transform);
@@ -2055,7 +2055,9 @@ namespace FishAndChill.Editor
 
             // Salle Maldives, au bout de la salle Grande Barrière.
             float atollX = AquariumBuilding.AtollRoomX - AquariumBuilding.PassageWidth;
-            Sprite atollRoom = PixelArt.Save($"{folder}/Aquarium_SalleMaldives.png", AquariumAtollArt.AtollRoom(), TileArt.Size, Vector2.zero);
+            Color[,] atollRoomPixels = AquariumAtollArt.AtollRoom();
+            AquariumAmazonArt.CloseLeftPassage(atollRoomPixels);
+            Sprite atollRoom = PixelArt.Save($"{folder}/Aquarium_SalleMaldives.png", atollRoomPixels, TileArt.Size, Vector2.zero);
             Sprite atollGlass = PixelArt.Save($"{folder}/Aquarium_SalleMaldives_Vitre.png", AquariumAtollArt.TankGlass(), TileArt.Size, Vector2.zero);
             GameObject atollObject = EnsureObject("Salle Maldives", room.transform);
             atollObject.transform.localPosition = new Vector3(atollX, 0f, 0f);
@@ -2063,6 +2065,39 @@ namespace FishAndChill.Editor
             GameObject atollGlassObject = EnsureObject("Vitre du bassin Maldives", room.transform);
             atollGlassObject.transform.localPosition = new Vector3(atollX, 0f, 0f);
             SetSprite(atollGlassObject, atollGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
+
+            // L'ascenseur de chaque étage (la 2e colonne à méduses du hall lui laisse sa place).
+            Transform oldColumn = room.transform.Find("Colonne à méduses 2");
+            if (oldColumn != null)
+            {
+                Object.DestroyImmediate(oldColumn.gameObject);
+            }
+
+            var elevatorFrames = new Sprite[ElevatorArt.Frames];
+            for (int f = 0; f < elevatorFrames.Length; f++)
+            {
+                elevatorFrames[f] = PixelArt.Save($"{folder}/Aquarium_Ascenseur_{f}.png", ElevatorArt.Cabin(f), TileArt.Size, new Vector2(0.5f, 0f));
+            }
+
+            var elevators = new SpriteRenderer[AquariumBuilding.ElevatorSpots.Length];
+            for (int i = 0; i < elevators.Length; i++)
+            {
+                GameObject lift = EnsureObject($"Ascenseur {i}", room.transform);
+                lift.transform.position = interiorOrigin + AquariumBuilding.ElevatorSpots[i];
+                elevators[i] = SetSprite(lift, elevatorFrames[0], 10);
+                elevators[i].spriteSortPoint = SpriteSortPoint.Pivot;
+            }
+
+            var liftSo = new SerializedObject(aquarium);
+            SetSprites(liftSo.FindProperty("_elevatorFrames"), elevatorFrames);
+            SerializedProperty liftList = liftSo.FindProperty("_elevators");
+            liftList.arraySize = elevators.Length;
+            for (int i = 0; i < elevators.Length; i++)
+            {
+                liftList.GetArrayElementAtIndex(i).objectReferenceValue = elevators[i];
+            }
+
+            liftSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Mobilier de la salle (triés par les pieds, comme le joueur) : colonnes à méduses et bancs.
             Sprite column = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses.png", AquariumArt.JellyfishColumnV2(), TileArt.Size, new Vector2(0.5f, 0f));

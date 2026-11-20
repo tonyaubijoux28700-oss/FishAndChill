@@ -588,6 +588,30 @@ namespace FishAndChill.Editor
             hudSo.FindProperty("_travel").objectReferenceValue = travel;
             hudSo.ApplyModifiedPropertiesWithoutUndo();
 
+            // L'ascenseur de l'aquarium : la zone de chaque étage (même ordre que AquariumBuilding.Floors) et le panneau.
+            var floorsSo = new SerializedObject(aquarium);
+            SerializedProperty floorZones = floorsSo.FindProperty("_floorZones");
+            FishingZone[] byFloor = { zone, lakeZone, amazonZone, japanZone, reefZone, atollZone };
+            floorZones.arraySize = byFloor.Length;
+            for (int i = 0; i < byFloor.Length; i++)
+            {
+                floorZones.GetArrayElementAtIndex(i).objectReferenceValue = byFloor[i];
+            }
+
+            floorsSo.ApplyModifiedPropertiesWithoutUndo();
+            var elevatorMenu = partie.GetComponent<UI.ElevatorMenu>();
+            if (elevatorMenu == null)
+            {
+                elevatorMenu = partie.AddComponent<UI.ElevatorMenu>();
+            }
+
+            var elevatorSo = new SerializedObject(elevatorMenu);
+            elevatorSo.FindProperty("_aquarium").objectReferenceValue = aquarium;
+            elevatorSo.FindProperty("_progress").objectReferenceValue = progress;
+            elevatorSo.FindProperty("_player").objectReferenceValue = movement;
+            elevatorSo.FindProperty("_skin").objectReferenceValue = skin;
+            elevatorSo.ApplyModifiedPropertiesWithoutUndo();
+
             // Menu pause (Échap / Start) : reprendre, volume, plein écran, nouvelle partie, quitter.
             var pauseMenu = partie.GetComponent<UI.PauseMenu>();
             if (pauseMenu == null)

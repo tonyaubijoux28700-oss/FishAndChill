@@ -145,9 +145,10 @@ namespace FishAndChill.Fishing
             {
                 _message.text = ShopHint;
             }
-            else if (World.InteriorBuilding.Occupied is World.AquariumBuilding)
+            else if (World.InteriorBuilding.Occupied is World.AquariumBuilding aquarium)
             {
-                _message.text = AquariumHint;
+                // Le paillasson n'existe qu'au rez-de-chaussée ; aux étages, on repart par l'ascenseur.
+                _message.text = aquarium.CurrentFloor == 0 ? AquariumHint : string.Empty;
             }
             else if (World.InteriorBuilding.Occupied != null)
             {

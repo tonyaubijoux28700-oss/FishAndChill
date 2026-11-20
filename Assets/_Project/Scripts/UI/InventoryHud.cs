@@ -263,6 +263,12 @@ namespace FishAndChill.UI
                 return false;
             }
 
+            // Devant l'ascenseur de l'aquarium, E ouvre le menu des étages (et pendant le trajet).
+            if (FishAndChill.UI.ElevatorMenu.Busy || (_aquarium != null && _aquarium.PlayerAtElevator >= 0))
+            {
+                return false;
+            }
+
             // Devant le bassin, E dépose les poissons.
             if (_aquarium != null && _aquarium.PlayerAtTank)
             {

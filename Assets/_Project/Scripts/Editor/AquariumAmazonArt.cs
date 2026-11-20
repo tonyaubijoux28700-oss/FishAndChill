@@ -253,6 +253,23 @@ namespace FishAndChill.Editor
         /// Ouvre le mur de droite de la salle du lac (même découpage) sur un passage vers la salle Amazonie :
         /// sol de pierre et arche en laiton dans l'épaisseur du mur.
         /// </summary>
+        /// <summary>
+        /// Referme le passage voûté à gauche d'une salle (même découpage pour toutes) : les salles sont devenues des étages
+        /// reliés par l'ascenseur. On recopie, colonne par colonne, ce qu'il y a juste sous le passage (mur, sol).
+        /// </summary>
+        public static void CloseLeftPassage(Color[,] p)
+        {
+            int h = p.GetLength(1);
+            for (int x = 0; x <= Room + 10 && x < p.GetLength(0); x++)
+            {
+                Color under = p[x, PassageBottom - 3];
+                for (int y = PassageBottom - 1; y <= PassageTop + 6 && y < h; y++)
+                {
+                    p[x, y] = under;
+                }
+            }
+        }
+
         public static void OpenRightPassage(Color[,] p)
         {
             int w = p.GetLength(0);

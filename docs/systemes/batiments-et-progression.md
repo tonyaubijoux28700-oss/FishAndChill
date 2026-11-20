@@ -50,13 +50,26 @@
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).
-- **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu. Façade 12×10 cases
-  (`AquariumArt`, 192×160 px, entre la 1re version 6×5 et la version 18×15 jugée trop grande : perron, colonnes,
-  4 vitrines, rosace, dôme de verre plein d'eau, lanterne), emprise 11,2×5,2, site cherché autour du centre de l'île
-  avec 9 cases de marge, la boutique à ≥ 14 cases. **Cinq salles** (intérieur 134×18 cases) : le **grand hall du lagon**
-  (30 cases : bassin tropical, allée en mosaïque, médaillon, colonnes à méduses, bancs) et, par un **passage voûté** dans
-  le mur de droite (`PassageBottom`/`PassageTop`), la **salle du lac** (24 cases, `AquariumLifeArt.LakeRoom` : lambris,
-  parquet, tapis, bassin d'eau douce aux galets avec souche), puis par un 2e passage au bout de la salle du lac (`AquariumAmazonArt.OpenRightPassage`) la **salle Amazonie** (24 cases, `AquariumAmazonArt` : tomettes, tapis à zigzags, mur de feuilles, bassin d'eau noire couleur thé, racines, feuilles mortes ; `AmazonTank`, plantes épées, cabombas, néons cardinaux), puis au bout la **salle Japon** (`AquariumJapanArt` : tatamis, shōji, branches de cerisier, bassin d'eau de mer aux rochers sombres, laminaires, ulves, bancs de sardines ; `JapanTank`), puis la **salle Grande Barrière** (`AquariumReefArt` : cabane de plage, fresque marine, sable blanc et caillebotis `AquariumFloorArt.Reef`, bénitier géant, transats, ancre, bouées ; bassin de coraux, coraux mous, demoiselles ; `ReefTank`). Entrée au milieu du hall (`InteriorBuilding.EntranceX`).
+- **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu, **une tour**. Façade
+  `AquariumArt.TowerExterior` (192×320 px, pivot `TowerPivot`) : en bas l'ancien bâtiment sans son dôme (perron,
+  colonnes, 4 vitrines, rosace), au-dessus 4 étages de carreaux et de bandeaux de laiton, hublots où nagent des poissons,
+  cage d'ascenseur vitrée au milieu avec sa cabine, et le dôme de verre et sa lanterne au sommet. Emprise au sol 11,2×5,2,
+  site cherché autour du centre de l'île avec 9 cases de marge, la boutique à ≥ 14 cases.
+  **Un étage par zone** (`AquariumBuilding.Floors`, ordre des zones dans `_floorZones`) : rez-de-chaussée = grand hall du
+  lagon (30 cases : bassin tropical, allée en mosaïque, médaillon, une colonne à méduses, bancs), étage 1 = salle du lac
+  (`AquariumLifeArt.LakeRoom` : lambris, parquet, tapis, bassin d'eau douce aux galets avec souche), étage 2 = salle
+  Amazonie (`AquariumAmazonArt` : tomettes, tapis à zigzags, mur de feuilles, bassin d'eau noire couleur thé, racines ;
+  `AmazonTank`, plantes épées, cabombas, néons cardinaux), étage 3 = salle Japon (`AquariumJapanArt` : tatamis, shōji,
+  branches de cerisier, bassin d'eau de mer aux rochers sombres ; `JapanTank`), étage 4 = Grande Barrière
+  (`AquariumReefArt` : cabane de plage, fresque marine, sable blanc et caillebotis ; `ReefTank`), étage 5 = atoll.
+  Dans la scène, les salles restent côte à côte (intérieur 134×18 cases) mais les passages sont murés
+  (`AquariumAmazonArt.CloseLeftPassage`, sols marchables salle par salle) et la caméra est bornée à l'étage courant
+  (`InteriorBuilding.CameraRect`). **Ascenseur** à chaque étage (`ElevatorSpots`, dessin `ElevatorArt.Cabin` : cage
+  Art déco en laiton, grille pliante qui s'ouvre quand on approche, cadran d'étage) : **E** devant ouvre
+  `UI/ElevatorMenu` (étages du haut vers le bas, « RDC » / « Étage N », nom de la zone, espèces exposées / total,
+  Haut / Bas, E ou Espace pour y aller, Échap pour fermer), fondu au noir, `AquariumBuilding.GoToFloor`, bandeau
+  « Étage N — Zone ». Ajouter une zone = une salle de plus, un `Floors` / `ElevatorSpots` et sa zone dans `_floorZones`.
+  Le paillasson de sortie n'est qu'au rez-de-chaussée (entrée au milieu du hall, `InteriorBuilding.EntranceX`).
   Un `AquariumTank` par bassin (`_zone`, `_area` = `HallTank` / `LakeTank`) : chaque bassin montre les espèces de sa zone,
   à leur taille réelle (échelle de `FishDisplayScale`). **Vie des bassins** (`World/TankLife`, dessins `AquariumLifeArt`) :
   plantes qui ondulent (laminaires, herbiers / potamots, élodées ; derrière et devant les poissons), bulles, rayons de
@@ -70,7 +83,7 @@
   restent que dans le grand hall (`AquariumBuilding.Benches`).
   **Visiteurs mis de côté** pour l'instant : `World/AquariumVisitors` et `MapSetup.BuildVisitors` (pêcheur recoloré,
   promenade devant les bassins, +1 toutes les 6 espèces) existent mais ne sont plus appelés. La faune de la zone
-  (`AmbientLife`) se cache à l'intérieur des bâtiments. Obstacles : `AquariumBuilding.JellyfishColumns` / `Benches`. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
+  (`AmbientLife`) se cache à l'intérieur des bâtiments. Obstacles : `AquariumBuilding.JellyfishColumns` / `Benches` et les ascenseurs. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
   gros de chaque nouvelle espèce entre ; **la taille ne compte pas ensuite** : une espèce déjà exposée n'est jamais
   remplacée, même par un plus gros, et tous ses exemplaires restent dans le sac pour le marchand (`FishShop` les achète).
   Les poissons nagent dans le bassin (`AquariumTank`) avec leur petite version `FishSpecies.MiniSprite`

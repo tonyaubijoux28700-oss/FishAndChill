@@ -62,7 +62,10 @@ namespace FishAndChill.Editor
         // Façade
         // ======================================================================
 
-        public static Color[,] Exterior()
+        public static Color[,] Exterior() => Exterior(withDome: true);
+
+        /// <summary>La façade ; sans le dôme quand une tour s'élève derrière (<see cref="TowerExterior"/>).</summary>
+        public static Color[,] Exterior(bool withDome)
         {
             var p = new Color[ExteriorWidth, ExteriorHeight];
             const float cx = 95.5f;           // axe de la porte : tout est symétrique autour (x ↔ 191 - x)
@@ -71,8 +74,11 @@ namespace FishAndChill.Editor
             // Derrière : toits en tuiles des ailes, puis le dôme.
             DrawWingRoof(p, 7, 66, 66, 14);
             DrawWingRoof(p, 125, 184, 66, 14);
-            DrawDome(p, cx, 69f, 76f, 72f, ribs: 7);
-            DrawLantern(p, cx, 139);
+            if (withDome)
+            {
+                DrawDome(p, cx, 69f, 76f, 72f, ribs: 7);
+                DrawLantern(p, cx, 139);
+            }
 
             // Ailes : murs enduits, soubassement en carreaux, corniche ondulée.
             DrawWall(p, 7, 184, 6, 66, band);
@@ -137,6 +143,130 @@ namespace FishAndChill.Editor
             }
 
             return p;
+        }
+
+        public const int TowerHeight = 320;
+        public const int TowerFloors = 4;
+
+        /// <summary>Pivot de la façade en tour (même pied que la façade simple).</summary>
+        public static readonly Vector2 TowerPivot = new Vector2(0.5f, 2f / TowerHeight);
+
+        /// <summary>
+        /// La façade en tour (192×320, 12×20 cases) : la façade d'entrée au pied, et derrière elle une tour enduite qui
+        /// s'élève sur <see cref="TowerFloors"/> étages, chacun avec ses hublots pleins d'eau et de poissons, cerclés de
+        /// laiton, bandeaux de carreaux entre les étages ; au milieu, la gaine vitrée de l'ascenseur panoramique (cabine
+        /// de laiton à mi-hauteur) ; en haut, le dôme de verre et sa lanterne.
+        /// </summary>
+        public static Color[,] TowerExterior()
+        {
+            var p = new Color[ExteriorWidth, TowerHeight];
+            const float cx = 95.5f;
+            const int x0 = 40, x1 = 151, wallBottom = 60, bottom = 86;   // les étages commencent au-dessus du pavillon d'entrée
+            const int floorHeight = 40;
+            int top = bottom + TowerFloors * floorHeight;
+
+            // Le dôme et sa lanterne couronnent la tour.
+            DrawDome(p, cx, top + 4, 50f, 46f, ribs: 5);
+            DrawLantern(p, cx, top + 46);
+
+            // Corps de la tour.
+            DrawWall(p, x0, x1, wallBottom, top + 4, 0, lighter: false);
+            for (int f = 0; f < TowerFloors; f++)
+            {
+                int fy = bottom + f * floorHeight;
+                // Bandeau de carreaux et corniche de laiton entre deux étages.
+                for (int x = x0 - 2; x <= x1 + 2; x++)
+                {
+                    for (int y = fy + floorHeight - 6; y <= fy + floorHeight; y++)
+                    {
+                        p[x, y] = y >= fy + floorHeight - 1 ? Brass : y == fy + floorHeight - 2 ? BrassDark : ((x / 6) + (y / 3)) % 2 == 0 ? Tile : TileDark;
+                    }
+                }
+
+                // Deux hublots de chaque côté de la gaine de l'ascenseur.
+                foreach (float hx in new[] { 58f, 75f, 116f, 133f })
+                {
+                    DrawPorthole(p, hx, fy + 20f, 7.5f, seed: f * 7 + (int)hx);
+                }
+            }
+
+            // Pilastres aux angles de la tour.
+            DrawPilaster(p, x0, x0 + 4, wallBottom, top, 0);
+            DrawPilaster(p, x1 - 4, x1, wallBottom, top, 0);
+
+            // Gaine vitrée de l'ascenseur, du pied au dôme, et la cabine qui monte.
+            for (int x = 87; x <= 104; x++)
+            {
+                for (int y = wallBottom; y <= top; y++)
+                {
+                    bool frame = x == 87 || x == 104 || y % floorHeight == bottom % floorHeight;
+                    bool cage = (x - 87) % 6 == 0;
+                    Color glass = Color.Lerp(WaterDeep, WaterTop, Mathf.InverseLerp(bottom, top, y) * 0.6f + 0.2f);
+                    if ((x + y) % 23 < 2) glass = Color.Lerp(glass, Color.white, 0.4f);   // reflets
+                    p[x, y] = frame ? Brass : cage ? BrassDark : glass;
+                }
+            }
+
+            int cabin = bottom + floorHeight * 2 + 10;
+            for (int x = 89; x <= 102; x++)
+            {
+                for (int y = cabin; y <= cabin + 18; y++)
+                {
+                    bool edge = x == 89 || x == 102 || y == cabin || y == cabin + 18;
+                    bool window = x > 91 && x < 100 && y > cabin + 6 && y < cabin + 15;
+                    p[x, y] = edge ? BrassDark : window ? C(1f, 0.92f, 0.62f) : Brass;   // vitre éclairée de la cabine
+                }
+            }
+
+            PixelArt.SelectiveOutline(p, Outline, 0.6f);
+
+            // La façade d'entrée, au pied, par-dessus la tour.
+            Color[,] front = Exterior(withDome: false);
+            for (int x = 0; x < ExteriorWidth; x++)
+            {
+                for (int y = 0; y < ExteriorHeight; y++)
+                {
+                    if (front[x, y].a > 0.01f && (front[x, y].a > 0.5f || p[x, y].a < 0.01f))
+                    {
+                        p[x, y] = front[x, y];
+                    }
+                }
+            }
+
+            return p;
+        }
+
+        /// <summary>Hublot rond plein d'eau : cercle de laiton, rivets, eau en dégradé, un ou deux poissons et des bulles.</summary>
+        private static void DrawPorthole(Color[,] p, float cx, float cy, float r, int seed)
+        {
+            var random = new System.Random(seed);
+            Color fish = random.Next(3) == 0 ? FishYellow : random.Next(2) == 0 ? FishOrange : CoralPink;
+            float fishX = cx + (float)(random.NextDouble() * 6 - 3);
+            float fishY = cy + (float)(random.NextDouble() * 4 - 2);
+            int dir = random.Next(2) == 0 ? 1 : -1;
+            for (int x = Mathf.FloorToInt(cx - r - 2); x <= Mathf.CeilToInt(cx + r + 2); x++)
+            {
+                for (int y = Mathf.FloorToInt(cy - r - 2); y <= Mathf.CeilToInt(cy + r + 2); y++)
+                {
+                    float d = Mathf.Sqrt((x + 0.5f - cx) * (x + 0.5f - cx) + (y + 0.5f - cy) * (y + 0.5f - cy));
+                    if (d > r + 2f) continue;
+                    if (d > r)
+                    {
+                        float a = Mathf.Atan2(y + 0.5f - cy, x + 0.5f - cx);
+                        bool rivet = Mathf.Repeat(a * 8f / (Mathf.PI * 2f), 1f) < 0.18f && d > r + 0.9f;
+                        p[x, y] = rivet ? Color.Lerp(Brass, Color.white, 0.4f) : y > cy ? Brass : BrassDark;
+                        continue;
+                    }
+
+                    Color c = Color.Lerp(WaterDeep, WaterTop, Step(Mathf.InverseLerp(cy - r, cy + r, y), 4f));
+                    if (y < cy - r + 2.5f) c = (x % 3 == 0) ? SandDark : Sand;                                       // fond de sable
+                    float fx = (x + 0.5f - fishX) * dir, fyy = y + 0.5f - fishY;
+                    if (fx * fx / 6f + fyy * fyy / 1.6f < 1f || (fx < -2f && fx > -4f && Mathf.Abs(fyy) < (-fx - 1.5f))) c = fish;   // poisson
+                    if (x == Mathf.RoundToInt(cx + r * 0.4f) && (y == Mathf.RoundToInt(cy + 2) || y == Mathf.RoundToInt(cy + 4))) c = Bubble;
+                    if (x + y == Mathf.RoundToInt(cx + cy - r * 0.2f) && y > cy) c = Color.Lerp(c, Color.white, 0.5f);         // reflet
+                    p[x, y] = c;
+                }
+            }
         }
 
         private static void DrawWall(Color[,] p, int x0, int x1, int y0, int y1, int band, bool lighter = false)
@@ -560,13 +690,6 @@ namespace FishAndChill.Editor
             PixelArt.Rect(p, InteriorWidth - 10, 0, InteriorWidth - 1, InteriorHeight - 1, C(0.10f, 0.18f, 0.25f));
             PixelArt.Rect(p, 9, 0, 9, StandBottom, MetalLight);
             PixelArt.Rect(p, InteriorWidth - 10, 0, InteriorWidth - 10, StandBottom, Metal);
-
-            // Passage voûté vers la salle du lac, dans le mur de droite (sol de 3,2 à 6 cases de haut).
-            PixelArt.Rect(p, InteriorWidth - 10, 51, InteriorWidth - 1, 96, C(0.11f, 0.16f, 0.27f));
-            PixelArt.Rect(p, InteriorWidth - 10, 51, InteriorWidth - 1, 52, C(0.60f, 0.68f, 0.72f));
-            PixelArt.Rect(p, InteriorWidth - 11, 50, InteriorWidth - 11, 100, Brass);
-            PixelArt.Rect(p, InteriorWidth - 11, 97, InteriorWidth - 1, 100, Brass);
-            PixelArt.Rect(p, InteriorWidth - 11, 101, InteriorWidth - 1, 101, BrassDark);
 
             // Paillasson de sortie.
             PixelArt.Rect(p, 216, 0, 263, 9, Tile);
