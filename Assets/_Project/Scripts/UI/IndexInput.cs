@@ -32,6 +32,19 @@ namespace FishAndChill.UI
             return gamepad != null && gamepad.buttonEast.wasPressedThisFrame;
         }
 
+        /// <summary>Entrée, Espace ou A / Croix : valider (passer de la liste des zones à la grille des espèces).</summary>
+        public static bool ConfirmPressedThisFrame()
+        {
+            var keyboard = Keyboard.current;
+            if (keyboard != null && (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame))
+            {
+                return true;
+            }
+
+            var gamepad = Gamepad.current;
+            return gamepad != null && gamepad.buttonSouth.wasPressedThisFrame;
+        }
+
         /// <summary>Direction choisie cette image (-1, 0 ou 1 sur chaque axe, y vers le haut).</summary>
         public static (int dx, int dy) NavigationThisFrame()
         {

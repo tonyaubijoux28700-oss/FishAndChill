@@ -13,7 +13,8 @@ namespace FishAndChill.UI
     /// <summary>
     /// L'index des espèces, en carnet de pêcheur : une icône de livre en bas à gauche (compteur « 12/29 ») et, avec Tab
     /// (ou Y à la manette), un carnet ouvert sur deux pages.
-    /// À gauche : un onglet par zone (Q/E ou gâchettes hautes pour changer), la progression de la zone avec ses paliers
+    /// Sur le côté gauche, une colonne des zones qui défile (Haut / Bas quand elle a la main, Droite pour passer à la
+    /// grille, Gauche pour y revenir ; Q/E ou gâchettes hautes partout). Page de gauche : la progression de la zone avec ses paliers
     /// de récompense (25 %, 50 %, 100 % : des pièces, et un tampon « Complet »), et la grille des espèces (dessins à
     /// l'échelle de leur taille, silhouettes « ??? » pour les inconnues).
     /// À droite : la fiche de l'espèce choisie (grand dessin, rareté, heure, zone, description réelle, prises, record),
@@ -56,7 +57,28 @@ namespace FishAndChill.UI
         private bool _refreshAtEnd;
         private const float BarWidth = 500f;
 
-        [SerializeField, Tooltip("Zones dont les espèces figurent dans l'index, dans l'ordre des onglets.")]
+        // Le carnet, un peu réduit et décalé à droite pour laisser la place à la colonne des zones.
+        private const float BookScale = 0.86f;
+        private static readonly Vector2 BookCenter = new Vector2(165f, 0f);
+
+        // Colonne des zones, à gauche du carnet : une liste qui défile, la zone choisie toujours visible.
+        private static readonly Vector2 ColumnCenter = new Vector2(-695f, 0f);
+        private static readonly Vector2 ColumnSize = new Vector2(290f, 760f);
+        private const float ColumnBand = 80f;        // en haut (titre, « Plus haut ») et en bas (« Plus bas », compteur)
+        private const float ZoneRowHeight = 72f;
+        private const float ZoneRowGap = 10f;
+        private const float ZoneScrollMargin = 30f;
+        private const float ZonePadding = 8f;        // pour que le halo de la zone choisie ne soit pas rogné
+        private RectTransform _zoneContent;
+        private float _zoneViewHeight;
+        private float _zoneScroll;
+        private float _zoneScrollTarget;
+        private Text _moreAbove;
+        private Text _moreBelow;
+        private Text _zoneCounter;
+        private bool _zoneListFocused = true;
+
+        [SerializeField, Tooltip("Zones dont les espèces figurent dans l'index, dans l'ordre de la colonne des zones.")]
         private FishingZone[] _zones = new FishingZone[0];
 
         [SerializeField] private FishingController _fishing;
@@ -92,11 +114,13 @@ namespace FishAndChill.UI
             public Text Name;
         }
 
-        private sealed class TabView
+        private sealed class ZoneEntryView
         {
             public RectTransform Rect;
+            public Image Halo;
             public Image Ribbon;
-            public Text Label;
+            public Text Name;
+            public Text Count;
         }
 
         private sealed class MilestoneView
@@ -106,7 +130,7 @@ namespace FishAndChill.UI
         }
 
         private readonly List<CellView> _cells = new List<CellView>();
-        private readonly List<TabView> _tabs = new List<TabView>();
+        private readonly List<ZoneEntryView> _zoneEntries = new List<ZoneEntryView>();
         private readonly List<MilestoneView> _milestones = new List<MilestoneView>();
         private readonly List<List<FishSpecies>> _zoneSpecies = new List<List<FishSpecies>>();
         private SpeciesIndex _index;
@@ -143,8 +167,11 @@ namespace FishAndChill.UI
         /// <summary>Espèce sélectionnée (numéro dans la zone affichée).</summary>
         public int Selected => _selected;
 
-        /// <summary>Zone affichée (onglet).</summary>
+        /// <summary>Zone affichée (choisie dans la colonne de gauche).</summary>
         public int Zone => _zone;
+
+        /// <summary>La colonne des zones a la main (Haut / Bas changent de zone) ; sinon, c'est la grille des espèces.</summary>
+        public bool ZoneListFocused => _zoneListFocused;
 
         public SpeciesIndex Index => _index;
 
@@ -212,19 +239,31 @@ namespace FishAndChill.UI
                 }
 
                 int zoneStep = ZoneStepThisFrame();
+                (int dx, int dy) = IndexInput.NavigationThisFrame();
+                if (_zoneListFocused)
+                {
+                    // Dans la colonne : Haut / Bas changent de zone, Droite ou Entrée passent à la grille des espèces.
+                    if (dy != 0) zoneStep = -dy;
+                    if ((dx > 0 || IndexInput.ConfirmPressedThisFrame()) && Current.Count > 0) FocusZoneList(false);
+                }
+                else if (dx < 0 && _selected % Columns == 0)
+                {
+                    // Gauche depuis la première colonne de la grille : retour à la liste des zones.
+                    FocusZoneList(true);
+                }
+                else if (dx != 0 || dy != 0)
+                {
+                    Select(SpeciesIndex.Move(_selected, dx, -dy, Columns, Current.Count));
+                }
+
                 if (zoneStep != 0 && _zoneSpecies.Count > 1)
                 {
                     TurnPage(zoneStep);
                     ShowZone((_zone + zoneStep + _zoneSpecies.Count) % _zoneSpecies.Count);
                 }
 
-                (int dx, int dy) = IndexInput.NavigationThisFrame();
-                if (dx != 0 || dy != 0)
-                {
-                    Select(SpeciesIndex.Move(_selected, dx, -dy, Columns, Current.Count));
-                }
-
                 Animate();
+                AnimateZoneList(Time.unscaledDeltaTime);
                 AnimateFlip(Time.unscaledDeltaTime);
             }
             else if (IndexInput.TogglePressedThisFrame() && CanOpenNow())
@@ -261,8 +300,20 @@ namespace FishAndChill.UI
                 _player.Locked = true;
             }
 
+            _zoneListFocused = true;
             ClaimRewards();
             Refresh();
+            // À l'ouverture, la liste est déjà en place (pas de glissement depuis le haut).
+            _zoneScroll = _zoneScrollTarget;
+            AnimateZoneList(0f);
+        }
+
+        /// <summary>Donne la main à la colonne des zones (vrai) ou à la grille des espèces (faux).</summary>
+        public void FocusZoneList(bool focused)
+        {
+            _zoneListFocused = focused;
+            RefreshZoneList();
+            RefreshHelp();
         }
 
         public void Close()
@@ -274,7 +325,7 @@ namespace FishAndChill.UI
             }
         }
 
-        /// <summary>Ouvre l'onglet d'une zone.</summary>
+        /// <summary>Affiche une zone (comme si on la choisissait dans la colonne).</summary>
         public void ShowZone(int zone)
         {
             _zone = Mathf.Clamp(zone, 0, Mathf.Max(0, _zoneSpecies.Count - 1));
@@ -446,7 +497,7 @@ namespace FishAndChill.UI
 
         // ---------- Rafraîchissement ----------
 
-        /// <summary>Met à jour la page de gauche (onglets, zone, grille) et / ou celle de droite (fiche de l'espèce).</summary>
+        /// <summary>Met à jour la colonne des zones, la page de gauche (zone, grille) et / ou celle de droite (fiche de l'espèce).</summary>
         private void Refresh(bool left = true, bool right = true)
         {
             if (_index == null)
@@ -455,6 +506,9 @@ namespace FishAndChill.UI
             }
 
             CatchLog log = Log;
+            // La colonne des zones est hors des pages : elle suit tout de suite, même pendant qu'une page tourne.
+            RefreshZoneList();
+            RefreshHelp();
             if (!left)
             {
                 if (right) RefreshDetail(log, _zones.Length > _zone ? _zones[_zone] : null);
@@ -462,14 +516,6 @@ namespace FishAndChill.UI
             }
 
             _badge.text = $"{_index.DiscoveredCount(log)}/{_index.Count}";
-
-            for (int i = 0; i < _tabs.Count; i++)
-            {
-                bool active = i == _zone;
-                _tabs[i].Rect.anchoredPosition = new Vector2(_tabs[i].Rect.anchoredPosition.x, active ? 462f : 452f);
-                _tabs[i].Ribbon.color = active ? ZoneColors[i % ZoneColors.Length] : Color.Lerp(ZoneColors[i % ZoneColors.Length], new Color(0.4f, 0.36f, 0.3f), 0.55f);
-                _tabs[i].Label.color = active ? Color.white : new Color(0.86f, 0.84f, 0.8f);
-            }
 
             List<FishSpecies> species = Current;
             FishingZone zone = _zones.Length > _zone ? _zones[_zone] : null;
@@ -519,9 +565,79 @@ namespace FishAndChill.UI
             }
 
             if (right) RefreshDetail(log, zone);
+        }
+
+        private void RefreshHelp()
+        {
+            if (_help == null)
+            {
+                return;
+            }
+
+            if (_zoneListFocused)
+            {
+                _help.text = _zoneSpecies.Count > 1
+                    ? "Haut / Bas : changer de zone      Droite : voir les espèces      Tab : fermer"
+                    : "Droite : voir les espèces      Tab : fermer";
+                return;
+            }
+
             _help.text = _zoneSpecies.Count > 1
-                ? $"{ZoneKeys()} : changer de zone      Flèches : choisir      Tab : fermer"
+                ? $"Flèches : choisir      Gauche : liste des zones      {ZoneKeys()} : zone      Tab : fermer"
                 : "Flèches : choisir      Tab : fermer";
+        }
+
+        /// <summary>Colonne des zones : la zone affichée en couleur, sortie vers le carnet, et toujours visible.</summary>
+        private void RefreshZoneList()
+        {
+            if (_zoneContent == null)
+            {
+                return;
+            }
+
+            CatchLog log = Log;
+            for (int i = 0; i < _zoneEntries.Count; i++)
+            {
+                ZoneEntryView entry = _zoneEntries[i];
+                bool active = i == _zone;
+                Color color = ZoneColors[i % ZoneColors.Length];
+                entry.Ribbon.color = active ? color : Color.Lerp(color, new Color(0.4f, 0.36f, 0.3f), 0.55f);
+                entry.Rect.sizeDelta = new Vector2(active ? 236f : 214f, ZoneRowHeight);
+                entry.Rect.anchoredPosition = new Vector2(active ? 6f : -6f, -ZonePadding - i * (ZoneRowHeight + ZoneRowGap));
+                entry.Halo.gameObject.SetActive(active);
+                entry.Name.color = active ? Color.white : new Color(0.86f, 0.84f, 0.8f);
+
+                List<FishSpecies> species = i < _zoneSpecies.Count ? _zoneSpecies[i] : new List<FishSpecies>();
+                int discovered = CollectionRewards.Discovered(species, log);
+                bool complete = species.Count > 0 && discovered == species.Count;
+                entry.Count.text = complete ? $"Complet  {discovered} / {species.Count}" : $"{discovered} / {species.Count}";
+                entry.Count.color = complete ? Gold : (active ? new Color(0.96f, 0.94f, 0.88f) : new Color(0.80f, 0.78f, 0.72f));
+            }
+
+            _zoneScrollTarget = ZoneListScroll.Offset(_zoneScrollTarget, _zone, _zoneEntries.Count, ZoneRowHeight, ZoneRowGap, _zoneViewHeight, ZoneScrollMargin);
+            _zoneCounter.text = _zoneEntries.Count > 0 ? $"Zone {_zone + 1} / {_zoneEntries.Count}" : string.Empty;
+        }
+
+        /// <summary>Glissement doux de la liste vers la zone choisie, repères « Plus haut » / « Plus bas » et halo qui pulse.</summary>
+        private void AnimateZoneList(float deltaTime)
+        {
+            if (_zoneContent == null)
+            {
+                return;
+            }
+
+            _zoneScroll = deltaTime <= 0f ? _zoneScrollTarget : Mathf.Lerp(_zoneScroll, _zoneScrollTarget, 1f - Mathf.Exp(-14f * deltaTime));
+            if (Mathf.Abs(_zoneScroll - _zoneScrollTarget) < 0.5f) _zoneScroll = _zoneScrollTarget;
+            _zoneContent.anchoredPosition = new Vector2(0f, Mathf.Round(_zoneScroll));
+            _moreAbove.gameObject.SetActive(ZoneListScroll.MoreAbove(_zoneScroll));
+            _moreBelow.gameObject.SetActive(ZoneListScroll.MoreBelow(_zoneScroll, _zoneEntries.Count, ZoneRowHeight, ZoneRowGap, _zoneViewHeight));
+
+            if (_zone < _zoneEntries.Count)
+            {
+                float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 6f);
+                Image halo = _zoneEntries[_zone].Halo;
+                halo.color = _zoneListFocused ? Color.Lerp(Gold, Color.white, 0.5f * pulse) : new Color(Gold.r, Gold.g, Gold.b, 0.55f);
+            }
         }
 
         private static string ZoneKeys()
@@ -655,16 +771,18 @@ namespace FishAndChill.UI
 
             BuildIcon(root);
 
-            // Le carnet : voile, onglets (derrière la couverture), couverture, deux pages et le pli.
+            // Voile, colonne des zones à gauche, puis le carnet : couverture, deux pages et le pli.
             Image veil = UiFactory.Plain(root, "Voile", new Color(0.02f, 0.04f, 0.06f, 0.55f));
             UiFactory.Stretch(veil.rectTransform);
             _window = veil.gameObject;
-            RectTransform book = veil.rectTransform;
 
-            for (int i = 0; i < _zones.Length; i++)
-            {
-                _tabs.Add(BuildTab(book, i));
-            }
+            BuildZoneColumn(veil.rectTransform);
+
+            var bookObject = new GameObject("Carnet", typeof(RectTransform));
+            bookObject.transform.SetParent(veil.rectTransform, false);
+            var book = bookObject.GetComponent<RectTransform>();
+            UiFactory.Center(book, BookCenter, new Vector2(1580f, 880f));
+            book.localScale = Vector3.one * BookScale;
 
             Image cover = UiFactory.Sliced(book, "Couverture", _cover, new Color(0.40f, 0.22f, 0.12f));
             UiFactory.Center(cover.rectTransform, new Vector2(0f, 0f), new Vector2(1580f, 880f));
@@ -702,16 +820,81 @@ namespace FishAndChill.UI
             return page.rectTransform;
         }
 
-        private TabView BuildTab(RectTransform book, int i)
+        /// <summary>
+        /// Colonne des zones : un étui de cuir assorti au carnet, une feuille de papier et, dessus, un marque-page par zone
+        /// dans une vue masquée qui défile (autant de zones qu'on veut).
+        /// </summary>
+        private void BuildZoneColumn(RectTransform parent)
         {
-            Image ribbon = UiFactory.Sliced(book, $"Onglet {i + 1}", _ribbon, ZoneColors[i % ZoneColors.Length]);
-            RectTransform rect = ribbon.rectTransform;
-            UiFactory.Center(rect, new Vector2(-640f + i * 250f, 452f), new Vector2(230f, 84f));
-            Text label = UiFactory.Label(rect, "Zone", 24, TextAnchor.MiddleCenter, Color.white);
-            UiFactory.Bold(label);
-            label.text = _zones[i] != null ? _zones[i].DisplayName : "?";
-            UiFactory.Place(label.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -6f), new Vector2(-12f, 40f));
-            return new TabView { Rect = rect, Ribbon = ribbon, Label = label };
+            Image frame = UiFactory.Sliced(parent, "Colonne des zones", _cover, new Color(0.40f, 0.22f, 0.12f));
+            RectTransform column = frame.rectTransform;
+            UiFactory.Center(column, ColumnCenter, ColumnSize);
+
+            Image paper = UiFactory.Sliced(column, "Feuille", _page, new Color(0.96f, 0.91f, 0.78f));
+            UiFactory.Stretch(paper.rectTransform, 14f);
+
+            UiFactory.TitlePlaque(column, _skin, "Zones", 30, new Vector2(0f, ColumnSize.y * 0.5f - 8f), new Vector2(200f, 60f), out _);
+
+            var viewObject = new GameObject("Vue des zones", typeof(RectTransform), typeof(RectMask2D));
+            viewObject.transform.SetParent(column, false);
+            var view = viewObject.GetComponent<RectTransform>();
+            view.anchorMin = Vector2.zero;
+            view.anchorMax = Vector2.one;
+            view.offsetMin = new Vector2(16f, ColumnBand);
+            view.offsetMax = new Vector2(-16f, -ColumnBand);
+            _zoneViewHeight = ColumnSize.y - 2f * ColumnBand - 2f * ZonePadding;
+
+            var contentObject = new GameObject("Liste", typeof(RectTransform));
+            contentObject.transform.SetParent(view, false);
+            _zoneContent = contentObject.GetComponent<RectTransform>();
+            UiFactory.Place(_zoneContent, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), Vector2.zero,
+                new Vector2(0f, ZoneListScroll.ContentHeight(_zones.Length, ZoneRowHeight, ZoneRowGap) + 2f * ZonePadding));
+
+            for (int i = 0; i < _zones.Length; i++)
+            {
+                _zoneEntries.Add(BuildZoneEntry(_zoneContent, i));
+            }
+
+            float bandCenter = ColumnSize.y * 0.5f - ColumnBand + 24f;
+            _moreAbove = InkLabel(column, "Plus haut", 19, TextAnchor.MiddleCenter, InkSoft);
+            _moreAbove.text = "Plus haut";
+            UiFactory.Center(_moreAbove.rectTransform, new Vector2(0f, bandCenter - 2f), new Vector2(240f, 24f));
+            _moreBelow = InkLabel(column, "Plus bas", 19, TextAnchor.MiddleCenter, InkSoft);
+            _moreBelow.text = "Plus bas";
+            UiFactory.Center(_moreBelow.rectTransform, new Vector2(0f, -bandCenter + 2f), new Vector2(240f, 24f));
+            _zoneCounter = InkLabel(column, "Compteur des zones", 20, TextAnchor.MiddleCenter, Ink);
+            UiFactory.Center(_zoneCounter.rectTransform, new Vector2(0f, -ColumnSize.y * 0.5f + 36f), new Vector2(240f, 26f));
+        }
+
+        private ZoneEntryView BuildZoneEntry(RectTransform content, int i)
+        {
+            var holder = new GameObject($"Zone {i + 1}", typeof(RectTransform));
+            holder.transform.SetParent(content, false);
+            var rect = holder.GetComponent<RectTransform>();
+            UiFactory.Place(rect, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -ZonePadding - i * (ZoneRowHeight + ZoneRowGap)), new Vector2(214f, ZoneRowHeight));
+
+            // Halo doré derrière le marque-page de la zone choisie (il pulse quand la colonne a la main).
+            Image halo = UiFactory.Sliced(rect, "Halo", _cell, Gold);
+            UiFactory.Stretch(halo.rectTransform, -5f);
+            halo.gameObject.SetActive(false);
+
+            Image ribbon = UiFactory.Sliced(rect, "Marque-page", _ribbon, ZoneColors[i % ZoneColors.Length]);
+            UiFactory.Stretch(ribbon.rectTransform);
+
+            Text name = UiFactory.Label(ribbon.rectTransform, "Nom", 22, TextAnchor.MiddleCenter, Color.white);
+            UiFactory.Bold(name);
+            name.text = _zones[i] != null ? _zones[i].DisplayName : "?";
+            name.horizontalOverflow = HorizontalWrapMode.Wrap;
+            name.resizeTextForBestFit = true;   // un nom long rapetisse au lieu de déborder
+            name.resizeTextMaxSize = name.fontSize;
+            name.resizeTextMinSize = Mathf.Max(10, name.fontSize * 2 / 3);
+            UiFactory.Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -6f), new Vector2(-16f, 34f));
+
+            Text count = UiFactory.Label(ribbon.rectTransform, "Découvertes", 18, TextAnchor.MiddleCenter, Color.white);
+            UiFactory.Place(count.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 8f), new Vector2(-16f, 24f));
+
+            return new ZoneEntryView { Rect = rect, Halo = halo, Ribbon = ribbon, Name = name, Count = count };
         }
 
         private void BuildLeftPage(RectTransform page)
@@ -844,6 +1027,10 @@ namespace FishAndChill.UI
 
             _help = InkLabel(page, "Aide", 19, TextAnchor.MiddleCenter, InkSoft);
             UiFactory.Center(_help.rectTransform, new Vector2(0f, -362f), new Vector2(700f, 28f));
+            _help.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _help.resizeTextForBestFit = true;   // l'aide la plus longue rapetisse au lieu de déborder de la page
+            _help.resizeTextMaxSize = _help.fontSize;
+            _help.resizeTextMinSize = Mathf.Max(10, _help.fontSize * 3 / 4);
         }
 
         /// <summary>Icône du livre, à droite de celle du sac, avec le compteur et la touche.</summary>

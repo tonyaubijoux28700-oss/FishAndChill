@@ -166,7 +166,14 @@
 - **Index des espèces = carnet du pêcheur** (`UI/FishIndex`, objet « Partie », canvas ordre 12) : icône de livre à
   droite du sac (compteur « 12/29 », `UiArt.BookIcon`), **Tab** (ou Y manette, `IndexInput`) ouvre un carnet sur deux pages
   (dessins `BookArt` : cuir cousu, papier, cases encrées, onglets, pli, tampon, soleil/lune/pièce ; `Art/UI/Carnet/`).
-  **Onglets par zone** (touches physiques Q/E = A/E en AZERTY, ou gâchettes hautes) ; page de gauche : nom et pays de la
+  **Colonne des zones** à gauche du carnet (le carnet est réduit à ×0,86 et décalé à droite pour lui laisser la place) :
+  étui de cuir, feuille, bandeau « Zones », un marque-page par zone (nom + « découvertes / total », « Complet » en or),
+  la zone choisie en couleur, plus large et entourée d'un halo doré. Vue masquée qui **défile** dès qu'il y a plus de
+  7 zones (`ZoneListScroll`, testé : la zone choisie reste toujours visible avec un peu de marge, glissement doux),
+  repères « Plus haut » / « Plus bas » et « Zone 3 / 6 ». **Navigation** : à l'ouverture la colonne a la main
+  (Haut / Bas = changer de zone, halo qui pulse) ; Droite, Entrée ou A manette passent à la grille ; Gauche depuis la
+  première colonne de la grille revient à la liste (`FishIndex.FocusZoneList`) ; Q/E (A/E en AZERTY) et les gâchettes
+  hautes changent de zone partout. Page de gauche : nom et pays de la
   zone, barre de progression avec **paliers 25/50/100 %** (`CollectionRewards`, testé : 50/150/400 pièces, encaissés
   automatiquement dès qu'ils sont atteints, bandeau « Carnet — … +N pièces » même carnet fermé, clés « zone:palier »
   dans `PlayerProgress.ClaimedRewards` et `SaveData.Rewards`), tampon « COMPLET » à 100 %, grille 4×3 (dessins à
