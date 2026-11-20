@@ -109,14 +109,14 @@
   bâtiments, 22 entre elles), posées par `MapSetup.BuildVillagerHouse` (modèles `VillagerLooks` = 0, 1, 3). On y entre
   comme dans les autres bâtiments ; pièces hors de l'île, espacées de 14 cases (la caméra voit plus haut qu'une pièce de
   7 cases). Meubles peints dans le décor, pieds infranchissables (`HomeArt.Obstacles` → `_furniture`), habitants
-  debout et solides (`HomeArt.Residents` → `_residents`, dessins `CharacterArt`) :
+  debout chez eux la nuit (`HomeArt.Residents`, objets « Habitant id ») :
   - cabane du pêcheur (planches bleues, toit de palmes) : poêle, poisson empaillé, filet, bouée, tonneaux, table au
     poisson grillé ; **le vieux pêcheur** (ciré jaune, bonnet à pompon, barbe grise) ;
   - maison pastel (enduit pêche, tuiles) : canapé, bibliothèque, table fleurie, jouets ; **la maman** (robe rouge à
     fleurs, hibiscus) et **l'enfant** (t-shirt rayé) ;
   - chaumière de pierre : cheminée et chaudron, fauteuil à bascule, petit lit à courtepointe, chat endormi ; **la
     grand-mère** (chignon blanc, lunettes, gilet violet).
-  Les habitants ne parlent pas encore. `VillageArt` a aussi la maison jaune à véranda (modèle 2) et une maison pastel
+  Leur vie (balade, retour le soir, dialogues) : voir « Habitants » dans `batiments-et-progression.md`. `VillageArt` a aussi la maison jaune à véranda (modèle 2) et une maison pastel
   lavande (`tint` 1), pas encore posées. Chaque maison a sa petite cour pavée, un chemin vers le pavé le plus proche
   (`TownLayout.PavePaths`) et un buisson à côté (`DecorateVillagers`).
 

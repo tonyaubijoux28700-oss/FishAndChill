@@ -67,6 +67,9 @@ namespace FishAndChill.Save
         /// <summary>Récompenses de collection encaissées (« zone:palier »).</summary>
         public List<string> Rewards = new List<string>();
 
+        /// <summary>Habitants déjà rencontrés (ils ne se présentent qu'une fois).</summary>
+        public List<string> MetVillagers = new List<string>();
+
         [Serializable]
         public sealed class BaitStock
         {

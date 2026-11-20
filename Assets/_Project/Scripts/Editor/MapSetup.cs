@@ -2070,26 +2070,18 @@ namespace FishAndChill.Editor
             GameObject floor = EnsureObject("Sol et murs", room.transform);
             floor.transform.localPosition = Vector3.zero;
             SetSprite(floor, interior, -5).spriteSortPoint = SpriteSortPoint.Center;
+            // Les habitants debout chez eux (« Habitant id ») : leur portrait et leur vie sont posés par VillagerSetup.
             for (int i = 0; i < 4; i++)
             {
                 Transform old = room.transform.Find($"Habitant {i + 1}");
-                if (old != null && i >= residents.Length) Object.DestroyImmediate(old.gameObject);
+                if (old != null) Object.DestroyImmediate(old.gameObject);
             }
 
             for (int i = 0; i < residents.Length; i++)
             {
-                Color[,] pixels = residents[i].Name switch
-                {
-                    "Vieux pêcheur" => CharacterArt.OldFisherman(),
-                    "Maman" => CharacterArt.Mother(),
-                    "Enfant" => CharacterArt.Child(),
-                    _ => CharacterArt.Grandmother(),
-                };
-                string file = residents[i].Name switch { "Vieux pêcheur" => "Vieux_Pecheur", "Maman" => "Maman", "Enfant" => "Enfant", _ => "Grand_Mere" };
-                Sprite sprite = PixelArt.Save($"Assets/_Project/Art/Characters/{file}.png", pixels, TileArt.Size, CharacterArt.Pivot);
-                GameObject resident = EnsureObject($"Habitant {i + 1}", room.transform);
+                GameObject resident = EnsureObject($"Habitant {VillagerSetup.IdOfRole(residents[i].Name)}", room.transform);
                 resident.transform.position = interiorOrigin + residents[i].Feet;
-                SetSprite(resident, sprite, 10);
+                SetSprite(resident, null, 10);
             }
         }
 

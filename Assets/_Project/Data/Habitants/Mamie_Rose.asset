@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab56bbc658e2934ba802a381e643029, type: 3}
+  m_Name: Mamie_Rose
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Villagers.VillagerProfile
+  _id: rose
+  _displayName: Mamie Rose
+  _look:
+    Name: 
+    Skin: 1
+    HairStyle: 5
+    HairColor: 5
+    Hat: 0
+    Top: 1
+    TopColor: 5
+    Bottom: 2
+  _extras:
+    Beard: {r: 0, g: 0, b: 0, a: 0}
+    Beanie: {r: 0, g: 0, b: 0, a: 0}
+    Skirt: {r: 0.52, g: 0.52, b: 0.56, a: 1}
+    Pants: {r: 0, g: 0, b: 0, a: 0}
+    HairFlower: {r: 0, g: 0, b: 0, a: 0}
+    Glasses: 1
+    Child: 0
+  _leaveHour: 10
+  _homeHour: 17
+  _wanderRadius: 3
+  _speed: 0.9
+  _minPause: 4
+  _maxPause: 10
+  _lines:
+    Intro:
+    - Bonjour, mon petit. Je suis Rose, mais tout le monde m'appelle Mamie Rose.
+    - "Je suis n\xE9e ici, sur Mahana. \xC0 l'\xE9poque, il n'y avait ni aquarium ni boutique, juste des pirogues et du soleil."
+    Daily:
+    - "Ma m\xE8re disait qu'un poisson g\xE9ant dort au large de l'\xEEle. Les anciens l'appelaient le gardien."
+    - "Viens prendre une tasse de th\xE9 un de ces jours. Ma porte est toujours ouverte."
+    - "Mon chat dort toute la journ\xE9e devant la chemin\xE9e. Sage animal."
+    - "Le phare \xE9tait d\xE9j\xE0 l\xE0 quand j'\xE9tais petite. Il a vu passer bien des temp\xEAtes."
+    Rain:
+    - "Ah, la pluie... Mes vieux genoux l'avaient sentie venir d\xE8s ce matin."
+    Night:
+    - "\xC0 mon \xE2ge, on se couche avec les poules. Bonne nuit, mon petit."
+    Aquarium:
+    - "{0} esp\xE8ces dans ton aquarium ! De mon temps, on les mangeait, maintenant on les admire."

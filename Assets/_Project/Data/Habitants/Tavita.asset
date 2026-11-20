@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab56bbc658e2934ba802a381e643029, type: 3}
+  m_Name: Tavita
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Villagers.VillagerProfile
+  _id: tavita
+  _displayName: Tavita
+  _look:
+    Name: 
+    Skin: 3
+    HairStyle: 0
+    HairColor: 5
+    Hat: 0
+    Top: 1
+    TopColor: 2
+    Bottom: 1
+  _extras:
+    Beard: {r: 0.86, g: 0.86, b: 0.84, a: 1}
+    Beanie: {r: 0.22, g: 0.36, b: 0.66, a: 1}
+    Skirt: {r: 0, g: 0, b: 0, a: 0}
+    Pants: {r: 0.24, g: 0.3, b: 0.46, a: 1}
+    HairFlower: {r: 0, g: 0, b: 0, a: 0}
+    Glasses: 0
+    Child: 0
+  _leaveHour: 6
+  _homeHour: 18
+  _wanderRadius: 4
+  _speed: 1.3
+  _minPause: 3
+  _maxPause: 8
+  _lines:
+    Intro:
+    - "Tiens, une nouvelle t\xEAte sur le ponton ! Moi c'est Tavita. \xC7a fait cinquante ans que je p\xEAche autour de Mahana."
+    - 'Un conseil de vieux loup de mer : regarde l''eau avant de lancer. Les ombres qui bougent, ce sont des poissons.'
+    - Et si un jour tu vois l'eau tourner toute seule... file au laboratoire. Ce n'est pas un poisson ordinaire.
+    Daily:
+    - "Le matin, l'eau est calme. C'est l\xE0 que les gros sortent."
+    - "J'ai d\xE9j\xE0 vu un m\xE9rou aussi gros que ma barque. Si, si, je te jure !"
+    - "Ferre au bon moment, petit. Trop t\xF4t ou trop tard, et il repart avec ton app\xE2t."
+    - "Un bon p\xEAcheur, c'est surtout un p\xEAcheur patient."
+    - Mon bonnet ? Je l'ai depuis quarante ans. Il porte bonheur.
+    Rain:
+    - "La pluie, \xE7a r\xE9veille les poissons. Ne rentre surtout pas maintenant !"
+    - "Sous l'orage, certains poissons qu'on ne voit jamais remontent. Mais fais attention \xE0 toi."
+    Night:
+    - "La nuit, ce ne sont plus les m\xEAmes poissons qui mordent. Essaie, tu verras."
+    Aquarium:
+    - "Il para\xEEt que ton aquarium a d\xE9j\xE0 {0} esp\xE8ces. Pas mal pour un d\xE9butant !"
+    - "{0} esp\xE8ces \xE0 l'aquarium... Moi, \xE0 ton \xE2ge, je n'en connaissais pas la moiti\xE9."

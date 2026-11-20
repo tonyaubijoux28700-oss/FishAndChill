@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab56bbc658e2934ba802a381e643029, type: 3}
+  m_Name: Manu
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Villagers.VillagerProfile
+  _id: manu
+  _displayName: Manu
+  _look:
+    Name: 
+    Skin: 4
+    HairStyle: 1
+    HairColor: 0
+    Hat: 0
+    Top: 3
+    TopColor: 8
+    Bottom: 0
+  _extras:
+    Beard: {r: 0, g: 0, b: 0, a: 0}
+    Beanie: {r: 0, g: 0, b: 0, a: 0}
+    Skirt: {r: 0, g: 0, b: 0, a: 0}
+    Pants: {r: 0, g: 0, b: 0, a: 0}
+    HairFlower: {r: 0, g: 0, b: 0, a: 0}
+    Glasses: 0
+    Child: 1
+  _leaveHour: 9
+  _homeHour: 18
+  _wanderRadius: 2
+  _speed: 1.9
+  _minPause: 0.4
+  _maxPause: 1
+  _lines:
+    Intro:
+    - Salut ! Moi c'est Manu, j'ai sept ans et demi !
+    - "C'est vrai que tu as attrap\xE9 un poisson g\xE9ant ? Tu me montreras ? Promis ?"
+    Daily:
+    - "Tu sais pourquoi les poissons-clowns vivent dans les an\xE9mones ? Moi oui ! ... En fait non."
+    - "Quand je serai grand, je serai p\xEAcheur. Ou scientifique. Ou les deux !"
+    - "Maman dit que les requins ne mangent pas les enfants. Elle est s\xFBre ?"
+    - "J'ai trouv\xE9 un coquillage rose ce matin. C'est mon tr\xE9sor."
+    Rain:
+    - J'adore la pluie ! On peut sauter dans les flaques !
+    Night:
+    - "Je ne suis pas fatigu\xE9... (il b\xE2ille)"
+    Aquarium:
+    - "{0} esp\xE8ces ! Mon pr\xE9f\xE9r\xE9, c'est celui avec les grandes nageoires. Tu sais lequel ?"
+    - Quand l'aquarium sera plein, je pourrai venir tous les jours ?

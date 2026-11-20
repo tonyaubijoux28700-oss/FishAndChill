@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 10c783e9278515a4c94c63d2cb0e4900
+guid: 6c2b7704e21369f45941a566e1646c53
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4764674422990039197
-    second: Enfant_0
+      213: -7086121542621997784
+    second: Habitant_rose_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Enfant_0
+      name: Habitant_rose_0
       rect:
         serializedVersion: 2
-        x: 1
+        x: 0
         y: 0
-        width: 14
-        height: 20
+        width: 16
+        height: 22
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3671a4b4bd970edb0800000000000000
-      internalID: -4764674422990039197
+      spriteID: 825d5c8300a09ad90800000000000000
+      internalID: -7086121542621997784
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Enfant_0: -4764674422990039197
+      Habitant_rose_0: -7086121542621997784
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -256,6 +256,7 @@ namespace FishAndChill.Save
             data.Weather = _weather != null ? (int)_weather.Current : -1;
             data.WeatherHours = _weather != null ? _weather.HoursLeft : 0f;
             data.Rewards = new List<string>(_progress.ClaimedRewards);
+            data.MetVillagers = Villagers.VillagerMemory.Capture();
             foreach (string id in _progress.Baits.Owned)
             {
                 data.Baits.Add(new SaveData.BaitStock { Id = id, Count = _progress.Baits.Count(id) });
@@ -308,6 +309,7 @@ namespace FishAndChill.Save
 
         private void Load()
         {
+            Villagers.VillagerMemory.Load(null);   // nouvelle partie : personne n'a encore été rencontré
             if (!File.Exists(SavePath))
             {
                 return;
@@ -368,6 +370,7 @@ namespace FishAndChill.Save
                 _cycle.SetHour(data.Hour);
             }
 
+            Villagers.VillagerMemory.Load(data.MetVillagers);
             if (_weather != null && data.Weather >= 0 && System.Enum.IsDefined(typeof(Weather), data.Weather))
             {
                 _weather.SetWeather((Weather)data.Weather, data.WeatherHours);

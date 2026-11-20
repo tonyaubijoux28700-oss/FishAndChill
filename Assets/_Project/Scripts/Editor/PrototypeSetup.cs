@@ -666,6 +666,20 @@ namespace FishAndChill.Editor
             controllerCycleSo.FindProperty("_weather").objectReferenceValue = weather;
             controllerCycleSo.ApplyModifiedPropertiesWithoutUndo();
 
+            // Habitants de l'île : ils se baladent le jour, rentrent chez eux le soir, et on leur parle avec E.
+            VillagerSetup.Place(VillagerSetup.CreateOrUpdate(), aquarium, buildings.IslandDock != null ? buildings.IslandDock.Arrival : Vector2.zero,
+                Object.FindAnyObjectByType<WorldMap>(), movement, cycle, weather, progress);
+            var dialogueBox = partie.GetComponent<UI.DialogueBox>();
+            if (dialogueBox == null)
+            {
+                dialogueBox = partie.AddComponent<UI.DialogueBox>();
+            }
+
+            var dialogueSo = new SerializedObject(dialogueBox);
+            dialogueSo.FindProperty("_skin").objectReferenceValue = skin;
+            dialogueSo.FindProperty("_player").objectReferenceValue = movement;
+            dialogueSo.ApplyModifiedPropertiesWithoutUndo();
+
             // Écran titre (3 emplacements de sauvegarde), posé sur l'île tant qu'aucune partie n'est choisie.
             var titleScreen = partie.GetComponent<UI.TitleScreen>();
             if (titleScreen == null)

@@ -266,7 +266,7 @@ namespace FishAndChill.UI
             }
 
             // Devant l'ascenseur de l'aquarium, E ouvre le menu des étages (et pendant le trajet).
-            if (FishAndChill.UI.ElevatorMenu.Busy || (_aquarium != null && _aquarium.PlayerAtElevator >= 0))
+            if (FishAndChill.UI.ElevatorMenu.Busy || DialogueBox.Busy || (_aquarium != null && _aquarium.PlayerAtElevator >= 0))
             {
                 return false;
             }

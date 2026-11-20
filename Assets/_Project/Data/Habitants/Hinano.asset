@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab56bbc658e2934ba802a381e643029, type: 3}
+  m_Name: Hinano
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Villagers.VillagerProfile
+  _id: hinano
+  _displayName: Hinano
+  _look:
+    Name: 
+    Skin: 4
+    HairStyle: 3
+    HairColor: 1
+    Hat: 0
+    Top: 0
+    TopColor: 1
+    Bottom: 3
+  _extras:
+    Beard: {r: 0, g: 0, b: 0, a: 0}
+    Beanie: {r: 0, g: 0, b: 0, a: 0}
+    Skirt: {r: 0.8, g: 0.24, b: 0.26, a: 1}
+    Pants: {r: 0, g: 0, b: 0, a: 0}
+    HairFlower: {r: 1, g: 0.46, b: 0.56, a: 1}
+    Glasses: 0
+    Child: 0
+  _leaveHour: 9
+  _homeHour: 18
+  _wanderRadius: 4.5
+  _speed: 1.4
+  _minPause: 2
+  _maxPause: 6
+  _lines:
+    Intro:
+    - Bonjour ! Je suis Hinano, j'habite la maison rose avec mon fils Manu.
+    - C'est toi qui remplis le grand aquarium ? Manu en parle du matin au soir, il veut tout voir !
+    Daily:
+    - "Manu, ne cours pas si vite ! Pardon, il a toujours de l'\xE9nergie \xE0 revendre."
+    - "Le parvis de l'aquarium est mon endroit pr\xE9f\xE9r\xE9. On y entend la mer."
+    - "Le marchand du port est un vieux grincheux, mais ses prix sont honn\xEAtes."
+    - 'Tu as vu l''animalerie ? Manu voudrait un chat. Moi, je dis : on verra.'
+    Rain:
+    - "Encore de la pluie ! Heureusement, les fleurs de l'\xEEle adorent \xE7a."
+    Night:
+    - "Il se fait tard, Manu devrait d\xE9j\xE0 \xEAtre couch\xE9..."
+    Aquarium:
+    - "{0} esp\xE8ces \xE0 l'aquarium ! Manu les conna\xEEt toutes par leur nom."

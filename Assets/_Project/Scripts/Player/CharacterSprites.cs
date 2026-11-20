@@ -18,14 +18,17 @@ namespace FishAndChill.Player
         public readonly Sprite[] Left = new Sprite[3];
         public readonly Sprite[] Right = new Sprite[3];
 
-        public static CharacterSprites Build(CharacterLook look)
+        public static CharacterSprites Build(CharacterLook look) => Build(look, null);
+
+        /// <summary>Les images d'un habitant : apparence de pêcheur plus ses accessoires (<see cref="NpcExtras"/>).</summary>
+        public static CharacterSprites Build(CharacterLook look, NpcExtras extras)
         {
             var result = new CharacterSprites();
             for (int frame = 0; frame < 3; frame++)
             {
-                result.Down[frame] = ToSprite(CharacterPainter.Front(look, frame, back: false), $"Bas_{frame}");
-                result.Up[frame] = ToSprite(CharacterPainter.Front(look, frame, back: true), $"Haut_{frame}");
-                Color[,] side = CharacterPainter.Side(look, frame);
+                result.Down[frame] = ToSprite(CharacterPainter.Front(look, extras, frame, back: false), $"Bas_{frame}");
+                result.Up[frame] = ToSprite(CharacterPainter.Front(look, extras, frame, back: true), $"Haut_{frame}");
+                Color[,] side = CharacterPainter.Side(look, extras, frame);
                 result.Right[frame] = ToSprite(side, $"Droite_{frame}");
                 result.Left[frame] = ToSprite(PixelShading.MirrorX(side), $"Gauche_{frame}");
             }

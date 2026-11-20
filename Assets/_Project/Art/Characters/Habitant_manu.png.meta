@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 72f3cba7e08961c41b36f15ec5cb091c
+guid: 4f3c5b56a02cf3247aa3ce7906882305
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3617913138078913819
-    second: Vieux_Pecheur_0
+      213: -4433046262492365253
+    second: Habitant_manu_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Vieux_Pecheur_0
+      name: Habitant_manu_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 16
-        height: 24
+        height: 18
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5ea66906b279acdc0800000000000000
-      internalID: -3617913138078913819
+      spriteID: b3ef44b59e7aa72c0800000000000000
+      internalID: -4433046262492365253
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Vieux_Pecheur_0: -3617913138078913819
+      Habitant_manu_0: -4433046262492365253
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

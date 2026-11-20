@@ -50,6 +50,22 @@
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).
+- **Habitants** (`Scripts/Villagers`, profils `VillagerProfile` dans `Data/Habitants/`, générés et posés par
+  `Editor/VillagerSetup`, objets sous « Habitants ») : **Tavita** le vieux pêcheur (cabane du pêcheur, 6 h - 18 h, du
+  côté du ponton), **Hinano** la maman et **Manu** son fils (maison pastel, 9 h - 18 h, parvis de l'aquarium ; Manu suit
+  sa maman, `_leader`), **Mamie Rose** (chaumière, 10 h - 17 h, devant chez elle). Dessinés par le même peintre que le
+  pêcheur, dans les 4 directions avec le même pas (`CharacterPainter` + `NpcExtras` : barbe, bonnet à pompon, jupe,
+  pantalon et bottes, lunettes, fleur dans les cheveux, taille d'enfant ; images faites au lancement par
+  `CharacterSprites.Build(look, extras)`). **Leur journée** (`Villager`) : la nuit debout chez eux (« Habitant id » dans
+  la maison) ; à l'heure de sortie ils apparaissent devant leur porte, marchent jusqu'à leur coin, s'y baladent (un point
+  au hasard dans `_wanderRadius`, une pause, un autre point ; `VillagerSchedule`, testé), puis rentrent à pied le soir.
+  Ils glissent le long des obstacles et sautent au but s'ils restent bloqués 1,5 s. Ils s'arrêtent et se tournent vers
+  le joueur quand il est tout près. **Dialogues** (`UI/DialogueBox`, objet « Partie », canvas ordre 14) : près d'un
+  habitant (dehors, ou chez lui quand on est dans sa maison), « E : parler à … » ; E ouvre une boîte en bas de l'écran
+  (cadre de la charte, bandeau au nom), E / Espace : suite, Échap : fermer, joueur immobile. Répliques
+  (`VillagerLines`, choisies par `VillagerDialogue`, testé) : la présentation au premier échange (rencontres retenues
+  par `VillagerMemory`, sauvegardées dans `SaveData.MetVillagers`), puis une réplique de tous les jours, de pluie, de
+  nuit ou sur l'aquarium (« {0} » = espèces exposées). Le sac ne s'ouvre pas avec E quand un habitant est à portée.
 - **Animalerie** (`World/PetShopBuilding`, objet « Animalerie », dessins `Editor/PetShopArt`, style en volume 32 px
   par case) : au sud-ouest de l'île, entre la maison et la plage, loin du laboratoire (`MapSetup`, site cherché depuis
   centre + (-16, -12)), petite cour pavée et chemin vers le chemin principal (`TownLayout.DecoratePetShop` : massifs,

@@ -43,6 +43,7 @@ namespace FishAndChill.Player
         {
             public Color Skin, Hair, HairLight, Shirt, Shorts, Stripe;
             public int HairStyle, Hat, Top;
+            public NpcExtras Extras;
 
             public Palette(CharacterLook look)
             {
@@ -66,8 +67,14 @@ namespace FishAndChill.Player
         /// <summary>Les 3 images de face (ou de dos).</summary>
         public static Color[,] Front(CharacterLook look, int frame, bool back) => DrawFront(new Palette(look), frame, back);
 
+        /// <summary>Un habitant de face ou de dos : apparence de pêcheur plus ses <paramref name="extras"/>.</summary>
+        public static Color[,] Front(CharacterLook look, NpcExtras extras, int frame, bool back) => DrawFront(new Palette(look) { Extras = extras }, frame, back);
+
         /// <summary>Les 3 images de profil, regard vers la droite.</summary>
         public static Color[,] Side(CharacterLook look, int frame) => DrawSide(new Palette(look), frame);
+
+        /// <summary>Un habitant de profil, regard vers la droite.</summary>
+        public static Color[,] Side(CharacterLook look, NpcExtras extras, int frame) => DrawSide(new Palette(look) { Extras = extras }, frame);
 
         // ---------- Toile : couleur de base + lumière par pixel (y compté depuis le HAUT) ----------
 
@@ -258,7 +265,114 @@ namespace FishAndChill.Player
             }
 
             DrawHatFront(c, p, back);
-            return c.Render();
+            return Finish(c, p, side: false, back);
+        }
+
+        /// <summary>
+        /// Ajoute les vêtements et accessoires d'un habitant (<see cref="NpcExtras"/>) avant le rendu, puis, pour un enfant,
+        /// tasse l'image (4 rangées en moins : bas du visage, torse, short et jambes ; les pieds restent en bas).
+        /// </summary>
+        private static Color[,] Finish(Canvas c, Palette p, bool side, bool back)
+        {
+            NpcExtras e = p.Extras;
+            if (e == null)
+            {
+                return c.Render();
+            }
+
+            int x0 = side ? 5 : 4, x1 = side ? 10 : 11;
+            if (e.HasPants)
+            {
+                Color boots = Color.Lerp(e.Pants, Color.black, 0.55f);
+                for (int x = 3; x <= 12; x++)
+                {
+                    for (int y = 18; y <= 23; y++)
+                    {
+                        c.Paint(x, y, e.Pants, Part.Shorts);
+                        if (y >= 21) c.Paint(x, y, e.Pants, Part.Skin);
+                        c.Paint(x, y, boots, Part.Sandal);
+                    }
+                }
+            }
+
+            if (e.HasSkirt)
+            {
+                c.Cylinder(x0, 18, x1, 22, e.Skirt, Part.Shorts);
+                for (int x = x0; x <= x1; x++) c.Darken(x, 22, 0.12f);
+            }
+
+            if (e.HasBeard && !back)
+            {
+                if (side) c.Ellipse(10f, 12.2f, 2.5f, 1.9f, e.Beard, Part.Hair);
+                else c.Ellipse(8f, 12.5f, 3.3f, 2.2f, e.Beard, Part.Hair);
+            }
+
+            if (e.HasBeanie)
+            {
+                Color band = Color.Lerp(e.Beanie, Color.black, 0.2f);
+                Color pompom = Color.Lerp(e.Beanie, new Color(0.95f, 0.30f, 0.26f), 0.85f);
+                if (side)
+                {
+                    c.Ellipse(8f, 7.4f, 4f, 3f, e.Beanie, Part.Hat, 9);
+                    for (int x = 5; x <= 11; x++) c.Set(x, 8, band, Part.Hat, 0.9f);
+                    c.Ellipse(7f, 4.2f, 1.4f, 1.2f, pompom, Part.Hat);
+                }
+                else
+                {
+                    c.Ellipse(8f, 7.4f, 4.3f, 3f, e.Beanie, Part.Hat, 9);
+                    for (int x = 4; x <= 11; x++) c.Set(x, 8, band, Part.Hat, 0.9f);
+                    c.Ellipse(8f, 4.2f, 1.4f, 1.2f, pompom, Part.Hat);
+                }
+            }
+
+            if (e.Glasses && !back)
+            {
+                Color frame = new Color(0.62f, 0.46f, 0.30f);
+                if (side)
+                {
+                    c.Paint(9, 9, frame);
+                    c.Paint(11, 9, frame);
+                }
+                else
+                {
+                    foreach (int x in new[] { 5, 7, 8, 10 }) c.Paint(x, 9, frame);
+                }
+            }
+
+            if (e.HasHairFlower)
+            {
+                Color heart = new Color(1f, 0.86f, 0.36f);
+                if (side)
+                {
+                    c.Flat(6, 7, e.HairFlower, Part.Hat);
+                    c.Flat(6, 8, heart, Part.Hat);
+                }
+                else
+                {
+                    int fx = back ? 4 : 11;
+                    c.Flat(fx, 7, e.HairFlower, Part.Hat);
+                    c.Flat(back ? fx - 1 : fx + 1, 8, e.HairFlower, Part.Hat);
+                    c.Flat(fx, 8, heart, Part.Hat);
+                }
+            }
+
+            Color[,] pixels = c.Render();
+            return e.Child ? Squash(pixels, new[] { 12, 16, 20, 21 }) : pixels;
+        }
+
+        /// <summary>Retire des rangées (comptées depuis le haut) et fait descendre le haut de l'image : pieds en place.</summary>
+        private static Color[,] Squash(Color[,] pixels, int[] rowsFromTop)
+        {
+            var result = new Color[Width, Height];
+            int target = 0;
+            for (int y = 0; y < Height; y++)   // y depuis le bas
+            {
+                if (System.Array.IndexOf(rowsFromTop, Height - 1 - y) >= 0) continue;
+                for (int x = 0; x < Width; x++) result[x, target] = pixels[x, y];
+                target++;
+            }
+
+            return result;
         }
 
         private static void DrawFace(Canvas c, Palette p)
@@ -829,7 +943,7 @@ namespace FishAndChill.Player
             }
 
             DrawHatSide(c, p);
-            return c.Render();
+            return Finish(c, p, side: true, back: false);
         }
 
         private static void DrawHairSide(Canvas c, Palette p)

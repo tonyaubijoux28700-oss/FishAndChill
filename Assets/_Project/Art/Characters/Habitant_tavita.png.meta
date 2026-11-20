@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: bddac2488e07d4e42a9600c94e55f435
+guid: 61b38722a549a9c4a8c83e44f4b6d678
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6396065012734420900
-    second: Grand_Mere_0
+      213: -8995962991154022584
+    second: Habitant_tavita_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Grand_Mere_0
+      name: Habitant_tavita_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 16
-        height: 24
+        height: 23
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c5819ab32cc9c37a0800000000000000
-      internalID: -6396065012734420900
+      spriteID: 84734bb725be72380800000000000000
+      internalID: -8995962991154022584
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Grand_Mere_0: -6396065012734420900
+      Habitant_tavita_0: -8995962991154022584
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

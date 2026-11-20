@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: dc88457d97b104442b878e6a1a20219b
+guid: 42aeb7cfd64afd443a745d6d4a3f14d9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6095348745204866705
-    second: Maman_0
+      213: 6294556524081023472
+    second: Habitant_hinano_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Maman_0
+      name: Habitant_hinano_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 16
-        height: 22
+        height: 19
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 19e1f04a367079450800000000000000
-      internalID: 6095348745204866705
+      spriteID: 0f987740fc1ca5750800000000000000
+      internalID: 6294556524081023472
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Maman_0: 6095348745204866705
+      Habitant_hinano_0: 6294556524081023472
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
