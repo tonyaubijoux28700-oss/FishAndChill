@@ -7,7 +7,7 @@ using UnityEngine;
 namespace FishAndChill.World
 {
     /// <summary>
-    /// L'aquarium, une tour : un étage par zone, desservis par un ascenseur (une cabine dans chaque salle, le menu des
+    /// L'aquarium, une tour : un étage par zone, desservis par un ascenseur (dans le mur du bas, un tapis devant ; le menu des
     /// étages dans <see cref="UI.ElevatorMenu"/>). La caméra ne montre que l'étage où l'on est. Les salles (voir
     /// <see cref="InteriorBuilding"/> pour
     /// l'entrée et la sortie) :
@@ -65,15 +65,18 @@ namespace FishAndChill.World
             new Rect(AtollRoomX, 0f, AtollRoomWidth, InteriorHeight),
         };
 
-        /// <summary>Pied de l'ascenseur de chaque étage (relatif au coin de l'intérieur) ; on l'appelle en se plaçant devant.</summary>
+        /// <summary>
+        /// Milieu du tapis de l'ascenseur de chaque étage, contre le mur du bas (relatif au coin de l'intérieur) : l'ascenseur
+        /// est dans ce mur qu'on ne voit pas, on l'appelle en marchant vers le bas sur le tapis, comme on sort par le paillasson.
+        /// </summary>
         public static readonly Vector2[] ElevatorSpots =
         {
-            new Vector2(25.5f, 2.4f),                  // hall : à la place de la 2e colonne à méduses
-            new Vector2(LakeRoomX + 5f, 1.6f),
-            new Vector2(AmazonRoomX + 5f, 1.6f),
-            new Vector2(JapanRoomX + 5.2f, 1.6f),      // entre la lanterne de pierre et le premier rocher
-            new Vector2(ReefRoomX + 5f, 1.6f),
-            new Vector2(AtollRoomX + 5f, 1.6f),
+            new Vector2(24f, 0f),                      // hall : à droite du paillasson de sortie
+            new Vector2(LakeRoomX + LakeRoomWidth * 0.5f, 0f),
+            new Vector2(AmazonRoomX + AmazonRoomWidth * 0.5f, 0f),
+            new Vector2(JapanRoomX + JapanRoomWidth * 0.5f, 0f),
+            new Vector2(ReefRoomX + ReefRoomWidth * 0.5f, 0f),
+            new Vector2(AtollRoomX + AtollRoomWidth * 0.5f, 0f),
         };
 
         /// <summary>Colonnes à méduses (pied, relatif au coin de la salle).</summary>
@@ -97,14 +100,6 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Zone dont chaque étage expose les espèces (même ordre que Floors).")]
         private FishingZone[] _floorZones = new FishingZone[0];
 
-        [SerializeField, Tooltip("L'ascenseur de chaque étage (même ordre que Floors).")]
-        private SpriteRenderer[] _elevators = new SpriteRenderer[0];
-
-        [SerializeField, Tooltip("Porte fermée, à moitié, ouverte.")]
-        private Sprite[] _elevatorFrames = new Sprite[0];
-
-        private float[] _doorOpen = new float[0];
-
         public event Action<DepositResult> Deposited;
 
         /// <summary>L'étage où se trouve le joueur (0 = hall).</summary>
@@ -124,7 +119,7 @@ namespace FishAndChill.World
             base.Enter();
         }
 
-        /// <summary>L'étage dont le joueur est devant l'ascenseur, ou -1.</summary>
+        /// <summary>L'étage dont le joueur est sur le tapis de l'ascenseur, ou -1.</summary>
         public int PlayerAtElevator
         {
             get
@@ -138,7 +133,7 @@ namespace FishAndChill.World
                 for (int i = 0; i < ElevatorSpots.Length; i++)
                 {
                     Vector2 e = ElevatorSpots[i];
-                    if (Mathf.Abs(feet.x - e.x) < 1.4f && feet.y < e.y - 0.05f && feet.y > e.y - 1.6f)
+                    if (Mathf.Abs(feet.x - e.x) < 1.3f && feet.y < e.y + 1.1f)
                     {
                         return i;
                     }
@@ -149,7 +144,7 @@ namespace FishAndChill.World
         }
 
         /// <summary>
-        /// Emmène le joueur à un étage : devant les portes de son ascenseur, la caméra calée sur la salle. À appeler
+        /// Emmène le joueur à un étage : juste au-dessus du tapis de son ascenseur, la caméra calée sur la salle. À appeler
         /// pendant un fondu au noir (<see cref="UI.ElevatorMenu"/>). Public pour les tests.
         /// </summary>
         public void GoToFloor(int floor)
@@ -160,46 +155,12 @@ namespace FishAndChill.World
             }
 
             CurrentFloor = floor;
-            Player.Teleport(InteriorOrigin + ElevatorSpots[floor] + new Vector2(0f, -1.1f), Vector2.down);
+            // Sorti de l'ascenseur, on fait un pas dans la salle (hors du tapis, pour ne pas le rappeler aussitôt).
+            Player.Teleport(InteriorOrigin + ElevatorSpots[floor] + new Vector2(0f, 1.6f), Vector2.up);
             if (FollowCamera != null)
             {
                 FollowCamera.SetBoundsOverride(CameraRect);
                 FollowCamera.SnapToTarget();
-            }
-
-            // Les portes de l'étage d'arrivée sont grandes ouvertes.
-            if (floor < _doorOpen.Length) _doorOpen[floor] = 1f;
-        }
-
-        /// <summary>Les portes s'ouvrent quand on s'approche et se referment quand on s'éloigne.</summary>
-        private void AnimateDoors()
-        {
-            if (_elevators.Length == 0 || _elevatorFrames.Length == 0)
-            {
-                return;
-            }
-
-            if (_doorOpen.Length != _elevators.Length)
-            {
-                _doorOpen = new float[_elevators.Length];
-            }
-
-            int near = -1;
-            if (IsPlayerInside && Player != null)
-            {
-                Vector2 feet = (Vector2)Player.transform.position - InteriorOrigin;
-                for (int i = 0; i < ElevatorSpots.Length && i < _elevators.Length; i++)
-                {
-                    if (Vector2.Distance(feet, ElevatorSpots[i] + new Vector2(0f, -1f)) < 2.6f) near = i;
-                }
-            }
-
-            for (int i = 0; i < _elevators.Length; i++)
-            {
-                if (_elevators[i] == null) continue;
-                _doorOpen[i] = Mathf.MoveTowards(_doorOpen[i], i == near ? 1f : 0f, Time.deltaTime * 4f);
-                int frame = Mathf.Clamp(Mathf.RoundToInt(_doorOpen[i] * (_elevatorFrames.Length - 1)), 0, _elevatorFrames.Length - 1);
-                _elevators[i].sprite = _elevatorFrames[frame];
             }
         }
 
@@ -246,12 +207,6 @@ namespace FishAndChill.World
                 map.AddWalkableArea(new Rect(InteriorOrigin + new Vector2(Floors[i].x + 0.7f, 0.15f), new Vector2(Floors[i].width - 1.4f, FloorTop - 0.15f)));
             }
 
-            foreach (Vector2 spot in ElevatorSpots)
-            {
-                Vector2 foot = InteriorOrigin + spot;
-                map.AddObstacle(new Rect(foot.x - 1.5f, foot.y - 0.1f, 3f, 1.1f));
-            }
-
             foreach (Vector2 spot in JellyfishColumns)
             {
                 Vector2 foot = InteriorOrigin + spot;
@@ -273,7 +228,6 @@ namespace FishAndChill.World
         protected override void Update()
         {
             base.Update();
-            AnimateDoors();
             if (CanDeposit && InteractInput.PressedThisFrame())
             {
                 Deposit();

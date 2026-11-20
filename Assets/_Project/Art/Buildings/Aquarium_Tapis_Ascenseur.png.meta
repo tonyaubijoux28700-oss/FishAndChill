@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b4d9b59e5dc992d44a89ebad08759c26
+guid: 0dc1b7198e0e97547ac975ddeecaf9ae
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -201940060886712062
-    second: Aquarium_Ascenseur_0_0
+      213: 101025301086210691
+    second: Aquarium_Tapis_Ascenseur_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -115,13 +115,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Aquarium_Ascenseur_0_0
+      name: Aquarium_Tapis_Ascenseur_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 48
-        height: 86
+        height: 18
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2014de4a590923df0800000000000000
-      internalID: -201940060886712062
+      spriteID: 38a0290e9f9e66100800000000000000
+      internalID: 101025301086210691
       vertices: []
       indices: 
       edges: []
@@ -150,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Aquarium_Ascenseur_0_0: -201940060886712062
+      Aquarium_Tapis_Ascenseur_0: 101025301086210691
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

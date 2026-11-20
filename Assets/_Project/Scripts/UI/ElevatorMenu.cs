@@ -48,6 +48,7 @@ namespace FishAndChill.UI
         private float _fadeTimer = -1f;
         private float _bannerTimer;
         private int _openedFrame;
+        private bool _armed = true;   // marcher vers le bas sur le tapis appelle l'ascenseur, une fois par appui
 
         /// <summary>Le menu est ouvert ou l'ascenseur roule : E ne doit rien faire d'autre.</summary>
         public static bool Busy { get; private set; }
@@ -73,8 +74,12 @@ namespace FishAndChill.UI
             _prompt.gameObject.SetActive(canCall);
             if (!IsOpen)
             {
-                if (canCall && InteractInput.PressedThisFrame())
+                // Comme le paillasson : marcher vers le bas sur le tapis (le mur de l'ascenseur) l'appelle.
+                bool pushingDown = _player != null && _player.LastInput.y < -0.5f;
+                if (!pushingDown) _armed = true;
+                if (canCall && ((pushingDown && _armed) || InteractInput.PressedThisFrame()))
                 {
+                    _armed = false;
                     Open();
                 }
 
@@ -255,7 +260,7 @@ namespace FishAndChill.UI
 
             _prompt = UiFactory.Label(root, "Invitation", 30, TextAnchor.MiddleCenter, Gold);
             UiFactory.Place(_prompt.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 170f), new Vector2(700f, 44f));
-            _prompt.text = "E : prendre l'ascenseur";
+            _prompt.text = "Bas ou E : prendre l'ascenseur";
 
             Image window = UiFactory.Sliced(root, "Ascenseur", _skin != null ? _skin.Panel : null, _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
             _window = window.gameObject;

@@ -68,7 +68,7 @@ namespace FishAndChill.Editor
             new Prop("Lanterne en rotin", AquariumAtollArt.RattanLantern, 22.7f, 8.4f, 0.5f, 0.3f),
             new Prop("Palmier en pot", AquariumPropArt.PalmPot, 1.4f, 1.1f, 1.2f, 0.5f),
             new Prop("Palmier en pot", AquariumPropArt.PalmPot, 22.6f, 1.1f, 1.2f, 0.5f),
-            new Prop("Transat", AquariumPropArt.DeckChair, 12f, 1.2f, 2.2f, 0.6f),
+            new Prop("Transat", AquariumPropArt.DeckChair, 17.5f, 1.2f, 2.2f, 0.6f),   // à côté du tapis de l'ascenseur
         };
 
         /// <summary>Rochers du jardin zen : le sol dessine des cercles ratissés autour.</summary>

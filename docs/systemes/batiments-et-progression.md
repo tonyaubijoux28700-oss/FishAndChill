@@ -64,10 +64,12 @@
   (`AquariumReefArt` : cabane de plage, fresque marine, sable blanc et caillebotis ; `ReefTank`), étage 5 = atoll.
   Dans la scène, les salles restent côte à côte (intérieur 134×18 cases) mais les passages sont murés
   (`AquariumAmazonArt.CloseLeftPassage`, sols marchables salle par salle) et la caméra est bornée à l'étage courant
-  (`InteriorBuilding.CameraRect`). **Ascenseur** à chaque étage (`ElevatorSpots`, dessin `ElevatorArt.Cabin` : cage
-  Art déco en laiton, grille pliante qui s'ouvre quand on approche, cadran d'étage) : **E** devant ouvre
+  (`InteriorBuilding.CameraRect`). **Ascenseur** à chaque étage, dans le mur du bas qu'on ne voit
+  pas : seul un **tapis** contre ce mur l'indique, comme un paillasson (`ElevatorSpots` = milieu du tapis : hall à
+  droite du paillasson de sortie, autres salles au milieu ; dessin `ElevatorArt.Mat`, velours bordeaux, cadre de laiton,
+  losange aux deux triangles, ordre -5 au sol). Marcher vers le bas sur le tapis (ou **E** dessus) ouvre
   `UI/ElevatorMenu` (étages du haut vers le bas, « RDC » / « Étage N », nom de la zone, espèces exposées / total,
-  Haut / Bas, E ou Espace pour y aller, Échap pour fermer), fondu au noir, `AquariumBuilding.GoToFloor`, bandeau
+  Haut / Bas, E ou Espace pour y aller, Échap pour fermer), fondu au noir, `AquariumBuilding.GoToFloor` (arrivée un pas au-dessus du tapis), bandeau
   « Étage N — Zone ». Ajouter une zone = une salle de plus, un `Floors` / `ElevatorSpots` et sa zone dans `_floorZones`.
   Le paillasson de sortie n'est qu'au rez-de-chaussée (entrée au milieu du hall, `InteriorBuilding.EntranceX`).
   Un `AquariumTank` par bassin (`_zone`, `_area` = `HallTank` / `LakeTank`) : chaque bassin montre les espèces de sa zone,
@@ -83,7 +85,7 @@
   restent que dans le grand hall (`AquariumBuilding.Benches`).
   **Visiteurs mis de côté** pour l'instant : `World/AquariumVisitors` et `MapSetup.BuildVisitors` (pêcheur recoloré,
   promenade devant les bassins, +1 toutes les 6 espèces) existent mais ne sont plus appelés. La faune de la zone
-  (`AmbientLife`) se cache à l'intérieur des bâtiments. Obstacles : `AquariumBuilding.JellyfishColumns` / `Benches` et les ascenseurs. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
+  (`AmbientLife`) se cache à l'intérieur des bâtiments. Obstacles : `AquariumBuilding.JellyfishColumns` / `Benches`. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
   gros de chaque nouvelle espèce entre ; **la taille ne compte pas ensuite** : une espèce déjà exposée n'est jamais
   remplacée, même par un plus gros, et tous ses exemplaires restent dans le sac pour le marchand (`FishShop` les achète).
   Les poissons nagent dans le bassin (`AquariumTank`) avec leur petite version `FishSpecies.MiniSprite`

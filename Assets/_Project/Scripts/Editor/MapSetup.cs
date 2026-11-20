@@ -2066,38 +2066,21 @@ namespace FishAndChill.Editor
             atollGlassObject.transform.localPosition = new Vector3(atollX, 0f, 0f);
             SetSprite(atollGlassObject, atollGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
-            // L'ascenseur de chaque étage (la 2e colonne à méduses du hall lui laisse sa place).
+            // L'ascenseur de chaque étage est dans le mur du bas, qu'on ne voit pas : un tapis contre ce mur indique sa
+            // porte, comme le paillasson de sortie (la 2e colonne à méduses du hall a disparu).
             Transform oldColumn = room.transform.Find("Colonne à méduses 2");
             if (oldColumn != null)
             {
                 Object.DestroyImmediate(oldColumn.gameObject);
             }
 
-            var elevatorFrames = new Sprite[ElevatorArt.Frames];
-            for (int f = 0; f < elevatorFrames.Length; f++)
-            {
-                elevatorFrames[f] = PixelArt.Save($"{folder}/Aquarium_Ascenseur_{f}.png", ElevatorArt.Cabin(f), TileArt.Size, new Vector2(0.5f, 0f));
-            }
-
-            var elevators = new SpriteRenderer[AquariumBuilding.ElevatorSpots.Length];
-            for (int i = 0; i < elevators.Length; i++)
+            Sprite liftMat = PixelArt.Save($"{folder}/Aquarium_Tapis_Ascenseur.png", ElevatorArt.Mat(), TileArt.Size, new Vector2(0.5f, 0f));
+            for (int i = 0; i < AquariumBuilding.ElevatorSpots.Length; i++)
             {
                 GameObject lift = EnsureObject($"Ascenseur {i}", room.transform);
                 lift.transform.position = interiorOrigin + AquariumBuilding.ElevatorSpots[i];
-                elevators[i] = SetSprite(lift, elevatorFrames[0], 10);
-                elevators[i].spriteSortPoint = SpriteSortPoint.Pivot;
+                SetSprite(lift, liftMat, -5).spriteSortPoint = SpriteSortPoint.Pivot;
             }
-
-            var liftSo = new SerializedObject(aquarium);
-            SetSprites(liftSo.FindProperty("_elevatorFrames"), elevatorFrames);
-            SerializedProperty liftList = liftSo.FindProperty("_elevators");
-            liftList.arraySize = elevators.Length;
-            for (int i = 0; i < elevators.Length; i++)
-            {
-                liftList.GetArrayElementAtIndex(i).objectReferenceValue = elevators[i];
-            }
-
-            liftSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Mobilier de la salle (triés par les pieds, comme le joueur) : colonnes à méduses et bancs.
             Sprite column = PixelArt.Save($"{folder}/Aquarium_Colonne_Meduses.png", AquariumArt.JellyfishColumnV2(), TileArt.Size, new Vector2(0.5f, 0f));
