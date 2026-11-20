@@ -42,11 +42,15 @@
   raies sous l'eau du lagon (`Swimmer.Order` = -17, sous le sable), bernard-l'ermite qui trottinent sur la plage
   (`_walkers`, toujours à une case de l'eau), papillons, poissons volants (saut long : `_jumpLength`/`_jumpHeight`/
   `_jumpSeconds`), frégate qui traverse le ciel avec son ombre au sol (`_passer`), ombres de nuages.
-- **Fleuve Amazone** (3e zone, région 2) : `RiverGenerator` (fleuve qui serpente d'ouest en est, rives de vase, jungle,
-  **banc de sable** en `FordX` qui relie les deux rives, bras mort au sud ; testé), 90×64 cases, à `AmazonGap` = 20 cases
-  à l'est du lac, construit par `MapSetup.BuildAmazon` (tuiles recolorées par `AmazonArt` : eau café au lait, vase rouge
-  sombre, jungle ; grands arbres à contreforts et lianes, 2 verts, solides ; nénuphars géants Victoria ; fougères ;
-  héliconias et orchidées). Vie (`BuildAmazonLife`, dessins `AmazonLifeArt`) : dauphins roses, caïmans, morphos, aras
+- **Fleuve Amazone** (3e zone, région 2) : plan dessiné `World/AmazonPlan` (90×64 cases, testé : fleuve qui serpente
+  d'ouest en est, rives de vase, **banc de sable pâle** à l'ouest qui le traverse, igarapé au nord franchi par une
+  **passerelle** praticable (`AmazonBridgeArea`), bras mort au sud-est couvert de nénuphars Victoria, forêt inondée à l'est,
+  **village sur pilotis** autour du ponton avec pirogue et bananiers, **fromager géant** dans sa clairière au nord, chemin
+  de terre rouge qui relie tout, jungle dense et mur d'arbres au bord ; plantes posées par le plan dans `Plants`), à
+  `AmazonGap` = 20 cases à l'est du lac, construit par `MapSetup.BuildAmazon` (tuiles recolorées par `AmazonArt` : eau café
+  au lait, vase, jungle, fougères, Victoria ; grands arbres en volume, arbres dans l'eau, açaí, bananier, héliconias,
+  grandes feuilles, troncs couchés, terre rouge et sable dans `AmazonTerrainArt` ; maisons, fromager et pirogue dans
+  `AmazonLandmarkArt`). Arbres, palmiers, maisons, fromager et troncs sont solides. `RiverGenerator` n'est plus utilisé. Vie (`BuildAmazonLife`, dessins `AmazonLifeArt`) : dauphins roses, caïmans, morphos, aras
   avec leur ombre. 14 espèces (table des espèces) : 12 poissons (`AmazonFishArt` : piranha, oscar, pléco,
   discus, tucunaré, tambaqui, arowana, surubim, payara, pirarara, gymnote électrique, arapaïma légendaire), matamata et
   crevette d'Amazonie (`AmazonCreatureArt`). Salle Amazonie à l'aquarium (voir Aquarium).
