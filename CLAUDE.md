@@ -44,7 +44,7 @@ générale).
 - **Tester en jeu sans toucher aux parties du propriétaire** : `TitleScreen.Play(2)` (emplacement 3), puis effacer
   `%USERPROFILE%/AppData/LocalLow/FishAndChill/FishAndChill/sauvegarde3.json` après l'essai. Outils de test :
   `FishingController.PressAction()` / `Tick()` / `DebugFindFragment()` / `DebugWinLegendPhase()`, menu
-  **FishAndChill → Légendes (test)**.
+  **FishAndChill → Légendes (test)** et **FishAndChill → Triche (test)** (+1000 pièces).
 
 ## Règles à respecter
 

@@ -5,6 +5,8 @@
 
 - `PlayerProgress` (objet « Partie ») : `Inventory` (sac, 3 places au départ, `UpgradeCapacity` pour plus tard),
   `AquariumCollection` (un exemplaire par espèce), `Wallet` (pièces). Logique pure testée.
+- Triche d'essai : menu **FishAndChill → Triche (test) → +1000 pièces** (raccourci Ctrl + Alt + M, `Editor/CheatMenu`),
+  actif seulement en partie en Play mode ; les pièces sont sauvegardées comme de vraies pièces.
 - Chaque prise va dans le sac. Sac plein → état `FishingState.BagFull` : 1/2/3 relâche ce poisson du sac
   (`ChooseReplace`), Espace relâche le nouveau (`ChooseRelease`).
 - **Maison du joueur** (`World/HouseBuilding`, objet « Maison », dessins `HouseArt` : enduit à colombages, toit de tuiles,
