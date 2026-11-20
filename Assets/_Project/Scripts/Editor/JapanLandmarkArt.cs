@@ -328,31 +328,71 @@ namespace FishAndChill.Editor
         // ---------- Mont Fuji ----------
 
         public const int FujiWidth = 416;
-        public const int FujiHeight = 224;
-        public static readonly Vector2 FujiPivot = new Vector2(0.5f, 0f);
+        public const int FujiHeight = 160;
 
-        /// <summary>Mont Fuji au loin : cône régulier bleuté au sommet tronqué, neige en dents le long des ravines.</summary>
+        /// <summary>Pied des collines boisées, au milieu.</summary>
+        public static readonly Vector2 FujiPivot = new Vector2(0.5f, 6f / FujiHeight);
+
+        /// <summary>
+        /// Mont Fuji (13 cases sur 5), dressé derrière le sanctuaire : large cône bleuté au sommet tronqué, neige en dents
+        /// le long des ravines, flanc droit à l'ombre, écharpe de nuage, et à son pied une rangée de collines couvertes de
+        /// pins sombres qui le raccorde à la forêt autour.
+        /// </summary>
         public static Color[,] Fuji()
         {
             var cv = new VolumeCanvas(FujiWidth, FujiHeight);
-            Color slope = C(0.42f, 0.48f, 0.62f);
+            Color slope = C(0.46f, 0.52f, 0.66f);
             cv.Piece((x, y) =>
             {
-                float t = (y - 20f) / (FujiHeight - 20f);
-                float half = 26f + Mathf.Pow(Mathf.Clamp01(t), 1.6f) * 182f;
-                return y > 20f && Mathf.Abs(x - 208f) < half;
-            }, slope, 8f, (x, y, c) =>
+                float t = (y - 8f) / 130f;
+                float half = 22f + Mathf.Pow(Mathf.Clamp01(t), 1.4f) * 170f;
+                return y > 8f && y < 128f && Mathf.Abs(x - 208f) < half;   // le bas se cache derrière les collines
+            }, slope, 6f, (x, y, c) =>
             {
-                float t = (y - 20f) / (FujiHeight - 20f);
-                float ravine = Mathf.Sin(x * 0.16f) * 0.06f + Mathf.Sin(x * 0.05f + 1f) * 0.04f;
-                bool snow = t < 0.36f + ravine + (Mathf.Abs(Mathf.Sin(x * 0.22f)) > 0.75f ? 0.08f : 0f);
-                bool shadow = x > 208f + (y - 20f) * 0.2f;
-                Color baseColor = snow ? C(0.96f, 0.97f, 1f) : Color.Lerp(slope, C(0.36f, 0.48f, 0.42f), t * t);
-                return shadow ? Darker(baseColor, snow ? 0.86f : 0.8f) : baseColor;
-            }, 0.6f, 0.5f);
-            // Nuage étiré en travers du flanc.
-            cv.Piece(Union(Ellipse(120f, 150f, 50f, 9f), Ellipse(160f, 144f, 34f, 10f), Ellipse(300f, 160f, 56f, 8f)), C(0.96f, 0.96f, 0.98f), 5f);
-            return cv.Finish(C(0.22f, 0.24f, 0.34f), 0.35f);
+                float t = (y - 8f) / 130f;
+                float ravine = Mathf.Sin(x * 0.2f) * 0.06f + Mathf.Sin(x * 0.07f + 1f) * 0.04f;
+                bool snow = t < 0.36f + ravine + (Mathf.Abs(Mathf.Sin(x * 0.28f)) > 0.75f ? 0.08f : 0f);
+                bool shadow = x > 208f + (y - 8f) * 0.2f;
+                Color baseColor = snow ? C(0.96f, 0.97f, 1f) : Color.Lerp(slope, C(0.40f, 0.52f, 0.50f), t * t);
+                return shadow ? Darker(baseColor, snow ? 0.88f : 0.84f) : baseColor;
+            }, 0.6f, 0.55f);
+            cv.Piece(Union(Ellipse(120f, 88f, 48f, 6f), Ellipse(156f, 83f, 30f, 7f), Ellipse(292f, 96f, 52f, 6f)), C(0.97f, 0.97f, 0.99f), 4f);
+
+            // Collines boisées au pied : bosses rondes vert sombre, piquées de cimes de pins.
+            Color hill = C(0.16f, 0.34f, 0.24f);
+            System.Func<int, int, Color, Color> pines = (x, y, c) =>
+            {
+                int h = (x * 7 + y * 13) % 17;
+                return h == 0 ? Darker(c, 0.7f) : h == 5 ? Darker(c, 1.25f) : c;
+            };
+            for (int i = 0; i < 9; i++)
+            {
+                float hx = 46f + i * 40.5f + ((i * 37) % 7 - 3);
+                float hy = 128f + (i % 2) * 6f + Mathf.Abs(i - 4f) * 2f;
+                float end = Mathf.Abs(i - 4f) / 4f;
+                float rx = 34f + (i * 13) % 8 - end * 6f, ry = 20f + (i * 7) % 8 - end * 6f;
+                cv.Piece(Ellipse(hx, hy, rx, ry), i % 2 == 0 ? hill : Darker(hill, 1.1f), 10f, pines, 0.75f, 0.4f);
+            }
+
+            // Rangée de bosses plus basses devant : le pied ondule et s'arrondit aux deux bouts, sans bord droit.
+            for (int i = 0; i < 10; i++)
+            {
+                float hx = 36f + i * 38.5f;
+                float edge = Mathf.Abs(i - 4.5f) / 4.5f;                     // plus petites vers les bouts
+                cv.Piece(Ellipse(hx, 146f, 30f - edge * 8f, 11f - edge * 3f), i % 2 == 0 ? Darker(hill, 0.92f) : hill, 6f, pines, 0.75f, 0.4f);
+            }
+            Color[,] p = cv.Finish(C(0.06f, 0.12f, 0.10f), 0.4f);
+
+            // Ombre portée au sol, sous les collines (y depuis le bas).
+            for (int x = 0; x < FujiWidth; x++)
+            {
+                for (int y = 0; y < 6; y++)
+                {
+                    if (p[x, y].a < 0.01f) p[x, y] = C(0.04f, 0.10f, 0.06f, 0.35f);
+                }
+            }
+
+            return p;
         }
 
         // ---------- Pont rouge ----------

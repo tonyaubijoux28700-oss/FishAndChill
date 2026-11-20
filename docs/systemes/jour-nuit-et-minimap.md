@@ -53,7 +53,11 @@
 - Image dessinée au démarrage et après chaque voyage (`Rebuild`) depuis les Tilemaps, à `_detail` = 4 pixels par case
   (couleurs par tuile dans `_palette`) : côtes arrondies (interpolation bilinéaire, `MinimapMath.Bilinear`) avec écume,
   eau plus claire près des rives (distance à la terre), grain du sol, chemins pavés (`_paving` = couche `Rendu - Pavés`,
-  case pavée si ses 4 tuiles de double grille existent), arbres en petites couronnes ombrées.
+  case pavée si ses 4 tuiles de double grille existent), arbres en petites couronnes ombrées. Les tuiles d'arbres des
+  zones redessinées sont ajoutées à la palette par leur nom (`BuildMinimap`, `Named`).
+- **Falaises** (`_cliffs` = couche `Rendu - Falaises`) en roche, cascades en eau claire. **Grands repères** (`_blocks`,
+  remplis par `MapSetup.MinimapBlocks` pendant la génération) : surface au sol des bâtiments en couleur pleine (chalet,
+  maisons, fromager, sanctuaire, torii, onsen…), montagnes en triangle enneigé (Fuji, montagnes du lac).
 - **Lagons** : les cases d'eau couvertes par la couche `Rendu - Lagon` (`_lagoon`, double grille) sont claires et teintées
   de turquoise (`_lagoonTint`), même loin des côtes (lagon de l'atoll, récif).
 - **Carte vivante** : 3 images de vaguelettes qui s'enchaînent, ombres de nuages, coins de pêche qui pulsent (couleur

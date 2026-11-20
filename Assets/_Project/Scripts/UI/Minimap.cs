@@ -39,6 +39,18 @@ namespace FishAndChill.UI
             public readonly List<Image> Clouds = new List<Image>();
         }
 
+        /// <summary>
+        /// Grand repère dessiné sur la carte (sanctuaire, maison, onsen, montagne…) : un rectangle de couleur sur sa
+        /// surface au sol, ou un triangle à sommet enneigé pour une montagne.
+        /// </summary>
+        [Serializable]
+        public sealed class Block
+        {
+            public Rect Area;
+            public Color Color = Color.white;
+            public bool Mountain;
+        }
+
         /// <summary>Lieu signalé sur la carte par une icône (boutique, aquarium…).</summary>
         [Serializable]
         public sealed class Landmark
@@ -69,6 +81,14 @@ namespace FishAndChill.UI
 
         [SerializeField, Tooltip("Teinte de l'eau claire du lagon sur la carte.")]
         private Color _lagoonTint = new Color(0.30f, 0.82f, 0.80f);
+
+        [SerializeField, Tooltip("Couche des falaises (et cascades) : ces cases sont en roche sur la carte.")]
+        private Tilemap _cliffs;
+
+        [SerializeField] private Color _cliffColor = new Color(0.50f, 0.48f, 0.46f);
+
+        [SerializeField, Tooltip("Grands repères dessinés sur la carte (bâtiments, montagnes).")]
+        private List<Block> _blocks = new List<Block>();
 
         [SerializeField, Tooltip("Couleur de chaque tuile sur la carte.")]
         private List<TileColor> _palette = new List<TileColor>();
@@ -258,6 +278,14 @@ namespace FishAndChill.UI
                         if (shallow[x, y]) ground[x, y] = Color.Lerp(ground[x, y], _lagoonTint, 0.65f);
                     }
 
+                    TileBase cliffTile = _cliffs != null ? _cliffs.GetTile(cell) : null;
+                    if (cliffTile != null)
+                    {
+                        // Falaise : roche ; cascade : eau vive claire.
+                        land[x, y] = 1f;
+                        ground[x, y] = cliffTile.name.Contains("Cascade") ? new Color(0.70f, 0.88f, 0.94f) : _cliffColor;
+                    }
+
                     TileBase decorTile = _decor != null ? _decor.GetTile(cell) : null;
                     if (decorTile != null && lookup.TryGetValue(decorTile, out Color d)) decor[x, y] = d;
                 }
@@ -321,6 +349,36 @@ namespace FishAndChill.UI
                     float ccy = (y + 0.5f) * d4 + d4 * 0.25f;
                     Disc(pixels, tw, th, ccx + 1f, ccy - 1.5f, radius, c => Shade(c, 0.72f), waterMask);
                     Disc(pixels, tw, th, ccx, ccy, radius, c => crown, waterMask, crown);
+                }
+            }
+
+            // Grands repères : surface au sol en couleur pleine (bord plus sombre), montagnes en triangle enneigé.
+            foreach (Block block in _blocks)
+            {
+                if (block == null || !block.Area.Overlaps(_worldBounds)) continue;
+                float x0 = (block.Area.xMin - min.x) * d4, x1 = (block.Area.xMax - min.x) * d4;
+                float y0 = (block.Area.yMin - min.y) * d4, y1 = (block.Area.yMax - min.y) * d4;
+                for (int px = Mathf.Max(0, Mathf.FloorToInt(x0)); px < Mathf.Min(tw, Mathf.CeilToInt(x1)); px++)
+                {
+                    for (int py = Mathf.Max(0, Mathf.FloorToInt(y0)); py < Mathf.Min(th, Mathf.CeilToInt(y1)); py++)
+                    {
+                        float u = (px + 0.5f - x0) / (x1 - x0), v = (py + 0.5f - y0) / (y1 - y0);
+                        Color c = block.Color;
+                        if (block.Mountain)
+                        {
+                            float half = (1f - v) * 0.5f;
+                            if (Mathf.Abs(u - 0.5f) > half) continue;
+                            if (v > 0.62f) c = Color.white;                       // neige du sommet
+                            else if (u > 0.5f) c = Shade(c, 0.8f);                // flanc à l'ombre
+                        }
+                        else if (u < 0.12f || u > 0.88f || v < 0.15f || v > 0.85f)
+                        {
+                            c = Shade(c, 0.75f);
+                        }
+
+                        pixels[py * tw + px] = c;
+                        waterMask[py * tw + px] = false;
+                    }
                 }
             }
 

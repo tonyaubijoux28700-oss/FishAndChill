@@ -294,6 +294,7 @@ namespace FishAndChill.Editor
             DockInfo islandDock = BuildDock(mapObject.transform, "Ponton - Île Mahana", terrain, bounds, spawn, Vector2Int.down);
 
             // Le lac d'Annecy, loin à l'est (au-delà des intérieurs des bâtiments), avec son propre ponton.
+            MinimapBlocks.Clear();
             TileSet lakeTiles = CreateLakeTiles();
             var lakeBounds = new BoundsInt(bounds.xMax + LakeGap, -LakeSettings.Height / 2, 0, LakeSettings.Width, LakeSettings.Height, 1);
             DockInfo lakeDock = BuildLake(mapObject.transform, lakeBounds, lakeTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
@@ -828,6 +829,7 @@ namespace FishAndChill.Editor
             GameObject chaletObject = EnsureObject("Chalet du lac", mapRoot);
             chaletObject.transform.position = World(plan.Chalet.x + 0.5f, plan.Chalet.y);
             SetSprite(chaletObject, chalet, 10);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Chalet.x + 0.5f - 2f, bounds.yMin + plan.Chalet.y, 4f, 3f), new Color(0.56f, 0.36f, 0.20f), false));
             obstacles.Add(new Rect(bounds.xMin + plan.Chalet.x + 0.5f - 1.8f, bounds.yMin + plan.Chalet.y - 0.1f, 3.6f, 2.4f));
             for (int x = plan.Chalet.x - 2; x <= plan.Chalet.x + 2; x++)
             {
@@ -841,6 +843,8 @@ namespace FishAndChill.Editor
                 GameObject mountainObject = EnsureObject($"Montagne du lac {i + 1}", mapRoot);
                 mountainObject.transform.position = World(13f + i * 27f, height - 7f + (i == 1 ? 1f : 0f));
                 SetSprite(mountainObject, mountain, 10);
+                Vector3 foot = mountainObject.transform.position;
+                MinimapBlocks.Add((new Rect(foot.x - 5f, foot.y, 10f, 6f), new Color(0.52f, 0.54f, 0.60f), true));
             }
 
             Tile[] flowerClumps = { SaveTile("Lac_Fleurs_0", LakeTerrainArt.FlowerClump(0), new Vector2(0.5f, 1f / 16f), TileArt.Size),
@@ -912,6 +916,9 @@ namespace FishAndChill.Editor
 
         /// <summary>La passerelle du lac (on y marche comme sur un ponton) ; posée par <see cref="BuildLake"/>.</summary>
         private static Rect LakeBridgeArea;
+
+        /// <summary>Grands repères des zones (bâtiments, montagnes) à dessiner sur la minimap ; remplis pendant la génération.</summary>
+        private static readonly List<(Rect Area, Color Color, bool Mountain)> MinimapBlocks = new List<(Rect, Color, bool)>();
 
         /// <summary>Tuiles du fleuve : celles de l'île recolorées (eau brune, vase, jungle), grands arbres et décor.</summary>
         private static TileSet CreateAmazonTiles()
@@ -1055,6 +1062,7 @@ namespace FishAndChill.Editor
                 houseObject.transform.position = World(house.x + 0.5f, house.y);
                 SetSprite(houseObject, sprite, 10);
                 obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 1.9f, bounds.yMin + house.y - 0.1f, 3.8f, 1.6f));
+                MinimapBlocks.Add((new Rect(bounds.xMin + house.x + 0.5f - 2f, bounds.yMin + house.y, 4f, 3f), i % 2 == 0 ? new Color(0.30f, 0.66f, 0.68f) : new Color(0.94f, 0.78f, 0.34f), false));
             }
 
             Sprite canoe = PixelArt.Save($"{TilesFolder}/Fleuve_Pirogue.png", AmazonLandmarkArt.Canoe(), VolumeCanvas.PixelsPerUnit, Vector2.one * 0.5f);
@@ -1067,6 +1075,7 @@ namespace FishAndChill.Editor
             GameObject kapokObject = EnsureObject("Fromager géant", mapRoot);
             kapokObject.transform.position = World(plan.Kapok.x + 0.5f, plan.Kapok.y);
             SetSprite(kapokObject, kapok, 10);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Kapok.x + 0.5f - 3f, bounds.yMin + plan.Kapok.y + 1f, 6f, 4f), new Color(0.16f, 0.36f, 0.18f), false));
             obstacles.Add(new Rect(bounds.xMin + plan.Kapok.x + 0.5f - 1.2f, bounds.yMin + plan.Kapok.y - 0.3f, 2.4f, 2.2f));
             obstacles.Add(new Rect(bounds.xMin + plan.Kapok.x + 0.5f - 3.2f, bounds.yMin + plan.Kapok.y - 0.4f, 6.4f, 0.8f));
 
@@ -1251,46 +1260,6 @@ namespace FishAndChill.Editor
             Tile[] slabFull = { slabEdges[15], SaveTile("Bords/BaieDalles_15b", JapanTerrainArt.StoneFill(1), Vector2.one * 0.5f, TileArt.Size) };
             FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Stone[x, y], slabEdges, slabFull, seed + 6, false);
 
-            // Falaise au pied du plateau et cascade du ruisseau (même couche que celles du lac).
-            Tilemap cliffLayer = EnsureTilemap(mapRoot, "Rendu - Falaises", -10, TilemapRenderer.Mode.Chunk);
-            var cliffTop = SaveTile("Baie_Falaise_Haut", LakeTerrainArt.CliffTop(JapanArt.Moss(TileArt.Grass(0))), Vector2.one * 0.5f, TileArt.Size);
-            var faces = new Tile[3];
-            var bases = new Tile[3];
-            for (int i = 0; i < 3; i++)
-            {
-                faces[i] = SaveTile($"Baie_Falaise_Paroi_{i}", LakeTerrainArt.CliffFace(i), Vector2.one * 0.5f, TileArt.Size);
-                bases[i] = SaveTile($"Baie_Falaise_Pied_{i}", LakeTerrainArt.CliffBase(i), Vector2.one * 0.5f, TileArt.Size);
-            }
-
-            var waterfall = new Tile[3, 3];
-            for (int c = 0; c < 3; c++)
-            {
-                for (int r = 0; r < 3; r++)
-                {
-                    int column = c, row = r;
-                    waterfall[c, r] = SaveAnimatedWater($"Baie_Cascade_{c}_{r}", f => LakeTerrainArt.Waterfall(column, row, f));
-                }
-            }
-
-            for (int x = 0; x < width; x++)
-            {
-                int ridge = plan.Ridge[x];
-                int variant = Mathf.FloorToInt(IslandGenerator.CellHash(x, 0, seed + 11) * 3f) % 3;
-                int fall = x - (plan.Waterfall.x - 1);
-                if (fall >= 0 && fall < 3)
-                {
-                    for (int r = 0; r < 3; r++) cliffLayer.SetTile(Cell(x, ridge - 2 + r), waterfall[fall, r]);
-                }
-                else
-                {
-                    if (ridge < height) cliffLayer.SetTile(Cell(x, ridge), cliffTop);
-                    cliffLayer.SetTile(Cell(x, ridge - 1), faces[variant]);
-                    cliffLayer.SetTile(Cell(x, ridge - 2), bases[variant]);
-                }
-
-                obstacles.Add(new Rect(bounds.xMin + x, bounds.yMin + ridge - 2, 1f, height - ridge + 2));
-            }
-
             // Ponton au bout du petit chemin, vers le sud (BuildDock essaie d'abord 3 cases à droite du point donné).
             DockInfo dock = BuildDock(mapRoot, "Ponton - Baie japonaise", terrain, bounds, plan.DockFoot - new Vector2Int(3, 0), Vector2Int.down);
 
@@ -1316,9 +1285,21 @@ namespace FishAndChill.Editor
             }
 
             const string buildings = "Assets/_Project/Art/Buildings";
+            // Fuji dressé juste derrière le sanctuaire (qui cache son pied), au bord de la forêt de pins ; ses collines sont solides.
             Landmark("Mont Fuji", $"{TilesFolder}/Baie_Fuji.png", JapanLandmarkArt.Fuji(), JapanLandmarkArt.FujiPivot, plan.Fuji.x + 0.5f, plan.Fuji.y);
+            Solid(plan.Fuji.x + 0.5f, plan.Fuji.y - 0.1f, 12.6f, 1.6f);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Fuji.x + 0.5f - 6.5f, bounds.yMin + plan.Fuji.y, 13f, 4.8f), new Color(0.46f, 0.52f, 0.66f), true));
             Landmark("Sanctuaire de la baie", $"{buildings}/Baie_Sanctuaire.png", JapanLandmarkArt.Shrine(), JapanLandmarkArt.ShrinePivot, plan.Shrine.x + 0.5f, plan.Shrine.y);
             Solid(plan.Shrine.x + 0.5f, plan.Shrine.y + 0.2f, 4.8f, 2.6f);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Shrine.x + 0.5f - 3f, bounds.yMin + plan.Shrine.y, 6f, 4f), new Color(0.86f, 0.24f, 0.16f), false));
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.GateTorii.x + 0.5f - 2.2f, bounds.yMin + plan.GateTorii.y, 4.4f, 0.7f), new Color(0.86f, 0.24f, 0.16f), false));
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.SeaTorii.x + 0.5f - 2.2f, bounds.yMin + plan.SeaTorii.y, 4.4f, 0.7f), new Color(0.86f, 0.24f, 0.16f), false));
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Onsen.x + 0.5f - 2.5f, bounds.yMin + plan.Onsen.y, 5f, 3f), new Color(0.62f, 0.86f, 0.86f), false));
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Boat.x + 0.5f - 1.5f, bounds.yMin + plan.Boat.y + 0.1f, 3f, 0.8f), new Color(0.56f, 0.42f, 0.28f), false));
+            foreach (Vector2Int house in plan.Houses)
+            {
+                MinimapBlocks.Add((new Rect(bounds.xMin + house.x + 0.5f - 2f, bounds.yMin + house.y, 4f, 3f), new Color(0.40f, 0.44f, 0.50f), false));
+            }
             Solid(plan.Shrine.x + 0.5f - 2.75f, plan.Shrine.y - 0.1f, 0.6f, 0.5f);   // chiens-lions
             Solid(plan.Shrine.x + 0.5f + 2.75f, plan.Shrine.y - 0.1f, 0.6f, 0.5f);
             Landmark("Torii de l'allée", $"{TilesFolder}/Baie_Torii.png", JapanLandmarkArt.Torii(false), JapanLandmarkArt.ToriiPivot, plan.GateTorii.x + 0.5f, plan.GateTorii.y);
@@ -1370,7 +1351,7 @@ namespace FishAndChill.Editor
                 Tile tile = kind == BayPlan.Plant.Sakura ? sakura : kind == BayPlan.Plant.Maple ? maple
                     : kind == BayPlan.Plant.Pine ? pines[(cell.x + cell.y) % 2] : bamboo[cell.x % 2];
                 decorMap.SetTile(Cell(cell.x, cell.y), tile);
-                if (!plan.Plateau[cell.x, cell.y]) obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
+                obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
             }
 
             return dock;
@@ -3121,6 +3102,31 @@ namespace FishAndChill.Editor
             foreach (Tile t in atollTiles.Sand) entries.Add((t, new Color(0.98f, 0.97f, 0.92f)));
             foreach (Tile t in atollTiles.Grass) entries.Add((t, new Color(0.30f, 0.62f, 0.30f)));
             entries.Add((atollTiles.Rocks[0], new Color(0.70f, 0.56f, 0.34f)));
+
+            // Arbres et décor des zones redessinées (tuiles créées pendant la construction des zones).
+            void Named(string tileName, Color color)
+            {
+                var tile = AssetDatabase.LoadAssetAtPath<Tile>($"{TilesFolder}/{tileName}.asset");
+                if (tile != null) entries.Add((tile, color));
+            }
+
+            Named("Lac_Hetre", new Color(0.18f, 0.40f, 0.18f));
+            Named("Lac_Bouleau", new Color(0.36f, 0.56f, 0.26f));
+            for (int i = 0; i < 3; i++) Named($"Fleuve_Arbre_{i}", new Color(0.08f, 0.28f, 0.10f));
+            for (int i = 0; i < 2; i++)
+            {
+                Named($"Fleuve_ArbreInonde_{i}", new Color(0.10f, 0.30f, 0.12f));
+                Named($"Fleuve_Acai_{i}", new Color(0.20f, 0.42f, 0.16f));
+                Named($"Baie_PinNoir_{i}", new Color(0.12f, 0.28f, 0.20f));
+                Named($"Baie_Bambous_{i}", new Color(0.46f, 0.64f, 0.28f));
+                Named($"Decor/Baie_Rocher_{i}", new Color(0.36f, 0.34f, 0.36f));
+            }
+
+            Named("Fleuve_Bananier", new Color(0.36f, 0.62f, 0.22f));
+            Named("Fleuve_TroncCouche", new Color(0.50f, 0.42f, 0.32f));
+            Named("Baie_Cerisier", new Color(0.96f, 0.72f, 0.80f));
+            Named("Baie_Erable", new Color(0.84f, 0.22f, 0.14f));
+            Named("Decor/Lampadaire_ToroPierre", new Color(0.70f, 0.70f, 0.66f));
             Sprite dockIcon = PixelArt.Save("Assets/_Project/Art/UI/IconePonton.png", LakeArt.BoatIcon(), TileArt.Size, Vector2.one * 0.5f);
 
             var so = new SerializedObject(minimap);
@@ -3131,6 +3137,17 @@ namespace FishAndChill.Editor
             so.FindProperty("_paving").objectReferenceValue = paving != null ? paving.GetComponent<Tilemap>() : null;
             Transform lagoon = decorMap.transform.parent.Find("Rendu - Lagon");
             so.FindProperty("_lagoon").objectReferenceValue = lagoon != null ? lagoon.GetComponent<Tilemap>() : null;
+            Transform cliffs = decorMap.transform.parent.Find("Rendu - Falaises");
+            so.FindProperty("_cliffs").objectReferenceValue = cliffs != null ? cliffs.GetComponent<Tilemap>() : null;
+            SerializedProperty blocks = so.FindProperty("_blocks");
+            blocks.arraySize = MinimapBlocks.Count;
+            for (int i = 0; i < MinimapBlocks.Count; i++)
+            {
+                SerializedProperty block = blocks.GetArrayElementAtIndex(i);
+                block.FindPropertyRelative("Area").rectValue = MinimapBlocks[i].Area;
+                block.FindPropertyRelative("Color").colorValue = MinimapBlocks[i].Color;
+                block.FindPropertyRelative("Mountain").boolValue = MinimapBlocks[i].Mountain;
+            }
             SerializedProperty landmarks = so.FindProperty("_landmarks");
             landmarks.arraySize = 6 + docks.Length;
             SetLandmark(landmarks.GetArrayElementAtIndex(0), "Boutique", shop.transform, shopIcon);

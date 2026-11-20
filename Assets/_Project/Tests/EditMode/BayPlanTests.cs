@@ -34,7 +34,7 @@ namespace FishAndChill.Tests
             Assert.That(Plan.Bridge.width, Is.GreaterThan(0));
             Assert.That(seen[Plan.Shrine.x, Plan.Shrine.y - 2], Is.True, "parvis du sanctuaire");
             Assert.That(seen[Plan.Onsen.x, Plan.Onsen.y - 2], Is.True, "devant l'onsen, au-delà du ruisseau");
-            Assert.That(seen[Plan.Shrine.x, Plan.Ridge[Plan.Shrine.x] + 1], Is.False, "le plateau reste inaccessible");
+            Assert.That(seen[Plan.Fuji.x - 8, Plan.Fuji.y], Is.True, "on peut passer à côté du Fuji pour le voir en entier");
         }
 
         [Test]
@@ -45,7 +45,8 @@ namespace FishAndChill.Tests
             Assert.That(Plan.Terrain[Plan.Boat.x, Plan.Boat.y], Is.EqualTo(TerrainType.Sand));
             Assert.That(Plan.Stone[BayPlan.AxisX, Plan.GateTorii.y], Is.True, "le torii enjambe l'allée");
             foreach (Vector2Int house in Plan.Houses) Assert.That(Plan.Terrain[house.x, house.y], Is.Not.EqualTo(TerrainType.Water));
-            Assert.That(Plan.Plateau[Plan.Fuji.x, Plan.Fuji.y], Is.True);
+            Assert.That(Plan.Fuji.y - Plan.Shrine.y, Is.InRange(3, 5), "le Fuji se dresse juste derrière le sanctuaire");
+            Assert.That(Plan.Trees.Exists(t => Mathf.Abs(t.Cell.x - Plan.Fuji.x) <= 6 && t.Cell.y >= Plan.Fuji.y - 1 && t.Cell.y < Plan.Fuji.y + 5), Is.False, "aucun arbre devant ni sur le Fuji");
             foreach (var tree in Plan.Trees) Assert.That(Plan.Path[tree.Cell.x, tree.Cell.y] || Plan.Stone[tree.Cell.x, tree.Cell.y], Is.False);
         }
 
@@ -68,7 +69,7 @@ namespace FishAndChill.Tests
                 {
                     Vector2Int n = c + d;
                     if (n.x < 0 || n.y < 0 || n.x >= BayPlan.Width || n.y >= BayPlan.Height || seen[n.x, n.y]) continue;
-                    if ((Plan.Terrain[n.x, n.y] == TerrainType.Water && !Plan.Bridge.Contains(n)) || Plan.Plateau[n.x, n.y] || Plan.Cliff[n.x, n.y]) continue;
+                    if ((Plan.Terrain[n.x, n.y] == TerrainType.Water && !Plan.Bridge.Contains(n))) continue;
                     seen[n.x, n.y] = true;
                     queue.Enqueue(n);
                 }

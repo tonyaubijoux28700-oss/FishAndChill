@@ -7,8 +7,8 @@ namespace FishAndChill.World
     /// Plan dessiné de la baie d'Izu (90×64 cases, y vers le haut), à la place d'une forme tirée au hasard : la mer au
     /// sud qui s'enfonce en arrondi entre deux caps rocheux, une plage de sable volcanique au fond de la baie, un torii
     /// planté dans l'eau dans l'axe du sanctuaire, le sanctuaire shinto au pied des collines (allée de dalles, torii,
-    /// lanternes de pierre, parvis), une falaise et le mont Fuji au loin sur le plateau, un ruisseau descendu d'une
-    /// cascade et franchi par un pont rouge, un hameau de pêcheurs (deux maisons, une barque tirée sur le sable), un
+    /// lanternes de pierre, parvis), le mont Fuji qui se dresse juste derrière lui dans une forêt de pins, un ruisseau
+    /// sorti de la forêt et franchi par un pont rouge, un hameau de pêcheurs (deux maisons, une barque tirée sur le sable), un
     /// onsen fumant à l'est, un bois de bambous, des érables rouges autour du sanctuaire, des cerisiers et des pins
     /// noirs, deux rochers mariés reliés par une corde dans la mer. Logique pure (testée) ; dessiné par
     /// <c>MapSetup.BuildJapan</c>.
@@ -19,11 +19,6 @@ namespace FishAndChill.World
         public const int Height = 64;
 
         public TerrainType[,] Terrain = new TerrainType[Width, Height];
-
-        /// <summary>Plateau au-dessus de la falaise (inaccessible) et face de la falaise.</summary>
-        public bool[,] Plateau = new bool[Width, Height];
-        public bool[,] Cliff = new bool[Width, Height];
-        public int[] Ridge = new int[Width];
 
         /// <summary>Dalles de pierre : allée du sanctuaire et parvis.</summary>
         public bool[,] Stone = new bool[Width, Height];
@@ -45,7 +40,6 @@ namespace FishAndChill.World
         /// <summary>Touffes d'herbes et de fleurs (on passe à travers).</summary>
         public readonly List<Vector2Int> Flowers = new List<Vector2Int>();
 
-        public Vector2Int Waterfall;          // pied de la cascade, au bas de la falaise
         public RectInt Bridge;                // cases du pont rouge sur le ruisseau
         public Vector2Int Shrine;             // pied du sanctuaire (milieu de la façade)
         public Vector2Int GateTorii;          // torii à l'entrée de l'allée
@@ -53,7 +47,7 @@ namespace FishAndChill.World
         public Vector2Int Onsen;              // pied du bassin
         public Vector2Int Boat;               // barque tirée sur le sable
         public Vector2Int WeddedRocks;        // rochers mariés, dans la mer
-        public Vector2Int Fuji;               // pied du mont Fuji, sur le plateau
+        public Vector2Int Fuji;               // pied du mont Fuji, juste derrière le sanctuaire (solide)
         public readonly List<Vector2Int> Houses = new List<Vector2Int>();
 
         /// <summary>Colonne de gauche du ponton (2 cases de large) et case de la rive où il part, vers le sud.</summary>
@@ -61,7 +55,7 @@ namespace FishAndChill.World
 
         public const int AxisX = 44;          // axe du sanctuaire, de l'allée et du torii dans l'eau
 
-        private static readonly Vector2[] StreamCourse = { new Vector2(62f, 52f), new Vector2(60.5f, 45f), new Vector2(64f, 37f), new Vector2(63f, 29f), new Vector2(66f, 20f), new Vector2(67f, 8f) };
+        private static readonly Vector2[] StreamCourse = { new Vector2(59f, 66f), new Vector2(62f, 52f), new Vector2(60.5f, 45f), new Vector2(64f, 37f), new Vector2(63f, 29f), new Vector2(66f, 20f), new Vector2(67f, 8f) };
 
         private static readonly Vector2[] CoastPath =
         {
@@ -88,26 +82,22 @@ namespace FishAndChill.World
 
         private void Paint()
         {
-            // 1. Falaise et plateau au nord, mer au sud, terre entre les deux.
+            // 1. Mer au sud, terre au-dessus (pas de falaise : la caméra ne verrait pas ce qui est derrière).
             for (int x = 0; x < Width; x++)
             {
-                Ridge[x] = Mathf.RoundToInt(56f + 2f * Mathf.Sin(x * 0.15f) + 1.5f * Mathf.Sin(x * 0.06f + 0.7f));
                 float shore = ShoreAt(x + 0.5f);
                 for (int y = 0; y < Height; y++)
                 {
                     Terrain[x, y] = y + 0.5f < shore ? TerrainType.Water : TerrainType.Grass;
-                    Plateau[x, y] = y >= Ridge[x];
-                    Cliff[x, y] = y < Ridge[x] && y >= Ridge[x] - 2;
                 }
             }
 
-            // 2. Le ruisseau, de la cascade jusqu'à la mer.
-            Waterfall = new Vector2Int(62, Ridge[62] - 2);
+            // 2. Le ruisseau, qui sort de la forêt du nord et descend jusqu'à la mer.
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    if (y < Ridge[x] - 1 && DistanceToPolyline(new Vector2(x + 0.5f, y + 0.5f), StreamCourse) <= 1.25f) Terrain[x, y] = TerrainType.Water;
+                    if (DistanceToPolyline(new Vector2(x + 0.5f, y + 0.5f), StreamCourse) <= 1.25f) Terrain[x, y] = TerrainType.Water;
                 }
             }
 
@@ -117,7 +107,7 @@ namespace FishAndChill.World
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    if (Terrain[x, y] != TerrainType.Grass || Plateau[x, y] || Cliff[x, y]) continue;
+                    if (Terrain[x, y] != TerrainType.Grass) continue;
                     bool bay = x >= 22 && x <= 68 && y < ShoreAt(x + 0.5f) + 5f;
                     int reach = bay ? (Hash(x, y, 3) < 0.5f ? 3 : 2) : 1;
                     sand[x, y] = NearWater(x, y, reach);
@@ -132,13 +122,13 @@ namespace FishAndChill.World
                 }
             }
 
-            // 4. Sanctuaire au pied de la falaise, allée de dalles jusqu'à la plage, parvis devant.
-            Shrine = new Vector2Int(AxisX, Ridge[AxisX] - 9);
+            // 4. Sanctuaire au pied du Fuji, allée de dalles jusqu'à la plage, parvis devant.
+            Shrine = new Vector2Int(AxisX, 45);
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    if (Terrain[x, y] == TerrainType.Water || Plateau[x, y] || Cliff[x, y]) continue;
+                    if (Terrain[x, y] == TerrainType.Water) continue;
                     bool alley = x >= AxisX - 1 && x <= AxisX + 1 && y >= ShoreAt(AxisX + 0.5f) + 1f && y < Shrine.y - 2;
                     bool forecourt = x >= AxisX - 5 && x <= AxisX + 5 && y >= Shrine.y - 3 && y < Shrine.y;
                     Stone[x, y] = alley || forecourt;
@@ -160,7 +150,7 @@ namespace FishAndChill.World
                 {
                     var cell = new Vector2(x + 0.5f, y + 0.5f);
                     if (DistanceToPolyline(cell, CoastPath) > 1.05f && !(DistanceToSegment(cell, new Vector2(56f, 26f), new Vector2(56f, 21f)) <= 0.75f)) continue;
-                    if (Plateau[x, y] || Cliff[x, y] || Stone[x, y]) continue;
+                    if (Stone[x, y]) continue;
                     if (Terrain[x, y] == TerrainType.Water)
                     {
                         if (DistanceToPolyline(cell, StreamCourse) > 1.8f || y < 15) continue;
@@ -189,7 +179,7 @@ namespace FishAndChill.World
             Boat = new Vector2Int(35, Mathf.CeilToInt(ShoreAt(35.5f)) + 1);
             Onsen = new Vector2Int(76, 29);
             WeddedRocks = new Vector2Int(74, 5);
-            Fuji = new Vector2Int(45, Ridge[45]);
+            Fuji = new Vector2Int(AxisX, Shrine.y + 4);   // juste derrière le sanctuaire, qui cache son pied
 
             // 8. Rochers : sur les caps, au bord de l'eau ; quelques-uns dans la mer.
             for (int x = 1; x < Width - 1; x++)
@@ -212,21 +202,22 @@ namespace FishAndChill.World
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    if (Terrain[x, y] != TerrainType.Grass || Cliff[x, y] || reserved[x, y]) continue;
+                    if (Terrain[x, y] != TerrainType.Grass || reserved[x, y]) continue;
                     bool nearWay = NearMask(Path, x, y, 1) || NearMask(Stone, x, y, 1) || (y + 3 < Height && (Path[x, y + 2] || Path[x, y + 3] || Stone[x, y + 2] || Stone[x, y + 3]));
-                    if (nearWay && !Plateau[x, y]) continue;
+                    if (nearWay) continue;
                     bool bamboo = Ellipse(x, y, 80f, 44f, 9f, 8f) <= 1f;
                     bool shrineWood = Ellipse(x, y, AxisX + 0.5f, Shrine.y + 1f, 14f, 8f) <= 1f;
                     bool cape = x < 18 || x > 72;
-                    bool fujiView = Plateau[x, y] && Mathf.Abs(x - Fuji.x) < 16;
+                    bool fujiView = Mathf.Abs(x - Fuji.x) <= 6 && y >= Fuji.y - 1 && y < Fuji.y + 5;   // rien sur la montagne ; la forêt reprend au-dessus du sommet
                     if (fujiView) continue;
-                    float density = Plateau[x, y] ? 0.35f : bamboo ? 0.6f : shrineWood ? 0.3f : 0.12f;
+                    bool northWood = y >= Fuji.y + 1;
+                    float density = northWood ? 0.5f : bamboo ? 0.6f : shrineWood ? 0.3f : 0.12f;
                     if (Hash(x, y, 31) > density) continue;
                     int spacingX = bamboo ? 2 : 3;
                     if (Trees.Exists(t => Mathf.Abs(t.Cell.x - x) < spacingX && Mathf.Abs(t.Cell.y - y) < 2)) continue;
                     Plant kind;
-                    if (bamboo && !Plateau[x, y]) kind = Plant.Bamboo;
-                    else if (Plateau[x, y] || cape || y < 30) kind = Plant.Pine;
+                    if (bamboo) kind = Plant.Bamboo;
+                    else if (northWood || cape || y < 30) kind = Plant.Pine;
                     else if (shrineWood) kind = Hash(x, y, 32) < 0.6f ? Plant.Maple : Plant.Sakura;
                     else kind = Hash(x, y, 33) < 0.65f ? Plant.Sakura : Plant.Pine;
                     Trees.Add((new Vector2Int(x, y), kind));
@@ -237,7 +228,7 @@ namespace FishAndChill.World
             {
                 for (int x = 1; x < Width - 1; x++)
                 {
-                    if (Terrain[x, y] == TerrainType.Grass && !Plateau[x, y] && !Cliff[x, y] && !reserved[x, y] && !Path[x, y] && !Stone[x, y]
+                    if (Terrain[x, y] == TerrainType.Grass && !reserved[x, y] && !Path[x, y] && !Stone[x, y]
                         && Hash(x, y, 41) < 0.05f && !Trees.Exists(t => t.Cell == new Vector2Int(x, y))) Flowers.Add(new Vector2Int(x, y));
                 }
             }
@@ -262,7 +253,6 @@ namespace FishAndChill.World
             Mark(Boat.x - 2, Boat.y - 1, Boat.x + 2, Boat.y + 1);
             Mark(DockFoot.x - 2, DockFoot.y - 7, DockFoot.x + 3, DockFoot.y + 2);
             Mark(Bridge.xMin - 1, Bridge.yMin - 1, Bridge.xMax, Bridge.yMax);
-            Mark(Waterfall.x - 2, Waterfall.y - 2, Waterfall.x + 2, Waterfall.y + 1);
             foreach (Vector2Int lantern in Lanterns) Mark(lantern.x, lantern.y, lantern.x, lantern.y + 1);
             foreach (Vector2Int rock in Rocks) Mark(rock.x, rock.y, rock.x, rock.y);
             return taken;
