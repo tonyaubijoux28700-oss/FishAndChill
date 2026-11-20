@@ -55,6 +55,7 @@ namespace FishAndChill.UI
         private GearLabel _hookLabel;
         private GearLabel _baitLabel;
         private GearLabel _bagLabel;
+        private Text _petName;
         private Text _fishTitle;
 
         [SerializeField] private PlayerProgress _progress;
@@ -79,6 +80,7 @@ namespace FishAndChill.UI
         [Header("Vitrine du matériel")]
         [SerializeField, Tooltip("Fond en bois de la vitrine.")] private Sprite _showcaseBack;
         [SerializeField, Tooltip("Support en laiton sous la canne.")] private Sprite _peg;
+        [SerializeField, Tooltip("Empreinte de patte de l'emplacement de l'animal de compagnie.")] private Sprite _petPaw;
         [SerializeField, Tooltip("Étiquette en papier (étirable).")] private Sprite _tag;
         [SerializeField, Tooltip("Étiquette en papier à coins arrondis.")] private Sprite _roundTag;
         [SerializeField, Tooltip("Case sombre à coins arrondis (poissons, vitrine).")] private Sprite _roundCard;
@@ -865,9 +867,35 @@ namespace FishAndChill.UI
             _bagImage = UiFactory.Plain(rect, "Sac", Color.white);
             _bagImage.preserveAspect = true;
             UiFactory.Center(_bagImage.rectTransform, new Vector2(-220f, -250f), new Vector2(90f, 90f));
-            _bagLabel = BuildLabel(rect, "SAC", new Vector2(10f, -254f), true, 330f, 114f);
+            _bagLabel = BuildLabel(rect, "SAC", new Vector2(-8f, -254f), true, 300f, 114f);
+            BuildPetSlot(rect);
         }
 
+        /// <summary>
+        /// L'emplacement de l'animal de compagnie, sur l'étagère du bas à côté du sac : une étiquette avec une empreinte
+        /// de patte. Vide pour l'instant (« Aucun ») : les animaux viendront de l'animalerie.
+        /// </summary>
+        private void BuildPetSlot(RectTransform parent)
+        {
+            Image tag = UiFactory.Sliced(parent, "Étiquette ANIMAL", _roundTag != null ? _roundTag : _tag, _tag != null ? Color.white : new Color(0.92f, 0.86f, 0.70f));
+            RectTransform rect = tag.rectTransform;
+            UiFactory.Center(rect, new Vector2(222f, -254f), new Vector2(128f, 114f));
+
+            Text family = UiFactory.Label(rect, "Famille", 22, TextAnchor.MiddleCenter, TagFamily, shadow: false);
+            family.text = "ANIMAL";
+            UiFactory.Bold(family);
+            UiFactory.Place(family.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -8f), new Vector2(-12f, 26f));
+
+            Image paw = UiFactory.Plain(rect, "Patte", new Color(0.62f, 0.48f, 0.34f, 0.75f));   // empreinte en creux : emplacement vide
+            paw.sprite = _petPaw;
+            paw.enabled = _petPaw != null;
+            paw.preserveAspect = true;
+            UiFactory.Center(paw.rectTransform, new Vector2(0f, -4f), new Vector2(44f, 44f));
+
+            _petName = UiFactory.Label(rect, "Nom", 20, TextAnchor.MiddleCenter, TagSoft, shadow: false);
+            _petName.text = "Aucun";
+            UiFactory.Place(_petName.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 6f), new Vector2(-12f, 24f));
+        }
         /// <summary>
         /// Étiquette en papier : famille, nom (sa taille s'adapte pour tenir sur deux lignes au plus), effet, niveau.
         /// </summary>

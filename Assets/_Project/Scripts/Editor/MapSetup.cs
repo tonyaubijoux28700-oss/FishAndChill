@@ -233,8 +233,12 @@ namespace FishAndChill.Editor
             Vector2Int labCell = FindBuildingSite(terrain, center + new Vector2Int(22, 2), aquariumCell, 16, halfWidth: 5, front: 6, back: 7, anyDirection: true,
                 alsoAvoid: new[] { shopCell, houseCell });
 
+            // L'animalerie : au sud-ouest, entre la maison et la plage, loin du laboratoire (à l'est).
+            Vector2Int petShopCell = FindBuildingSite(terrain, center + new Vector2Int(-16, -12), aquariumCell, 14, halfWidth: 5, front: 6, back: 7, anyDirection: true,
+                alsoAvoid: new[] { shopCell, houseCell, labCell });
+
             // Parvis, chemins pavés et décor autour des bâtiments.
-            TownLayout.Result town = TownLayout.Build(terrain, spawn, shopCell, aquariumCell, houseCell, labCell, seed);
+            TownLayout.Result town = TownLayout.Build(terrain, spawn, shopCell, aquariumCell, houseCell, labCell, petShopCell, seed);
             FillDualLayer(pavingLayer, bounds, width, height, (x, y) => town.Paved[x, y], tiles.PavingEdges, tiles.PavingFull, seed + 5);
             // Pied de chaque élément de décor et tronc de chaque cocotier : infranchissables.
             var staticObstacles = new List<Rect>();
@@ -250,7 +254,8 @@ namespace FishAndChill.Editor
                     bool nearShop = Mathf.Abs(x - shopCell.x) <= 5 && y >= shopCell.y - 4 && y <= shopCell.y + 5;
                     bool nearAquarium = Mathf.Abs(x - aquariumCell.x) <= 8 && y >= aquariumCell.y - 7 && y <= aquariumCell.y + 11;
                     bool nearHouse = Mathf.Abs(x - houseCell.x) <= 5 && y >= houseCell.y - 4 && y <= houseCell.y + 6
-                        || Mathf.Abs(x - labCell.x) <= 5 && y >= labCell.y - 4 && y <= labCell.y + 6;
+                        || Mathf.Abs(x - labCell.x) <= 5 && y >= labCell.y - 4 && y <= labCell.y + 6
+                        || Mathf.Abs(x - petShopCell.x) <= 5 && y >= petShopCell.y - 4 && y <= petShopCell.y + 6;
                     bool nearLighthouse = Mathf.Abs(x - lighthouseCell.x) <= 3 && Mathf.Abs(y - lighthouseCell.y) <= 3;
                     if (terrain[x, y] != TerrainType.Grass || nearSpawn || nearShop || nearAquarium || nearHouse || nearLighthouse || town.Reserved[x, y]
                         || IslandGenerator.CellHash(x, y, seed + 1) > 0.045f)
@@ -391,7 +396,12 @@ namespace FishAndChill.Editor
             var labInterior = new Vector2(bounds.xMax + 20f, bounds.yMin + 20f);
             LabBuilding lab = BuildLab(labPosition, labInterior, worldMap, player.GetComponent<PlayerMovement>(), follow);
 
-            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, atollTiles, shop, aquarium, house.transform, lighthouse.transform, lab.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker, atollDock.Marker });
+            // Animalerie : intérieur au-dessus de celui du laboratoire.
+            var petShopPosition = new Vector3(bounds.xMin + petShopCell.x + 0.5f, bounds.yMin + petShopCell.y, 0f);
+            var petShopInterior = new Vector2(bounds.xMax + 20f, bounds.yMin + 30f);
+            PetShopBuilding petShop = BuildPetShop(petShopPosition, petShopInterior, worldMap, player.GetComponent<PlayerMovement>(), follow);
+
+            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, atollTiles, shop, aquarium, house.transform, lighthouse.transform, lab.transform, petShop.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker, atollDock.Marker });
             return new Buildings
             {
                 Shop = shop, Aquarium = aquarium, Lab = lab,
@@ -1896,6 +1906,51 @@ namespace FishAndChill.Editor
             return lab;
         }
 
+        /// <summary>
+        /// L'animalerie : façade sur l'île ; pièce intérieure (rayon de croquettes, perroquet, colliers, arbre à chat,
+        /// clapier, panier du chien) hors de l'île, avec le vendeur derrière son comptoir.
+        /// </summary>
+        private static PetShopBuilding BuildPetShop(Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow)
+        {
+            const string folder = "Assets/_Project/Art/Buildings";
+            int ppu = VolumeCanvas.PixelsPerUnit;
+            Sprite exterior = PixelArt.Save($"{folder}/Animalerie.png", PetShopArt.Exterior(), ppu, PetShopArt.ExteriorPivot);
+            Sprite interior = PixelArt.Save($"{folder}/Animalerie_Interieur.png", PetShopArt.Interior(), ppu, Vector2.zero);
+            Sprite counter = PixelArt.Save($"{folder}/Animalerie_Comptoir.png", PetShopArt.Counter(), ppu, PetShopArt.CounterPivot);
+            Sprite keeper = PixelArt.Save("Assets/_Project/Art/Characters/Vendeur_Animalerie.png", CharacterArt.PetKeeper(), TileArt.Size, CharacterArt.Pivot);
+
+            GameObject go = EnsureObject("Animalerie", null);
+            go.transform.position = position;
+            SetSprite(go, exterior, 10);
+            var petShop = go.GetComponent<PetShopBuilding>();
+            if (petShop == null)
+            {
+                petShop = go.AddComponent<PetShopBuilding>();
+            }
+
+            var so = new SerializedObject(petShop);
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_camera").objectReferenceValue = follow;
+            so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
+            so.FindProperty("_footprint").vector2Value = new Vector2(4.8f, 2.6f);
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            GameObject room = EnsureObject("Animalerie - Intérieur", null);
+            room.transform.position = interiorOrigin;
+            GameObject floor = EnsureObject("Sol et murs", room.transform);
+            floor.transform.localPosition = Vector3.zero;
+            SetSprite(floor, interior, -5).spriteSortPoint = SpriteSortPoint.Center;
+
+            GameObject counterObject = EnsureObject("Comptoir", room.transform);
+            counterObject.transform.position = petShop.CounterSpot;
+            SetSprite(counterObject, counter, 10);
+            GameObject keeperObject = EnsureObject("Vendeur", room.transform);
+            keeperObject.transform.position = petShop.KeeperSpot;
+            SetSprite(keeperObject, keeper, 10);
+            return petShop;
+        }
+
         /// <summary>Le phare, au pied de sa case : la nuit, sa lanterne s'allume et un faisceau balaie la mer.</summary>
         private static Lighthouse BuildLighthouse(Vector3 position)
         {
@@ -2658,7 +2713,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, TileSet atollTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform house, Transform lighthouse, Transform lab, Transform[] docks)
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, TileSet atollTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform house, Transform lighthouse, Transform lab, Transform petShop, Transform[] docks)
         {
             Sprite shopIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeBoutique.png", ShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
             Sprite aquariumIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeAquarium.png", AquariumArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
@@ -2718,7 +2773,7 @@ namespace FishAndChill.Editor
             Transform lagoon = decorMap.transform.parent.Find("Rendu - Lagon");
             so.FindProperty("_lagoon").objectReferenceValue = lagoon != null ? lagoon.GetComponent<Tilemap>() : null;
             SerializedProperty landmarks = so.FindProperty("_landmarks");
-            landmarks.arraySize = 5 + docks.Length;
+            landmarks.arraySize = 6 + docks.Length;
             SetLandmark(landmarks.GetArrayElementAtIndex(0), "Boutique", shop.transform, shopIcon);
             SetLandmark(landmarks.GetArrayElementAtIndex(1), "Aquarium", aquarium.transform, aquariumIcon);
             SetLandmark(landmarks.GetArrayElementAtIndex(2), "Maison", house, PixelArt.Save("Assets/_Project/Art/UI/IconeMaison.png", HouseArt.Icon(), TileArt.Size, Vector2.one * 0.5f));
@@ -2730,6 +2785,8 @@ namespace FishAndChill.Editor
 
             SetLandmark(landmarks.GetArrayElementAtIndex(4 + docks.Length), "Laboratoire", lab,
                 PixelArt.Save("Assets/_Project/Art/UI/IconeLaboratoire.png", LabArt.Icon(), TileArt.Size, Vector2.one * 0.5f));
+            SetLandmark(landmarks.GetArrayElementAtIndex(5 + docks.Length), "Animalerie", petShop,
+                PixelArt.Save("Assets/_Project/Art/UI/IconeAnimalerie.png", PetShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f));
             so.FindProperty("_waterColor").colorValue = new Color(0.14f, 0.54f, 0.67f);
             so.FindProperty("_pixelsPerCell").intValue = 6;
 

@@ -99,9 +99,9 @@ namespace FishAndChill.Editor
                 : new Vector2Int((int)(sx / count), (int)(sy / count));
         }
 
-        public static Result Build(TerrainType[,] terrain, Vector2Int spawn, Vector2Int shop, Vector2Int aquarium, Vector2Int house, Vector2Int lab, int seed)
+        public static Result Build(TerrainType[,] terrain, Vector2Int spawn, Vector2Int shop, Vector2Int aquarium, Vector2Int house, Vector2Int lab, Vector2Int petShop, int seed)
         {
-            var layout = new Layout(terrain, shop, aquarium, house, lab);
+            var layout = new Layout(terrain, shop, aquarium, house, lab, petShop);
             layout.PavePlazas();
             List<List<Vector2Int>> segments = layout.PavePaths(spawn);
             layout.ReserveAroundPaving(2);
@@ -109,6 +109,7 @@ namespace FishAndChill.Editor
             layout.DecorateShop();
             layout.DecorateHouse();
             layout.DecorateLab();
+            layout.DecoratePetShop();
             layout.LightPaths(segments);
             layout.PlaceSignpost(segments);
             layout.ScatterNature(seed);
@@ -126,14 +127,16 @@ namespace FishAndChill.Editor
             private readonly Vector2Int _aquarium;
             private readonly Vector2Int _house;
             private readonly Vector2Int _lab;
+            private readonly Vector2Int _petShop;
             private int _avenueEnd;
 
             public readonly Result Result;
 
-            public Layout(TerrainType[,] terrain, Vector2Int shop, Vector2Int aquarium, Vector2Int house, Vector2Int lab)
+            public Layout(TerrainType[,] terrain, Vector2Int shop, Vector2Int aquarium, Vector2Int house, Vector2Int lab, Vector2Int petShop)
             {
                 _house = house;
                 _lab = lab;
+                _petShop = petShop;
                 _terrain = terrain;
                 _width = terrain.GetLength(0);
                 _height = terrain.GetLength(1);
@@ -147,6 +150,7 @@ namespace FishAndChill.Editor
                 Block(shop.x - 3, shop.y, shop.x + 3, shop.y + 3);
                 Block(house.x - 3, house.y, house.x + 3, house.y + 4);
                 Block(lab.x - 3, lab.y, lab.x + 3, lab.y + 4);
+                Block(petShop.x - 3, petShop.y, petShop.x + 3, petShop.y + 4);
             }
 
             private bool Inside(int x, int y) => x >= 0 && y >= 0 && x < _width && y < _height;
@@ -220,8 +224,8 @@ namespace FishAndChill.Editor
                     }
                 }
 
-                // Petite cour pavée devant la maison, et devant le laboratoire.
-                foreach (Vector2Int door in new[] { _house, _lab })
+                // Petite cour pavée devant la maison, le laboratoire et l'animalerie.
+                foreach (Vector2Int door in new[] { _house, _lab, _petShop })
                 {
                     for (int x = door.x - 2; x <= door.x + 2; x++)
                     {
@@ -266,6 +270,10 @@ namespace FishAndChill.Editor
                 // Laboratoire : relié lui aussi au chemin principal.
                 var labExit = new Vector2Int(_lab.x, _lab.y - 3);
                 segments.AddRange(BestZPath(labExit, junction, verticalFirst: true));
+
+                // Animalerie : reliée elle aussi au chemin principal.
+                var petShopExit = new Vector2Int(_petShop.x, _petShop.y - 3);
+                segments.AddRange(BestZPath(petShopExit, junction, verticalFirst: true));
 
                 foreach (List<Vector2Int> segment in segments)
                 {
@@ -486,6 +494,17 @@ namespace FishAndChill.Editor
                 Put(lx - 4, ly + 1, DecorKind.Bush, 1);
                 Put(lx + 4, ly + 1, DecorKind.Crates, allowOnPaving: true);
                 Put(lx + 4, ly + 4, DecorKind.Rock, 0);
+            }
+
+            /// <summary>Animalerie : massifs fleuris de part et d'autre, un buisson derrière, un lampadaire au bord de la cour.</summary>
+            public void DecoratePetShop()
+            {
+                int px = _petShop.x;
+                int py = _petShop.y;
+                Put(px - 4, py + 1, DecorKind.BushFlowers, 2);
+                Put(px + 4, py + 1, DecorKind.BushFlowers, 0);
+                Put(px + 3, py - 3, DecorKind.Lamp);
+                Put(px - 4, py + 4, DecorKind.Bush, 1);
             }
 
             /// <summary>Un lampadaire toutes les <see cref="LampSpacing"/> cases, toujours du même côté du chemin.</summary>

@@ -433,5 +433,87 @@ namespace FishAndChill.Editor
             c.Paint(8, 11, Color.Lerp(ScientistSkin, Lips, 0.55f));
             return c.Render();
         }
+
+        private static readonly Color KeeperSkin = new Color(0.94f, 0.76f, 0.62f);
+        private static readonly Color GingerHair = new Color(0.86f, 0.44f, 0.18f);
+        private static readonly Color KeeperShirt = new Color(0.98f, 0.84f, 0.36f);
+        private static readonly Color KeeperApron = new Color(0.36f, 0.66f, 0.56f);
+        private static readonly Color Overalls = new Color(0.76f, 0.66f, 0.50f);
+
+        /// <summary>
+        /// Le vendeur de l'animalerie, de face, 16×24, même style que le pêcheur : cheveux roux en bataille, taches de
+        /// rousseur, t-shirt jaune sous un tablier vert d'eau marqué d'une patte crème, pantalon beige.
+        /// </summary>
+        public static Color[,] PetKeeper()
+        {
+            var c = new Canvas();
+
+            // Chaussures et pantalon.
+            c.Cylinder(5, 21, 6, 22, Overalls, Part.Shorts);
+            c.Cylinder(9, 21, 10, 22, Overalls, Part.Shorts);
+            c.Cylinder(5, 23, 6, 23, Boot, Part.Sandal);
+            c.Cylinder(9, 23, 10, 23, Boot, Part.Sandal);
+
+            // T-shirt jaune et tablier vert d'eau, patte crème sur le tablier.
+            c.Cylinder(3, 13, 12, 20, KeeperShirt, Part.Shirt, roundTop: true);
+            for (int x = 5; x <= 10; x++)
+            {
+                for (int y = 14; y <= 20; y++)
+                {
+                    c.Paint(x, y, KeeperApron, Part.Shirt);
+                }
+            }
+
+            c.Paint(4, 13, KeeperApron, Part.Shirt);    // bretelles
+            c.Paint(11, 13, KeeperApron, Part.Shirt);
+            Color pawColor = new Color(0.97f, 0.91f, 0.76f);
+            c.Paint(7, 18, pawColor, Part.Shirt);
+            c.Paint(8, 18, pawColor, Part.Shirt);
+            c.Paint(6, 16, pawColor, Part.Shirt);
+            c.Paint(9, 16, pawColor, Part.Shirt);
+
+            // Bras nus, mains.
+            foreach ((int x, float light) in new[] { (2, 1f), (13, 0.72f) })
+            {
+                for (int y = 13; y <= 18; y++)
+                {
+                    bool sleeve = y <= 14;
+                    c.Set(x, y, sleeve ? KeeperShirt : KeeperSkin, sleeve ? Part.Shirt : Part.Skin, y == 18 ? light + 0.1f : light);
+                }
+            }
+
+            // Tête : visage, cheveux roux en bataille, taches de rousseur, grand sourire.
+            c.Ellipse(8f, 9.8f, 3.75f, 3.1f, KeeperSkin, Part.Skin);
+            for (int x = 5; x <= 10; x++)
+            {
+                for (int y = 8; y <= 11; y++)
+                {
+                    if (c.Is(x, y, Part.Skin))
+                    {
+                        c.Light[x, y] = Mathf.Max(c.Light[x, y], 1f);
+                    }
+                }
+            }
+
+            c.Ellipse(8f, 6.2f, 4.1f, 2.3f, GingerHair, Part.Hair);
+            foreach ((int x, int y) in new[] { (4, 5), (6, 3), (9, 3), (11, 4), (12, 6) })
+            {
+                c.Set(x, y, GingerHair, Part.Hair, 1.05f);   // mèches rebelles
+            }
+
+            c.Set(4, 8, GingerHair, Part.Hair, 0.95f);
+            c.Set(11, 8, GingerHair, Part.Hair, 0.75f);
+
+            c.Flat(6, 9, Eye, Part.Skin);
+            c.Flat(9, 9, Eye, Part.Skin);
+            Color freckle = Color.Lerp(KeeperSkin, GingerHair, 0.45f);
+            c.Paint(5, 10, freckle);
+            c.Paint(10, 10, freckle);
+            c.Paint(6, 11, Color.Lerp(KeeperSkin, Blush, 0.35f));
+            c.Paint(9, 11, Color.Lerp(KeeperSkin, Blush, 0.35f));
+            c.Paint(7, 11, Color.Lerp(KeeperSkin, Lips, 0.6f));
+            c.Paint(8, 11, Color.Lerp(KeeperSkin, Lips, 0.6f));
+            return c.Render();
+        }
     }
 }

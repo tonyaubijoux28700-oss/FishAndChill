@@ -50,6 +50,16 @@
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).
+- **Animalerie** (`World/PetShopBuilding`, objet « Animalerie », dessins `Editor/PetShopArt`, style en volume 32 px
+  par case) : au sud-ouest de l'île, entre la maison et la plage, loin du laboratoire (`MapSetup`, site cherché depuis
+  centre + (-16, -12)), petite cour pavée et chemin vers le chemin principal (`TownLayout.DecoratePetShop` : massifs,
+  buisson, un lampadaire). Façade 160×144 px : bardage crème, toit de tuiles corail, enseigne ronde à la patte, vitrines
+  avec un chiot et un chat roux, porte vert d'eau, paillasson à pattes. Intérieur 11×8 cases (hors de l'île, au-dessus
+  de celui du laboratoire) : papier peint à pattes, parquet, rayon de croquettes, perroquet en cage, colliers et laisses,
+  arbre à chat, clapier, panier du chien ; comptoir (`Animalerie_Comptoir.png`, chat endormi) et vendeur roux au tablier
+  vert d'eau (`CharacterArt.PetKeeper`). Obstacles : `PetShopBuilding.Counter` / `Shelf` / `CatTree` / `Hutch` /
+  `DogBed`. Icône sur la minimap. **Pas encore de vente** : les animaux de compagnie qui suivent le joueur viendront
+  plus tard (emplacement « ANIMAL » déjà dans l'inventaire).
 - **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu, **une tour**. Façade
   `AquariumArt.TowerExterior` (192×320 px, pivot `TowerPivot`) : en bas l'ancien bâtiment sans son dôme (perron,
   colonnes, 4 vitrines, rosace), au-dessus 4 étages de carreaux et de bandeaux de laiton, hublots où nagent des poissons,
@@ -94,7 +104,9 @@
 - `UI/InventoryHud` (canvas ordre 11) : **icône de sac** en bas à gauche (compteur « 2/3 », `UiArt.BagIcon`), **E** ouvre la
   **grande fenêtre « Mon inventaire »** au centre (joueur `Locked`, E/Échap ferme) : à gauche la **vitrine « Mon matériel »** (fond de feutre :
   la **canne entière** en grand, `GearLevel.Illustration` = `GearArt.RodLarge` 96×160 affiché ×3, son fil qui finit au pixel
-  (86, 62) où pendent l'**hameçon** et l'**appât** accroché, le sac en bas ; étiquettes nom, effet, niveau en pierres), à
+  (86, 62) où pendent l'**hameçon** et l'**appât** accroché, le sac en bas et, à côté, l'**emplacement « ANIMAL »**
+  (`InventoryHud.BuildPetSlot`, empreinte `PetShopArt.PawIcon`, « Aucun » : vide en attendant les compagnons de
+  l'animalerie) ; étiquettes nom, effet, niveau en pierres), à
   droite **« Mes poissons »** en grille de 3 colonnes (dessins à l'échelle, places pas encore achetées verrouillées,
   6 cases affichées). Une icône 32×32 par objet (`GearArt`, `Art/UI/Materiel/`, posée par `GearSetup` via
   `GearLevel.WithIcon`). Devant le comptoir, E parle au marchand à la place. Sac plein après une prise : la carte de

@@ -11,7 +11,7 @@ Conception : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 - [docs/systemes/carte-et-zones.md](docs/systemes/carte-et-zones.md) : île et générateurs, les 6 zones (régions),
   voyage et ponton, carte du monde, aménagement (`TownLayout`).
 - [docs/systemes/batiments-et-progression.md](docs/systemes/batiments-et-progression.md) : sac, maison, phare,
-  boutique et marchand, matériel et appâts, aquarium, inventaire, carnet, sauvegarde, écran titre, création du
+  boutique et marchand, animalerie, matériel et appâts, aquarium, inventaire, carnet, sauvegarde, écran titre, création du
   pêcheur, menu pause.
 - [docs/systemes/legendes.md](docs/systemes/legendes.md) : laboratoire, fragments, atelier des artefacts, réveil,
   remous, combat de légende (Tuna), style des dessins de boss.

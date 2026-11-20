@@ -452,6 +452,7 @@ namespace FishAndChill.Editor
             // Vitrine du matériel : fond en bois (×4), supports en laiton, étiquettes en papier (celles du carnet).
             hudSo.FindProperty("_showcaseBack").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Materiel/Vitrine_Fond.png", GearArt.ShowcaseBack(), 25, new Vector2(0.5f, 0.5f));
             hudSo.FindProperty("_peg").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Materiel/Vitrine_Support.png", GearArt.Peg(), 16, new Vector2(0.5f, 0.5f));
+            hudSo.FindProperty("_petPaw").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Materiel/Patte_Animal.png", PetShopArt.PawIcon(), 16, new Vector2(0.5f, 0.5f));
             hudSo.FindProperty("_tag").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/Carnet/Case.png", BookArt.Cell(), UiSkinArt.PixelsPerUnit, new Vector2(0.5f, 0.5f), new Vector4(5, 5, 5, 5), FilterMode.Point);
             Sprite Round(string file, Color[,] pixels) => PixelArt.Save($"Assets/_Project/Art/UI/Materiel/{file}.png", pixels, UiSkinArt.PixelsPerUnit, new Vector2(0.5f, 0.5f), new Vector4(9, 9, 9, 9), FilterMode.Point);
             hudSo.FindProperty("_roundTag").objectReferenceValue = Round("Cadre_Etiquette", BookArt.RoundedFrame(new Color(0.95f, 0.89f, 0.74f), new Color(0.42f, 0.28f, 0.16f), new Color(1f, 0.97f, 0.88f)));
