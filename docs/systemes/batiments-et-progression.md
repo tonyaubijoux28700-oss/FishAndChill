@@ -78,6 +78,11 @@
   rareté (`Lines.Thanks` + « (+N pièces) »), refuse le seul exemplaire d'une espèce pas encore exposée (`Lines.KeepIt`),
   ou rappelle sa commande une fois sur deux (`Lines.Waiting`). Servi : la commande suivante arrive le lendemain matin,
   quand il ressort de chez lui (`DoneToday`).
+  **Onglet « Quêtes » de l'inventaire** (`UI/QuestPage`, 3e onglet après « Sac et matériel » et « Reliques », Tab ou
+  flèches pour changer ; `InventoryHud.OpenQuests` pour les tests) : une carte par habitant, 2 par rangée, avec son
+  portrait, où il est (à la maison / en balade), le poisson demandé (petite image, nom, zone où le pêcher, récompense)
+  et l'état (`Villager.Quest`, `Villagers/QuestStatus`) : nouvelle commande à écouter (« ??? »), à pêcher, dans le
+  sac (à apporter), seul exemplaire à mettre d'abord à l'aquarium, servi aujourd'hui.
 - **Animalerie** (`World/PetShopBuilding`, objet « Animalerie », dessins `Editor/PetShopArt`, style en volume 32 px
   par case) : au sud-ouest de l'île, entre la maison et la plage, loin du laboratoire (`MapSetup`, site cherché depuis
   centre + (-16, -12)), petite cour pavée et chemin vers le chemin principal (`TownLayout.DecoratePetShop` : massifs,

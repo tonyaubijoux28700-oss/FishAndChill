@@ -342,6 +342,42 @@ namespace FishAndChill.Villagers
         /// <summary>L'espèce demandée par la commande en cours (null s'il n'y en a pas).</summary>
         public FishSpecies RequestedSpecies => _request != null && _request.IsOpen ? FindSpecies(_request.SpeciesId) : null;
 
+        /// <summary>Son portrait de face (pour la liste des quêtes).</summary>
+        public Sprite Portrait => _sprites != null ? _sprites.Down[0] : null;
+
+        /// <summary>Où en est sa commande, pour la liste des quêtes.</summary>
+        public QuestStatus Quest
+        {
+            get
+            {
+                FishSpecies species = RequestedSpecies;
+                if (species == null) return _request != null && _request.DoneToday ? QuestStatus.ServedToday : QuestStatus.None;
+                if (!_request.Asked) return QuestStatus.NotHeard;
+                int slot = DeliverySlot(species);
+                return slot >= 0 ? QuestStatus.Ready : slot == RequestRules.KeepForAquarium ? QuestStatus.KeepForAquarium : QuestStatus.Fishing;
+            }
+        }
+
+        /// <summary>La zone où se pêche le poisson demandé (parmi ses zones préférées).</summary>
+        public string RequestZoneName
+        {
+            get
+            {
+                FishSpecies species = RequestedSpecies;
+                if (species == null || _profile == null) return string.Empty;
+                foreach (FishingZone zone in _profile.Zones)
+                {
+                    if (zone == null) continue;
+                    foreach (FishingZone.SpeciesEntry entry in zone.Species)
+                    {
+                        if (entry.Species == species) return zone.DisplayName;
+                    }
+                }
+
+                return string.Empty;
+            }
+        }
+
         /// <summary>Une commande s'il n'en a pas et n'a pas déjà été servi aujourd'hui (espèce de ses zones préférées).</summary>
         private void EnsureRequest()
         {
