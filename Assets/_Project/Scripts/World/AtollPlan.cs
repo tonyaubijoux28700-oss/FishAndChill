@@ -132,7 +132,7 @@ namespace FishAndChill.World
             }
 
             // Pâtés de corail dans le lagon.
-            foreach ((float cx, float cy, float r) in new[] { (30f, 22f, 3.2f), (70f, 21f, 2.8f), (42f, 13f, 2.4f), (66f, 41f, 2.2f), (20f, 30f, 2f) })
+            foreach ((float cx, float cy, float r) in new[] { (30f, 22f, 3.2f), (70f, 21f, 2.8f), (42f, 13f, 2.4f), (66f, 41f, 2.2f), (18f, 19f, 2f) })
             {
                 for (int x = 0; x < Width; x++)
                 {
@@ -198,14 +198,14 @@ namespace FishAndChill.World
             // 4. Ponton des voyages et passerelle : partent de la plage vers le sud, dans le lagon.
             DockFoot = new Vector2Int(DockX, ShoreBelow(DockX, 50));
             int jettyShore = ShoreBelow(JettyX, 50);
-            const int armY = 30;
+            const int armY = 25;
             JettyStem = new RectInt(JettyX, armY + 2, 2, jettyShore - (armY + 2) + 1);
             JettyArm = new RectInt(14, armY, 30, 2);
 
             // Villas sur l'eau : quatre le long de la barre du T (porte sur les planches), deux de part et d'autre du pied.
-            foreach (int vx in new[] { 17, 23, 35, 41 }) Villas.Add(new Vector2Int(vx, armY + 2));
-            Villas.Add(new Vector2Int(JettyX - 2, armY + 5));
-            Villas.Add(new Vector2Int(JettyX + 3, armY + 5));
+            foreach (int vx in new[] { 16, 22, 36, 42 }) Villas.Add(new Vector2Int(vx, armY + 2));
+            Villas.Add(new Vector2Int(JettyX - 3, armY + 8));
+            Villas.Add(new Vector2Int(JettyX + 4, armY + 8));
 
             // 5. Repères de l'île habitée.
             Houses.Add(new Vector2Int(21, 52));
@@ -322,7 +322,7 @@ namespace FishAndChill.World
                 }
             }
 
-            foreach (Vector2Int house in Houses) Mark(house.x - 5, house.y - 1, house.x + 5, house.y + 7);
+            foreach (Vector2Int house in Houses) Mark(house.x - 4, house.y - 1, house.x + 4, house.y + 5);
             Mark(Bar.x - 3, Bar.y - 1, Bar.x + 3, Bar.y + 3);
             Mark(DockFoot.x - 1, DockFoot.y - 7, DockFoot.x + 4, DockFoot.y + 2);
             Mark(JettyX - 1, JettyStem.yMax - 2, JettyX + 2, JettyStem.yMax + 1);

@@ -1689,16 +1689,16 @@ namespace FishAndChill.Editor
             {
                 Vector2Int villa = plan.Villas[i];
                 Landmark($"Villa sur l'eau {i + 1}", $"{buildings}/Atoll_Villa_{i % 2}.png", AtollLandmarkArt.Villa(i % 2), AtollLandmarkArt.VillaPivot, villa.x + 0.5f, villa.y);
-                MinimapBlocks.Add((new Rect(bounds.xMin + villa.x + 0.5f - 1.5f, bounds.yMin + villa.y, 3f, 2.5f), new Color(0.84f, 0.70f, 0.44f), false));
+                MinimapBlocks.Add((new Rect(bounds.xMin + villa.x + 0.5f - 2.5f, bounds.yMin + villa.y, 5f, 4f), new Color(0.84f, 0.70f, 0.44f), false));
             }
 
             for (int i = 0; i < plan.Houses.Count; i++)
             {
                 Vector2Int house = plan.Houses[i];
                 Landmark($"Maison en corail {i + 1}", $"{buildings}/Atoll_Maison_{i % 2}.png", AtollLandmarkArt.House(i % 2), AtollLandmarkArt.HousePivot, house.x + 0.5f, house.y);
-                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 3.1f, bounds.yMin + house.y - 0.1f, 6.2f, 3.2f));
-                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 4f, bounds.yMin + house.y + 0.1f, 8f, 0.8f));   // murets et joali
-                MinimapBlocks.Add((new Rect(bounds.xMin + house.x + 0.5f - 3.2f, bounds.yMin + house.y, 6.4f, 3.6f), i % 2 == 0 ? new Color(0.70f, 0.60f, 0.44f) : new Color(0.78f, 0.24f, 0.18f), false));
+                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 2f, bounds.yMin + house.y - 0.1f, 4f, 2.4f));
+                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 2.5f, bounds.yMin + house.y + 0.1f, 5f, 0.7f));   // murets et joali
+                MinimapBlocks.Add((new Rect(bounds.xMin + house.x + 0.5f - 2.1f, bounds.yMin + house.y, 4.2f, 3f), i % 2 == 0 ? new Color(0.70f, 0.60f, 0.44f) : new Color(0.78f, 0.24f, 0.18f), false));
             }
 
             Landmark("Bar de plage", $"{buildings}/Atoll_Bar.png", AtollLandmarkArt.Bar(), AtollLandmarkArt.BarPivot, plan.Bar.x + 0.5f, plan.Bar.y);
