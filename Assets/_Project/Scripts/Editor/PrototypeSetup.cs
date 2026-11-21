@@ -437,6 +437,12 @@ namespace FishAndChill.Editor
             menuSo.FindProperty("_progress").objectReferenceValue = progress;
             menuSo.FindProperty("_shop").objectReferenceValue = shop;
             menuSo.FindProperty("_player").objectReferenceValue = movement;
+            // La vitrine : fond éclairé, socle à coussin, râtelier des cannes et flèche (dessins en volume, affichés ×3).
+            const string vitrine = "Assets/_Project/Art/UI/Vitrine";
+            menuSo.FindProperty("_showcaseBack").objectReferenceValue = PixelArt.Save($"{vitrine}/Fond.png", ShopDisplayArt.Back(), 32, new Vector2(0.5f, 0.5f));
+            menuSo.FindProperty("_pedestal").objectReferenceValue = PixelArt.Save($"{vitrine}/Socle.png", ShopDisplayArt.Pedestal(), 32, new Vector2(0.5f, 0f));
+            menuSo.FindProperty("_rodStand").objectReferenceValue = PixelArt.Save($"{vitrine}/Ratelier.png", ShopDisplayArt.RodStand(), 32, new Vector2(0.5f, 0f));
+            menuSo.FindProperty("_arrow").objectReferenceValue = PixelArt.Save($"{vitrine}/Fleche.png", ShopDisplayArt.Arrow(), 32, new Vector2(0.5f, 0.5f));
             menuSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Le sac : icône en bas à gauche, fenêtre ouverte avec E (sauf devant le comptoir du marchand).

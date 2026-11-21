@@ -22,8 +22,15 @@
   le paillasson. L'intérieur est une pièce hors de l'île (`_interiorOrigin`, sol ajouté via
   `WorldMap.AddWalkableArea`), la caméra s'y cale (`CameraFollow.SetBoundsOverride`). **Pas de pêche dedans**
   (`FishingController.CanFishHere`).
-- **Marchand** (`UI/ShopMenu`) : grande fenêtre 1520×940 (canvas ordre 13, lignes jusqu'à 120 px, icônes et textes agrandis) ; E devant le comptoir ouvre le menu (joueur `Locked`), deux onglets (**Tab** ou ←/→) :
-  « Vendre » (1, 2, 3… vend un poisson, V vend tout), « Cannes », « Hameçons », « Appâts », « Sacs, casiers » (2 : acheter un casier à crustacés). Échap/E ferme. Règles dans `FishShop` (testées) : il n'achète que les doublons (espèce déjà dans
+- **Marchand** (`UI/ShopMenu`) : grande fenêtre 1520×940 (canvas ordre 13) ; E devant le comptoir ouvre le menu (joueur `Locked`), cinq rayons
+  (**Tab** / Maj + Tab, gâchettes) : « Vendre » (liste du sac : 1, 2, 3… vend un poisson, V vend tout), puis « Cannes »,
+  « Hameçons », « Appâts », « Sacs, casiers » en **vitrine** (`UI/ShopShowcase`, objets `ShowcaseEntry`, calculs `ShowcaseMath`
+  testés) : un objet à la fois, en grand dans une scène éclairée (fond, socle à coussin de velours, râtelier où la canne
+  se tient debout, flèches : dessins en volume `Editor/ShopDisplayArt`, `Art/UI/Vitrine/`, affichés ×3 ; l'objet flotte
+  doucement), fiche à droite (nom, effet, état, prix, « Espace : acheter / prendre en main / l'accrocher »), vignettes du
+  rayon dessous. **Q / D** (touches physiques), ←/→ ou la croix font défiler, 1 à 8 choisit, **Espace** / Entrée / bouton A
+  achète ; à la souris : flèches, vignettes, clic sur l'objet. Chaque rayon s'ouvre sur l'objet en main (le prochain sac
+  pour « Sacs, casiers », qui montre tous les sacs puis le casier). Échap/E ferme. Règles dans `FishShop` (testées) : il n'achète que les doublons (espèce déjà dans
   l'aquarium, ou exemplaires en trop : il laisse le plus gros), prix de 80 % à 130 % du `BasePrice` selon la taille.
 - **Matériel** (`Scripts/Gear`, données dans `Data/Gear/`, générées par `GearSetup`) : 3 familles (`GearLine`,
   ScriptableObjects) réunies dans `GearCatalog` (l'appât a son propre système, voir Appâts), chacune avec un niveau 0 gratuit puis 3 améliorations :
