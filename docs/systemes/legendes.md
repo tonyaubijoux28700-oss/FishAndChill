@@ -64,7 +64,20 @@
   verdi, bord perlé, pinces gravées en spirale autour d'une ambre ; 4 quartiers dentelés, haut puis sens horaire).
   Combat : rush (« Il file à reculons d'un grand coup de queue ! »), lourd (« Il plante ses pinces dans les galets du
   fond ! »), nerveux (« Il claque des pinces dans tous les sens ! »), un peu plus dur que Tuna, 800 pièces. Remous dans la
-  région 1. **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
+  région 1.
+- **Troisième légende : Ipupiara**, payara titan de 340 cm du **Fleuve Amazone** (espèce de base le payara, le
+  « poisson-vampire » ; nom tupi d'un monstre des eaux décrit par les premiers voyageurs au Brésil), même fonctionnement
+  de bout en bout. Dessin `Editor/PayaraArt` → `Art/Legendes/Ipupiara.png` (de profil, lancé à l'attaque : écailles
+  d'acier terni, queue fourchue et pectorale en faux déchirées, gueule ouverte vers le haut d'où se dressent les deux
+  crocs géants, œil d'argent à la pupille rouge qui luit, isopode parasite, ouïes rouges, lignes cassées et hameçons qui
+  pendent de la mâchoire, vieille cuillère rouillée). Silhouette sous l'eau `BodyShape.Payara` (`FishShadowSprites.Payara` :
+  corps fuselé, crocs devant le museau, pectorales qui battent, queue fourchue déchirée). Artefact **Grenouille de jade**
+  (`Editor/JadeFrogArt`, même cadre 48×64 : amulette-grenouille de pierre verte veinée, pattes repliées gravées, yeux d'or
+  qui luisent, cordon tressé dans deux trous ; 4 quartiers dentelés comme le médaillon). Combat : rush (« Il fonce dans le
+  courant du fleuve ! »), nerveux (« Il bondit hors de l'eau en secouant la tête ! »), lourd (« Il plonge au fond et tire
+  de tout son poids ! »), plus dur que Bramafan, 1000 pièces. Remous « Remous légendaire du fleuve » dans la région 2.
+  Esquisses écartées (non branchées) : `MatamataArt` (matamata titan) et `PlecoArt` (pléco titan).
+- **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
   `Center` / `Silhouette`), un `BuildLegendSpot` dans la région de sa zone (`PrototypeSetup.RegionOf` relie remous et
   légende). Le menu de test (**FishAndChill → Légendes (test)**) agit sur la légende de la zone où l'on est (sinon Tuna) et
   « Aller au remous » choisit le remous actif.

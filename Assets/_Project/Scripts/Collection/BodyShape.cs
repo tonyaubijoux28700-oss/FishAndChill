@@ -17,5 +17,8 @@ namespace FishAndChill.Collection
 
         /// <summary>Écrevisse titan : carapace, queue en éventail, deux pinces inégales qui claquent, pattes qui marchent, yeux qui luisent.</summary>
         Crayfish,
+
+        /// <summary>Payara titan : corps fuselé, grande queue fourchue qui bat, longues pectorales en faux, deux crocs qui dépassent du museau, yeux qui luisent.</summary>
+        Payara,
     }
 }

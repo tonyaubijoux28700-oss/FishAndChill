@@ -8,8 +8,8 @@ namespace FishAndChill.Editor
 {
     /// <summary>
     /// Crée ou met à jour les poissons de légende (Data/Legendes) et dessine leurs artefacts (Art/Legendes).
-    /// Tuna, la murène géante de l'île Mahana (Idole de corail), et Bramafan, l'écrevisse titan du Lac d'Annecy (Médaillon
-    /// des palafittes), chacun avec un artefact en 4 fragments.
+    /// Tuna, la murène géante de l'île Mahana (Idole de corail), Bramafan, l'écrevisse titan du Lac d'Annecy (Médaillon
+    /// des palafittes), et Ipupiara, le payara titan du Fleuve Amazone (Grenouille de jade), chacun avec un artefact en 4 fragments.
     /// Appelé par le menu du prototype, après la création des espèces et des zones.
     /// </summary>
     public static class LegendSetup
@@ -64,7 +64,49 @@ namespace FishAndChill.Editor
                 new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il se tord dans tous les sens !"),
             }, 600);
             EditorUtility.SetDirty(tuna);
-            return new[] { tuna, Bramafan(ppu, pivot) };
+            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot) };
+        }
+
+        /// <summary>
+        /// Ipupiara, le payara titan du Fleuve Amazone (espèce de base : le payara, le « poisson-vampire » aux deux crocs).
+        /// « Ipupiara » est le nom tupi d'un monstre des eaux décrit par les premiers voyageurs au Brésil. Artefact : la
+        /// Grenouille de jade, en 4 fragments (d'après les amulettes-grenouilles de pierre verte des peuples de l'Amazone).
+        /// </summary>
+        private static LegendFish Ipupiara(int ppu, Vector2 pivot)
+        {
+            Sprite frog = PixelArt.Save($"{ArtFolder}/Grenouille_Jade.png", JadeFrogArt.Frog(), ppu, pivot);
+            Sprite silhouette = PixelArt.Save($"{ArtFolder}/Grenouille_Jade_Silhouette.png", JadeFrogArt.Silhouette(), ppu, pivot);
+            var fragments = new Sprite[JadeFrogArt.Fragments];
+            var centers = new Vector2[JadeFrogArt.Fragments];
+            for (int i = 0; i < fragments.Length; i++)
+            {
+                fragments[i] = PixelArt.Save($"{ArtFolder}/Grenouille_Jade_Fragment_{i + 1}.png", JadeFrogArt.Piece(i), ppu, pivot);
+                centers[i] = JadeFrogArt.PieceCenter(i);
+            }
+
+            var species = FindSpecies("hydrolycus-scomberoides", "Assets/_Project/Data/Species/HydrolycusScomberoides.asset");
+            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/FleuveAmazone.asset");
+            LegendFish ipupiara = LoadOrCreate(Folder + "/Ipupiara.asset");
+            ipupiara.Configure("ipupiara", "Ipupiara", species, zone, 340f, "Grenouille de jade", JadeFrogArt.Fragments,
+                FragmentRules.DefaultChance, frog, fragments, centers, silhouette, new[]
+                {
+                    "La tête d'une grenouille en pierre verte, aux yeux d'or. Un bout de cordon tressé passe encore dans le trou.",
+                    "Une patte de jade repliée. Deux trous ronds la traversent, comme percés par des crocs.",
+                    "Un morceau du dos, gravé de chevrons. La pierre est froide comme l'eau du fond.",
+                    "Les pattes arrière. Gravé dessous : « Ipupiara chasse là où le fleuve est noir ».",
+                });
+            Sprite art = PixelArt.Save($"{ArtFolder}/Ipupiara.png", PayaraArt.Draw(), ppu, pivot);
+            ipupiara.ConfigureLook("Payara titan", art, BodyShape.Payara);
+            // Le combat, d'après les vrais payaras : il fonce dans le courant, bondit hors de l'eau en secouant la tête,
+            // puis plonge au fond et tire de tout son poids. Plus dur que Bramafan.
+            ipupiara.ConfigureFight(new[]
+            {
+                new LegendPhase(FightStyle.Rusher, new QteDifficulty(1.45f, 0.18f, 4, 2), "Il fonce dans le courant du fleuve !"),
+                new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.75f, 0.15f, 4, 2), "Il bondit hors de l'eau en secouant la tête !"),
+                new LegendPhase(FightStyle.Heavy, new QteDifficulty(1.3f, 0.19f, 5, 2), "Il plonge au fond et tire de tout son poids !"),
+            }, 1000);
+            EditorUtility.SetDirty(ipupiara);
+            return ipupiara;
         }
 
         /// <summary>

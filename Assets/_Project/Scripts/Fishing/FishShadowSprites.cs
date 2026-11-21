@@ -107,6 +107,7 @@ namespace FishAndChill.Fishing
                         case BodyShape.Monster: tone = Monster(u, v, phase); break;
                         case BodyShape.Moray: tone = Moray(u, v, phase); break;
                         case BodyShape.Crayfish: tone = Crayfish(u, v, phase); break;
+                        case BodyShape.Payara: tone = Payara(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -379,6 +380,53 @@ namespace FishAndChill.Fishing
 
             // Antennes.
             if (OnSegment(u, av, 0.4f, 0.04f, 0.95f, 0.5f + phase * 0.04f, 0.015f)) return EdgeTone;
+            return None;
+        }
+
+        /// <summary>
+        /// Payara titan, vu de dessus : corps fuselé qui ondule surtout vers l'arrière, grande queue fourchue déchirée,
+        /// longues pectorales en faux qui battent, deux crocs qui dépassent devant le museau, deux yeux qui luisent.
+        /// </summary>
+        private static int Payara(float u, float v, int phase)
+        {
+            float s = Mathf.Clamp01((1f - u) * 0.5f);
+            v -= phase * 0.22f * s * s * s;
+            float av = Mathf.Abs(v);
+
+            if (InEllipse(u, av, 0.72f, 0.09f, 0.04f, 0.035f)) return EyeTone;
+
+            // Les deux crocs, qui dépassent devant le museau.
+            if (OnTaper(u, av, 0.86f, 0.045f, 1f, 0.03f, 0.022f, 0.006f)) return EdgeTone;
+
+            // Corps fuselé : museau pointu, plus large au premier tiers, pédoncule fin.
+            float width = 0f;
+            if (u <= 0.92f && u >= -0.6f)
+            {
+                width = u >= 0.3f
+                    ? 0.17f * Mathf.Pow(Mathf.Max(0f, 1f - Mathf.Pow((u - 0.3f) / 0.62f, 2f)), 0.55f)
+                    : 0.035f + 0.135f * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.6f, 0.3f, u));
+            }
+
+            if (width > 0f && av <= width)
+            {
+                if (av > width * 0.8f) return EdgeTone;
+                return av < width * 0.3f && u > -0.4f && u < 0.85f ? CoreTone : BodyTone;
+            }
+
+            // Longues pectorales en faux qui battent.
+            float flap = phase * 0.04f;
+            if (OnTaper(u, av, 0.5f, 0.13f, 0.1f + flap, 0.42f, 0.06f, 0.012f)) return EdgeTone;
+
+            // Grande queue fourchue, une encoche déchirée.
+            if (u < -0.56f && u >= -1f)
+            {
+                float k = (-0.56f - u) / 0.44f;
+                float outer = 0.05f + k * 0.5f;
+                float notch = Mathf.Max(0f, k - 0.35f) * 0.75f;
+                bool torn = k > 0.6f && Mathf.Abs(av - outer * 0.7f) < 0.035f;
+                if (av <= outer && av >= notch && !torn) return k > 0.7f ? EdgeTone : BodyTone;
+            }
+
             return None;
         }
 
