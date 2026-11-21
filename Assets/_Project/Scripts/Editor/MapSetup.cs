@@ -81,6 +81,8 @@ namespace FishAndChill.Editor
             public DockInfo ReefDock;
             public Rect AtollRegion;
             public DockInfo AtollDock;
+            public Rect SkeletonRegion;
+            public DockInfo SkeletonDock;
         }
 
         /// <summary>Un ponton : sol praticable au-dessus de l'eau, point d'arrivée au bout, regard vers le large.</summary>
@@ -143,6 +145,16 @@ namespace FishAndChill.Editor
         };
 
         private const int AtollGap = 20;
+
+        /// <summary>La Côte des Squelettes (Namibie) : océan froid, plage, désert et épaves, à l'est de l'atoll.</summary>
+        private static readonly IslandGenerator.Settings SkeletonSettings = new IslandGenerator.Settings
+        {
+            Width = 90,
+            Height = 64,
+            Seed = 6161,
+        };
+
+        private const int SkeletonGap = 20;
 
         private const int DockLength = 5;
 
@@ -320,6 +332,11 @@ namespace FishAndChill.Editor
             var atollBounds = new BoundsInt(reefBounds.xMax + AtollGap, -AtollSettings.Height / 2, 0, AtollSettings.Width, AtollSettings.Height, 1);
             DockInfo atollDock = BuildAtoll(mapObject.transform, atollBounds, atollTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
 
+            // La Côte des Squelettes, à l'est de l'atoll.
+            TileSet skeletonTiles = CreateSkeletonTiles();
+            var skeletonBounds = new BoundsInt(atollBounds.xMax + SkeletonGap, -SkeletonSettings.Height / 2, 0, SkeletonSettings.Width, SkeletonSettings.Height, 1);
+            DockInfo skeletonDock = BuildSkeleton(mapObject.transform, skeletonBounds, skeletonTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
+
             var worldMap = mapObject.GetComponent<WorldMap>();
             if (worldMap == null)
             {
@@ -335,8 +352,10 @@ namespace FishAndChill.Editor
             var japanRegion = new Rect(japanBounds.xMin, japanBounds.yMin, japanBounds.size.x, japanBounds.size.y);
             var reefRegion = new Rect(reefBounds.xMin, reefBounds.yMin, reefBounds.size.x, reefBounds.size.y);
             var atollRegion = new Rect(atollBounds.xMin, atollBounds.yMin, atollBounds.size.x, atollBounds.size.y);
-            worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion },
-                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea }.Concat(AtollJetty));
+            var skeletonRegion = new Rect(skeletonBounds.xMin, skeletonBounds.yMin, skeletonBounds.size.x, skeletonBounds.size.y);
+            worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion, skeletonRegion },
+                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, skeletonDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea }.Concat(AtollJetty));
+            BuildSkeletonLife(mapObject.transform, worldMap, player.transform, skeletonDock.Area);
             BuildAtollLife(mapObject.transform, worldMap, player.transform, atollDock.Area);
             BuildReefLife(mapObject.transform, worldMap, player.transform, reefDock.Area);
             BuildJapanLife(mapObject.transform, worldMap, player.transform, japanDock.Area);
@@ -353,13 +372,15 @@ namespace FishAndChill.Editor
             FishingSpots japanSpots = BuildSpots(mapObject.transform, "Coins de pêche de la baie", worldMap, 3, japanDock.Area);
             FishingSpots reefSpots = BuildSpots(mapObject.transform, "Coins de pêche du récif", worldMap, 4, reefDock.Area);
             FishingSpots atollSpots = BuildSpots(mapObject.transform, "Coins de pêche de l'atoll", worldMap, 5, atollDock.Area);
+            FishingSpots skeletonSpots = BuildSpots(mapObject.transform, "Coins de pêche de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);
             // Remous légendaires (Tuna sur l'île, Bramafan au lac, Ipupiara sur le fleuve) : visibles une fois la légende
             // réveillée au laboratoire.
             BuildLegendSpot(mapObject.transform, "Remous légendaire de l'île", worldMap, 0, islandDock.Area);
             BuildLegendSpot(mapObject.transform, "Remous légendaire du lac", worldMap, 1, lakeDock.Area);   // Bramafan
             BuildLegendSpot(mapObject.transform, "Remous légendaire du fleuve", worldMap, 2, amazonDock.Area);   // Ipupiara
-            spotList.arraySize = 6;
+            spotList.arraySize = 7;
             spotList.GetArrayElementAtIndex(5).objectReferenceValue = atollSpots;
+            spotList.GetArrayElementAtIndex(6).objectReferenceValue = skeletonSpots;
             spotList.GetArrayElementAtIndex(0).objectReferenceValue = islandSpots;
             spotList.GetArrayElementAtIndex(1).objectReferenceValue = lakeSpots;
             spotList.GetArrayElementAtIndex(2).objectReferenceValue = amazonSpots;
@@ -398,7 +419,8 @@ namespace FishAndChill.Editor
 
             // Aquarium : intérieur à côté de celui de la boutique, hors de l'île lui aussi.
             var aquariumPosition = new Vector3(bounds.xMin + aquariumCell.x + 0.5f, bounds.yMin + aquariumCell.y, 0f);
-            var aquariumInterior = new Vector2(bounds.xMax + 40f, bounds.yMin);
+            // 40 cases sous l'île : sa longue rangée de salles (une par zone) ne déborde plus sur le lac.
+            var aquariumInterior = new Vector2(bounds.xMax + 40f, bounds.yMin - 40f);
             AquariumBuilding aquarium = BuildAquarium(aquariumPosition, aquariumInterior, worldMap, player.GetComponent<PlayerMovement>(), follow, controller);
 
             // Maison du joueur : intérieur après celui de l'aquarium (qui s'arrête 174 cases après l'île), avant le lac.
@@ -434,7 +456,7 @@ namespace FishAndChill.Editor
                 }
             }
 
-            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, atollTiles, shop, aquarium, house.transform, lighthouse.transform, lab.transform, petShop.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker, atollDock.Marker });
+            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, atollTiles, skeletonTiles, shop, aquarium, house.transform, lighthouse.transform, lab.transform, petShop.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker, atollDock.Marker, skeletonDock.Marker });
             return new Buildings
             {
                 Shop = shop, Aquarium = aquarium, Lab = lab,
@@ -444,6 +466,7 @@ namespace FishAndChill.Editor
                 JapanRegion = japanRegion, JapanDock = japanDock,
                 ReefRegion = reefRegion, ReefDock = reefDock,
                 AtollRegion = atollRegion, AtollDock = atollDock,
+                SkeletonRegion = skeletonRegion, SkeletonDock = skeletonDock,
             };
         }
 
@@ -1764,6 +1787,240 @@ namespace FishAndChill.Editor
         /// <summary>Planches de la passerelle des villas (on y marche comme sur un ponton) ; posées par <see cref="BuildAtoll"/>.</summary>
         private static readonly List<Rect> AtollJetty = new List<Rect>();
 
+        // ---------- Côte des Squelettes ----------
+
+        /// <summary>Tuiles de la Côte des Squelettes : celles de l'île recolorées (Atlantique froid, sable pâle, graviers du désert).</summary>
+        private static TileSet CreateSkeletonTiles()
+        {
+            var set = new TileSet { Deep = new Tile[2], Shallow = new Tile[2], Sand = new Tile[3], Grass = new Tile[3] };
+            for (int i = 0; i < 2; i++)
+            {
+                set.Deep[i] = SaveAnimatedWater($"Squelettes_Eau_{i}", f => SkeletonArt.Ocean(TileArt.DeepWater(i, f)));
+                set.Shallow[i] = set.Deep[i];
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                set.Sand[i] = SaveTile($"Squelettes_Sable_{i}", SkeletonArt.Sand(TileArt.Sand(i)), Vector2.one * 0.5f, TileArt.Size);
+                set.Grass[i] = SaveTile($"Squelettes_Graviers_{i}", SkeletonArt.Gravel(TileArt.Grass(i)), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            var shallow = new TransitionArt.Style
+            {
+                Fill = SkeletonArt.Shallow(TileArt.ShallowWater(0)),
+                InnerBand = 0.06f, InnerColor = SkeletonArt.Shallow(new Color(0.46f, 0.88f, 0.86f)), InnerBlend = 0.6f,
+                OuterBand = 0.07f, OuterColor = SkeletonArt.Shallow(new Color(0.24f, 0.70f, 0.80f)), DitherOuter = true,
+            };
+            var sand = new TransitionArt.Style
+            {
+                Fill = SkeletonArt.Sand(TileArt.Sand(0)),
+                InnerBand = 0.07f, InnerColor = new Color(0.58f, 0.56f, 0.50f), InnerBlend = 1f,      // sable mouillé
+                OuterBand = 0.07f, OuterColor = new Color(0.84f, 0.88f, 0.86f), DitherOuter = false,  // écume grise
+            };
+            var gravel = new TransitionArt.Style
+            {
+                Fill = SkeletonArt.Gravel(TileArt.Grass(0)),
+                InnerBand = 0.06f, InnerColor = SkeletonArt.Gravel(new Color(0.22f, 0.50f, 0.24f)), InnerBlend = 1f,
+                OuterBand = 0.06f, OuterColor = SkeletonArt.Gravel(new Color(0.40f, 0.70f, 0.34f)), DitherOuter = true,
+            };
+
+            set.LagoonEdges = SaveEdges("SquelettesEau", shallow);
+            set.SandEdges = SaveEdges("SquelettesSable", sand);
+            set.GrassEdges = SaveEdges("SquelettesGraviers", gravel);
+            set.LagoonFull = new[] { set.LagoonEdges[15], SaveTile("Bords/SquelettesEau_15b", SkeletonArt.Shallow(TileArt.ShallowWater(1)), Vector2.one * 0.5f, TileArt.Size) };
+            set.SandFull = new[]
+            {
+                set.SandEdges[15],
+                SaveTile("Bords/SquelettesSable_15b", SkeletonArt.Sand(TileArt.Sand(1)), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/SquelettesSable_15c", SkeletonArt.Sand(TileArt.Sand(2)), Vector2.one * 0.5f, TileArt.Size),
+            };
+            set.GrassFull = new[] { set.GrassEdges[15], set.GrassEdges[15], set.GrassEdges[15] };
+            return set;
+        }
+
+        /// <summary>
+        /// Dessine la Côte des Squelettes d'après son plan (<see cref="SkeletonPlan"/>) : Atlantique froid, plage pâle, plaine
+        /// de graviers, lagune salée, lit de rivière à sec, piste de 4x4, dunes, cargo échoué, chalutier dans les vagues,
+        /// squelette de baleine, cabane du prospecteur, fûts et ancre, rochers du cap, arbres morts, welwitschias, os ; puis le
+        /// ponton.
+        /// </summary>
+        private static DockInfo BuildSkeleton(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap pavingLayer, Tilemap decorMap, List<Rect> obstacles)
+        {
+            SkeletonPlan plan = SkeletonPlan.Build();
+            TerrainType[,] terrain = plan.Terrain;
+            int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
+            int width = terrain.GetLength(0);
+            int height = terrain.GetLength(1);
+            int seed = SkeletonSettings.Seed;
+            Vector3Int Cell(int x, int y) => new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0);
+            Vector3 World(float x, float y) => new Vector3(bounds.xMin + x, bounds.yMin + y, 0f);
+            void Solid(float cx, float y, float w, float h) => obstacles.Add(new Rect(bounds.xMin + cx - w * 0.5f, bounds.yMin + y, w, h));
+
+            var waterTiles = new TileBase[width * height];
+            var landTiles = new TileBase[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = x + y * width;
+                    float hash = IslandGenerator.CellHash(x, y, seed);
+                    waterTiles[index] = tiles.Deep[hash < 0.5f ? 0 : 1];
+                    if (terrain[x, y] == TerrainType.Sand) landTiles[index] = tiles.Sand[hash < 0.9f ? 0 : hash < 0.96f ? 1 : 2];
+                    else if (terrain[x, y] == TerrainType.Grass) landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
+                }
+            }
+
+            waterMap.SetTilesBlock(bounds, waterTiles);
+            landMap.SetTilesBlock(bounds, landTiles);
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance, tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
+            FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
+            FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
+
+            // Lit de rivière à sec puis piste de 4x4 (double grille, couche des pavés).
+            var riverbed = new TransitionArt.Style
+            {
+                Fill = SkeletonTerrainArt.RiverbedFill(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.56f, 0.54f, 0.50f), InnerBlend = 0.7f,
+                OuterBand = 0.06f, OuterColor = SkeletonArt.Gravel(new Color(0.40f, 0.66f, 0.32f)), DitherOuter = true,
+            };
+            Tile[] bedEdges = SaveEdges("SquelettesLitSec", riverbed);
+            Tile[] bedFull = { bedEdges[15], SaveTile("Bords/SquelettesLitSec_15b", SkeletonTerrainArt.RiverbedFill(1), Vector2.one * 0.5f, TileArt.Size) };
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Riverbed[x, y], bedEdges, bedFull, seed + 5, false);
+            var track = new TransitionArt.Style
+            {
+                Fill = SkeletonTerrainArt.TrackFill(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.40f, 0.36f, 0.30f), InnerBlend = 0.7f,
+                OuterBand = 0.06f, OuterColor = SkeletonArt.Gravel(new Color(0.40f, 0.66f, 0.32f)), DitherOuter = true,
+            };
+            Tile[] trackEdges = SaveEdges("SquelettesPiste", track);
+            Tile[] trackFull = { trackEdges[15], SaveTile("Bords/SquelettesPiste_15b", SkeletonTerrainArt.TrackFill(1), Vector2.one * 0.5f, TileArt.Size) };
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Track[x, y], trackEdges, trackFull, seed + 6, false);
+
+            // Ponton au bout de la piste, vers le sud (BuildDock essaie d'abord 3 cases à droite du point donné).
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Côte des Squelettes", terrain, bounds, plan.DockFoot - new Vector2Int(3, 0), Vector2Int.down);
+
+            // Grands repères en volume (32 px par case), triés comme le joueur.
+            GameObject Landmark(string name, string file, Color[,] pixels, Vector2 pivot, float x, float y, int order = 10)
+            {
+                Sprite sprite = PixelArt.Save(file, pixels, VolumeCanvas.PixelsPerUnit, pivot);
+                GameObject go = EnsureObject(name, mapRoot);
+                go.transform.position = World(x, y);
+                SetSprite(go, sprite, order);
+                return go;
+            }
+
+            Color rust = new Color(0.56f, 0.28f, 0.16f);
+            Landmark("Cargo échoué", $"{TilesFolder}/Squelettes_Cargo.png", SkeletonLandmarkArt.Wreck(), SkeletonLandmarkArt.WreckPivot, plan.Wreck.x + 0.5f, plan.Wreck.y);
+            Solid(plan.Wreck.x + 0.5f, plan.Wreck.y - 0.1f, 9.4f, 2.6f);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Wreck.x + 0.5f - 4.8f, bounds.yMin + plan.Wreck.y, 9.6f, 3f), rust, false));
+            GameObject trawler = Landmark("Chalutier échoué", $"{TilesFolder}/Squelettes_Chalutier.png", SkeletonLandmarkArt.Trawler(), Vector2.one * 0.5f, plan.Trawler.x + 0.5f, plan.Trawler.y + 0.5f, -8);
+            trawler.GetComponent<SpriteRenderer>().spriteSortPoint = SpriteSortPoint.Center;
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Trawler.x + 0.5f - 2.5f, bounds.yMin + plan.Trawler.y, 5f, 1.4f), rust, false));
+            Landmark("Squelette de baleine", $"{TilesFolder}/Squelettes_Baleine.png", SkeletonLandmarkArt.Whale(), SkeletonLandmarkArt.WhalePivot, plan.Whale.x + 0.5f, plan.Whale.y);
+            Solid(plan.Whale.x + 0.5f - 2f, plan.Whale.y - 0.1f, 2.6f, 1f);    // crâne
+            Solid(plan.Whale.x + 0.5f + 1f, plan.Whale.y + 0.1f, 4.4f, 0.6f);  // colonne
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Whale.x + 0.5f - 3.4f, bounds.yMin + plan.Whale.y, 6.8f, 1f), new Color(0.90f, 0.88f, 0.80f), false));
+            Landmark("Cabane du prospecteur", $"{TilesFolder}/Squelettes_Cabane.png", SkeletonLandmarkArt.Shack(), SkeletonLandmarkArt.ShackPivot, plan.Shack.x + 0.5f, plan.Shack.y);
+            Solid(plan.Shack.x + 0.5f - 0.3f, plan.Shack.y - 0.1f, 3.8f, 2.1f);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Shack.x + 0.5f - 2f, bounds.yMin + plan.Shack.y, 4f, 2.5f), new Color(0.50f, 0.40f, 0.34f), false));
+            for (int i = 0; i < plan.Dunes.Count; i++)
+            {
+                Vector2Int d = plan.Dunes[i];
+                Landmark($"Dune {i + 1}", $"{TilesFolder}/Squelettes_Dune_{i % 2}.png", SkeletonLandmarkArt.Dune(i % 2), SkeletonLandmarkArt.DunePivot, d.x + 0.5f, d.y);
+                Solid(d.x + 0.5f, d.y - 0.1f, 9.6f, 2.2f);
+                MinimapBlocks.Add((new Rect(bounds.xMin + d.x + 0.5f - 5.2f, bounds.yMin + d.y, 10.4f, 4.4f), new Color(0.84f, 0.52f, 0.32f), true));
+            }
+
+            // Fûts rouillés et ancre (le 4e débris), rochers noirs du cap.
+            Tile drum = SaveTile("Decor/Squelettes_Fut", SkeletonTerrainArt.Drum(), SkeletonTerrainArt.DrumPivot, VolumeCanvas.PixelsPerUnit);
+            Tile anchor = SaveTile("Decor/Squelettes_Ancre", SkeletonTerrainArt.Anchor(), SkeletonTerrainArt.AnchorPivot, VolumeCanvas.PixelsPerUnit);
+            for (int i = 0; i < plan.Debris.Count; i++)
+            {
+                Vector2Int d = plan.Debris[i];
+                bool isAnchor = i == 3;
+                decorMap.SetTile(Cell(d.x, d.y), isAnchor ? anchor : drum);
+                Solid(d.x + 0.5f, d.y + 0.15f, isAnchor ? 1.8f : 0.8f, 0.5f);
+            }
+
+            Tile[] rocks = { SaveTile("Decor/Squelettes_Rocher_0", SkeletonTerrainArt.Rock(0), SkeletonTerrainArt.RockPivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Decor/Squelettes_Rocher_1", SkeletonTerrainArt.Rock(1), SkeletonTerrainArt.RockPivot, VolumeCanvas.PixelsPerUnit) };
+            foreach (Vector2Int r in plan.Rocks)
+            {
+                decorMap.SetTile(Cell(r.x, r.y), rocks[(r.x + r.y) % 2]);
+                if (terrain[r.x, r.y] != TerrainType.Water) Solid(r.x + 0.5f, r.y + 0.15f, 1f, 0.5f);
+            }
+
+            // Végétation du désert, os blanchis.
+            Tile[] deadTrees = { SaveTile("Squelettes_ArbreMort_0", SkeletonTerrainArt.DeadTree(0), SkeletonTerrainArt.TreePivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Squelettes_ArbreMort_1", SkeletonTerrainArt.DeadTree(1), SkeletonTerrainArt.TreePivot, VolumeCanvas.PixelsPerUnit) };
+            Tile welwitschia = SaveTile("Decor/Welwitschia", SkeletonTerrainArt.Welwitschia(), SkeletonTerrainArt.WelwitschiaPivot, VolumeCanvas.PixelsPerUnit);
+            Tile[] tufts = { SaveTile("Decor/Squelettes_Touffe_0", SkeletonTerrainArt.Tuft(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Decor/Squelettes_Touffe_1", SkeletonTerrainArt.Tuft(1), Vector2.one * 0.5f, TileArt.Size) };
+            foreach ((Vector2Int cell, SkeletonPlan.Plant kind, int variant) in plan.Plants)
+            {
+                switch (kind)
+                {
+                    case SkeletonPlan.Plant.DeadTree:
+                        decorMap.SetTile(Cell(cell.x, cell.y), deadTrees[variant]);
+                        obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
+                        break;
+                    case SkeletonPlan.Plant.Welwitschia: decorMap.SetTile(Cell(cell.x, cell.y), welwitschia); break;
+                    case SkeletonPlan.Plant.Tuft: decorMap.SetTile(Cell(cell.x, cell.y), tufts[variant]); break;
+                }
+            }
+
+            Tile[] bones = { SaveTile("Decor/Squelettes_Crane", SkeletonTerrainArt.Bones(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Decor/Squelettes_Os", SkeletonTerrainArt.Bones(1), Vector2.one * 0.5f, TileArt.Size) };
+            foreach (Vector2Int b in plan.Bones) decorMap.SetTile(Cell(b.x, b.y), bones[(b.x + b.y) % 2]);
+
+            return dock;
+        }
+
+        /// <summary>La vie de la Côte des Squelettes : otaries sur la plage et sous l'eau, vautours, pas de papillons.</summary>
+        private static void BuildSkeletonLife(Transform root, WorldMap map, Transform player, Rect dock)
+        {
+            const string folder = "Assets/_Project/Art/Ambient";
+            PixelArt.EnsureFolder(folder);
+            Sprite[] Frames(string name, int count, System.Func<int, Color[,]> draw)
+            {
+                var sprites = new Sprite[count];
+                for (int i = 0; i < count; i++)
+                {
+                    sprites[i] = PixelArt.Save($"{folder}/{name}_{i}.png", draw(i), TileArt.Size, Vector2.one * 0.5f);
+                }
+
+                return sprites;
+            }
+
+            GameObject go = EnsureObject("Vie de la Côte des Squelettes", root);
+            var life = go.GetComponent<AmbientLife>();
+            if (life == null) life = go.AddComponent<AmbientLife>();
+
+            var so = new SerializedObject(life);
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_region").intValue = 6;
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 1.5f, dock.yMin - 1f, dock.width + 4f, dock.height + 2f);
+            SerializedProperty swimmers = so.FindProperty("_swimmers");
+            swimmers.arraySize = 1;
+            SetSwimmer(swimmers.GetArrayElementAtIndex(0), Frames("OtarieSousLEau", 2, SkeletonLifeArt.SealSwimming), 4, 0.6f);
+            swimmers.GetArrayElementAtIndex(0).FindPropertyRelative("Order").intValue = -17; // sous l'eau
+            SerializedProperty walkers = so.FindProperty("_walkers");
+            walkers.arraySize = 1;
+            SetSwimmer(walkers.GetArrayElementAtIndex(0), Frames("Otarie", 2, SkeletonLifeArt.Seal), 6, 0.25f);
+            SetSprites(so.FindProperty("_dragonfly"), new Sprite[0]);
+            so.FindProperty("_dragonflies").intValue = 0;
+            SetSprites(so.FindProperty("_jumpingFish"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
+            SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
+            SetSprites(so.FindProperty("_passer"), Frames("Vautour", 2, SkeletonLifeArt.Vulture));
+            so.FindProperty("_passerShadow").objectReferenceValue = PixelArt.Save($"{folder}/Vautour_Ombre.png", SkeletonLifeArt.VultureShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_cloud").objectReferenceValue = PixelArt.Save($"{folder}/OmbreNuage.png", LakeLifeArt.CloudShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_clouds").intValue = 6;
+            SetNightLife(so, Frames);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         /// <summary>La vie de l'atoll : raies et tortues sous l'eau du lagon, bernard-l'ermite, papillons, poissons volants, frégate.</summary>
         private static void BuildAtollLife(Transform root, WorldMap map, Transform player, Rect dock)
         {
@@ -2530,6 +2787,19 @@ namespace FishAndChill.Editor
             atollGlassObject.transform.localPosition = new Vector3(atollX, 0f, 0f);
             SetSprite(atollGlassObject, atollGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
+            // Salle Côte des Squelettes, au bout de la salle Maldives.
+            float skeletonX = AquariumBuilding.SkeletonRoomX - AquariumBuilding.PassageWidth;
+            Color[,] skeletonRoomPixels = AquariumSkeletonArt.SkeletonRoom();
+            AquariumAmazonArt.CloseLeftPassage(skeletonRoomPixels);
+            Sprite skeletonRoom = PixelArt.Save($"{folder}/Aquarium_SalleSquelettes.png", skeletonRoomPixels, TileArt.Size, Vector2.zero);
+            Sprite skeletonGlass = PixelArt.Save($"{folder}/Aquarium_SalleSquelettes_Vitre.png", AquariumSkeletonArt.TankGlass(), TileArt.Size, Vector2.zero);
+            GameObject skeletonObject = EnsureObject("Salle Côte des Squelettes", room.transform);
+            skeletonObject.transform.localPosition = new Vector3(skeletonX, 0f, 0f);
+            SetSprite(skeletonObject, skeletonRoom, -6).spriteSortPoint = SpriteSortPoint.Center;
+            GameObject skeletonGlassObject = EnsureObject("Vitre du bassin Côte des Squelettes", room.transform);
+            skeletonGlassObject.transform.localPosition = new Vector3(skeletonX, 0f, 0f);
+            SetSprite(skeletonGlassObject, skeletonGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
+
             // L'ascenseur de chaque étage est dans le mur du bas, qu'on ne voit pas : un tapis contre ce mur indique sa
             // porte, comme le paillasson de sortie (la 2e colonne à méduses du hall a disparu).
             Transform oldColumn = room.transform.Find("Colonne à méduses 2");
@@ -2597,6 +2867,7 @@ namespace FishAndChill.Editor
             Furnish("Japon", AquariumRoomLayout.Japan, AquariumBuilding.JapanRoomX);
             Furnish("Recif", AquariumRoomLayout.Reef, AquariumBuilding.ReefRoomX);
             Furnish("Maldives", AquariumRoomLayout.Atoll, AquariumBuilding.AtollRoomX);
+            Furnish("Squelettes", AquariumRoomLayout.Skeleton, AquariumBuilding.SkeletonRoomX);
             var furnitureSo = new SerializedObject(aquarium);
             SerializedProperty furnitureList = furnitureSo.FindProperty("_furniture");
             furnitureList.arraySize = furniture.Count;
@@ -2626,6 +2897,8 @@ namespace FishAndChill.Editor
             BuildTank(room.transform, "Poissons du bassin Grande Barrière", aquarium, reefZone, AquariumBuilding.ReefTank);
             var atollZone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/Maldives.asset");
             BuildTank(room.transform, "Poissons du bassin Maldives", aquarium, atollZone, AquariumBuilding.AtollTank);
+            var skeletonZone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/CoteDesSquelettes.asset");
+            BuildTank(room.transform, "Poissons du bassin Côte des Squelettes", aquarium, skeletonZone, AquariumBuilding.SkeletonTank);
 
             BuildTankLife(room.transform, aquarium, folder);
             // Visiteurs mis de côté pour l'instant (AquariumVisitors et BuildVisitors restent prêts à resservir).
@@ -2732,6 +3005,14 @@ namespace FishAndChill.Editor
             Sprite[] atollCaustics = Frames("Reflets_Maldives", 3, f => AquariumLifeArt.Caustics(f, new Color(0.62f, 0.90f, 1f)), center);
             BuildLife(room, "Vie du bassin Maldives", aquarium, AquariumBuilding.AtollTank, 59, new[] { (seaFan, 6, false), (atollGrass, 5, true) },
                 bubble, 4, ray, 5, orangeAnthias, 3, 12, atollCaustics, new Sprite[0][], new Transform[0]);
+
+            // Côte des Squelettes : kelp brun qui ondule, algues rouges devant, bancs de pilchards argentés, reflets pâles.
+            Sprite[] kelpBrown = Frames("KelpSquelettes", 3, f => AquariumLifeArt.Plant(f, 18, 40, 4, new Color(0.40f, 0.34f, 0.16f), new Color(0.26f, 0.22f, 0.10f), new Color(0.56f, 0.48f, 0.24f), false, 61), bottom);
+            Sprite[] redWeed = Frames("AlgueRougeSquelettes", 3, f => AquariumLifeArt.Plant(f, 18, 14, 5, new Color(0.52f, 0.20f, 0.18f), new Color(0.34f, 0.12f, 0.12f), new Color(0.70f, 0.32f, 0.28f), false, 67), bottom);
+            Sprite[] pilchards = Frames("Pilchards_Squelettes", 2, f => AquariumLifeArt.TinyFish(f, new Color(0.62f, 0.70f, 0.76f), new Color(0.88f, 0.92f, 0.94f), new Color(0.30f, 0.40f, 0.48f)), center);
+            Sprite[] paleCaustics = Frames("Reflets_Squelettes", 3, f => AquariumLifeArt.Caustics(f, new Color(0.62f, 0.70f, 0.68f)), center);
+            BuildLife(room, "Vie du bassin Côte des Squelettes", aquarium, AquariumBuilding.SkeletonTank, 71, new[] { (kelpBrown, 6, false), (redWeed, 5, true) },
+                bubble, 3, ray, 2, pilchards, 4, 14, paleCaustics, new Sprite[0][], new Transform[0]);
         }
 
         private static void BuildLife(Transform room, string name, AquariumBuilding aquarium, Rect area, int seed,
@@ -3122,7 +3403,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, TileSet atollTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform house, Transform lighthouse, Transform lab, Transform petShop, Transform[] docks)
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, TileSet atollTiles, TileSet skeletonTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform house, Transform lighthouse, Transform lab, Transform petShop, Transform[] docks)
         {
             Sprite shopIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeBoutique.png", ShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
             Sprite aquariumIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeAquarium.png", AquariumArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
@@ -3170,6 +3451,9 @@ namespace FishAndChill.Editor
             foreach (Tile t in atollTiles.Deep) entries.Add((t, new Color(0.08f, 0.34f, 0.66f)));
             foreach (Tile t in atollTiles.Sand) entries.Add((t, new Color(0.98f, 0.97f, 0.92f)));
             foreach (Tile t in atollTiles.Grass) entries.Add((t, new Color(0.30f, 0.62f, 0.30f)));
+            foreach (Tile t in skeletonTiles.Deep) entries.Add((t, new Color(0.16f, 0.24f, 0.26f)));
+            foreach (Tile t in skeletonTiles.Sand) entries.Add((t, new Color(0.76f, 0.72f, 0.64f)));
+            foreach (Tile t in skeletonTiles.Grass) entries.Add((t, new Color(0.58f, 0.46f, 0.34f)));
 
             // Arbres et décor des zones redessinées (tuiles créées pendant la construction des zones).
             void Named(string tileName, Color color)
@@ -3204,6 +3488,13 @@ namespace FishAndChill.Editor
 
             Named("Atoll_Frangipanier", new Color(0.96f, 0.92f, 0.80f));
             Named("Decor/Lampadaire_TorcheAtoll", new Color(0.96f, 0.62f, 0.20f));
+            Named("Squelettes_ArbreMort_0", new Color(0.30f, 0.28f, 0.26f));
+            Named("Squelettes_ArbreMort_1", new Color(0.30f, 0.28f, 0.26f));
+            Named("Decor/Squelettes_Rocher_0", new Color(0.16f, 0.16f, 0.18f));
+            Named("Decor/Squelettes_Rocher_1", new Color(0.16f, 0.16f, 0.18f));
+            Named("Decor/Squelettes_Fut", new Color(0.56f, 0.28f, 0.16f));
+            Named("Decor/Squelettes_Ancre", new Color(0.40f, 0.26f, 0.18f));
+            Named("Decor/Welwitschia", new Color(0.36f, 0.42f, 0.22f));
             Sprite dockIcon = PixelArt.Save("Assets/_Project/Art/UI/IconePonton.png", LakeArt.BoatIcon(), TileArt.Size, Vector2.one * 0.5f);
 
             var so = new SerializedObject(minimap);

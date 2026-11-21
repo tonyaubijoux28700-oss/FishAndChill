@@ -31,6 +31,9 @@
   réglée par `PrototypeSetup.SetClimate` d'après le vrai climat : orages des tropiques, forêt pluviale, brumes du lac
   alpin et de la côte japonaise). Il dure 3 à 7 heures de jeu puis change ; un voyage tire le temps de la nouvelle zone.
   Nouvelle partie au beau temps. Sauvegardé (`SaveData.Weather`, `WeatherHours` ; -1 = ancienne sauvegarde).
+  **Zones sombres** : `FishingZone.Ambient` (lumière multipliée à la teinte du ciel, blanc = normale) et `MinimumFog`
+  (brume toujours présente), lus par `WeatherSystem` ; `Gloom` (1 - luminosité de la lumière de zone) garde les lanternes
+  faiblement allumées en journée (`DayNightCycle`). Utilisé par la Côte des Squelettes (lumière gris-bleu, brume 0,35).
   Règles dans `WeatherMath` (testé) : tirage, durée, teinte du ciel, attente avant la touche (pluie ×0,82, orage ×0,75),
   `Allows` pour les espèces. Affiché dans l'en-tête (« Lac d'Annecy   8h10   Pluie »).
 - **Tempête des boss** : voir docs/systemes/legendes.md (`LegendStorm`, intensité `WeatherSystem.Epic`).

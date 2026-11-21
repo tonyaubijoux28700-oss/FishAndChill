@@ -71,6 +71,16 @@ namespace FishAndChill.Editor
             new Prop("Transat", AquariumPropArt.DeckChair, 17.5f, 1.2f, 2.2f, 0.6f),   // à côté du tapis de l'ascenseur
         };
 
+        /// <summary>Salle Côte des Squelettes : barre à roue devant le bassin, scaphandre, lanternes de navire, bouée.</summary>
+        public static readonly Prop[] Skeleton =
+        {
+            new Prop("Barre à roue", AquariumSkeletonArt.ShipWheel, 6f, 8.2f, 1.6f, 0.5f),
+            new Prop("Scaphandre", AquariumSkeletonArt.DivingHelmet, 18f, 8.2f, 1.6f, 0.5f),
+            new Prop("Lanterne de navire", AquariumSkeletonArt.ShipLantern, 1.3f, 8.4f, 0.5f, 0.3f),
+            new Prop("Lanterne de navire", AquariumSkeletonArt.ShipLantern, 22.7f, 8.4f, 0.5f, 0.3f),
+            new Prop("Bouée", AquariumPropArt.Lifebuoy, 2.2f, 1.2f, 0.6f, 0.4f),
+        };
+
         /// <summary>Rochers du jardin zen : le sol dessine des cercles ratissés autour.</summary>
         public static readonly Vector2[] JapanRocks = { new Vector2(8f, 3.6f), new Vector2(10.2f, 3.0f), new Vector2(17.5f, 4.8f) };
 

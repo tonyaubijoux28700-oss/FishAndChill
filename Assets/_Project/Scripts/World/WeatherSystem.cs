@@ -108,10 +108,21 @@ namespace FishAndChill.World
 
         private void SnapVisuals()
         {
-            _tint = WeatherMath.SkyTint(Current);
+            _tint = WeatherMath.SkyTint(Current) * ZoneAmbient;
             Rain = WeatherMath.RainAmount(Current);
-            Fog = WeatherMath.FogAmount(Current);
+            Fog = Mathf.Max(WeatherMath.FogAmount(Current), ZoneFog);
         }
+
+        private FishingZone CurrentZone => _fishing != null ? _fishing.Zone : null;
+
+        /// <summary>Lumière propre à la zone (blanc ailleurs).</summary>
+        private Color ZoneAmbient => CurrentZone != null ? CurrentZone.Ambient : Color.white;
+
+        /// <summary>Brume toujours présente dans la zone.</summary>
+        private float ZoneFog => CurrentZone != null ? CurrentZone.MinimumFog : 0f;
+
+        /// <summary>À quel point la zone actuelle est sombre (0 = normale) : les lanternes s'y allument plus tôt.</summary>
+        public float Gloom => CurrentZone != null ? CurrentZone.Gloom : 0f;
 
         private void Update()
         {
@@ -145,10 +156,10 @@ namespace FishAndChill.World
             float dt = Time.deltaTime;
             float k = dt <= 0f ? 0f : 1f - Mathf.Exp(-dt * 3f / _fadeSeconds);
             float epic = Epic;
-            Color targetTint = Color.Lerp(WeatherMath.SkyTint(Current), LegendStormMath.Tint, epic);
+            Color targetTint = Color.Lerp(WeatherMath.SkyTint(Current) * ZoneAmbient, LegendStormMath.Tint, epic);
             _tint = epic > 0.01f ? targetTint : Color.Lerp(_tint, targetTint, k);   // la tempête a déjà son propre fondu
             Rain = Mathf.Max(Mathf.Lerp(Rain, WeatherMath.RainAmount(Current), k), epic);
-            Fog = Mathf.Max(Mathf.Lerp(Fog, WeatherMath.FogAmount(Current), k), epic * 0.3f);
+            Fog = Mathf.Max(Mathf.Lerp(Fog, Mathf.Max(WeatherMath.FogAmount(Current), ZoneFog), k), epic * 0.3f);
 
             // Éclairs d'orage : un double flash de temps en temps.
             _flashAge += dt;

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: LithognathusAureti
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: lithognathus-aureti
+  _commonName: Steenbras de Namibie
+  _scientificName: Lithognathus aureti
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 4
+  _sizeRangeCm: {x: 40, y: 90}
+  _basePrice: 18
+  _placeholderColor: {r: 0.65882355, g: 0.6431373, b: 0.59607846, a: 1}
+  _description: "Poisson argent\xE9 aux reflets cuivr\xE9s, il fouille le sable des plages \xE0 la recherche de vers et de coquillages."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 310f31491b453eb47abb331b9180f259, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 590acab4f8e723a46bceff3b5eaa52b9, type: 3}

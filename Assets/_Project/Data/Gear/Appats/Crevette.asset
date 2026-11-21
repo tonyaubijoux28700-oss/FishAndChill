@@ -45,6 +45,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 16c779344eb98884986c4b160ccb451a, type: 2}
   - {fileID: 11400000, guid: 9b897a0ea55f3e740be4a7992d5e21ec, type: 2}
   - {fileID: 11400000, guid: 0cb8fb54f19e457459e78634c061449b, type: 2}
+  - {fileID: 11400000, guid: 365c010e34773ed469c5d2c68001a458, type: 2}
+  - {fileID: 11400000, guid: a236676c6a501eb4c87a6e45e73f3b47, type: 2}
+  - {fileID: 11400000, guid: 29d748126545a34458518e84dbcff0d1, type: 2}
+  - {fileID: 11400000, guid: d5241f2e4d1db5d47b1a8ba2e22667f1, type: 2}
   _favoriteBonus: 3
   _rareBonus: 1
   _nightBonus: 1

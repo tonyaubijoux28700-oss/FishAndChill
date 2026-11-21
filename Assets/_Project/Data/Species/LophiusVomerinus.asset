@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: LophiusVomerinus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: lophius-vomerinus
+  _commonName: Baudroie du Cap
+  _scientificName: Lophius vomerinus
+  _rarity: 3
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 4
+  _sizeRangeCm: {x: 40, y: 100}
+  _basePrice: 100
+  _placeholderColor: {r: 0.41568628, g: 0.3529412, b: 0.28235295, a: 1}
+  _description: "Une gueule immense pleine de dents en aiguille, cach\xE9e sur le fond : elle agite un leurre au bout d'un filament pour attirer ses proies."
+  _activeTime: 0
+  _weather: 3
+  _sprite: {fileID: 21300000, guid: ab4546fa0e464cf45a264e7c10fe6eae, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 24a18c3624a2fc24089073d42a17786b, type: 3}

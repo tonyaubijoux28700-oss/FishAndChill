@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d1726b683e3a34cb42cf076922ab57, type: 3}
+  m_Name: CoteDesSquelettes
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
+  _displayName: "C\xF4te des Squelettes"
+  _description: "D\xE9sert de Namibie qui plonge dans un Atlantique glac\xE9 : brume, \xE9paves rouill\xE9es, ossements de baleines et otaries. On dit que la c\xF4te ne rend jamais ses noy\xE9s."
+  _waterColor: {r: 0.14, g: 0.24, b: 0.26, a: 1}
+  _species:
+  - _species: {fileID: 11400000, guid: 365c010e34773ed469c5d2c68001a458, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: b5e2674df4a7d8f4da11aff3ab8b6672, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: a236676c6a501eb4c87a6e45e73f3b47, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: d984a9e432baabe488c1d63b50968b46, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 29d748126545a34458518e84dbcff0d1, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: d5241f2e4d1db5d47b1a8ba2e22667f1, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: b8e26e8c7e5241e48b2abae0e379715e, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: d97f3ca440f630845bf96d4943b26229, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 33a8afd4035e14a4c93df8db84bbe9bf, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 46ff8297b2b6ba84e9b0de37690393cc, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: b97d7a3e07c0c804fa6ec8e192922e74, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 1cf099b9f9044b84b8246cb2c24a32a6, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 284102b65ad128d4da646e98d95ec491, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 6d3693f898d4f5b4a8304faee3701fb8, type: 2}
+    _weight: 2
+  _mapPosition: {x: 0.54, y: 0.32}
+  _region: Namibie
+  _climate:
+    _clear: 10
+    _cloudy: 30
+    _rain: 5
+    _storm: 10
+    _fog: 45
+  _ambient: {r: 0.62, g: 0.66, b: 0.72, a: 1}
+  _minimumFog: 0.35

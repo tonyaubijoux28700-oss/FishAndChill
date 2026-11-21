@@ -36,6 +36,21 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Climat : fréquence relative de chaque temps.")]
         private WeatherClimate _climate = new WeatherClimate();
 
+        [SerializeField, Tooltip("Lumière de la zone, multipliée à celle du ciel : blanc = normale, gris = zone sombre et inquiétante.")]
+        private Color _ambient = Color.white;
+
+        [SerializeField, Range(0f, 1f), Tooltip("Brume toujours présente, même par beau temps (0 = aucune).")]
+        private float _minimumFog;
+
+        /// <summary>Lumière de la zone (blanc = normale), multipliée à la teinte du ciel.</summary>
+        public Color Ambient => _ambient;
+
+        /// <summary>Brume minimale de la zone, quel que soit le temps.</summary>
+        public float MinimumFog => _minimumFog;
+
+        /// <summary>À quel point la zone est sombre (0 = normale, 1 = noire) : les lanternes s'y allument plus tôt.</summary>
+        public float Gloom => Mathf.Clamp01(1f - _ambient.grayscale);
+
         public string DisplayName => string.IsNullOrEmpty(_displayName) ? name : _displayName;
         public Vector2 MapPosition => _mapPosition;
         public string Region => _region;

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: NotorynchusCepedianus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: notorynchus-cepedianus
+  _commonName: Requin plat-nez
+  _scientificName: Notorynchus cepedianus
+  _rarity: 3
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 4
+  _sizeRangeCm: {x: 150, y: 300}
+  _basePrice: 100
+  _placeholderColor: {r: 0.41568628, g: 0.43137255, b: 0.4, a: 1}
+  _description: "Un requin d'un autre \xE2ge, \xE0 sept fentes branchiales : il chasse les otaries en meute dans les eaux troubles."
+  _activeTime: 2
+  _weather: 3
+  _sprite: {fileID: 21300000, guid: f95a0432517b3af4c9f03a7c89392c83, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 5b8d0f7da4715f74995cb216611580fd, type: 3}

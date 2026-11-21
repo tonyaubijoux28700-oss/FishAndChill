@@ -67,7 +67,7 @@
 - **Toutes les espèces sont dans `Assets/_Project/Data/Especes.csv`** : une ligne par espèce, séparateur `;`, s'ouvre
   dans un tableur (Excel, LibreOffice). Lue par `Collection/SpeciesTable` (testé) → `SpeciesRow`, puis le menu de
   génération crée les `FishSpecies`, remplit les zones (colonne Zone = nom de l'asset de zone : IleMahana, LacAnnecy,
-  FleuveAmazone, BaieJaponaise, GrandeBarriere, Maldives) et les appâts favoris (colonne Appats : mie, ver, crevette, leurre, lumineux, calmar).
+  FleuveAmazone, BaieJaponaise, GrandeBarriere, Maldives, CoteDesSquelettes) et les appâts favoris (colonne Appats : mie, ver, crevette, leurre, lumineux, calmar).
   Erreurs de la table (valeur inconnue, nombre mal écrit) affichées dans la console, la ligne est sautée.
 - Valeurs en français, sans souci des accents : Rarete (commune, peu commune, rare, épique, légendaire), Nature
   (poisson, crustacé, reptile, amphibien), Forme (ombre sous l'eau : poisson, crabe, langouste, tortue, grenouille),

@@ -92,6 +92,23 @@
   plancher de teck avec deux panneaux de verre sur le lagon, murs en rotin, bassin d'océan profond (pâté de corail,
   raie manta au loin, gorgones, anthias), modèle de dhoni, lanternes en rotin. L'intérieur de l'aquarium fait
   maintenant 160 cases : `LakeGap` passe à 220, et l'intérieur de la maison est au-dessus de celui de la boutique.
+- **Côte des Squelettes** (7e zone, région 6, Namibie, **zone qui fait peur**) : plan dessiné `World/SkeletonPlan` (90×64
+  cases, testé : Atlantique froid au sud et à l'ouest, longue plage pâle, plaine de graviers du désert, grandes **dunes**
+  rouges au nord (solides), **cap rocheux** aux rochers noirs tachés de guano, **lagune salée** derrière la plage, **lit de
+  rivière à sec** bordé d'**arbres morts**, **piste de 4x4** jusqu'au ponton ; **cargo échoué** à moitié ensablé (coque
+  éventrée, château aux vitres brisées), **chalutier couché** dans les vagues, **squelette de baleine**, **cabane de
+  prospecteur** en tôle rouillée et éolienne cassée, fûts et ancre, welwitschias, touffes sèches, os blanchis), à
+  `SkeletonGap` = 20 cases à l'est de l'atoll, `MapSetup.BuildSkeleton` (tuiles `SkeletonArt` ; décor `SkeletonTerrainArt` ;
+  repères `SkeletonLandmarkArt`). **Réglage sombre** : lumière grise de la zone et brume toujours présente
+  (`FishingZone._ambient` / `_minimumFog`, `PrototypeSetup.SetGloom`, voir `jour-nuit-et-minimap.md`), climat très
+  brumeux (brouillard 45 %, orages). Vie (`BuildSkeletonLife`, `SkeletonLifeArt`) : otaries sur la plage et sous l'eau,
+  vautours, pas de papillons. 14 espèces faites par la table (`Zone` = `CoteDesSquelettes` : chinchard et pilchard du
+  Cap, galjoen, tassergal, thyrsite, courbine du Benguela, merlu du Cap, poisson-sabre, baudroie, requin plat-nez, requin
+  cuivre, grand requin blanc légendaire…). **Salle Côte des Squelettes** à l'aquarium (7e étage, `AquariumSkeletonArt`,
+  `SkeletonTank`, mobilier `AquariumRoomLayout.Skeleton`) : cale de cargo, tôles rivetées, bassin froid au kelp et à
+  l'épave, barre à roue, scaphandre, lanternes de navire. **L'intérieur de l'aquarium est 40 cases sous l'île**
+  (`bounds.yMin - 40`) : sa rangée de salles s'allonge à chaque zone sans déborder sur le lac (ne pas décaler `LakeGap` :
+  les casiers posés sont sauvegardés avec leur position dans le monde).
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`). **Le même ponton dans toutes les zones**
   (`Editor/DockArt`, style en volume, `Art/Tiles/Ponton.png` et `Ponton_VersLeHaut.png` retourné pour les pontons qui

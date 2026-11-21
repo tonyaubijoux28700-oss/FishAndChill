@@ -58,3 +58,5 @@ MonoBehaviour:
     _rain: 18
     _storm: 12
     _fog: 0
+  _ambient: {r: 1, g: 1, b: 1, a: 1}
+  _minimumFog: 0
