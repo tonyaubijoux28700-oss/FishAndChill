@@ -77,7 +77,7 @@
 - **Atoll des Maldives** (6e zone, région 5, océan Indien) : plan dessiné `World/AtollPlan` (90×64 cases, testé : anneau
   de récif (platier, coraux à travers l'eau) autour d'un grand lagon turquoise, coupé de **3 passes** où entre l'océan
   profond ; pâtés de corail dans le lagon ; **île habitée** au nord (plage de sable blanc plus large côté lagon, cocoteraie,
-  chemin de sable corallien bordé de **torches de bambou** allumées la nuit, deux **maisons en pierre de corail** chaulée
+  chemin de sable corallien bordé de **torches de bambou** allumées la nuit, deux grandes **maisons en pierre de corail** chaulée (6 × 5,5 cases, plus imposantes que la maison du joueur)
   à volets turquoise, l'une sous un toit de feuilles tressées, l'autre sous la tôle rouge, avec muret et joali, frangipaniers
   autour, **bar de plage** sous chaume au bout de la plage est) ; îlot sauvage à l'est, îlot au sud-ouest, langue de sable
   au sud, **banc de sable** et son unique cocotier au milieu du lagon ; **passerelle sur pilotis en T** qui part de la plage,

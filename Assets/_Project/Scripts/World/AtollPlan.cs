@@ -324,7 +324,7 @@ namespace FishAndChill.World
                 }
             }
 
-            foreach (Vector2Int house in Houses) Mark(house.x - 3, house.y - 1, house.x + 3, house.y + 3);
+            foreach (Vector2Int house in Houses) Mark(house.x - 4, house.y - 1, house.x + 4, house.y + 5);
             Mark(Bar.x - 3, Bar.y - 1, Bar.x + 3, Bar.y + 3);
             Mark(DockFoot.x - 1, DockFoot.y - 7, DockFoot.x + 4, DockFoot.y + 2);
             Mark(JettyX - 1, JettyStem.yMax - 2, JettyX + 2, JettyStem.yMax + 1);
