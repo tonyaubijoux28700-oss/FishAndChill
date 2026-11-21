@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FishAndChill.Fishing;
 using FishAndChill.Player;
 using FishAndChill.World;
@@ -317,7 +318,7 @@ namespace FishAndChill.Editor
             // L'atoll des Maldives, à l'est de la Grande Barrière.
             TileSet atollTiles = CreateAtollTiles(tiles, reefTiles);
             var atollBounds = new BoundsInt(reefBounds.xMax + AtollGap, -AtollSettings.Height / 2, 0, AtollSettings.Width, AtollSettings.Height, 1);
-            DockInfo atollDock = BuildAtoll(mapObject.transform, atollBounds, atollTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, decorMap, staticObstacles);
+            DockInfo atollDock = BuildAtoll(mapObject.transform, atollBounds, atollTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
 
             var worldMap = mapObject.GetComponent<WorldMap>();
             if (worldMap == null)
@@ -335,7 +336,7 @@ namespace FishAndChill.Editor
             var reefRegion = new Rect(reefBounds.xMin, reefBounds.yMin, reefBounds.size.x, reefBounds.size.y);
             var atollRegion = new Rect(atollBounds.xMin, atollBounds.yMin, atollBounds.size.x, atollBounds.size.y);
             worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion },
-                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea });
+                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea }.Concat(AtollJetty));
             BuildAtollLife(mapObject.transform, worldMap, player.transform, atollDock.Area);
             BuildReefLife(mapObject.transform, worldMap, player.transform, reefDock.Area);
             BuildJapanLife(mapObject.transform, worldMap, player.transform, japanDock.Area);
@@ -1553,7 +1554,7 @@ namespace FishAndChill.Editor
 
         // ---------- Atoll des Maldives ----------
 
-        /// <summary>Tuiles de l'atoll : celles de l'île recolorées ; cocotiers de l'île, coraux du récif, bungalow sur pilotis.</summary>
+        /// <summary>Tuiles de l'atoll : celles de l'île recolorées (océan, lagon, sable de corail, végétation) ; coraux du récif.</summary>
         private static TileSet CreateAtollTiles(TileSet island, TileSet reef)
         {
             var set = new TileSet { Deep = new Tile[2], Shallow = new Tile[2], Sand = new Tile[3], Grass = new Tile[3] };
@@ -1571,7 +1572,6 @@ namespace FishAndChill.Editor
 
             set.Palm = island.Palm;
             set.Lilies = reef.Lilies;
-            set.Rocks = new[] { SaveTile("Bungalow", AtollArt.Bungalow(), AtollArt.BungalowPivot, VolumeCanvas.PixelsPerUnit) };
 
             var lagoon = new TransitionArt.Style
             {
@@ -1607,18 +1607,22 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>
-        /// Dessine l'atoll : anneau d'îlots de sable blanc, cocoteraie, grand lagon turquoise, platier de corail au large,
-        /// bungalows sur pilotis dans le lagon de part et d'autre du ponton (au sud du grand îlot du nord).
+        /// Dessine l'atoll d'après son plan (<see cref="AtollPlan"/>) : océan profond, lagon et platier turquoise (coraux à
+        /// travers l'eau), îles de sable blanc et cocoteraie, chemin de sable corallien, passerelle sur pilotis en T et ses
+        /// villas sur l'eau, maisons en pierre de corail, bar de plage, torches, dhoni, balançoire, banc de sable ; puis le
+        /// ponton des voyages.
         /// </summary>
         private static DockInfo BuildAtoll(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
-            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap decorMap, List<Rect> obstacles)
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap pavingLayer, Tilemap decorMap, List<Rect> obstacles)
         {
-            TerrainType[,] terrain = AtollGenerator.Generate(AtollSettings);
-            bool[,] reef = AtollGenerator.Reef(AtollSettings, terrain);
+            AtollPlan plan = AtollPlan.Build();
+            TerrainType[,] terrain = plan.Terrain;
             int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
             int width = terrain.GetLength(0);
             int height = terrain.GetLength(1);
             int seed = AtollSettings.Seed;
+            Vector3Int Cell(int x, int y) => new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0);
+            Vector3 World(float x, float y) => new Vector3(bounds.xMin + x, bounds.yMin + y, 0f);
 
             var waterTiles = new TileBase[width * height];
             var landTiles = new TileBase[width * height];
@@ -1636,66 +1640,130 @@ namespace FishAndChill.Editor
 
             waterMap.SetTilesBlock(bounds, waterTiles);
             landMap.SetTilesBlock(bounds, landTiles);
-            // Tout le lagon est clair, comme le platier de corail au large.
-            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance || reef[x, y] || AtollGenerator.InLagoon(AtollSettings, x, y),
-                tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
+            // Tout le lagon est clair, comme le platier ; l'océan profond n'entre que par les passes.
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance || plan.Lagoon[x, y], tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
             FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
             FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
 
-            // Ponton : au milieu du grand îlot du nord, vers le sud, dans le lagon.
-            Vector2 center = AtollGenerator.Center(AtollSettings);
-            int cx = Mathf.RoundToInt(center.x);
-            int cy = Mathf.RoundToInt(center.y);
-            while (cy < height - 2 && terrain[cx, cy] == TerrainType.Water) cy++;
-            DockInfo dock = BuildDock(mapRoot, "Ponton - Atoll des Maldives", terrain, bounds, new Vector2Int(cx, cy + 1), Vector2Int.down);
-            Vector2 dockCell = dock.Area.center - new Vector2(bounds.xMin, bounds.yMin);
-
-            // Bungalows sur pilotis, alignés dans le lagon de part et d'autre du ponton.
-            var taken = new bool[width, height];
-            foreach (int dx in new[] { -17, -11, 11, 17 })
+            // Chemin de sable corallien à travers la cocoteraie (double grille, couche des pavés).
+            var coralSand = new TransitionArt.Style
             {
-                int bx = cx + dx;
-                int by = cy - 4;
-                while (by > 1 && terrain[bx, by + 1] != TerrainType.Water) by--;
-                if (bx < 1 || bx >= width - 1 || by < 1 || terrain[bx, by] != TerrainType.Water || !AtollGenerator.InLagoon(AtollSettings, bx, by)) continue;
-                decorMap.SetTile(new Vector3Int(bounds.xMin + bx, bounds.yMin + by, 0), tiles.Rocks[0]);
-                for (int k = -1; k <= 1; k++) taken[bx + k, by] = true;
+                Fill = AtollTerrainArt.PathFill(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.84f, 0.80f, 0.70f), InnerBlend = 0.7f,
+                OuterBand = 0.06f, OuterColor = AtollArt.Green(new Color(0.40f, 0.66f, 0.32f)), DitherOuter = true,
+            };
+            Tile[] pathEdges = SaveEdges("AtollChemin", coralSand);
+            Tile[] pathFull = { pathEdges[15], SaveTile("Bords/AtollChemin_15b", AtollTerrainArt.PathFill(1), Vector2.one * 0.5f, TileArt.Size) };
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Path[x, y], pathEdges, pathFull, seed + 5, false);
+
+            // Ponton des voyages au bout du chemin, vers le sud (BuildDock essaie d'abord 3 cases à droite du point donné).
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Atoll des Maldives", terrain, bounds, plan.DockFoot - new Vector2Int(3, 0), Vector2Int.down);
+
+            // Passerelle sur pilotis : on y marche (et on y pêche) comme sur le ponton.
+            AtollJetty.Clear();
+            void Boardwalk(string name, string file, RectInt r)
+            {
+                Sprite sprite = PixelArt.Save($"{TilesFolder}/{file}.png", AtollLandmarkArt.Boardwalk(r.width, r.height), TileArt.Size, new Vector2(0f, 6f / (r.height * 16 + 6)));
+                GameObject go = EnsureObject(name, mapRoot);
+                go.transform.position = World(r.xMin, r.yMin);
+                SetSprite(go, sprite, -9).spriteSortPoint = SpriteSortPoint.Center;
+                AtollJetty.Add(new Rect(bounds.xMin + r.xMin, bounds.yMin + r.yMin, r.width, r.height));
+                MinimapBlocks.Add((new Rect(bounds.xMin + r.xMin, bounds.yMin + r.yMin, r.width, r.height), new Color(0.62f, 0.44f, 0.28f), false));
             }
 
-            // Coraux sur le platier, au large.
+            Boardwalk("Passerelle de l'atoll", "Atoll_Passerelle", plan.JettyStem);
+            Boardwalk("Passerelle des villas", "Atoll_PasserelleVillas", plan.JettyArm);
+
+            // Grands repères en volume (32 px par case), triés comme le joueur.
+            GameObject Landmark(string name, string file, Color[,] pixels, Vector2 pivot, float x, float y, int order = 10)
+            {
+                Sprite sprite = PixelArt.Save(file, pixels, VolumeCanvas.PixelsPerUnit, pivot);
+                GameObject go = EnsureObject(name, mapRoot);
+                go.transform.position = World(x, y);
+                SetSprite(go, sprite, order);
+                return go;
+            }
+
+            const string buildings = "Assets/_Project/Art/Buildings";
+            for (int i = 0; i < plan.Villas.Count; i++)
+            {
+                Vector2Int villa = plan.Villas[i];
+                Landmark($"Villa sur l'eau {i + 1}", $"{buildings}/Atoll_Villa_{i % 2}.png", AtollLandmarkArt.Villa(i % 2), AtollLandmarkArt.VillaPivot, villa.x + 0.5f, villa.y);
+                MinimapBlocks.Add((new Rect(bounds.xMin + villa.x + 0.5f - 1.5f, bounds.yMin + villa.y, 3f, 2.5f), new Color(0.84f, 0.70f, 0.44f), false));
+            }
+
+            for (int i = 0; i < plan.Houses.Count; i++)
+            {
+                Vector2Int house = plan.Houses[i];
+                Landmark($"Maison en corail {i + 1}", $"{buildings}/Atoll_Maison_{i % 2}.png", AtollLandmarkArt.House(i % 2), AtollLandmarkArt.HousePivot, house.x + 0.5f, house.y);
+                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 2f, bounds.yMin + house.y - 0.1f, 4f, 2f));
+                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 2.5f, bounds.yMin + house.y + 0.1f, 5f, 0.6f));   // murets et joali
+                MinimapBlocks.Add((new Rect(bounds.xMin + house.x + 0.5f - 2f, bounds.yMin + house.y, 4f, 2.5f), i % 2 == 0 ? new Color(0.70f, 0.60f, 0.44f) : new Color(0.78f, 0.24f, 0.18f), false));
+            }
+
+            Landmark("Bar de plage", $"{buildings}/Atoll_Bar.png", AtollLandmarkArt.Bar(), AtollLandmarkArt.BarPivot, plan.Bar.x + 0.5f, plan.Bar.y);
+            obstacles.Add(new Rect(bounds.xMin + plan.Bar.x + 0.5f - 2.4f, bounds.yMin + plan.Bar.y - 0.1f, 4.8f, 1.6f));
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Bar.x + 0.5f - 2.5f, bounds.yMin + plan.Bar.y, 5f, 2.5f), new Color(0.80f, 0.66f, 0.40f), false));
+
+            GameObject dhoni = Landmark("Dhoni", $"{TilesFolder}/Atoll_Dhoni.png", AtollLandmarkArt.Dhoni(), Vector2.one * 0.5f, plan.Dhoni.x + 0.5f, plan.Dhoni.y + 0.5f, -8);
+            dhoni.GetComponent<SpriteRenderer>().spriteSortPoint = SpriteSortPoint.Center;
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Dhoni.x + 0.5f - 2f, bounds.yMin + plan.Dhoni.y + 0.1f, 4f, 0.8f), new Color(0.62f, 0.42f, 0.26f), false));
+            Landmark("Balançoire du lagon", $"{TilesFolder}/Atoll_Balancoire.png", AtollLandmarkArt.Swing(), AtollLandmarkArt.SwingPivot, plan.Swing.x + 0.5f, plan.Swing.y);
+
+            // Torches de bambou (le nom contient « Lampadaire » : elles s'allument la nuit).
+            Tile torch = SaveTile("Decor/Lampadaire_TorcheAtoll", AtollLandmarkArt.Torch(), AtollLandmarkArt.TorchPivot, TileArt.Size);
+            foreach (Vector2Int t in plan.Torches)
+            {
+                decorMap.SetTile(Cell(t.x, t.y), torch);
+                obstacles.Add(new Rect(bounds.xMin + t.x + 0.3f, bounds.yMin + t.y + 0.3f, 0.4f, 0.3f));
+            }
+
+            // Coraux sur le platier et les pâtés du lagon, vus à travers l'eau (jamais sous la passerelle ni près du ponton).
+            var dockCell = new Vector2(dock.Area.center.x - bounds.xMin, dock.Area.center.y - bounds.yMin);
             for (int y = 1; y < height - 1; y++)
             {
                 for (int x = 1; x < width - 1; x++)
                 {
                     float hash = IslandGenerator.CellHash(x, y, seed + 7);
-                    if (reef[x, y] && !taken[x, y] && hash < 0.16f)
-                    {
-                        decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tiles.Lilies[Mathf.FloorToInt(hash / 0.16f * 4f) % 4]);
-                    }
+                    var here = new Vector2Int(x, y);
+                    bool clear = plan.JettyStem.Contains(here) || plan.JettyArm.Contains(here) || (Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 5);
+                    if (plan.Reef[x, y] && !clear && hash < 0.2f) decorMap.SetTile(Cell(x, y), tiles.Lilies[Mathf.FloorToInt(hash / 0.2f * 4f) % 4]);
                 }
             }
 
-            // Cocoteraie sur l'herbe et quelques cocotiers en haut des plages.
-            var trees = new List<Vector2Int>();
-            for (int y = 0; y < height; y++)
+            // Végétation : cocotiers droits et penchés, frangipaniers (solides), buissons de veloutier, fleurs, coquillages.
+            Tile[] palms = { SaveTile("Atoll_Cocotier_0", AtollTerrainArt.Palm(0, 0), AtollTerrainArt.PalmPivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Atoll_Cocotier_1", AtollTerrainArt.Palm(0, 1), AtollTerrainArt.PalmPivot, VolumeCanvas.PixelsPerUnit) };
+            Tile[] leaning = { SaveTile("Atoll_CocotierPenche_0", AtollTerrainArt.Palm(-1, 0), AtollTerrainArt.PalmPivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Atoll_CocotierPenche_1", AtollTerrainArt.Palm(1, 1), AtollTerrainArt.PalmPivot, VolumeCanvas.PixelsPerUnit) };
+            Tile frangipani = SaveTile("Atoll_Frangipanier", AtollTerrainArt.Frangipani(), AtollTerrainArt.FrangipaniPivot, VolumeCanvas.PixelsPerUnit);
+            Tile[] bushes = { SaveTile("Decor/Atoll_Veloutier_0", AtollTerrainArt.Bush(0), AtollTerrainArt.BushPivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Decor/Atoll_Veloutier_1", AtollTerrainArt.Bush(1), AtollTerrainArt.BushPivot, VolumeCanvas.PixelsPerUnit) };
+            foreach ((Vector2Int cell, AtollPlan.Plant kind, int variant) in plan.Plants)
             {
-                for (int x = 0; x < width; x++)
+                switch (kind)
                 {
-                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 3 && Mathf.Abs(y - dockCell.y) <= 9;
-                    if (nearDock || terrain[x, y] == TerrainType.Water) continue;
-                    float hash = IslandGenerator.CellHash(x, y, seed + 1);
-                    bool grove = terrain[x, y] == TerrainType.Grass && hash < 0.12f;
-                    bool beach = terrain[x, y] == TerrainType.Sand && hash < 0.03f;
-                    if (!grove && !beach) continue;
-                    if (trees.Exists(o => Mathf.Abs(o.x - x) < 3 && Mathf.Abs(o.y - y) < 3)) continue;
-                    trees.Add(new Vector2Int(x, y));
-                    obstacles.Add(TownLayout.PalmFootprint(new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f)));
-                    decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tiles.Palm);
+                    case AtollPlan.Plant.Palm: decorMap.SetTile(Cell(cell.x, cell.y), palms[variant]); break;
+                    case AtollPlan.Plant.LeaningPalm: decorMap.SetTile(Cell(cell.x, cell.y), leaning[variant]); break;
+                    case AtollPlan.Plant.Frangipani: decorMap.SetTile(Cell(cell.x, cell.y), frangipani); break;
+                    case AtollPlan.Plant.Bush: decorMap.SetTile(Cell(cell.x, cell.y), bushes[variant]); break;
                 }
+
+                if (kind != AtollPlan.Plant.Bush) obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
             }
+
+            Tile[] flowers = { SaveTile("Decor/Hibiscus", AtollTerrainArt.Flowers(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Decor/Ipomee", AtollTerrainArt.Flowers(1), Vector2.one * 0.5f, TileArt.Size) };
+            foreach (Vector2Int f in plan.Flowers) decorMap.SetTile(Cell(f.x, f.y), flowers[(f.x + f.y) % 2]);
+            Tile[] shells = { SaveTile("Decor/Atoll_Coquillages", AtollTerrainArt.Shells(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Decor/Atoll_CorailBlanchi", AtollTerrainArt.Shells(1), Vector2.one * 0.5f, TileArt.Size) };
+            foreach (Vector2Int s in plan.Shells) decorMap.SetTile(Cell(s.x, s.y), shells[(s.x + s.y) % 2]);
 
             return dock;
         }
+
+        /// <summary>Planches de la passerelle des villas (on y marche comme sur un ponton) ; posées par <see cref="BuildAtoll"/>.</summary>
+        private static readonly List<Rect> AtollJetty = new List<Rect>();
 
         /// <summary>La vie de l'atoll : raies et tortues sous l'eau du lagon, bernard-l'ermite, papillons, poissons volants, frégate.</summary>
         private static void BuildAtollLife(Transform root, WorldMap map, Transform player, Rect dock)
@@ -3103,7 +3171,6 @@ namespace FishAndChill.Editor
             foreach (Tile t in atollTiles.Deep) entries.Add((t, new Color(0.08f, 0.34f, 0.66f)));
             foreach (Tile t in atollTiles.Sand) entries.Add((t, new Color(0.98f, 0.97f, 0.92f)));
             foreach (Tile t in atollTiles.Grass) entries.Add((t, new Color(0.30f, 0.62f, 0.30f)));
-            entries.Add((atollTiles.Rocks[0], new Color(0.70f, 0.56f, 0.34f)));
 
             // Arbres et décor des zones redessinées (tuiles créées pendant la construction des zones).
             void Named(string tileName, Color color)
@@ -3129,6 +3196,15 @@ namespace FishAndChill.Editor
             Named("Baie_Cerisier", new Color(0.96f, 0.72f, 0.80f));
             Named("Baie_Erable", new Color(0.84f, 0.22f, 0.14f));
             Named("Decor/Lampadaire_ToroPierre", new Color(0.70f, 0.70f, 0.66f));
+            for (int i = 0; i < 2; i++)
+            {
+                Named($"Atoll_Cocotier_{i}", new Color(0.18f, 0.48f, 0.20f));
+                Named($"Atoll_CocotierPenche_{i}", new Color(0.18f, 0.48f, 0.20f));
+                Named($"Decor/Atoll_Veloutier_{i}", new Color(0.42f, 0.66f, 0.32f));
+            }
+
+            Named("Atoll_Frangipanier", new Color(0.96f, 0.92f, 0.80f));
+            Named("Decor/Lampadaire_TorcheAtoll", new Color(0.96f, 0.62f, 0.20f));
             Sprite dockIcon = PixelArt.Save("Assets/_Project/Art/UI/IconePonton.png", LakeArt.BoatIcon(), TileArt.Size, Vector2.one * 0.5f);
 
             var so = new SerializedObject(minimap);
