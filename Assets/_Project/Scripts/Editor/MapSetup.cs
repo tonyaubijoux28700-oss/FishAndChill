@@ -1609,7 +1609,7 @@ namespace FishAndChill.Editor
         /// <summary>
         /// Dessine l'atoll d'après son plan (<see cref="AtollPlan"/>) : océan profond, lagon et platier turquoise (coraux à
         /// travers l'eau), îles de sable blanc et cocoteraie, chemin de sable corallien, passerelle sur pilotis en T et ses
-        /// villas sur l'eau, maisons en pierre de corail, bar de plage, torches, dhoni, balançoire, banc de sable ; puis le
+        /// villas sur l'eau, maisons en pierre de corail, bar de plage, torches, dhoni, banc de sable ; puis le
         /// ponton des voyages.
         /// </summary>
         private static DockInfo BuildAtoll(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
@@ -1696,9 +1696,9 @@ namespace FishAndChill.Editor
             {
                 Vector2Int house = plan.Houses[i];
                 Landmark($"Maison en corail {i + 1}", $"{buildings}/Atoll_Maison_{i % 2}.png", AtollLandmarkArt.House(i % 2), AtollLandmarkArt.HousePivot, house.x + 0.5f, house.y);
-                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 2.4f, bounds.yMin + house.y - 0.1f, 4.8f, 2.4f));
-                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 3f, bounds.yMin + house.y + 0.1f, 6f, 0.7f));   // murets et joali
-                MinimapBlocks.Add((new Rect(bounds.xMin + house.x + 0.5f - 2.5f, bounds.yMin + house.y, 5f, 3f), i % 2 == 0 ? new Color(0.70f, 0.60f, 0.44f) : new Color(0.78f, 0.24f, 0.18f), false));
+                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 3.1f, bounds.yMin + house.y - 0.1f, 6.2f, 3.2f));
+                obstacles.Add(new Rect(bounds.xMin + house.x + 0.5f - 4f, bounds.yMin + house.y + 0.1f, 8f, 0.8f));   // murets et joali
+                MinimapBlocks.Add((new Rect(bounds.xMin + house.x + 0.5f - 3.2f, bounds.yMin + house.y, 6.4f, 3.6f), i % 2 == 0 ? new Color(0.70f, 0.60f, 0.44f) : new Color(0.78f, 0.24f, 0.18f), false));
             }
 
             Landmark("Bar de plage", $"{buildings}/Atoll_Bar.png", AtollLandmarkArt.Bar(), AtollLandmarkArt.BarPivot, plan.Bar.x + 0.5f, plan.Bar.y);
@@ -1708,7 +1708,6 @@ namespace FishAndChill.Editor
             GameObject dhoni = Landmark("Dhoni", $"{TilesFolder}/Atoll_Dhoni.png", AtollLandmarkArt.Dhoni(), Vector2.one * 0.5f, plan.Dhoni.x + 0.5f, plan.Dhoni.y + 0.5f, -8);
             dhoni.GetComponent<SpriteRenderer>().spriteSortPoint = SpriteSortPoint.Center;
             MinimapBlocks.Add((new Rect(bounds.xMin + plan.Dhoni.x + 0.5f - 2f, bounds.yMin + plan.Dhoni.y + 0.1f, 4f, 0.8f), new Color(0.62f, 0.42f, 0.26f), false));
-            Landmark("Balançoire du lagon", $"{TilesFolder}/Atoll_Balancoire.png", AtollLandmarkArt.Swing(), AtollLandmarkArt.SwingPivot, plan.Swing.x + 0.5f, plan.Swing.y);
 
             // Torches de bambou (le nom contient « Lampadaire » : elles s'allument la nuit).
             Tile torch = SaveTile("Decor/Lampadaire_TorcheAtoll", AtollLandmarkArt.Torch(), AtollLandmarkArt.TorchPivot, TileArt.Size);

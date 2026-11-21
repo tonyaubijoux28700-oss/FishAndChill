@@ -8,8 +8,8 @@ namespace FishAndChill.World
     /// anneau de récif (platier de corail) autour d'un grand lagon turquoise, coupé de passes vers l'océan profond ; sur
     /// l'anneau, l'île habitée au nord (plage de sable blanc, cocoteraie, chemin de sable corallien, deux maisons en pierre
     /// de corail, bar de plage, torches), un îlot sauvage à l'est, un au sud-ouest et une langue de sable au sud ; dans le
-    /// lagon, une longue passerelle sur pilotis en T bordée de villas sur l'eau (on y marche et on y pêche), une balançoire
-    /// plantée dans l'eau, un dhoni amarré, un banc de sable avec son unique cocotier et des pâtés de corail. Logique pure
+    /// lagon, une longue passerelle sur pilotis en T bordée de villas sur l'eau (on y marche et on y pêche),
+    /// un dhoni amarré, un banc de sable avec son unique cocotier et des pâtés de corail. Logique pure
     /// (testée) ; dessiné par <c>MapSetup.BuildAtoll</c>.
     /// </summary>
     public sealed class AtollPlan
@@ -50,7 +50,6 @@ namespace FishAndChill.World
 
         public readonly List<Vector2Int> Houses = new List<Vector2Int>();   // pied (porte) des maisons en pierre de corail
         public Vector2Int Bar;              // pied du bar de plage
-        public Vector2Int Swing;            // balançoire plantée dans le lagon
         public Vector2Int Dhoni;            // dhoni amarré (case d'eau du milieu)
         public Vector2Int Sandbank;         // cocotier du banc de sable
 
@@ -212,7 +211,6 @@ namespace FishAndChill.World
             Houses.Add(new Vector2Int(21, 52));
             Houses.Add(new Vector2Int(37, 52));
             Bar = new Vector2Int(55, ShoreBelow(55, 50) + 1);
-            Swing = new Vector2Int(38, ShoreBelow(38, 50) - 4);
             Dhoni = new Vector2Int(21, ShoreBelow(21, 50) - 3);
             Sandbank = new Vector2Int(57, 24);
 
@@ -324,7 +322,7 @@ namespace FishAndChill.World
                 }
             }
 
-            foreach (Vector2Int house in Houses) Mark(house.x - 4, house.y - 1, house.x + 4, house.y + 5);
+            foreach (Vector2Int house in Houses) Mark(house.x - 5, house.y - 1, house.x + 5, house.y + 7);
             Mark(Bar.x - 3, Bar.y - 1, Bar.x + 3, Bar.y + 3);
             Mark(DockFoot.x - 1, DockFoot.y - 7, DockFoot.x + 4, DockFoot.y + 2);
             Mark(JettyX - 1, JettyStem.yMax - 2, JettyX + 2, JettyStem.yMax + 1);

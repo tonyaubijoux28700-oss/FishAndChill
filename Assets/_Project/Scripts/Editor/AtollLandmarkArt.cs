@@ -6,7 +6,7 @@ namespace FishAndChill.Editor
     /// <summary>
     /// Les repères de l'atoll des Maldives, dans le style en volume (32 px par case, y depuis le haut pendant le dessin) :
     /// villa sur l'eau à piscine privée, maison en pierre de corail (toit de feuilles tressées ou de tôle rouge), bar de
-    /// plage sous chaume, dhoni (bateau traditionnel à haute proue), balançoire plantée dans le lagon ; la passerelle sur
+    /// plage sous chaume, dhoni (bateau traditionnel à haute proue) ; la passerelle sur
     /// pilotis et les torches de bambou (16 px par case, comme le sol).
     /// </summary>
     public static class AtollLandmarkArt
@@ -105,16 +105,16 @@ namespace FishAndChill.Editor
             cv.Piece(Box(1, 79, 95, 86), TeakDark, 2f, (x, y, c) => x % 12 == 0 ? Darker(c, 0.7f) : c);
 
             // Piscine privée sur la terrasse, rebord de pierre claire.
-            cv.Piece(Box(62, 66, 93, 78), Coral, 1.5f);
-            cv.Piece(Box(64, 68, 91, 77), Pool, 1f, (x, y, c) => (x + y * 3) % 11 == 0 ? C(0.86f, 1f, 1f) : y > 74 ? Darker(c, 0.85f) : c);
+            cv.Piece(Box(69, 66, 94, 78), Coral, 1.5f);
+            cv.Piece(Box(71, 68, 92, 77), Pool, 1f, (x, y, c) => (x + y * 3) % 11 == 0 ? C(0.86f, 1f, 1f) : y > 74 ? Darker(c, 0.85f) : c);
 
             // Murs de lattes claires, baie vitrée et petite fenêtre.
-            cv.Piece(Box(6, 34, 60, 68), Driftwood, 2.5f, (x, y, c) => x % 4 == 0 ? Darker(c, 0.84f) : c);
-            cv.Piece(Box(12, 42, 40, 68), Glass, 1.5f,
-                (x, y, c) => x == 26 || x == 12 || x == 39 ? TeakDark : (x - 12) - (68 - y) / 2 is int d && d > 2 && d < 6 ? C(0.92f, 0.98f, 1f) : y > 62 ? Darker(c, 0.85f) : c);
-            cv.Piece(Box(45, 44, 56, 56), Glass, 1.5f, (x, y, c) => x == 50 || y == 50 ? TeakDark : c);
+            cv.Piece(Box(13, 34, 67, 68), Driftwood, 2.5f, (x, y, c) => x % 4 == 0 ? Darker(c, 0.84f) : c);
+            cv.Piece(Box(19, 42, 47, 68), Glass, 1.5f,
+                (x, y, c) => x == 33 || x == 19 || x == 46 ? TeakDark : (x - 19) - (68 - y) / 2 is int d && d > 2 && d < 6 ? C(0.92f, 0.98f, 1f) : y > 62 ? Darker(c, 0.85f) : c);
+            cv.Piece(Box(52, 44, 63, 56), Glass, 1.5f, (x, y, c) => x == 57 || y == 50 ? TeakDark : c);
             // Lanterne suspendue près de la porte.
-            cv.Piece(Box(41, 44, 44, 50), C(1f, 0.84f, 0.42f), 1f);
+            cv.Piece(Box(48, 44, 51, 50), C(1f, 0.84f, 0.42f), 1f);
 
             // Toit de chaume en croupe, qui déborde sur la terrasse.
             cv.Piece((x, y) => y > 4 && y < 40 && Mathf.Abs(x - 40f) < 11f + (y - 4f) * 0.75f, Thatch, 6f, ThatchTexture);
@@ -128,71 +128,75 @@ namespace FishAndChill.Editor
 
         // ---------- Maison en pierre de corail ----------
 
-        public const int HouseWidth = 192;
-        public const int HouseHeight = 176;
+        public const int HouseWidth = 256;
+        public const int HouseHeight = 224;
         public static readonly Vector2 HousePivot = new Vector2(0.5f, 6f / HouseHeight);
 
         /// <summary>
-        /// Maison des Maldives (6 × 5,5 cases, aussi imposante que la maison du joueur) : hauts murs de pierre de corail
-        /// chaulés (pores), frise de corail sculpté sous le toit, soubassement gris, porte à deux battants sous un petit
-        /// auvent, grandes fenêtres à volets turquoise, muret de corail de part et d'autre, joali (siège de cordes) devant le
-        /// muret ; <paramref name="variant"/> 0 : haut toit de feuilles de cocotier tressées, 1 : toit de tôle ondulée rouge.
+        /// Grande maison des Maldives (8 × 7 cases) : hauts murs de pierre de corail chaulés (pores), frise de corail sculpté
+        /// sous le toit, soubassement gris, porte à deux battants sous un auvent, deux grandes fenêtres à volets turquoise et
+        /// jardinières, murets de corail de part et d'autre, joali (siège de cordes) devant le muret de droite ; murs et toit
+        /// centrés sur le même axe. <paramref name="variant"/> 0 : haut toit de feuilles de cocotier tressées, 1 : toit de
+        /// tôle ondulée rouge.
         /// </summary>
         public static Color[,] House(int variant)
         {
+            const float axis = 128f;
             var cv = new VolumeCanvas(HouseWidth, HouseHeight);
             System.Func<int, int, Color, Color> pores = (x, y, c) =>
             {
                 int h = (x * 7 + y * 13) % 23;
-                return h == 0 ? Darker(c, 0.78f) : h == 5 ? Darker(c, 0.88f) : y > 158 ? Darker(c, 0.82f) : c;
+                return h == 0 ? Darker(c, 0.78f) : h == 5 ? Darker(c, 0.88f) : y > 204 ? Darker(c, 0.82f) : c;
             };
 
             // Murets de corail.
-            cv.Piece(Box(0, 144, 28, 168), Coral, 2.5f, pores);
-            cv.Piece(Box(164, 144, 192, 168), Coral, 2.5f, pores);
+            cv.Piece(Box(0, 186, 34, 214), Coral, 2.5f, pores);
+            cv.Piece(Box(222, 186, 256, 214), Coral, 2.5f, pores);
 
             // Murs, frise sculptée, soubassement.
-            cv.Piece(Box(22, 82, 170, 168), Coral, 3f, pores);
-            cv.Piece(Box(22, 84, 170, 92), C(0.88f, 0.86f, 0.80f), 1.5f, (x, y, c) => (x + (y % 2) * 3) % 6 == 0 ? Darker(c, 0.75f) : c);
-            cv.Piece(Box(22, 158, 170, 168), C(0.72f, 0.72f, 0.70f), 1.5f, (x, y, c) => x % 12 == 0 ? Darker(c, 0.8f) : c);
+            cv.Piece(Box(28, 104, 228, 214), Coral, 3.5f, pores);
+            cv.Piece(Box(28, 106, 228, 116), C(0.88f, 0.86f, 0.80f), 1.5f, (x, y, c) => (x + (y % 2) * 3) % 6 == 0 ? Darker(c, 0.75f) : c);
+            cv.Piece(Box(28, 202, 228, 214), C(0.72f, 0.72f, 0.70f), 1.5f, (x, y, c) => x % 14 == 0 ? Darker(c, 0.8f) : c);
 
-            // Porte à deux battants sous un petit auvent.
-            cv.Piece(Box(80, 112, 112, 168), Turquoise, 2f, (x, y, c) => x == 96 ? Darker(c, 0.7f) : (x - 80) % 6 == 0 ? Darker(c, 0.86f) : y == 124 ? Darker(c, 0.8f) : c);
-            cv.Dot(93, 140, C(0.96f, 0.84f, 0.40f));
-            cv.Dot(99, 140, C(0.96f, 0.84f, 0.40f));
-            cv.Piece(Box(72, 102, 120, 112), variant == 1 ? C(0.74f, 0.20f, 0.16f) : C(0.66f, 0.56f, 0.40f), 3f, (x, y, c) => x % 4 == 0 ? Darker(c, 0.8f) : c);
+            // Porte à deux battants sous un auvent.
+            cv.Piece(Box(axis - 22, 142, axis + 22, 214), Turquoise, 2.5f,
+                (x, y, c) => x == (int)axis ? Darker(c, 0.7f) : (x - (int)axis) % 7 == 0 ? Darker(c, 0.86f) : y == 158 ? Darker(c, 0.8f) : c);
+            cv.Dot((int)axis - 4, 180, C(0.96f, 0.84f, 0.40f));
+            cv.Dot((int)axis + 3, 180, C(0.96f, 0.84f, 0.40f));
+            cv.Piece(Box(axis - 34, 128, axis + 34, 142), variant == 1 ? C(0.74f, 0.20f, 0.16f) : C(0.66f, 0.56f, 0.40f), 3.5f, (x, y, c) => x % 4 == 0 ? Darker(c, 0.8f) : c);
 
-            // Grandes fenêtres à volets turquoise et pots de fleurs.
-            foreach (int wx in new[] { 36, 130 })
+            // Deux grandes fenêtres à volets turquoise, symétriques, et leurs jardinières.
+            foreach (float wc in new[] { axis - 66f, axis + 66f })
             {
-                cv.Piece(Box(wx + 6, 106, wx + 22, 138), C(0.16f, 0.14f, 0.14f), 1f, (x, y, c) => x == wx + 14 || y == 122 ? C(0.36f, 0.30f, 0.26f) : c);
-                cv.Piece(Box(wx - 3, 104, wx + 7, 140), Turquoise, 1.5f, (x, y, c) => y % 4 == 0 ? Darker(c, 0.8f) : c);
-                cv.Piece(Box(wx + 21, 104, wx + 31, 140), Turquoise, 1.5f, (x, y, c) => y % 4 == 0 ? Darker(c, 0.8f) : c);
-                cv.Piece(Box(wx + 2, 139, wx + 26, 144), Coral, 1.5f);   // appui
-                cv.Piece(Box(wx + 6, 144, wx + 22, 152), C(0.70f, 0.40f, 0.26f), 1.5f);   // jardinière
-                for (int f = 0; f < 4; f++) cv.Piece(Ellipse(wx + 8 + f * 4, 143f, 2.2f, 2.2f), f % 2 == 0 ? C(0.92f, 0.20f, 0.24f) : C(0.98f, 0.82f, 0.30f), 1f);
+                int wx = (int)wc;
+                cv.Piece(Box(wx - 13, 134, wx + 13, 178), C(0.16f, 0.14f, 0.14f), 1f, (x, y, c) => x == wx || y == 156 ? C(0.36f, 0.30f, 0.26f) : c);
+                cv.Piece(Box(wx - 25, 132, wx - 12, 180), Turquoise, 1.5f, (x, y, c) => y % 4 == 0 ? Darker(c, 0.8f) : c);
+                cv.Piece(Box(wx + 12, 132, wx + 25, 180), Turquoise, 1.5f, (x, y, c) => y % 4 == 0 ? Darker(c, 0.8f) : c);
+                cv.Piece(Box(wx - 16, 178, wx + 16, 184), Coral, 1.5f);   // appui
+                cv.Piece(Box(wx - 12, 184, wx + 12, 194), C(0.70f, 0.40f, 0.26f), 1.5f);   // jardinière
+                for (int f = 0; f < 5; f++) cv.Piece(Ellipse(wx - 10 + f * 5, 183f, 2.6f, 2.6f), f % 2 == 0 ? C(0.92f, 0.20f, 0.24f) : C(0.98f, 0.82f, 0.30f), 1f);
             }
 
-            // Haut toit à quatre pans qui déborde.
-            System.Func<float, float, bool> roof = (x, y) => y > 14 && y < 88 && Mathf.Abs(x - 96f) < 44f + (y - 14f) * 0.64f;
+            // Haut toit à quatre pans qui déborde, centré sur les murs.
+            System.Func<float, float, bool> roof = (x, y) => y > 18 && y < 112 && Mathf.Abs(x - axis) < 58f + (y - 18f) * 0.68f;
             if (variant == 1)
             {
-                cv.Piece(roof, C(0.74f, 0.20f, 0.16f), 6f, (x, y, c) => x % 5 == 0 ? Darker(c, 0.72f) : x % 5 == 1 ? Darker(c, 1.15f) : (x * 3 + y * 5) % 37 == 0 ? C(0.56f, 0.30f, 0.22f) : c);
-                cv.Piece(Box(50, 9, 142, 17), C(0.62f, 0.62f, 0.64f), 2f);
+                cv.Piece(roof, C(0.74f, 0.20f, 0.16f), 7f, (x, y, c) => x % 5 == 0 ? Darker(c, 0.72f) : x % 5 == 1 ? Darker(c, 1.15f) : (x * 3 + y * 5) % 37 == 0 ? C(0.56f, 0.30f, 0.22f) : c);
+                cv.Piece(Box(axis - 62, 12, axis + 62, 22), C(0.62f, 0.62f, 0.64f), 2.5f);
             }
             else
             {
-                cv.Piece(roof, C(0.66f, 0.56f, 0.40f), 7f, (x, y, c) => ((x / 3) + (y / 3)) % 2 == 0 ? Darker(c, 0.84f) : (x * 5 + y) % 11 == 0 ? Darker(c, 1.12f) : y % 12 == 0 ? Darker(c, 0.78f) : c);
-                cv.Piece(Box(50, 9, 142, 18), C(0.52f, 0.42f, 0.30f), 2.5f);
+                cv.Piece(roof, C(0.66f, 0.56f, 0.40f), 8f, (x, y, c) => ((x / 3) + (y / 3)) % 2 == 0 ? Darker(c, 0.84f) : (x * 5 + y) % 11 == 0 ? Darker(c, 1.12f) : y % 12 == 0 ? Darker(c, 0.78f) : c);
+                cv.Piece(Box(axis - 62, 12, axis + 62, 23), C(0.52f, 0.42f, 0.30f), 3f);
             }
 
             // Joali : siège de cordes tendues sur un cadre de bois, devant le muret de droite.
-            cv.Piece(Union(Box(168, 138, 171, 172), Box(184, 138, 187, 172), Box(167, 136, 188, 140)), TeakDark, 1.5f);
-            cv.Piece((x, y) => x > 170 && x < 185 && y > 148 && y < 160 + Mathf.Sin((x - 170f) / 15f * Mathf.PI) * 4f, C(0.92f, 0.82f, 0.56f), 1.5f,
+            cv.Piece(Union(Box(226, 178, 230, 220), Box(248, 178, 252, 220), Box(225, 175, 253, 180)), TeakDark, 1.5f);
+            cv.Piece((x, y) => x > 229 && x < 249 && y > 192 && y < 206 + Mathf.Sin((x - 229f) / 20f * Mathf.PI) * 5f, C(0.92f, 0.82f, 0.56f), 1.5f,
                 (x, y, c) => (x + y) % 3 == 0 ? Darker(c, 0.78f) : c);
 
             Color[,] p = cv.Finish(Ink);
-            Shadow(p, 96f, 5f, 92f, 5f, C(0.06f, 0.14f, 0.08f, 0.3f));
+            Shadow(p, axis, 5f, 124f, 5f, C(0.06f, 0.14f, 0.08f, 0.3f));
             return p;
         }
 
@@ -305,26 +309,6 @@ namespace FishAndChill.Editor
                 }
             }
 
-            return p;
-        }
-
-        // ---------- Balançoire dans le lagon ----------
-
-        public const int SwingWidth = 64;
-        public const int SwingHeight = 104;
-        public static readonly Vector2 SwingPivot = new Vector2(0.5f, 8f / SwingHeight);
-
-        /// <summary>Balançoire plantée dans le lagon : portique de bois flotté, cordes, siège de planche, ronds d'eau aux pieds.</summary>
-        public static Color[,] Swing()
-        {
-            var cv = new VolumeCanvas(SwingWidth, SwingHeight);
-            cv.Piece(Union(Capsule(10f, 96f, 14f, 10f, 2.6f), Capsule(54f, 96f, 50f, 10f, 2.6f)), Driftwood, 2.5f, (x, y, c) => (x * 3 + y) % 7 == 0 ? Darker(c, 0.8f) : c);
-            cv.Piece(Box(4, 5, 60, 12), Driftwood, 2.5f, (x, y, c) => x % 9 == 0 ? Darker(c, 0.8f) : c);
-            cv.Piece(Union(Box(22, 12, 23.5f, 72), Box(40.5f, 12, 42, 72)), C(0.86f, 0.76f, 0.54f), 0.8f, (x, y, c) => y % 3 == 0 ? Darker(c, 0.8f) : c);
-            cv.Piece(Box(17, 70, 47, 76), Teak, 2f);
-            Color[,] p = cv.Finish(Ink);
-            Ripple(p, 11f, 8f, 7f);
-            Ripple(p, 53f, 8f, 7f);
             return p;
         }
 

@@ -98,7 +98,6 @@ namespace FishAndChill.Tests
 
             Assert.That(seen[Plan.Bar.x, Plan.Bar.y - 1], Is.True, "devant le bar");
             Assert.That(seen[Plan.JettyArm.xMin, Plan.JettyArm.yMin], Is.True, "bout de la passerelle des villas");
-            Assert.That(Plan.Terrain[Plan.Swing.x, Plan.Swing.y], Is.EqualTo(TerrainType.Water));
             Assert.That(Plan.Terrain[Plan.Dhoni.x, Plan.Dhoni.y], Is.EqualTo(TerrainType.Water));
             Assert.That(Plan.Terrain[Plan.Sandbank.x, Plan.Sandbank.y], Is.EqualTo(TerrainType.Sand), "le banc de sable");
         }

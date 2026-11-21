@@ -77,12 +77,12 @@
 - **Atoll des Maldives** (6e zone, région 5, océan Indien) : plan dessiné `World/AtollPlan` (90×64 cases, testé : anneau
   de récif (platier, coraux à travers l'eau) autour d'un grand lagon turquoise, coupé de **3 passes** où entre l'océan
   profond ; pâtés de corail dans le lagon ; **île habitée** au nord (plage de sable blanc plus large côté lagon, cocoteraie,
-  chemin de sable corallien bordé de **torches de bambou** allumées la nuit, deux grandes **maisons en pierre de corail** chaulée (6 × 5,5 cases, plus imposantes que la maison du joueur)
+  chemin de sable corallien bordé de **torches de bambou** allumées la nuit, deux grandes **maisons en pierre de corail** chaulée (8 × 7 cases, bien plus imposantes que la maison du joueur)
   à volets turquoise, l'une sous un toit de feuilles tressées, l'autre sous la tôle rouge, avec muret et joali, frangipaniers
   autour, **bar de plage** sous chaume au bout de la plage est) ; îlot sauvage à l'est, îlot au sud-ouest, langue de sable
   au sud, **banc de sable** et son unique cocotier au milieu du lagon ; **passerelle sur pilotis en T** qui part de la plage,
-  praticable (`AtollJetty`, on y pêche), bordée de **6 villas sur l'eau** à piscine privée ; balançoire plantée dans le
-  lagon, **dhoni** amarré), à `AtollGap` = 20 cases à l'est de la Grande Barrière, `MapSetup.BuildAtoll` (tuiles `AtollArt` :
+  praticable (`AtollJetty`, on y pêche), bordée de **6 villas sur l'eau** à piscine privée ;
+  **dhoni** amarré dans le lagon), à `AtollGap` = 20 cases à l'est de la Grande Barrière, `MapSetup.BuildAtoll` (tuiles `AtollArt` :
   océan bleu profond, lagon, sable de corail, végétation ; cocotiers droits et penchés vers l'eau, frangipanier, veloutier,
   hibiscus, ipomée, coquillages et chemin dans `AtollTerrainArt` ; repères, passerelle et torches dans `AtollLandmarkArt`).
   Ponton des voyages au bout du chemin, vers le sud, dans le lagon. `AtollGenerator` n'est plus utilisé. Vie (`BuildAtollLife`) : raies et tortues sous l'eau, bernard-l'ermite, papillons,
