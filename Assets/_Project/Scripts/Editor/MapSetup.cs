@@ -325,7 +325,7 @@ namespace FishAndChill.Editor
             // La côte de la Grande Barrière, à l'est de la baie.
             TileSet reefTiles = CreateReefTiles();
             var reefBounds = new BoundsInt(japanBounds.xMax + ReefGap, -ReefSettings.Height / 2, 0, ReefSettings.Width, ReefSettings.Height, 1);
-            DockInfo reefDock = BuildReef(mapObject.transform, reefBounds, reefTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, decorMap, staticObstacles);
+            DockInfo reefDock = BuildReef(mapObject.transform, reefBounds, reefTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
 
             // L'atoll des Maldives, à l'est de la Grande Barrière.
             TileSet atollTiles = CreateAtollTiles(tiles, reefTiles);
@@ -354,7 +354,7 @@ namespace FishAndChill.Editor
             var atollRegion = new Rect(atollBounds.xMin, atollBounds.yMin, atollBounds.size.x, atollBounds.size.y);
             var skeletonRegion = new Rect(skeletonBounds.xMin, skeletonBounds.yMin, skeletonBounds.size.x, skeletonBounds.size.y);
             worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion, skeletonRegion },
-                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, skeletonDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea }.Concat(AtollJetty));
+                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, skeletonDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea, ReefBridgeArea }.Concat(AtollJetty));
             BuildSkeletonLife(mapObject.transform, worldMap, player.transform, skeletonDock.Area);
             BuildAtollLife(mapObject.transform, worldMap, player.transform, atollDock.Area);
             BuildReefLife(mapObject.transform, worldMap, player.transform, reefDock.Area);
@@ -1386,7 +1386,7 @@ namespace FishAndChill.Editor
         /// <summary>Le pont rouge de la baie (on y marche comme sur un ponton) ; posé par <see cref="BuildJapan"/>.</summary>
         private static Rect JapanBridgeArea;
 
-        /// <summary>Tuiles du récif : celles de l'île recolorées (mer de corail, sable blanc, brousse), arbres et coraux.</summary>
+        /// <summary>Tuiles du récif : celles de l'île recolorées (mer de corail, sable blanc, brousse), eucalyptus, pandanus, palétuvier (en volume) et coraux.</summary>
         private static TileSet CreateReefTiles()
         {
             var set = new TileSet { Deep = new Tile[2], Shallow = new Tile[2], Sand = new Tile[3], Grass = new Tile[3] };
@@ -1402,11 +1402,11 @@ namespace FishAndChill.Editor
                 set.Grass[i] = SaveTile($"Recif_Brousse_{i}", ReefArt.Bush(TileArt.Grass(i)), Vector2.one * 0.5f, TileArt.Size);
             }
 
-            set.Palm = SaveTile("Eucalyptus", ReefArt.Eucalyptus(), ReefArt.TreePivot, TileArt.Size);
+            set.Palm = SaveTile("Eucalyptus", ReefTerrainArt.Eucalyptus(0), ReefTerrainArt.EucalyptusPivot, VolumeCanvas.PixelsPerUnit);
             set.Rocks = new[]
             {
-                SaveTile("Pandanus", ReefArt.Pandanus(), ReefArt.TreePivot, TileArt.Size),
-                SaveTile("Paletuvier", ReefArt.Mangrove(), ReefArt.TreePivot, TileArt.Size),
+                SaveTile("Pandanus", ReefTerrainArt.Pandanus(0), ReefTerrainArt.PandanusPivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Paletuvier", ReefTerrainArt.Mangrove(0), ReefTerrainArt.MangrovePivot, VolumeCanvas.PixelsPerUnit),
             };
             set.Lilies = new[]
             {
@@ -1449,16 +1449,24 @@ namespace FishAndChill.Editor
             return set;
         }
 
-        /// <summary>Dessine la côte du récif : plage, brousse d'eucalyptus, pandanus, mangrove de la crique, coraux au large.</summary>
+        /// <summary>
+        /// Dessine la côte de la Grande Barrière d'après son plan (<see cref="ReefPlan"/>) : mer de Corail, récif et îlot,
+        /// plage de sable blanc, estuaire aux tourbillons de sable, crique de mangrove et sa passerelle, brousse
+        /// d'eucalyptus et de termitières, forêt tropicale, cap de granit, piste de terre rouge, maison Queenslander, tour
+        /// des sauveteurs, barque en alu, plateforme de plongée ; puis le ponton.
+        /// </summary>
         private static DockInfo BuildReef(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
-            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap decorMap, List<Rect> obstacles)
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap pavingLayer, Tilemap decorMap, List<Rect> obstacles)
         {
-            TerrainType[,] terrain = ReefGenerator.Generate(ReefSettings);
-            bool[,] reef = ReefGenerator.Reef(ReefSettings, terrain);
+            ReefPlan plan = ReefPlan.Build();
+            TerrainType[,] terrain = plan.Terrain;
             int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
             int width = terrain.GetLength(0);
             int height = terrain.GetLength(1);
             int seed = ReefSettings.Seed;
+            Vector3Int Cell(int x, int y) => new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0);
+            Vector3 World(float x, float y) => new Vector3(bounds.xMin + x, bounds.yMin + y, 0f);
+            void Solid(float cx, float y, float w, float h) => obstacles.Add(new Rect(bounds.xMin + cx - w * 0.5f, bounds.yMin + y, w, h));
 
             var waterTiles = new TileBase[width * height];
             var landTiles = new TileBase[width * height];
@@ -1476,60 +1484,127 @@ namespace FishAndChill.Editor
 
             waterMap.SetTilesBlock(bounds, waterTiles);
             landMap.SetTilesBlock(bounds, landTiles);
-            // L'eau du récif est claire elle aussi : le lagon s'étend jusqu'aux coraux.
-            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance || reef[x, y], tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
+            // Eau claire près des côtes, dans l'estuaire, la crique et sur le platier du récif.
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance || plan.Lagoon[x, y], tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
             FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
             FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
 
-            // Ponton au milieu de la plage, vers le sud (le récif).
-            int cx = Mathf.RoundToInt(width * 0.4f);
-            int cy = 0;
-            while (cy < height - 2 && terrain[cx, cy] == TerrainType.Water) cy++;
-            DockInfo dock = BuildDock(mapRoot, "Ponton - Grande Barrière", terrain, bounds, new Vector2Int(cx, cy + 1), Vector2Int.down);
-            Vector2 dockCell = dock.Area.center - new Vector2(bounds.xMin, bounds.yMin);
+            // Piste de terre rouge (double grille, couche des pavés).
+            var redEarth = new TransitionArt.Style
+            {
+                Fill = ReefTerrainArt.TrackFill(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.56f, 0.26f, 0.14f), InnerBlend = 0.7f,
+                OuterBand = 0.06f, OuterColor = ReefArt.Bush(new Color(0.40f, 0.68f, 0.34f)), DitherOuter = true,
+            };
+            Tile[] trackEdges = SaveEdges("RecifPiste", redEarth);
+            Tile[] trackFull = { trackEdges[15], SaveTile("Bords/RecifPiste_15b", ReefTerrainArt.TrackFill(1), Vector2.one * 0.5f, TileArt.Size) };
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Track[x, y], trackEdges, trackFull, seed + 5, false);
 
-            var taken = new bool[width, height];
+            // Ponton au bout de la piste, vers le sud (BuildDock essaie d'abord 3 cases à droite du point donné).
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Grande Barrière", terrain, bounds, plan.DockFoot - new Vector2Int(3, 0), Vector2Int.down);
+
+            // Passerelle de planches sur la crique de mangrove : on y marche comme sur le ponton.
+            RectInt b = plan.Bridge;
+            Sprite boardwalk = PixelArt.Save($"{TilesFolder}/Recif_Passerelle.png", AtollLandmarkArt.Boardwalk(b.width, b.height), TileArt.Size, new Vector2(0f, 6f / (b.height * 16 + 6)));
+            GameObject bridgeObject = EnsureObject("Passerelle de la mangrove", mapRoot);
+            bridgeObject.transform.position = World(b.xMin, b.yMin);
+            SetSprite(bridgeObject, boardwalk, -9).spriteSortPoint = SpriteSortPoint.Center;
+            ReefBridgeArea = new Rect(bounds.xMin + b.xMin - 0.2f, bounds.yMin + b.yMin, b.width + 0.4f, b.height);
+            MinimapBlocks.Add((new Rect(bounds.xMin + b.xMin, bounds.yMin + b.yMin, b.width, b.height), new Color(0.62f, 0.44f, 0.28f), false));
+
+            // Grands repères en volume (32 px par case), triés comme le joueur.
+            GameObject Landmark(string name, string file, Color[,] pixels, Vector2 pivot, float x, float y, int order = 10)
+            {
+                Sprite sprite = PixelArt.Save(file, pixels, VolumeCanvas.PixelsPerUnit, pivot);
+                GameObject go = EnsureObject(name, mapRoot);
+                go.transform.position = World(x, y);
+                SetSprite(go, sprite, order);
+                return go;
+            }
+
+            const string buildings = "Assets/_Project/Art/Buildings";
+            Landmark("Maison Queenslander", $"{buildings}/Recif_Maison.png", ReefLandmarkArt.House(), ReefLandmarkArt.HousePivot, plan.House.x + 0.5f, plan.House.y);
+            Solid(plan.House.x + 0.5f - 0.25f, plan.House.y - 0.1f, 6f, 1.6f);         // pilotis et escalier
+            Solid(plan.House.x + 0.5f + 3.2f, plan.House.y - 0.1f, 1.2f, 1.4f);        // citerne
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.House.x + 0.5f - 3.3f, bounds.yMin + plan.House.y, 6.6f, 4f), new Color(0.66f, 0.22f, 0.18f), false));
+            Landmark("Tour des sauveteurs", $"{buildings}/Recif_TourSauveteurs.png", ReefLandmarkArt.Tower(), ReefLandmarkArt.TowerPivot, plan.Tower.x + 0.5f, plan.Tower.y);
+            Solid(plan.Tower.x + 0.5f, plan.Tower.y - 0.1f, 2.4f, 0.8f);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Tower.x + 0.5f - 1.2f, bounds.yMin + plan.Tower.y, 2.4f, 2f), new Color(0.98f, 0.80f, 0.18f), false));
+            Landmark("Barque en alu", $"{TilesFolder}/Recif_Barque.png", ReefLandmarkArt.Tinnie(), ReefLandmarkArt.TinniePivot, plan.Tinnie.x + 0.5f, plan.Tinnie.y);
+            Solid(plan.Tinnie.x + 0.5f, plan.Tinnie.y - 0.1f, 3f, 0.9f);
+            GameObject pontoon = Landmark("Plateforme de plongée", $"{TilesFolder}/Recif_Plateforme.png", ReefLandmarkArt.Pontoon(), Vector2.one * 0.5f, plan.Pontoon.x + 0.5f, plan.Pontoon.y + 0.5f, -8);
+            pontoon.GetComponent<SpriteRenderer>().spriteSortPoint = SpriteSortPoint.Center;
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Pontoon.x + 0.5f - 4f, bounds.yMin + plan.Pontoon.y, 8f, 1.6f), new Color(0.82f, 0.82f, 0.80f), false));
+
+            Tile sign = SaveTile("Decor/Recif_PanneauCrocodiles", ReefTerrainArt.CrocSign(), ReefTerrainArt.SignPivot, VolumeCanvas.PixelsPerUnit);
+            decorMap.SetTile(Cell(plan.Sign.x, plan.Sign.y), sign);
+            Solid(plan.Sign.x + 0.5f, plan.Sign.y + 0.1f, 0.4f, 0.3f);
+
+            // Coraux sur le platier, vus à travers l'eau (jamais près du ponton).
+            var dockCell = new Vector2(dock.Area.center.x - bounds.xMin, dock.Area.center.y - bounds.yMin);
             for (int y = 1; y < height - 1; y++)
             {
                 for (int x = 1; x < width - 1; x++)
                 {
                     float hash = IslandGenerator.CellHash(x, y, seed + 7);
-                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 8;
-                    if (nearDock) continue;
-                    if (reef[x, y] && hash < 0.16f)
-                    {
-                        // Coraux du récif, vus à travers l'eau.
-                        decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tiles.Lilies[Mathf.FloorToInt(hash / 0.16f * 4f) % 4]);
-                        taken[x, y] = true;
-                    }
+                    bool clear = Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 5;
+                    if (plan.Reef[x, y] && !clear && hash < 0.2f) decorMap.SetTile(Cell(x, y), tiles.Lilies[Mathf.FloorToInt(hash / 0.2f * 4f) % 4]);
                 }
             }
 
-            // Arbres : palétuviers au bord de la crique, pandanus sur le haut de la plage, eucalyptus dans la brousse.
-            var trees = new List<Vector2Int>();
-            for (int y = 0; y < height; y++)
+            // Granit rose du cap.
+            Tile[] rocks = { SaveTile("Decor/Recif_Granit_0", ReefTerrainArt.Rock(0), ReefTerrainArt.RockPivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Decor/Recif_Granit_1", ReefTerrainArt.Rock(1), ReefTerrainArt.RockPivot, VolumeCanvas.PixelsPerUnit) };
+            foreach (Vector2Int r in plan.Rocks)
             {
-                for (int x = 0; x < width; x++)
-                {
-                    bool nearDock = Mathf.Abs(x - dockCell.x) <= 4 && Mathf.Abs(y - dockCell.y) <= 9;
-                    if (nearDock || taken[x, y] || terrain[x, y] == TerrainType.Water) continue;
-                    bool besideWater = terrain[x - (x > 0 ? 1 : 0), y] == TerrainType.Water || terrain[Mathf.Min(x + 1, width - 1), y] == TerrainType.Water;
-                    bool inletBank = besideWater && y > ReefGenerator.ShoreAt(ReefSettings, x + 0.5f) + 3f;
-                    bool beachTop = terrain[x, y] == TerrainType.Sand && y < height - 1 && terrain[x, y + 1] == TerrainType.Grass;
-                    float hash = IslandGenerator.CellHash(x, y, seed + 1);
-                    Tile tile = null;
-                    if (inletBank && hash < 0.5f) tile = tiles.Rocks[1];
-                    else if (beachTop && hash < 0.12f) tile = tiles.Rocks[0];
-                    else if (terrain[x, y] == TerrainType.Grass && hash < 0.07f) tile = tiles.Palm;
-                    if (tile == null || trees.Exists(o => Mathf.Abs(o.x - x) < 3 && Mathf.Abs(o.y - y) < 2)) continue;
-                    trees.Add(new Vector2Int(x, y));
-                    obstacles.Add(TownLayout.PalmFootprint(new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f)));
-                    decorMap.SetTile(new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0), tile);
-                }
+                decorMap.SetTile(Cell(r.x, r.y), rocks[(r.x + r.y) % 2]);
+                if (terrain[r.x, r.y] != TerrainType.Water) Solid(r.x + 0.5f, r.y + 0.15f, 1.1f, 0.5f);
             }
+
+            // Végétation : tout est solide sauf les acacias.
+            Tile[] eucalyptus = { tiles.Palm, SaveTile("Recif_Eucalyptus_1", ReefTerrainArt.Eucalyptus(1), ReefTerrainArt.EucalyptusPivot, VolumeCanvas.PixelsPerUnit) };
+            Tile[] pandanus = { tiles.Rocks[0], SaveTile("Recif_Pandanus_1", ReefTerrainArt.Pandanus(1), ReefTerrainArt.PandanusPivot, VolumeCanvas.PixelsPerUnit) };
+            Tile[] mangroves = { tiles.Rocks[1], SaveTile("Recif_Paletuvier_1", ReefTerrainArt.Mangrove(1), ReefTerrainArt.MangrovePivot, VolumeCanvas.PixelsPerUnit) };
+            Tile[] palms = { SaveTile("Recif_Cocotier_0", AtollTerrainArt.Palm(-1, 0), AtollTerrainArt.PalmPivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Recif_Cocotier_1", AtollTerrainArt.Palm(1, 1), AtollTerrainArt.PalmPivot, VolumeCanvas.PixelsPerUnit) };
+            Tile[] rainTrees = { SaveTile("Recif_ArbreForet_0", ReefTerrainArt.RainTree(0), ReefTerrainArt.RainTreePivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Recif_ArbreForet_1", ReefTerrainArt.RainTree(1), ReefTerrainArt.RainTreePivot, VolumeCanvas.PixelsPerUnit) };
+            Tile[] ferns = { SaveTile("Recif_Fougere_0", ReefTerrainArt.TreeFern(0), ReefTerrainArt.TreeFernPivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Recif_Fougere_1", ReefTerrainArt.TreeFern(1), ReefTerrainArt.TreeFernPivot, VolumeCanvas.PixelsPerUnit) };
+            Tile[] termites = { SaveTile("Recif_Termitiere_0", ReefTerrainArt.Termite(0), ReefTerrainArt.TermitePivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Recif_Termitiere_1", ReefTerrainArt.Termite(1), ReefTerrainArt.TermitePivot, VolumeCanvas.PixelsPerUnit) };
+            Tile[] wattles = { SaveTile("Decor/Recif_Acacia_0", ReefTerrainArt.Wattle(0), ReefTerrainArt.WattlePivot, VolumeCanvas.PixelsPerUnit),
+                SaveTile("Decor/Recif_Acacia_1", ReefTerrainArt.Wattle(1), ReefTerrainArt.WattlePivot, VolumeCanvas.PixelsPerUnit) };
+            foreach ((Vector2Int cell, ReefPlan.Plant kind, int variant) in plan.Plants)
+            {
+                Tile tile = kind switch
+                {
+                    ReefPlan.Plant.Eucalyptus => eucalyptus[variant],
+                    ReefPlan.Plant.Pandanus => pandanus[variant],
+                    ReefPlan.Plant.Palm => palms[variant],
+                    ReefPlan.Plant.Mangrove => mangroves[variant],
+                    ReefPlan.Plant.RainTree => rainTrees[variant],
+                    ReefPlan.Plant.TreeFern => ferns[variant],
+                    ReefPlan.Plant.Termite => termites[variant],
+                    _ => wattles[variant],
+                };
+                decorMap.SetTile(Cell(cell.x, cell.y), tile);
+                if (kind == ReefPlan.Plant.Termite) Solid(cell.x + 0.5f, cell.y + 0.1f, 1.2f, 0.6f);
+                else if (kind != ReefPlan.Plant.Wattle) obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
+            }
+
+            Tile[] flowers = { SaveTile("Decor/Recif_Immortelles", ReefTerrainArt.Flowers(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Decor/Recif_PatteDeKangourou", ReefTerrainArt.Flowers(1), Vector2.one * 0.5f, TileArt.Size) };
+            foreach (Vector2Int f in plan.Flowers) decorMap.SetTile(Cell(f.x, f.y), flowers[(f.x + f.y) % 2]);
+            Tile[] shells = { SaveTile("Decor/Atoll_Coquillages", AtollTerrainArt.Shells(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Decor/Atoll_CorailBlanchi", AtollTerrainArt.Shells(1), Vector2.one * 0.5f, TileArt.Size) };
+            foreach (Vector2Int s in plan.Shells) decorMap.SetTile(Cell(s.x, s.y), shells[(s.x + s.y) % 2]);
 
             return dock;
         }
+
+        /// <summary>La passerelle de la mangrove (on y marche comme sur un ponton) ; posée par <see cref="BuildReef"/>.</summary>
+        private static Rect ReefBridgeArea;
 
         /// <summary>La vie du récif : tortues sous l'eau, kangourous sur la plage, papillons Ulysse, pélicans.</summary>
         private static void BuildReefLife(Transform root, WorldMap map, Transform player, Rect dock)
@@ -3495,6 +3570,19 @@ namespace FishAndChill.Editor
             Named("Decor/Squelettes_Fut", new Color(0.56f, 0.28f, 0.16f));
             Named("Decor/Squelettes_Ancre", new Color(0.40f, 0.26f, 0.18f));
             Named("Decor/Welwitschia", new Color(0.36f, 0.42f, 0.22f));
+            for (int i = 0; i < 2; i++)
+            {
+                Named($"Recif_ArbreForet_{i}", new Color(0.10f, 0.30f, 0.14f));
+                Named($"Recif_Fougere_{i}", new Color(0.26f, 0.52f, 0.22f));
+                Named($"Recif_Termitiere_{i}", new Color(0.72f, 0.42f, 0.24f));
+                Named($"Recif_Cocotier_{i}", new Color(0.18f, 0.48f, 0.20f));
+                Named($"Decor/Recif_Acacia_{i}", new Color(0.90f, 0.78f, 0.20f));
+                Named($"Decor/Recif_Granit_{i}", new Color(0.80f, 0.62f, 0.56f));
+            }
+
+            Named("Recif_Eucalyptus_1", new Color(0.44f, 0.56f, 0.44f));
+            Named("Recif_Pandanus_1", new Color(0.34f, 0.54f, 0.28f));
+            Named("Recif_Paletuvier_1", new Color(0.16f, 0.36f, 0.20f));
             Sprite dockIcon = PixelArt.Save("Assets/_Project/Art/UI/IconePonton.png", LakeArt.BoatIcon(), TileArt.Size, Vector2.one * 0.5f);
 
             var so = new SerializedObject(minimap);

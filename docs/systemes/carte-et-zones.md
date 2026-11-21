@@ -66,11 +66,19 @@
   bout d'un petit chemin, vers le sud. `BayGenerator` n'est plus utilisé. Vie (`BuildJapanLife`, `JapanLifeArt`) : canards mandarins, pétales de cerisier, grues du Japon. 14 espèces
   (table des espèces, dessins `JapanFishArt`, crabe-araignée géant dans `JapanCreatureArt`), thon rouge
   légendaire. Salle Japon à l'aquarium (voir Aquarium).
-- **Grande Barrière** (5e zone, région 4, Queensland) : `ReefGenerator` (terre au nord, plage de sable blanc, brousse,
-  crique de mangrove, bande de récif au large `Reef` ; testé), 90×64 cases, à `ReefGap` = 20 cases à l'est de la baie,
-  `MapSetup.BuildReef` (tuiles `ReefArt` : mer de corail, sable de silice, herbe sèche ; eucalyptus dans la brousse,
-  pandanus en haut de plage, palétuviers sur les berges de la crique, tous solides ; coraux vus à travers l'eau sur le
-  récif, dont le lagon clair suit les coraux). Vie (`BuildReefLife`, `ReefLifeArt`) : tortues de mer sous l'eau,
+- **Grande Barrière** (5e zone, région 4, Queensland) : plan dessiné `World/ReefPlan` (90×64 cases, testé : mer de Corail
+  au sud, **récif frangeant** au large (platier clair, coraux à travers l'eau) et **îlot de sable corallien** avec son
+  pandanus ; longue plage de sable blanc de silice, lisière douce ; à l'ouest, **estuaire turquoise aux tourbillons de
+  sable** (bras de sable en spirale) d'où remonte une **crique de mangrove** franchie par une **passerelle de planches**
+  praticable (`ReefBridgeArea`), panneau « attention crocodiles » (sans texte) au bout ; brousse d'eucalyptus,
+  **termitières cathédrales** et acacias dorés ; **forêt tropicale** au nord (grands arbres à contreforts et lianes,
+  fougères arborescentes) ; **cap de granit rose** à l'est ; **maison Queenslander** sur pilotis (véranda, auvent rayé,
+  toit de tôle rouge, citerne) ; **tour des sauveteurs** et drapeaux rouge et jaune sur la plage ; **barque en alu** ;
+  **plateforme de plongée** amarrée sur le récif ; **piste de terre rouge** qui relie tout au ponton), à `ReefGap` = 20
+  cases à l'est de la baie, `MapSetup.BuildReef` (tuiles `ReefArt` : mer de corail, sable de silice, herbe sèche, coraux
+  aussi utilisés par l'atoll ; arbres, termitières, granit, panneau, fleurs et piste dans `ReefTerrainArt` ; repères
+  dans `ReefLandmarkArt` ; passerelle de l'atoll réutilisée, cocotiers de l'atoll en haut de plage). Arbres, termitières,
+  granit et repères solides, acacias non. `ReefGenerator` n'est plus utilisé. Vie (`BuildReefLife`, `ReefLifeArt`) : tortues de mer sous l'eau,
   kangourous sur la plage, papillons Ulysse, pélicans. **Première zone faite uniquement par la table** : 14 espèces
   dessinées par `FishArchetypes` (poisson-clown, barramundi, saumonée, requin à pointes noires, Napoléon, mérou géant
   légendaire…). Salle Grande Barrière à l'aquarium (voir Aquarium).
