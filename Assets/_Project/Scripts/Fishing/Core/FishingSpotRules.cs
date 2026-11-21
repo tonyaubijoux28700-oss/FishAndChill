@@ -119,5 +119,33 @@ namespace FishAndChill.Fishing
 
             return best;
         }
+
+        /// <summary>
+        /// Cases qu'on peut rejoindre à pied depuis <paramref name="start"/> (le ponton d'arrivée), en passant d'une case
+        /// praticable à sa voisine (haut, bas, gauche, droite) : un coin de pêche ne doit faire face qu'à une de ces rives,
+        /// jamais à un îlot qu'on ne peut pas atteindre.
+        /// </summary>
+        public static bool[,] Reachable(int width, int height, Vector2Int start, System.Func<int, int, bool> canStand)
+        {
+            var seen = new bool[width, height];
+            if (start.x < 0 || start.y < 0 || start.x >= width || start.y >= height || !canStand(start.x, start.y)) return seen;
+            var queue = new Queue<Vector2Int>();
+            seen[start.x, start.y] = true;
+            queue.Enqueue(start);
+            Vector2Int[] steps = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+            while (queue.Count > 0)
+            {
+                Vector2Int c = queue.Dequeue();
+                foreach (Vector2Int d in steps)
+                {
+                    Vector2Int n = c + d;
+                    if (n.x < 0 || n.y < 0 || n.x >= width || n.y >= height || seen[n.x, n.y] || !canStand(n.x, n.y)) continue;
+                    seen[n.x, n.y] = true;
+                    queue.Enqueue(n);
+                }
+            }
+
+            return seen;
+        }
     }
 }

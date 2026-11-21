@@ -17,7 +17,7 @@
   éclaboussures du combat). Jauge du QTE avec la charte (cadre, bandeau « Ferre-le ! », barre d'eau, zone verte,
   aiguille, pastilles réussites/ratés, flash et secousse), placée du côté opposé au bouchon.
 - **Coins de pêche** (`World/FishingSpots`, un par zone : « Coins de pêche de l'île / du lac », règles dans
-  `Fishing/Core/FishingSpotRules`, testées) : 3 coins à la fois, en eau libre, chacun face à une rive où l'on peut se tenir
+  `Fishing/Core/FishingSpotRules`, testées) : 3 coins à la fois, en eau libre, chacun face à une rive où l'on peut se tenir et qu'on rejoint à pied depuis le ponton (`FishingSpotRules.Reachable`, jamais face à un îlot inaccessible)
   (2,2 à 4,2 cases) ; durée 70-140 s ou 2 prises (`Consume`), puis il réapparaît ailleurs avec une autre sorte.
   `School` (banc : ombres qui tournent sous l'eau, touche ×0,45 du temps, communes favorisées), `Bubbles` (bulles :
   tortue, grenouille ×4 ; les crustacés ne mordent plus à la canne : voir les casiers dans `batiments-et-progression.md`), `Frenzy` (chasse : éclaboussures, petits poissons qui sautent, rares à légendaires

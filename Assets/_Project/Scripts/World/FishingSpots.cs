@@ -107,6 +107,7 @@ namespace FishAndChill.World
             }
 
             _random = new System.Random(_region * 977 + 31);
+            ComputeReachable();
             for (int i = 0; i < _count; i++)
             {
                 Spot spot = CreateSpot((SpotKind)(i % 3));
@@ -183,7 +184,46 @@ namespace FishAndChill.World
             return true;
         }
 
-        /// <summary>Le pêcheur peut se tenir sur la rive, droit en face du coin (haut, bas, gauche ou droite), à portée de lancer.</summary>
+        /// <summary>Cases de la région qu'on rejoint à pied depuis le ponton (calculées une fois au début).</summary>
+        private bool[,] _reachable;
+
+        private void ComputeReachable()
+        {
+            Rect bounds = Bounds;
+            int width = Mathf.CeilToInt(bounds.width), height = Mathf.CeilToInt(bounds.height);
+            bool Stand(int x, int y) => _map.CanStandAt(new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f), 0.3f);
+            var start = new Vector2Int(Mathf.FloorToInt(_avoid.center.x - bounds.xMin), Mathf.FloorToInt(_avoid.center.y - bounds.yMin));
+            for (int r = 0; r <= 3 && !(start.x >= 0 && start.y >= 0 && start.x < width && start.y < height && Stand(start.x, start.y)); r++)
+            {
+                start += Vector2Int.up;   // le milieu du ponton tombe parfois entre deux planches : on cherche juste à côté
+            }
+
+            _reachable = FishingSpotRules.Reachable(width, height, start, Stand);
+            if (!_reachable[Mathf.Clamp(start.x, 0, width - 1), Mathf.Clamp(start.y, 0, height - 1)]) _reachable = null;   // ponton introuvable : on garde l'ancienne règle
+        }
+
+        /// <summary>Peut-on rejoindre à pied l'endroit <paramref name="q"/> (sa case ou une case voisine) ?</summary>
+        private bool Reached(Vector2 q)
+        {
+            if (_reachable == null) return true;
+            Rect bounds = Bounds;
+            int cx = Mathf.FloorToInt(q.x - bounds.xMin), cy = Mathf.FloorToInt(q.y - bounds.yMin);
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    int x = cx + dx, y = cy + dy;
+                    if (x >= 0 && y >= 0 && x < _reachable.GetLength(0) && y < _reachable.GetLength(1) && _reachable[x, y]) return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Le pêcheur peut se tenir sur une rive qu'il rejoint à pied depuis le ponton, droit en face du coin (haut, bas,
+        /// gauche ou droite), à portée de lancer.
+        /// </summary>
         private bool ReachableFromShore(Vector2 p)
         {
             Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
@@ -191,7 +231,8 @@ namespace FishAndChill.World
             {
                 for (float k = 2.2f; k <= 4.2f; k += 0.25f)
                 {
-                    if (_map.CanStandAt(p - d * k, 0.3f)) return true;
+                    Vector2 q = p - d * k;
+                    if (_map.CanStandAt(q, 0.3f) && Reached(q)) return true;
                 }
             }
 

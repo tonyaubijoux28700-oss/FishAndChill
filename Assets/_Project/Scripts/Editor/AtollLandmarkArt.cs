@@ -117,9 +117,9 @@ namespace FishAndChill.Editor
             cv.Piece(Box(41, 44, 44, 50), C(1f, 0.84f, 0.42f), 1f);
 
             // Toit de chaume en croupe, qui déborde sur la terrasse.
-            cv.Piece((x, y) => y > 4 && y < 40 && Mathf.Abs(x - 33f) < 12f + (y - 4f) * 1.0f, Thatch, 6f, ThatchTexture);
-            cv.Piece((x, y) => y >= 36 && y < 42 && Mathf.Abs(x - 33f) < 47f && ((int)x % 3 != 0 || y < 39), Darker(Thatch, 0.9f), 2f);   // frange
-            cv.Piece(Box(24, 2, 42, 8), Darker(Thatch, 0.7f), 2f);   // faîtage
+            cv.Piece((x, y) => y > 4 && y < 40 && Mathf.Abs(x - 40f) < 11f + (y - 4f) * 0.75f, Thatch, 6f, ThatchTexture);
+            cv.Piece((x, y) => y >= 36 && y < 42 && Mathf.Abs(x - 40f) < 38f && ((int)x % 3 != 0 || y < 39), Darker(Thatch, 0.9f), 2f);   // frange
+            cv.Piece(Box(31, 2, 49, 8), Darker(Thatch, 0.7f), 2f);   // faîtage
 
             Color[,] p = cv.Finish(Ink);
             foreach (float px in new[] { 8f, 28f, 48f, 68f, 88f }) Ripple(p, px, 8f, 6f);
@@ -167,7 +167,7 @@ namespace FishAndChill.Editor
             }
 
             // Toit.
-            System.Func<float, float, bool> roof = (x, y) => y > 10 && y < 62 && Mathf.Abs(x - 80f) < 36f + (y - 10f) * 0.94f;
+            System.Func<float, float, bool> roof = (x, y) => y > 10 && y < 62 && Mathf.Abs(x - 80f) < 36f + (y - 10f) * 0.72f;
             if (variant == 1)
             {
                 cv.Piece(roof, C(0.74f, 0.20f, 0.16f), 5f, (x, y, c) => x % 5 == 0 ? Darker(c, 0.72f) : x % 5 == 1 ? Darker(c, 1.15f) : (x * 3 + y * 5) % 37 == 0 ? C(0.56f, 0.30f, 0.22f) : c);
@@ -240,8 +240,8 @@ namespace FishAndChill.Editor
             foreach (float px in new[] { 14f, 146f }) cv.Piece(Box(px - 3.5f, 40, px + 3.5f, 130), trunk, 2.5f, rings);
 
             // Grand toit de chaume frangé, guirlande de lanternes.
-            cv.Piece((x, y) => y > 4 && y < 46 && Mathf.Abs(x - 80f) < 34f + (y - 4f) * 1.1f, Thatch, 7f, ThatchTexture);
-            cv.Piece((x, y) => y >= 42 && y < 50 && Mathf.Abs(x - 80f) < 80f && ((int)x % 3 != 0 || y < 46), Darker(Thatch, 0.88f), 2f);
+            cv.Piece((x, y) => y > 4 && y < 46 && Mathf.Abs(x - 80f) < 34f + (y - 4f) * 0.95f, Thatch, 7f, ThatchTexture);
+            cv.Piece((x, y) => y >= 42 && y < 50 && Mathf.Abs(x - 80f) < 76f && ((int)x % 3 != 0 || y < 46), Darker(Thatch, 0.88f), 2f);
             cv.Piece(Box(52, 1, 108, 8), Darker(Thatch, 0.7f), 2f);
             Color[,] p = cv.Finish(Ink);
             Color[] bulbs = { C(1f, 0.86f, 0.40f), C(1f, 0.56f, 0.40f), C(0.60f, 0.90f, 0.70f), C(1f, 0.70f, 0.86f) };

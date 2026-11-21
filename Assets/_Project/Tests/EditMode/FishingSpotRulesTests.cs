@@ -43,5 +43,24 @@ namespace FishAndChill.Tests
             Assert.That(FishingSpotRules.Assist(Vector2.zero, Vector2.down, spots, 1.5f, 6f), Is.EqualTo(-1));
             Assert.That(FishingSpotRules.Assist(Vector2.zero, Vector2.left, spots, 1.5f, 6f), Is.EqualTo(3));
         }
+
+        [Test]
+        public void Reachable_FollowsTheShoreAndThePlanks_ButNotTheLoneIslet()
+        {
+            // Île (colonnes 0 à 3), passerelle sur la ligne 2 jusqu'à la colonne 6, îlot isolé en colonnes 8 et 9.
+            bool Stand(int x, int y) => x <= 3 || (y == 2 && x <= 6) || x >= 8;
+            bool[,] seen = FishingSpotRules.Reachable(10, 5, new Vector2Int(1, 1), Stand);
+            Assert.That(seen[0, 4], Is.True, "toute l'île");
+            Assert.That(seen[6, 2], Is.True, "le bout de la passerelle");
+            Assert.That(seen[5, 3], Is.False, "l'eau à côté des planches");
+            Assert.That(seen[9, 2], Is.False, "l'îlot qu'on ne peut pas rejoindre");
+        }
+
+        [Test]
+        public void Reachable_FromWater_IsEmpty()
+        {
+            bool[,] seen = FishingSpotRules.Reachable(4, 4, new Vector2Int(0, 0), (x, y) => x > 0);
+            Assert.That(seen[2, 2], Is.False);
+        }
     }
 }
