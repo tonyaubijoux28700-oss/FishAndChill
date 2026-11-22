@@ -27,9 +27,12 @@
   « Hameçons », « Appâts », « Sacs, casiers » en **vitrine** (`UI/ShopShowcase`, objets `ShowcaseEntry`, calculs `ShowcaseMath`
   testés) : un objet à la fois, en grand dans une scène éclairée (fond, socle à coussin de velours, râtelier où la canne
   se tient debout, flèches : dessins en volume `Editor/ShopDisplayArt`, `Art/UI/Vitrine/`, affichés ×3 ; l'objet flotte
-  doucement), fiche à droite (nom, effet, état, prix, « Espace : acheter / prendre en main / l'accrocher »), vignettes du
+  doucement), fiche à droite (nom, effet, état, prix, « Clic ou Espace : acheter / prendre en main / l'accrocher »), vignettes du
   rayon dessous. **Q / D** (touches physiques), ←/→ ou la croix font défiler, 1 à 8 choisit, **Espace** / Entrée / bouton A
-  achète ; à la souris : flèches, vignettes, clic sur l'objet. Chaque rayon s'ouvre sur l'objet en main (le prochain sac
+  achète. **Tout à la souris** (`ShopMenu.HandleMouse`) : clic sur un rayon, sur un poisson du sac (le vend), sur le
+  bouton « Tout vendre (V) » (à côté des pièces, rayon « Vendre » seulement), sur les flèches, les vignettes, l'objet
+  ou le bandeau « Clic ou Espace : … » ; molette pour l'objet précédent / suivant ; clic à côté du menu pour sortir.
+  Ce qui est survolé s'éclaire en doré (`ApplyHover`, `ShopShowcase.Hover`). Chaque rayon s'ouvre sur l'objet en main (le prochain sac
   pour « Sacs, casiers », qui montre tous les sacs puis le casier). Échap/E ferme. Règles dans `FishShop` (testées) : il n'achète que les doublons (espèce déjà dans
   l'aquarium, ou exemplaires en trop : il laisse le plus gros), prix de 80 % à 130 % du `BasePrice` selon la taille.
 - **Matériel** (`Scripts/Gear`, données dans `Data/Gear/`, générées par `GearSetup`) : 3 familles (`GearLine`,

@@ -69,6 +69,13 @@ namespace FishAndChill.UI
         private GameObject _panel;
         private RectTransform _sellRoot;
         private Image[] _tabs;
+        private RectTransform _panelRect;
+        private Image _sellAll;
+
+        // Souris : ce que le pointeur survole (-1 / faux : rien).
+        private int _hoverTab = -1;
+        private int _hoverRow = -1;
+        private bool _hoverSellAll;
         private Text _prompt;
         private Text _coins;
         private Text _feedback;
@@ -139,6 +146,11 @@ namespace FishAndChill.UI
                 return;
             }
 
+            if (!HandleMouse())
+            {
+                return;
+            }
+
             if (CurrentTab == Tab.Sell)
             {
                 int slot = FishingInput.SlotPressedThisFrame();
@@ -164,19 +176,108 @@ namespace FishAndChill.UI
             if (ConfirmPressed())
             {
                 BuySelected();
-                return;
+            }
+        }
+
+        // ---------- Souris ----------
+
+        private static bool Over(RectTransform rect, Vector2 screen) =>
+            rect != null && rect.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(rect, screen, null);
+
+        /// <summary>
+        /// Souris, menu ouvert : survol mis en valeur ; clic sur un rayon, sur un poisson à vendre, sur « Tout vendre »,
+        /// sur une flèche, une vignette ou l'objet à acheter ; molette pour passer d'un objet à l'autre ; clic à côté
+        /// du menu pour sortir. Renvoie faux si le menu vient d'être fermé ou si le clic a déjà servi.
+        /// </summary>
+        private bool HandleMouse()
+        {
+            _hoverTab = -1;
+            _hoverRow = -1;
+            _hoverSellAll = false;
+            Mouse mouse = Mouse.current;
+            Vector2 at = mouse != null ? mouse.position.ReadValue() : Vector2.zero;
+            if (mouse != null)
+            {
+                for (int i = 0; i < _tabs.Length; i++)
+                {
+                    if (Over(_tabs[i].rectTransform, at)) _hoverTab = i;
+                }
+
+                if (CurrentTab == Tab.Sell)
+                {
+                    for (int i = 0; i < _sellRows.Count && i < _progress.Bag.Count; i++)
+                    {
+                        if (Over(_sellRows[i].Background.rectTransform, at)) _hoverRow = i;
+                    }
+
+                    _hoverSellAll = Over(_sellAll.rectTransform, at);
+                }
             }
 
-            Mouse mouse = Mouse.current;
-            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+            ApplyHover();
+            if (CurrentTab != Tab.Sell)
             {
-                Vector2 at = mouse.position.ReadValue();
-                int arrow = _showcase.ArrowAt(at);
-                int thumb = _showcase.ThumbnailAt(at);
-                if (arrow != 0) Select(ShowcaseMath.Step(Selected, arrow, _entries.Count));
-                else if (thumb >= 0) Select(thumb);
-                else if (_showcase.ActionAt(at)) BuySelected();
+                _showcase.Hover(at, mouse != null);
             }
+
+            if (mouse == null)
+            {
+                return true;
+            }
+
+            float wheel = mouse.scroll.ReadValue().y;
+            if (wheel != 0f && CurrentTab != Tab.Sell && _entries.Count > 1)
+            {
+                Select(ShowcaseMath.Step(Selected, wheel > 0f ? -1 : 1, _entries.Count));
+            }
+
+            if (!mouse.leftButton.wasPressedThisFrame)
+            {
+                return true;
+            }
+
+            if (!Over(_panelRect, at))
+            {
+                Close();
+                return false;
+            }
+
+            if (_hoverTab >= 0)
+            {
+                if (_hoverTab != (int)CurrentTab) ShowTab((Tab)_hoverTab);
+                return false;
+            }
+
+            if (CurrentTab == Tab.Sell)
+            {
+                if (_hoverRow >= 0) SellSlot(_hoverRow);
+                else if (_hoverSellAll) SellAll();
+                return false;
+            }
+
+            int arrow = _showcase.ArrowAt(at);
+            int thumb = _showcase.ThumbnailAt(at);
+            if (arrow != 0) Select(ShowcaseMath.Step(Selected, arrow, _entries.Count));
+            else if (thumb >= 0) Select(thumb);
+            else if (_showcase.ActionAt(at)) BuySelected();
+            return false;
+        }
+
+        /// <summary>Rayon, poisson ou bouton survolé : plus clair et doré.</summary>
+        private void ApplyHover()
+        {
+            for (int i = 0; i < _tabs.Length; i++)
+            {
+                _tabs[i].color = i == (int)CurrentTab ? Color.white : i == _hoverTab ? new Color(1f, 0.95f, 0.8f, 0.85f) : new Color(1f, 1f, 1f, 0.45f);
+            }
+
+            Color rowBase = _skin != null ? Color.white : RowColor;
+            for (int i = 0; i < _sellRows.Count; i++)
+            {
+                _sellRows[i].Background.color = i == _hoverRow ? Color.Lerp(rowBase, Gold, 0.45f) : rowBase;
+            }
+
+            _sellAll.color = _hoverSellAll ? Color.Lerp(Color.white, Gold, 0.55f) : Color.white;
         }
 
         public void Open()
@@ -206,16 +307,14 @@ namespace FishAndChill.UI
             CurrentTab = tab;
             _sellRoot.gameObject.SetActive(tab == Tab.Sell);
             _showcase.Visible = tab != Tab.Sell;
-            for (int i = 0; i < _tabs.Length; i++)
-            {
-                _tabs[i].color = i == (int)tab ? Color.white : new Color(1f, 1f, 1f, 0.45f);
-            }
+            _sellAll.gameObject.SetActive(tab == Tab.Sell);
+            ApplyHover();
 
-            const string end = "   •   Tab : rayon suivant   •   Échap : sortir";
-            const string browse = "Q / D : objet précédent / suivant   •   Espace : acheter";
+            const string end = "   •   Tab ou clic : rayon   •   Échap : sortir";
+            const string browse = "Q / D ou molette : objet précédent / suivant   •   Espace ou clic : acheter";
             switch (tab)
             {
-                case Tab.Sell: _help.text = "1, 2, 3… : vendre ce poisson   •   V : tout vendre" + end; Say(Greeting, Muted); break;
+                case Tab.Sell: _help.text = "Clic ou 1, 2, 3… : vendre ce poisson   •   V : tout vendre" + end; Say(Greeting, Muted); break;
                 case Tab.Rods: _help.text = browse + end; Say(GearGreeting, Muted); break;
                 case Tab.Hooks: _help.text = browse + end; Say(HookGreeting, Muted); break;
                 case Tab.Baits: _help.text = browse + end; Say(BaitGreeting, Muted); break;
@@ -757,6 +856,7 @@ namespace FishAndChill.UI
 
             Image panel = UiFactory.Sliced(root, "Menu du marchand", _skin != null ? _skin.Panel : null, _skin != null ? Color.white : PanelColor);
             _panel = panel.gameObject;
+            _panelRect = panel.rectTransform;
             UiFactory.Center(panel.rectTransform, new Vector2(0f, 0f), new Vector2(1520f, 940f));
 
             UiFactory.TitlePlaque(panel.rectTransform, _skin, "Boutique de Mahana", 42, new Vector2(0f, 462f), new Vector2(620f, 88f), out _);
@@ -782,6 +882,10 @@ namespace FishAndChill.UI
             _showcase = new ShopShowcase(panel.rectTransform, _skin, _showcaseBack, _pedestal, _rodStand, _arrow);
 
             _coins = UiFactory.TitlePlaque(panel.rectTransform, _skin, "Tes pièces : 0", 30, new Vector2(0f, -352f), new Vector2(360f, 60f), out _);
+
+            // Bouton « Tout vendre » (rayon de la vente), à côté des pièces.
+            UiFactory.TitlePlaque(panel.rectTransform, _skin, "Tout vendre (V)", 30, new Vector2(470f, -352f), new Vector2(320f, 60f), out RectTransform sellAll);
+            _sellAll = sellAll.GetComponent<Image>();
 
             _help = AddText(panel.rectTransform, "Aide", 24, TextAnchor.MiddleCenter);
             _help.color = Muted;

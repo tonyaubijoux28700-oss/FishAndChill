@@ -43,6 +43,8 @@ namespace FishAndChill.UI
         private readonly Vector2 _rodStandSize;
 
         private float _itemBottom;
+        private int _shownSelected;
+        private int _shownCount;
 
         public ShopShowcase(RectTransform panel, UiSkin skin, Sprite back, Sprite pedestal, Sprite rodStand, Sprite arrow)
         {
@@ -142,10 +144,12 @@ namespace FishAndChill.UI
             _price.color = entry != null ? entry.PriceColor : Muted;
             bool canAct = entry != null && !string.IsNullOrEmpty(entry.Action);
             _actionPlaque.gameObject.SetActive(canAct);
-            _action.text = canAct ? $"Espace : {entry.Action}" : string.Empty;
+            _action.text = canAct ? $"Clic ou Espace : {entry.Action}" : string.Empty;
             _position.text = count > 0 ? $"{Mathf.Clamp(selected, 0, count - 1) + 1} / {count}" : string.Empty;
 
             int shown = Mathf.Min(count, MaxThumbnails);
+            _shownSelected = selected;
+            _shownCount = shown;
             const float step = 92f;
             for (int i = 0; i < MaxThumbnails; i++)
             {
@@ -168,6 +172,27 @@ namespace FishAndChill.UI
             Vector2 at = _item.rectTransform.anchoredPosition;
             at.y = _itemBottom + Mathf.Round(Mathf.Sin(time * 2.2f) * 1.5f) * Zoom;
             _item.rectTransform.anchoredPosition = at;
+        }
+
+        /// <summary>
+        /// Survol de la souris (à appeler à chaque image) : flèche, vignette et bandeau d'achat sous le pointeur
+        /// passent en lumière dorée.
+        /// </summary>
+        public void Hover(Vector2 screen, bool hasMouse)
+        {
+            int arrow = hasMouse ? ArrowAt(screen) : 0;
+            int thumb = hasMouse ? ThumbnailAt(screen) : -1;
+            bool action = hasMouse && ActionAt(screen);
+            _previous.GetComponent<Image>().color = arrow == -1 ? Gold : Color.white;
+            _next.GetComponent<Image>().color = arrow == 1 ? Gold : Color.white;
+            _actionPlaque.GetComponent<Image>().color = action ? Color.Lerp(Color.white, Gold, 0.55f) : Color.white;
+            for (int i = 0; i < _shownCount; i++)
+            {
+                bool current = i == _shownSelected;
+                bool hovered = i == thumb;
+                _thumbFrames[i].color = current ? Gold : hovered ? Color.white : new Color(1f, 1f, 1f, 0.75f);
+                _thumbPictures[i].color = current || hovered ? Color.white : new Color(1f, 1f, 1f, 0.7f);
+            }
         }
 
         /// <summary>-1 sur la flèche de gauche, +1 sur celle de droite, 0 ailleurs (clic de souris).</summary>
