@@ -1657783,6 +1657783,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 50a41d05fe442ac4f9bcba9e05e9ccdc, type: 2}
   - {fileID: 11400000, guid: 4a16ea5bd51231b44a859bee16b6f08f, type: 2}
   - {fileID: 11400000, guid: e169c074ae3066e439946c7b1a79e68f, type: 2}
+  - {fileID: 11400000, guid: aeb8cbc2d7fd573488c5c5f802c44100, type: 2}
 --- !u!4 &1235020157
 Transform:
   m_ObjectHideFlags: 0
@@ -1665288,6 +1665289,7 @@ Transform:
   - {fileID: 1194394514}
   - {fileID: 280390098}
   - {fileID: 2130904868}
+  - {fileID: 1387484669}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1277163520
@@ -1665924,6 +1665926,78 @@ MonoBehaviour:
     height: 1
   _residents:
   - {x: 3.2, y: 3}
+--- !u!1 &1387484668
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1387484669}
+  - component: {fileID: 1387484670}
+  m_Layer: 0
+  m_Name: "Remous l\xE9gendaire de la baie"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1387484669
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387484668}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1254510492}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1387484670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387484668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8489e8b96f5347498bc8e16f4580013, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.LegendSpot
+  _map: {fileID: 1254510490}
+  _region: 3
+  _avoid:
+    serializedVersion: 2
+    x: 528
+    y: -22
+    width: 12
+    height: 16
+  _legend: {fileID: 11400000, guid: aeb8cbc2d7fd573488c5c5f802c44100, type: 2}
+  _progress: {fileID: 332295271}
+  _eddyFrames:
+  - {fileID: 21300000, guid: 44b2d23be27e31f46b68e04941e0b021, type: 3}
+  - {fileID: 21300000, guid: ecd2265f99e18e1448a44264d18c50de, type: 3}
+  - {fileID: 21300000, guid: 77487c58471dee64abc6deb4c85fef1c, type: 3}
+  - {fileID: 21300000, guid: a9690e001a4fe754ba11f54c4848be0b, type: 3}
+  - {fileID: 21300000, guid: f0ef050ac2440a0449b4c1fccbeecd89, type: 3}
+  - {fileID: 21300000, guid: ed294dd588542a943af16530df27a809, type: 3}
+  _waveFrames:
+  - {fileID: 21300000, guid: c558be1a6290edb4da31a75516cf0169, type: 3}
+  - {fileID: 21300000, guid: 18eb9990a2ff20f4b8d194118d40db55, type: 3}
+  - {fileID: 21300000, guid: 906b8db2b8f5f3a48be8892876ddb037, type: 3}
+  - {fileID: 21300000, guid: 733451041bea27e468cdd085cb8e2669, type: 3}
+  - {fileID: 21300000, guid: 17432096abc9df447b86bef1830f8c33, type: 3}
+  - {fileID: 21300000, guid: f19dfa2f2ccf6c54a80f04cfa2df4e47, type: 3}
+  - {fileID: 21300000, guid: 1a0e6cdd796f7bd448dc2ce8b08498e9, type: 3}
+  - {fileID: 21300000, guid: 17df02ff58fd5c644af11b8a714fa557, type: 3}
+  - {fileID: 21300000, guid: f08d793cd92033d47a0aa698cd6291fb, type: 3}
+  - {fileID: 21300000, guid: c4a2ca5ec67a9e4459caf0f187d536b5, type: 3}
 --- !u!1 &1398321614
 GameObject:
   m_ObjectHideFlags: 0

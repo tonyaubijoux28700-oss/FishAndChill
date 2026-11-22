@@ -77,6 +77,19 @@
   courant du fleuve ! »), nerveux (« Il bondit hors de l'eau en secouant la tête ! »), lourd (« Il plonge au fond et tire
   de tout son poids ! »), plus dur que Bramafan, 1000 pièces. Remous « Remous légendaire du fleuve » dans la région 2.
   Esquisses écartées (non branchées) : `MatamataArt` (matamata titan) et `PlecoArt` (pléco titan).
+- **Quatrième légende : l'Isonade**, rascasse titan de 400 cm de la **Baie d'Izu** (espèce de base la rascasse marbrée ;
+  monstre des légendes de pêcheurs japonais dont la queue hérissée de crochets arrache les marins des barques), même
+  fonctionnement de bout en bout. Dessin `Editor/IsonadeArt` → `Art/Legendes/Isonade.png` (de profil : peau marbrée rouge
+  sang et noire à lambeaux de peau, épines venimeuses du dos tendues de voiles déchirées, gueule en gouffre aux crocs en
+  aiguille, œil d'ambre à pupille fendue sous une corne, pectorale en éventail, queue en éventail couverte de crochets
+  d'os avec une rame brisée et un lambeau de filet, bernacles, corde sacrée shimenawa effilochée avec ses papiers en
+  zigzag autour du cou). Silhouette sous l'eau `BodyShape.Isonade` (`FishShadowSprites.Isonade` : tête énorme à épines,
+  pectorales en éventail qui battent, queue bordée de crochets). Artefact **Miroir des marées** (`Editor/TideMirrorArt`,
+  même cadre 48×64 : miroir de bronze à manche vu de dos, vert-de-gris, vagues en écailles gravées, queue à crochets
+  enroulée autour d'une perle qui luit, manche entouré de soie rouge et gland ; 4 quartiers dentelés). Combat : rush
+  (« Il fouette l'eau de sa queue à crochets ! »), nerveux (« Il hérisse ses épines et se secoue ! »), lourd (« Il se
+  plaque au fond comme un rocher ! »), plus dur qu'Ipupiara, 1200 pièces. Remous « Remous légendaire de la baie » dans la
+  région 3.
 - **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
   `Center` / `Silhouette`), un `BuildLegendSpot` dans la région de sa zone (`PrototypeSetup.RegionOf` relie remous et
   légende). Le menu de test (**FishAndChill → Légendes (test)**) agit sur la légende de la zone où l'on est (sinon Tuna) et

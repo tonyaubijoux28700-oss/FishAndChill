@@ -20,5 +20,8 @@ namespace FishAndChill.Collection
 
         /// <summary>Payara titan : corps fuselé, grande queue fourchue qui bat, longues pectorales en faux, deux crocs qui dépassent du museau, yeux qui luisent.</summary>
         Payara,
+
+        /// <summary>Rascasse titan (Isonade) : tête énorme, grandes pectorales en éventail, épines du dos, queue en éventail hérissée de crochets.</summary>
+        Isonade,
     }
 }

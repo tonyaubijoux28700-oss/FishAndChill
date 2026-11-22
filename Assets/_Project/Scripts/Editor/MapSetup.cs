@@ -373,11 +373,12 @@ namespace FishAndChill.Editor
             FishingSpots reefSpots = BuildSpots(mapObject.transform, "Coins de pêche du récif", worldMap, 4, reefDock.Area);
             FishingSpots atollSpots = BuildSpots(mapObject.transform, "Coins de pêche de l'atoll", worldMap, 5, atollDock.Area);
             FishingSpots skeletonSpots = BuildSpots(mapObject.transform, "Coins de pêche de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);
-            // Remous légendaires (Tuna sur l'île, Bramafan au lac, Ipupiara sur le fleuve) : visibles une fois la légende
+            // Remous légendaires (Tuna, Bramafan, Ipupiara, Isonade) : visibles une fois la légende
             // réveillée au laboratoire.
             BuildLegendSpot(mapObject.transform, "Remous légendaire de l'île", worldMap, 0, islandDock.Area);
             BuildLegendSpot(mapObject.transform, "Remous légendaire du lac", worldMap, 1, lakeDock.Area);   // Bramafan
             BuildLegendSpot(mapObject.transform, "Remous légendaire du fleuve", worldMap, 2, amazonDock.Area);   // Ipupiara
+            BuildLegendSpot(mapObject.transform, "Remous légendaire de la baie", worldMap, 3, japanDock.Area);   // Isonade
             spotList.arraySize = 7;
             spotList.GetArrayElementAtIndex(5).objectReferenceValue = atollSpots;
             spotList.GetArrayElementAtIndex(6).objectReferenceValue = skeletonSpots;

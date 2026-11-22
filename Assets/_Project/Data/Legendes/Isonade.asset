@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4994546c4687664eb5edd8a7a9bb9e2, type: 3}
+  m_Name: Isonade
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.LegendFish
+  _id: isonade
+  _title: Isonade
+  _kindName: Rascasse titan
+  _art: {fileID: 21300000, guid: 267430d18c89f5246b090658ebd26737, type: 3}
+  _shadowShape: 9
+  _species: {fileID: 11400000, guid: 7919e3888b6e58344925d08146c70b1e, type: 2}
+  _zone: {fileID: 11400000, guid: 1f23c7bcb94141241a3822bb70be8c18, type: 2}
+  _sizeCm: 400
+  _phases:
+  - _style: 3
+    _difficulty:
+      _cursorSpeed: 1.55
+      _zoneWidth: 0.17
+      _requiredHits: 4
+      _maxMisses: 2
+    _cry: "Il fouette l'eau de sa queue \xE0 crochets !"
+  - _style: 1
+    _difficulty:
+      _cursorSpeed: 1.85
+      _zoneWidth: 0.14
+      _requiredHits: 5
+      _maxMisses: 2
+    _cry: "Il h\xE9risse ses \xE9pines et se secoue !"
+  - _style: 4
+    _difficulty:
+      _cursorSpeed: 1.35
+      _zoneWidth: 0.17
+      _requiredHits: 5
+      _maxMisses: 1
+    _cry: Il se plaque au fond comme un rocher !
+  _rewardCoins: 1200
+  _artifactName: "Miroir des mar\xE9es"
+  _fragmentCount: 4
+  _fragmentChance: 0.03
+  _artifact: {fileID: 21300000, guid: c503ef807dea5cf41830b3a71d1314d9, type: 3}
+  _fragments:
+  - {fileID: 21300000, guid: e9b5ef38858207640ab59c61c4aee54d, type: 3}
+  - {fileID: 21300000, guid: 75d0c3991fe4c0f4eaf55648913b28bc, type: 3}
+  - {fileID: 21300000, guid: b7dfda2e80dc7254c887d4a262261843, type: 3}
+  - {fileID: 21300000, guid: dbfc1a16900b25a4982ee768675bad01, type: 3}
+  _fragmentCenters:
+  - {x: 0.5, y: 0.78125}
+  - {x: 0.7083333, y: 0.625}
+  - {x: 0.5, y: 0.3125}
+  - {x: 0.29166666, y: 0.625}
+  _silhouette: {fileID: 21300000, guid: 9ee169c9a363716409e4a45f65b19eb3, type: 3}
+  _fragmentLines:
+  - "Le haut d'un miroir de bronze, verdi par la mer. Des vagues en \xE9cailles sont grav\xE9es sur le bord."
+  - "Un morceau du disque o\xF9 s'enroule une queue de poisson couverte de petits crochets."
+  - "Un \xE9clat du bord, poli d'un c\xF4t\xE9 comme un miroir. On y voit passer une ombre qui n'est pas la tienne."
+  - "Le manche, encore entour\xE9 de soie rouge. Grav\xE9 dessous : \xAB Quand la mer se tait, l'Isonade est l\xE0 \xBB."

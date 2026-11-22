@@ -108,6 +108,7 @@ namespace FishAndChill.Fishing
                         case BodyShape.Moray: tone = Moray(u, v, phase); break;
                         case BodyShape.Crayfish: tone = Crayfish(u, v, phase); break;
                         case BodyShape.Payara: tone = Payara(u, v, phase); break;
+                        case BodyShape.Isonade: tone = Isonade(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -380,6 +381,58 @@ namespace FishAndChill.Fishing
 
             // Antennes.
             if (OnSegment(u, av, 0.4f, 0.04f, 0.95f, 0.5f + phase * 0.04f, 0.015f)) return EdgeTone;
+            return None;
+        }
+
+        /// <summary>
+        /// Isonade (rascasse titan), vue de dessus : tête énorme et large hérissée d'épines, grandes pectorales en éventail
+        /// qui battent lentement, queue en éventail bordée de crochets, deux yeux qui luisent.
+        /// </summary>
+        private static int Isonade(float u, float v, int phase)
+        {
+            float s = Mathf.Clamp01((0.2f - u) * 0.6f);
+            v -= phase * 0.18f * s * s;
+            float av = Mathf.Abs(v);
+
+            if (InEllipse(u, av, 0.66f, 0.13f, 0.04f, 0.035f)) return EyeTone;
+
+            // Corps trapu : tête énorme et large, pédoncule fin.
+            float width = 0f;
+            if (u <= 0.9f && u >= -0.55f)
+            {
+                width = u >= 0.45f
+                    ? 0.24f * Mathf.Pow(Mathf.Max(0f, 1f - Mathf.Pow((u - 0.45f) / 0.45f, 2f)), 0.4f)
+                    : 0.05f + 0.19f * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.55f, 0.45f, u));
+            }
+
+            if (width > 0f && av <= width)
+            {
+                if (av > width * 0.82f) return EdgeTone;
+                return av < width * 0.35f && u > -0.35f && u < 0.85f ? CoreTone : BodyTone;
+            }
+
+            // Épines de l'opercule, de chaque côté de la tête.
+            for (int k = 0; k < 3; k++)
+            {
+                if (OnTaper(u, av, 0.5f - k * 0.06f, 0.2f, 0.4f - k * 0.06f, 0.3f, 0.02f, 0.005f)) return EdgeTone;
+            }
+
+            // Grandes pectorales en éventail qui battent lentement.
+            float flap = phase * 0.03f;
+            float du = u - 0.32f, dv = av - 0.16f;
+            float r = Mathf.Sqrt(du * du + dv * dv);
+            float a = Mathf.Atan2(dv, -du);
+            if (a > 0.1f - flap && a < 1.5f && r < 0.34f - (Mathf.Repeat(a * 8f, 1f) < 0.3f ? 0.04f : 0f)) return r > 0.3f ? EdgeTone : BodyTone;
+
+            // Queue en éventail, festonnée, hérissée de crochets.
+            if (u < -0.5f && u >= -1f)
+            {
+                float k = (-0.5f - u) / 0.5f;
+                float outer = 0.05f + k * 0.3f;
+                if (av <= outer) return k > 0.75f ? EdgeTone : BodyTone;
+                if (av <= outer + 0.05f && Mathf.Repeat(u * 22f, 1f) < 0.3f) return EdgeTone;   // crochets
+            }
+
             return None;
         }
 

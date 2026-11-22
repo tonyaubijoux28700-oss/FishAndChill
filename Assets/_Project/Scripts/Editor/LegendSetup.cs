@@ -9,7 +9,8 @@ namespace FishAndChill.Editor
     /// <summary>
     /// Crée ou met à jour les poissons de légende (Data/Legendes) et dessine leurs artefacts (Art/Legendes).
     /// Tuna, la murène géante de l'île Mahana (Idole de corail), Bramafan, l'écrevisse titan du Lac d'Annecy (Médaillon
-    /// des palafittes), et Ipupiara, le payara titan du Fleuve Amazone (Grenouille de jade), chacun avec un artefact en 4 fragments.
+    /// des palafittes), Ipupiara, le payara titan du Fleuve Amazone (Grenouille de jade), et l'Isonade, la rascasse titan de
+    /// la Baie d'Izu (Miroir des marées), chacun avec un artefact en 4 fragments.
     /// Appelé par le menu du prototype, après la création des espèces et des zones.
     /// </summary>
     public static class LegendSetup
@@ -64,7 +65,49 @@ namespace FishAndChill.Editor
                 new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il se tord dans tous les sens !"),
             }, 600);
             EditorUtility.SetDirty(tuna);
-            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot) };
+            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot) };
+        }
+
+        /// <summary>
+        /// L'Isonade, la rascasse titan de la Baie d'Izu (espèce de base : la rascasse marbrée). Dans les légendes de
+        /// pêcheurs japonais, l'isonade est un monstre dont la queue hérissée de crochets arrache les marins des barques.
+        /// Artefact : le Miroir des marées, miroir de bronze de sanctuaire, en 4 fragments.
+        /// </summary>
+        private static LegendFish Isonade(int ppu, Vector2 pivot)
+        {
+            Sprite mirror = PixelArt.Save($"{ArtFolder}/Miroir_Marees.png", TideMirrorArt.Mirror(), ppu, pivot);
+            Sprite silhouette = PixelArt.Save($"{ArtFolder}/Miroir_Marees_Silhouette.png", TideMirrorArt.Silhouette(), ppu, pivot);
+            var fragments = new Sprite[TideMirrorArt.Fragments];
+            var centers = new Vector2[TideMirrorArt.Fragments];
+            for (int i = 0; i < fragments.Length; i++)
+            {
+                fragments[i] = PixelArt.Save($"{ArtFolder}/Miroir_Marees_Fragment_{i + 1}.png", TideMirrorArt.Piece(i), ppu, pivot);
+                centers[i] = TideMirrorArt.PieceCenter(i);
+            }
+
+            var species = FindSpecies("sebastiscus-marmoratus", "Assets/_Project/Data/Species/SebastiscusMarmoratus.asset");
+            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/BaieJaponaise.asset");
+            LegendFish isonade = LoadOrCreate(Folder + "/Isonade.asset");
+            isonade.Configure("isonade", "Isonade", species, zone, 400f, "Miroir des marées", TideMirrorArt.Fragments,
+                FragmentRules.DefaultChance, mirror, fragments, centers, silhouette, new[]
+                {
+                    "Le haut d'un miroir de bronze, verdi par la mer. Des vagues en écailles sont gravées sur le bord.",
+                    "Un morceau du disque où s'enroule une queue de poisson couverte de petits crochets.",
+                    "Un éclat du bord, poli d'un côté comme un miroir. On y voit passer une ombre qui n'est pas la tienne.",
+                    "Le manche, encore entouré de soie rouge. Gravé dessous : « Quand la mer se tait, l'Isonade est là ».",
+                });
+            Sprite art = PixelArt.Save($"{ArtFolder}/Isonade.png", IsonadeArt.Draw(), ppu, pivot);
+            isonade.ConfigureLook("Rascasse titan", art, BodyShape.Isonade);
+            // Le combat : il fouette l'eau de sa queue à crochets, hérisse ses épines et se secoue, puis se plaque au
+            // fond comme une rascasse sur son rocher. Plus dur qu'Ipupiara.
+            isonade.ConfigureFight(new[]
+            {
+                new LegendPhase(FightStyle.Rusher, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il fouette l'eau de sa queue à crochets !"),
+                new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.85f, 0.14f, 5, 2), "Il hérisse ses épines et se secoue !"),
+                new LegendPhase(FightStyle.Heavy, new QteDifficulty(1.35f, 0.17f, 5, 1), "Il se plaque au fond comme un rocher !"),
+            }, 1200);
+            EditorUtility.SetDirty(isonade);
+            return isonade;
         }
 
         /// <summary>
