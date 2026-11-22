@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: SeriolaLalandi
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: seriola-lalandi
+  _commonName: "S\xE9riole chicard"
+  _scientificName: Seriola lalandi
+  _rarity: 2
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 60, y: 190}
+  _basePrice: 45
+  _placeholderColor: {r: 0.3529412, g: 0.49411765, b: 0.5568628, a: 1}
+  _description: "Fuseau puissant \xE0 la ligne dor\xE9e, qui chasse en bandes au pied des \xE9paves et des rochers battus par la houle."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: d8a7e085dbb453a48a4d7f1a39be940e, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 87d33bced1b9948448474471812c3b74, type: 3}

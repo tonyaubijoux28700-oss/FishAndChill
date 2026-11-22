@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: CoryphaenaHippurus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: coryphaena-hippurus
+  _commonName: "Coryph\xE8ne"
+  _scientificName: Coryphaena hippurus
+  _rarity: 2
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 60, y: 150}
+  _basePrice: 45
+  _placeholderColor: {r: 0.22745098, g: 0.65882355, b: 0.41568628, a: 1}
+  _description: "Le mahi-mahi : front bomb\xE9, flancs vert et or qui p\xE2lissent d\xE8s qu'il sort de l'eau. Il chasse sous les objets qui flottent."
+  _activeTime: 1
+  _weather: 4
+  _sprite: {fileID: 21300000, guid: 6d984293053362142b751456715105fd, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 4be92d67317823646923356159efec52, type: 3}

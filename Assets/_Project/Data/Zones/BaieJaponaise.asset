@@ -46,6 +46,10 @@ MonoBehaviour:
     _weight: 3
   - _species: {fileID: 11400000, guid: 3cf87c85e8e593b40abe9cb2fe09d35f, type: 2}
     _weight: 7
+  - _species: {fileID: 11400000, guid: 9ef3ad75b5d8e5f43ae700e611834217, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 89bf240d97e99c8499ed3cc4bb23f796, type: 2}
+    _weight: 28
   _mapPosition: {x: 0.85, y: 0.67}
   _region: Shizuoka, Japon
   _climate:

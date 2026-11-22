@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ParapristipomaTrilineatum
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: parapristipoma-trilineatum
+  _commonName: "Grondeur \xE0 trois lignes"
+  _scientificName: Parapristipoma trilineatum
+  _rarity: 0
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 20, y: 40}
+  _basePrice: 6
+  _placeholderColor: {r: 0.47843137, g: 0.43137255, b: 0.30588236, a: 1}
+  _description: 'L''isaki des rochers : trois lignes claires sur un dos brun, qui s''effacent quand il grandit. Il mord surtout la nuit.'
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 4501586b31204144bbfc2dcdff4104a1, type: 3}
+  _miniSprite: {fileID: 21300000, guid: d78c19917fb13f64ab28f714f479c436, type: 3}

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: MobulaAlfredi
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: mobula-alfredi
+  _commonName: "Raie manta de r\xE9cif"
+  _scientificName: Mobula alfredi
+  _rarity: 3
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 4
+  _sizeRangeCm: {x: 250, y: 500}
+  _basePrice: 100
+  _placeholderColor: {r: 0.13333334, g: 0.14901961, b: 0.18039216, a: 1}
+  _description: "Ses ailes noires peuvent d\xE9passer cinq m\xE8tres. La nuit, elle vient tourner sous les lumi\xE8res des pontons pour gober le plancton, en faisant des loopings."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 36febcec40cfdc049b2c371df2a0197c, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 81402c8ce002dc84684282cfcc76bcbe, type: 3}

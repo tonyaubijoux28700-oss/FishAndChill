@@ -44,6 +44,10 @@ MonoBehaviour:
     _weight: 3
   - _species: {fileID: 11400000, guid: 6d3693f898d4f5b4a8304faee3701fb8, type: 2}
     _weight: 2
+  - _species: {fileID: 11400000, guid: 1cc7aac84ea7a0c4a907d57f64fe48b1, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 85146638677c353458b10695677bd46e, type: 2}
+    _weight: 28
   _mapPosition: {x: 0.54, y: 0.32}
   _region: Namibie
   _climate:
