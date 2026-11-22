@@ -5,7 +5,7 @@
 - **Laboratoire** (`World/LabBuilding`, objet « Laboratoire », dessins `LabArt` en volume : murs blanchis, toit de tôle
   bleue, coupole, antenne, hublots ; scientifique `CharacterArt.Scientist`) : dans les terres de l'est
   (`FindBuildingSite` autour du centre + 22 cases, `alsoAvoid` = boutique et maison), cour pavée, chemin et décor
-  (`TownLayout.DecorateLab`), icône sur la minimap. Intérieur 11×8 à `bounds.xMax + 20, yMin + 20` (au-dessus de la
+  (`TownLayout.DecorateLab`), icône sur la minimap. Intérieur 13×8 à `bounds.xMax + 20, yMin + 20` (au-dessus de la
   maison) : aquarium d'étude, étagères à bocaux, carte, affiche du poisson de légende, bureau, socle de pierre et plante
   (sprites à part, obstacles dans `LabBuilding`). **Vie** (`World/LabLife`, objet « Vie du laboratoire », dessins
   `LabArt.TankFish` / `Seaweed` / `Bubble` / `PedestalGlow` → `Art/Buildings/Laboratoire/`, seulement quand le joueur est
@@ -14,6 +14,23 @@
   dialogue, E/Espace suite, Échap ferme ; `PlayerAtDesk` / `DialogOpen` empêchent le sac de s'ouvrir). Première étape
   des **poissons de légende** (boss) : fragments d'artefact pêchés → artefact complet donné à la scientifique → boss
   invoqué dans sa zone, combat en 3 phases.
+- **Labo redessiné et aile des spécimens** : façade de 256 px (bâtiment principal de 160 px, porte à x = 80, et
+  **aile des spécimens** à droite : verrière bombée où luisent les tubes, hublots, cuve, cheminée ; `SpecimenLabArt.Wing`),
+  emprise 7,8 cases décalée de 1,5 à droite (`InteriorBuilding._footprintShift`), place réservée plus large
+  (`TownLayout.Block`, `FindBuildingSite` halfWidth 7). Pièce du labo élargie à **13×8** (paillasson toujours à x = 5,5,
+  `EntranceX`) : enduit bleu des grands fonds, lambris sombre et main courante de laiton, tuyau de cuivre au plafond,
+  **tableau noir** où les légendes sont esquissées à la craie (carte du monde punaisée dans le coin), lampe de banquier,
+  parquet de bateau avec flaques de lumière, tapis de marin à rose des vents, câble au sol, papiers tombés. Au fond à
+  droite, la **porte blindée** (`LabBuilding.SpecimenDoor`, « Haut : salle des spécimens ») mène à la **salle des
+  spécimens** (30×12 cases, `SpecimenOrigin` = 7 cases à droite de la pièce ; `SpecimenLabArt.Room` : panneaux d'acier
+  rivetés, tuyaux, câbles, tableaux de voyants, caillebotis, bandes jaunes et noires, sas au milieu du bas pour
+  ressortir). La caméra suit la salle où l'on est (`CameraRect`, `InSpecimenRoom`). **7 tubes** (`World/SpecimenTube`,
+  un par place, cuve + spécimen + verre dans un `SortingGroup`) : la légende n° i du `FishingController` dans le tube i
+  (`PrototypeSetup`), sa bête redressée tête en haut et réduite (`SpecimenLabArt.Specimen` →
+  `Art/Buildings/Laboratoire/Specimen_<id>.png`) n'apparaît qu'une fois la légende **vaincue** ; elle ondule, des bulles
+  montent, le liquide pulse ; sinon le tube reste vide et sombre. Devant un tube, la plaque s'affiche (nom, espèce,
+  taille, zone, ou « ??? »). Voyants qui clignotent et écrans qui défilent (`World/SpecimenRoomLife`). Animé seulement
+  quand on est dans la salle.
 - **Poissons de légende** (`Collection/LegendFish`, ScriptableObjects dans `Data/Legendes/`, générés par `LegendSetup` ;
   champ `_legends` du `FishingController`). Premier : **Tuna**, murène géante de 420 cm de l'île Mahana (espèce de base la
   murène javanaise ; nom de l'anguille géante d'une légende polynésienne), dessin `MorayArt` → `Art/Legendes/Tuna.png`

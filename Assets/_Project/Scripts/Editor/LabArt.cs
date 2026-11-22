@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static FishAndChill.Editor.VolumeCanvas;
+using static FishAndChill.Editor.CreatureShapes;
 
 namespace FishAndChill.Editor
 {
@@ -27,11 +28,11 @@ namespace FishAndChill.Editor
 
         // ---------- Façade ----------
 
-        public const int ExteriorWidth = 160;
+        public const int ExteriorWidth = 256;   // bâtiment principal (160 px) + aile des spécimens à droite
         public const int ExteriorHeight = 144;
 
         /// <summary>Pied de la façade (la porte).</summary>
-        public static readonly Vector2 ExteriorPivot = new Vector2(0.5f, 6f / ExteriorHeight);
+        public static readonly Vector2 ExteriorPivot = new Vector2(80f / ExteriorWidth, 6f / ExteriorHeight);
 
         public static Color[,] Exterior()
         {
@@ -99,6 +100,9 @@ namespace FishAndChill.Editor
             cv.Piece(Capsule(32f, 18f, 42f, 12f, 0.8f), C(0.50f, 0.52f, 0.56f), 0.8f);
             cv.Piece(Ellipse(43f, 11f, 1.8f, 1.8f), C(0.95f, 0.30f, 0.26f), 1.5f);
 
+            // Aile des spécimens, accolée à droite : verrière bombée où luisent les tubes, hublots, cuve et tuyaux.
+            SpecimenLabArt.Wing(cv, 160f, 250f);
+
             Color[,] p = cv.Finish(C(0.12f, 0.14f, 0.20f));
 
             // Ombre au sol et paillasson bleu sous la porte (y depuis le bas).
@@ -123,50 +127,109 @@ namespace FishAndChill.Editor
 
         // ---------- Intérieur (352×256 = 11×8 cases) ----------
 
-        public const int InteriorWidth = 352;
+        public const int InteriorWidth = 416;   // 13 cases : la pièce et, à droite, la porte de la salle des spécimens
         public const int InteriorHeight = 256;
         private const int WallBottom = 96;   // limite mur / carrelage (5 cases au-dessus du bas)
 
         public static Color[,] Interior()
         {
             var cv = new VolumeCanvas(InteriorWidth, InteriorHeight);
-            Color wall = C(0.84f, 0.92f, 0.90f), tile = C(0.92f, 0.94f, 0.92f), teal = C(0.42f, 0.70f, 0.72f);
+            Color plaster = C(0.20f, 0.36f, 0.42f), panel = C(0.36f, 0.24f, 0.15f), plank = C(0.52f, 0.36f, 0.22f), brass = C(0.86f, 0.66f, 0.30f);
 
-            // Mur du fond : peinture d'eau pâle, frise de carreaux bleus à mi-hauteur, plinthe.
-            cv.Piece(Box(-1, -1, InteriorWidth + 1, WallBottom), wall, 1.5f,
-                (x, y, c) => y > 62 && y < 70 ? ((x / 8 + y / 4) % 2 == 0 ? teal : Darker(teal, 1.12f)) : (x * 5 + y * 3) % 37 == 0 ? Darker(c, 0.95f) : c);
-            cv.Piece(Box(-1, WallBottom - 4, InteriorWidth + 1, WallBottom + 1), C(0.30f, 0.44f, 0.50f), 1.5f);
+            // Mur du fond : enduit bleu des grands fonds, taché par l'humidité, lambris de bois sombre en bas, main courante
+            // de laiton entre les deux, plinthe.
+            cv.Piece(Box(-1, -1, InteriorWidth + 1, WallBottom), plaster, 1.5f, (x, y, c) =>
+            {
+                if (y >= 58)
+                {
+                    Color wood = (x % 24 == 0) ? Darker(panel, 0.6f) : (x % 24 == 1) ? Darker(panel, 1.18f) : panel;
+                    return Noise(x / 3f, y / 9f) < 0.3f ? Darker(wood, 0.88f) : wood;
+                }
 
-            // Carrelage en damier, joints gris.
-            cv.Piece(Box(-1, WallBottom, InteriorWidth + 1, InteriorHeight + 1), tile, 1.2f,
+                Color wallShade = Color.Lerp(Darker(c, 0.7f), c, y / 58f);
+                return Noise(x / 11f, y / 7f) < 0.25f ? Darker(wallShade, 0.9f) : (x * 5 + y * 3) % 31 == 0 ? Darker(wallShade, 1.1f) : wallShade;
+            });
+            cv.Piece(Box(-1, 55, InteriorWidth + 1, 59), brass, 1.5f);
+            cv.Piece(Box(-1, WallBottom - 5, InteriorWidth + 1, WallBottom + 1), C(0.22f, 0.14f, 0.09f), 1.5f);
+
+            // Tuyau de cuivre au plafond, avec ses colliers, et un câble qui court jusqu'à la porte blindée.
+            cv.Piece(Box(-1, 3, InteriorWidth + 1, 9), C(0.74f, 0.46f, 0.26f), 3f, (x, y, c) => x % 48 < 4 ? Darker(c, 0.7f) : c);
+            cv.Piece(Tube(Curve(new Vector2(110, 10), new Vector2(240, 22), new Vector2(370, 10), 30), 1.2f, 1.2f), C(0.10f, 0.10f, 0.12f), 1f, null, 0.9f, 0.5f);
+
+            // Parquet de bateau : longues lattes vernies, joints décalés, usé au milieu ; deux flaques de lumière chaude
+            // sous les lampes.
+            cv.Piece(Box(-1, WallBottom, InteriorWidth + 1, InteriorHeight + 1), plank, 1.2f,
                 (x, y, c) =>
                 {
-                    int gx = x / 16, gy = (y - WallBottom) / 16;
-                    if (x % 16 == 0 || (y - WallBottom) % 16 == 0) return Darker(c, 0.80f);
-                    return (gx + gy) % 2 == 0 ? c : C(0.70f, 0.84f, 0.84f);
+                    int row = (y - WallBottom) / 12;
+                    int seam = (x + row * 37) % 72;
+                    if ((y - WallBottom) % 12 == 0) return Darker(c, 0.62f);
+                    if (seam == 0) return Darker(c, 0.7f);
+                    Color wood = row % 3 == 0 ? Darker(c, 0.92f) : row % 3 == 1 ? c : Darker(c, 1.06f);
+                    if (Noise(x / 14f, y / 3f) < 0.3f) wood = Darker(wood, 0.9f);
+                    if ((x + y * 2) % 53 == 0) wood = Darker(wood, 1.15f);
+                    foreach (float lx in new[] { 56f, 178f })
+                    {
+                        float dx = (x - lx) / 70f, dy = (y - 150f) / 40f;
+                        if (dx * dx + dy * dy < 1f) wood = Color.Lerp(wood, C(1f, 0.86f, 0.56f), 0.16f);
+                    }
+
+                    return wood;
                 }, 0.9f, 0.8f);
 
             // Murs de côté et bas de la pièce, paillasson.
-            cv.Piece(Union(Box(-1, -1, 7, InteriorHeight + 1), Box(InteriorWidth - 7, -1, InteriorWidth + 1, InteriorHeight + 1)), C(0.30f, 0.38f, 0.42f), 2f);
-            cv.Piece(Box(-1, InteriorHeight - 4, InteriorWidth + 1, InteriorHeight + 1), C(0.30f, 0.38f, 0.42f), 2f);
+            cv.Piece(Union(Box(-1, -1, 7, InteriorHeight + 1), Box(InteriorWidth - 7, -1, InteriorWidth + 1, InteriorHeight + 1)), C(0.16f, 0.12f, 0.10f), 2f);
+            cv.Piece(Box(-1, InteriorHeight - 4, InteriorWidth + 1, InteriorHeight + 1), C(0.16f, 0.12f, 0.10f), 2f);
             cv.Piece(Box(160, InteriorHeight - 10, 192, InteriorHeight - 3), C(0.22f, 0.44f, 0.68f), 2.5f, (x, y, c) => (x + y) % 3 == 0 ? Darker(c, 0.85f) : c);
 
-            // Grande carte du monde au mur, punaises rouges sur les zones.
-            cv.Piece(Box(108, 10, 206, 58), WoodDark, 2.5f);
-            cv.Piece(Box(112, 14, 202, 54), C(0.56f, 0.76f, 0.86f), 1.5f, (x, y, c) => (x * 3 + y * 7) % 29 == 0 ? Darker(c, 0.92f) : c);
-            cv.Piece(Union(Ellipse(134f, 28f, 11f, 8f), Ellipse(138f, 42f, 6f, 7f), Ellipse(162f, 26f, 13f, 9f), Ellipse(170f, 40f, 7f, 6f), Ellipse(190f, 44f, 8f, 5f)),
-                C(0.86f, 0.80f, 0.58f), 2f, (x, y, c) => (x + y) % 6 == 0 ? Darker(c, 0.9f) : c);
-            foreach ((int px, int py) in new[] { (128, 22), (156, 24), (174, 40), (190, 46), (140, 46) })
+            // Câble noir au sol, de la cuve d'étude à la porte blindée.
+            cv.Piece(Tube(Curve(new Vector2(100, 128), new Vector2(240, 240), new Vector2(380, 100), 40), 1.4f, 1.4f), C(0.08f, 0.08f, 0.10f), 1f, null, 0.9f, 0.5f);
+
+            // Papiers et croquis tombés par terre.
+            foreach ((float px, float py, float a) in new[] { (60f, 220f, 0.3f), (236f, 228f, -0.2f), (330f, 200f, 0.5f), (344f, 214f, -0.4f) })
             {
-                cv.Piece(Ellipse(px, py, 2f, 2f), C(0.92f, 0.24f, 0.22f), 1.5f);
+                Vector2 cpx = new Vector2(px, py);
+                Vector2 u = new Vector2(Mathf.Cos(a), Mathf.Sin(a)), v = new Vector2(-u.y, u.x);
+                cv.Piece(Poly(cpx - u * 8 - v * 6, cpx + u * 8 - v * 6, cpx + u * 8 + v * 6, cpx - u * 8 + v * 6), C(0.94f, 0.90f, 0.78f), 1f,
+                    (x, y, c) => (y + x / 3) % 4 == 0 ? Darker(c, 0.8f) : c, 0.85f, 0.7f);
             }
 
-            // Affiche du poisson de légende : silhouette géante sombre et point d'interrogation doré.
-            cv.Piece(Box(212, 10, 252, 58), C(0.92f, 0.86f, 0.70f), 1.5f);
-            cv.Piece(Union(Ellipse(228f, 38f, 11f, 7f), (x, y) => x > 237 && x < 247 && Mathf.Abs(y - 38f) < (x - 237) * 0.9f), C(0.18f, 0.22f, 0.30f), 4f);
-            cv.Dot(222, 37, C(0.95f, 0.30f, 0.26f));
-            cv.Piece(Union(Capsule(228f, 20f, 232f, 16f, 1.4f), Capsule(232f, 16f, 236f, 20f, 1.4f), Capsule(236f, 20f, 232f, 25f, 1.4f)), C(1f, 0.80f, 0.28f), 1.2f);
-            cv.Piece(Ellipse(232f, 28.5f, 1.4f, 1.4f), C(1f, 0.80f, 0.28f), 1.2f);
+            // Grand tableau noir dans un cadre de bois : les légendes esquissées à la craie, flèches, mesures et points
+            // d'interrogation, une carte du monde punaisée dans le coin.
+            cv.Piece(Box(106, 12, 250, 62), WoodDark, 2.5f);
+            cv.Piece(Box(110, 16, 246, 58), C(0.13f, 0.20f, 0.17f), 1.2f, (x, y, c) => Noise(x / 6f, y / 4f) < 0.3f ? C(0.20f, 0.28f, 0.24f) : c);
+            Color chalk = C(0.86f, 0.90f, 0.84f);
+            void Chalk(Vector2 a, Vector2 control, Vector2 b) => cv.Piece(Tube(Curve(a, control, b, 12), 0.6f, 0.6f), chalk, 0.5f, null, 0.95f, 0.9f);
+            // Une murène qui ondule, une pince d'écrevisse, une gueule à crocs, une queue à crochets.
+            Chalk(new Vector2(116, 40), new Vector2(128, 24), new Vector2(140, 40));
+            Chalk(new Vector2(140, 40), new Vector2(150, 54), new Vector2(160, 36));
+            cv.Piece(Ellipse(159f, 35f, 1f, 1f), chalk, 0.5f);
+            Chalk(new Vector2(170, 46), new Vector2(172, 28), new Vector2(184, 26));
+            Chalk(new Vector2(184, 26), new Vector2(190, 30), new Vector2(182, 36));
+            Chalk(new Vector2(170, 46), new Vector2(180, 40), new Vector2(182, 36));
+            for (int k = 0; k < 4; k++) Chalk(new Vector2(196 + k * 5, 36), new Vector2(197 + k * 5, 32), new Vector2(196 + k * 5, 29));
+            Chalk(new Vector2(194, 28), new Vector2(206, 22), new Vector2(214, 30));
+            Chalk(new Vector2(194, 38), new Vector2(206, 44), new Vector2(214, 36));
+            Chalk(new Vector2(120, 52), new Vector2(160, 50), new Vector2(200, 52));   // cote, flèche
+            Chalk(new Vector2(196, 49), new Vector2(198, 51), new Vector2(200, 52));
+            Chalk(new Vector2(196, 55), new Vector2(198, 53), new Vector2(200, 52));
+            Chalk(new Vector2(220, 46), new Vector2(232, 40), new Vector2(222, 34));   // point d'interrogation
+            cv.Piece(Ellipse(222f, 50f, 1.2f, 1.2f), chalk, 0.5f);
+            cv.Piece(Box(110, 57, 246, 61), WoodDark, 1.5f);   // auget à craies
+            cv.Piece(Box(150, 55, 158, 58), chalk, 1f);
+
+            // Carte du monde punaisée, un peu de travers, dans le coin du tableau.
+            cv.Piece(Poly(new Vector2(226, 14), new Vector2(252, 17), new Vector2(250, 36), new Vector2(224, 33)), C(0.90f, 0.82f, 0.62f), 1.5f,
+                (x, y, c) => Noise(x / 3f, y / 3f) < 0.35f ? C(0.56f, 0.74f, 0.78f) : c);
+            foreach ((int px, int py) in new[] { (232, 22), (240, 26), (246, 30) })
+            {
+                cv.Piece(Ellipse(px, py, 1.6f, 1.6f), C(0.92f, 0.24f, 0.22f), 1.2f);
+            }
+
+            // Lampe de banquier suspendue au tuyau, au-dessus du tableau : abat-jour vert, ampoule chaude.
+            cv.Piece(Capsule(178f, 9f, 178f, 14f, 0.6f), C(0.10f, 0.10f, 0.12f), 0.5f);
+            cv.Piece(Poly(new Vector2(170, 20), new Vector2(174, 14), new Vector2(182, 14), new Vector2(186, 20)), C(0.16f, 0.48f, 0.30f), 3f);
+            cv.Piece(Ellipse(178f, 21f, 3f, 1.6f), C(1f, 0.92f, 0.66f), 1f);
 
             // ---------- Aquarium d'étude, à gauche : meuble en bois, grande cuve, poissons, bulles ----------
             cv.Piece(Box(10, 96, 102, 132), Wood, 3f, (x, y, c) => x == 56 || y == 100 ? Darker(c, 0.72f) : c);
@@ -185,6 +248,9 @@ namespace FishAndChill.Editor
             cv.Piece(Ellipse(87f, 91f, 4f, 2f), C(0.36f, 0.38f, 0.42f), 2f);
 
             cv.Piece(Box(10, 18, 102, 24), C(0.30f, 0.34f, 0.40f), 2f);   // couvercle et lampe
+
+            // ---------- Porte blindée de la salle des spécimens, au bout à droite ----------
+            SpecimenLabArt.SpecimenDoor(cv, 362f, 398f, WallBottom);
 
             // ---------- Étagères à bocaux, à droite ----------
             cv.Piece(Box(256, 14, 342, 126), WoodDark, 2.5f);
@@ -205,14 +271,18 @@ namespace FishAndChill.Editor
                 }
             }
 
-            // Tapis rond au centre, devant le bureau.
-            cv.Piece(Ellipse(176f, 196f, 60f, 26f), C(0.22f, 0.44f, 0.68f), 3f,
+            // Grand tapis de marin devant le bureau : bordure à vagues, rose des vents au centre.
+            cv.Piece(Box(112, 170, 240, 224), C(0.16f, 0.28f, 0.40f), 3f,
                 (x, y, c) =>
                 {
-                    float u = (x - 176f) / 60f, v = (y - 196f) / 26f;
-                    int ring = (int)(Mathf.Sqrt(u * u + v * v) * 6f);
-                    Color band = ring % 2 == 0 ? c : C(0.90f, 0.86f, 0.70f);
-                    return (x + y) % 3 == 0 ? Darker(band, 0.9f) : band;
+                    bool border = x < 120 || x > 232 || y < 178 || y > 216;
+                    if (border) return ((x + (int)(Mathf.Sin(y * 0.5f) * 2f)) / 4) % 2 == 0 ? C(0.80f, 0.62f, 0.30f) : C(0.56f, 0.20f, 0.16f);
+                    float u = (x - 176f) / 50f, v = (y - 197f) / 17f;
+                    float r = Mathf.Sqrt(u * u + v * v), a = Mathf.Atan2(v, u);
+                    float star = 0.35f + 0.6f * Mathf.Pow(Mathf.Abs(Mathf.Cos(a * 2f)), 6f);
+                    if (r < star) return Mathf.Cos(a * 4f) > 0f ? C(0.90f, 0.82f, 0.60f) : C(0.80f, 0.62f, 0.30f);
+                    if (Mathf.Abs(r - 0.8f) < 0.05f) return C(0.80f, 0.62f, 0.30f);
+                    return (x + y) % 3 == 0 ? Darker(c, 0.85f) : c;
                 }, 0.92f);
 
             return cv.Finish(C(0.14f, 0.18f, 0.22f), 0.4f);

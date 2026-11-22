@@ -243,7 +243,7 @@ namespace FishAndChill.Editor
             Vector2Int lighthouseCell = FindLighthouseSite(terrain);
 
             // Le laboratoire de la scientifique : dans les terres de l'est, à l'écart des autres bâtiments.
-            Vector2Int labCell = FindBuildingSite(terrain, center + new Vector2Int(22, 2), aquariumCell, 16, halfWidth: 5, front: 6, back: 7, anyDirection: true,
+            Vector2Int labCell = FindBuildingSite(terrain, center + new Vector2Int(22, 2), aquariumCell, 16, halfWidth: 7, front: 6, back: 7, anyDirection: true,
                 alsoAvoid: new[] { shopCell, houseCell });
 
             // L'animalerie : au sud-ouest, entre la maison et la plage, loin du laboratoire (à l'est).
@@ -2494,7 +2494,9 @@ namespace FishAndChill.Editor
             so.FindProperty("_map").objectReferenceValue = map;
             so.FindProperty("_camera").objectReferenceValue = follow;
             so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
-            so.FindProperty("_footprint").vector2Value = new Vector2(4.8f, 2.6f);
+            // Bâtiment principal (5 cases) et aile des spécimens à droite (3 cases) : emprise de 8 cases décalée à droite.
+            so.FindProperty("_footprint").vector2Value = new Vector2(7.8f, 2.6f);
+            so.FindProperty("_footprintShift").floatValue = 1.5f;
             so.FindProperty("_skin").objectReferenceValue = UiSkinSetup.CreateOrUpdate();
             // Décor de l'atelier des artefacts, à l'échelle de l'interface (1 pixel = 4 unités, comme la charte).
             const string workshopFolder = "Assets/_Project/Art/UI/Atelier";
@@ -2584,7 +2586,102 @@ namespace FishAndChill.Editor
             lifeSo.FindProperty("_glow").objectReferenceValue = glow;
             lifeSo.FindProperty("_scientist").objectReferenceValue = room.transform.Find("Scientifique");
             lifeSo.ApplyModifiedPropertiesWithoutUndo();
+
+            BuildSpecimenRoom(lab, lifeFolder, AssetDatabase.LoadAssetAtPath<Sprite>($"{lifeFolder}/Bulle.png"));
             return lab;
+        }
+
+        /// <summary>
+        /// La salle des spécimens du laboratoire, derrière la porte blindée : sol et murs, 7 tubes (fond, spécimen, verre,
+        /// regroupés pour passer devant ou derrière le joueur), voyants qui clignotent et écrans qui défilent.
+        /// Les légendes et leurs spécimens sont posés dans les tubes par le menu du prototype.
+        /// </summary>
+        private static void BuildSpecimenRoom(LabBuilding lab, string lifeFolder, Sprite bubble)
+        {
+            int ppu = VolumeCanvas.PixelsPerUnit;
+            Sprite roomSprite = PixelArt.Save("Assets/_Project/Art/Buildings/Laboratoire_Specimens.png", SpecimenLabArt.Room(), ppu, Vector2.zero);
+            Sprite back = PixelArt.Save($"{lifeFolder}/Tube_Fond.png", SpecimenLabArt.TubeBack(), ppu, SpecimenLabArt.TubePivot);
+            Sprite front = PixelArt.Save($"{lifeFolder}/Tube_Verre.png", SpecimenLabArt.TubeFront(), ppu, SpecimenLabArt.TubePivot);
+
+            var lampPixels = new Color[3, 3];
+            var screenPixels = new Color[12, 1];
+            for (int x = 0; x < 3; x++) for (int y = 0; y < 3; y++) lampPixels[x, y] = x == 1 || y == 1 ? Color.white : new Color(1f, 1f, 1f, 0.45f);
+            for (int x = 0; x < 12; x++) screenPixels[x, 0] = new Color(0.70f, 1f, 0.84f, 0.85f);
+            Sprite lamp = PixelArt.Save($"{lifeFolder}/Voyant.png", lampPixels, ppu, Vector2.one * 0.5f);
+            Sprite scan = PixelArt.Save($"{lifeFolder}/Ecran_Ligne.png", screenPixels, ppu, Vector2.one * 0.5f);
+
+            GameObject room = EnsureObject("Laboratoire - Salle des spécimens", null);
+            Vector2 origin = lab.SpecimenOrigin;
+            room.transform.position = origin;
+            GameObject floor = EnsureObject("Sol et murs", room.transform);
+            floor.transform.localPosition = Vector3.zero;
+            SetSprite(floor, roomSprite, -5).spriteSortPoint = SpriteSortPoint.Center;
+
+            float inner = (SpecimenLabArt.TubeHeight - SpecimenLabArt.Inner.center.y - SpecimenLabArt.TubePivot.y * SpecimenLabArt.TubeHeight) / ppu;
+            for (int i = 0; i < SpecimenLabArt.Slots; i++)
+            {
+                GameObject tubeObject = EnsureObject($"Tube {i + 1}", room.transform);
+                tubeObject.transform.position = origin + new Vector2(SpecimenLabArt.SlotX(i), LabBuilding.TubeFootY);
+                var group = tubeObject.GetComponent<UnityEngine.Rendering.SortingGroup>();
+                if (group == null) group = tubeObject.AddComponent<UnityEngine.Rendering.SortingGroup>();
+                group.sortingOrder = 10;
+
+                GameObject backObject = EnsureObject("Cuve", tubeObject.transform);
+                backObject.transform.localPosition = Vector3.zero;
+                SpriteRenderer backRenderer = SetSprite(backObject, back, 0);
+                GameObject specimenObject = EnsureObject("Spécimen", tubeObject.transform);
+                specimenObject.transform.localPosition = new Vector3(0f, inner, 0f);
+                SpriteRenderer specimen = SetSprite(specimenObject, null, 2);
+                specimen.spriteSortPoint = SpriteSortPoint.Center;
+                GameObject glassObject = EnsureObject("Verre", tubeObject.transform);
+                glassObject.transform.localPosition = Vector3.zero;
+                SetSprite(glassObject, front, 4);
+
+                var tube = tubeObject.GetComponent<SpecimenTube>();
+                if (tube == null) tube = tubeObject.AddComponent<SpecimenTube>();
+                var tubeSo = new SerializedObject(tube);
+                tubeSo.FindProperty("_slot").intValue = i;
+                tubeSo.FindProperty("_back").objectReferenceValue = backRenderer;
+                tubeSo.FindProperty("_specimen").objectReferenceValue = specimen;
+                tubeSo.FindProperty("_bubble").objectReferenceValue = bubble;
+                tubeSo.FindProperty("_innerCenter").vector2Value = new Vector2(0f, inner);
+                tubeSo.FindProperty("_innerHalf").vector2Value = new Vector2(SpecimenLabArt.Inner.width * 0.5f / ppu, SpecimenLabArt.Inner.height * 0.5f / ppu);
+                tubeSo.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            // Voyants (3 par tableau) et lignes des petits écrans, posés sur le dessin du mur.
+            var lamps = new List<SpriteRenderer>();
+            var screens = new List<SpriteRenderer>();
+            Color[] lampColors = { new Color(0.50f, 1f, 0.66f), new Color(1f, 0.80f, 0.30f), new Color(1f, 0.40f, 0.34f) };
+            Vector2 Wall(float px, float pyFromTop) => origin + new Vector2(px / ppu, (SpecimenLabArt.RoomHeight - pyFromTop) / ppu);
+            for (int i = 0; i < SpecimenLabArt.Slots + 1; i++)
+            {
+                float cx = (SpecimenLabArt.SlotX(i) - 2f) * ppu;
+                for (int k = 0; k < 3; k++)
+                {
+                    GameObject l = EnsureObject($"Voyant {i + 1}-{k + 1}", room.transform);
+                    l.transform.position = Wall(cx - 5f + k * 5f + 0.5f, 89.5f);
+                    SpriteRenderer r = SetSprite(l, lamp, -4);
+                    r.color = lampColors[k];
+                    lamps.Add(r);
+                }
+
+                GameObject anchor = EnsureObject($"Écran {i + 1}", room.transform);
+                anchor.transform.position = Wall(cx, 97.5f);
+                GameObject line = EnsureObject("Ligne", anchor.transform);
+                screens.Add(SetSprite(line, scan, -4));
+            }
+
+            var roomLife = room.GetComponent<SpecimenRoomLife>();
+            if (roomLife == null) roomLife = room.AddComponent<SpecimenRoomLife>();
+            var roomSo = new SerializedObject(roomLife);
+            SerializedProperty lampList = roomSo.FindProperty("_lamps");
+            lampList.arraySize = lamps.Count;
+            for (int i = 0; i < lamps.Count; i++) lampList.GetArrayElementAtIndex(i).objectReferenceValue = lamps[i];
+            SerializedProperty screenList = roomSo.FindProperty("_screens");
+            screenList.arraySize = screens.Count;
+            for (int i = 0; i < screens.Count; i++) screenList.GetArrayElementAtIndex(i).objectReferenceValue = screens[i];
+            roomSo.ApplyModifiedPropertiesWithoutUndo();
         }
 
         /// <summary>
@@ -2613,8 +2710,8 @@ namespace FishAndChill.Editor
             so.FindProperty("_player").objectReferenceValue = player;
             so.FindProperty("_map").objectReferenceValue = map;
             so.FindProperty("_camera").objectReferenceValue = follow;
-            so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
             so.FindProperty("_footprint").vector2Value = new Vector2(4.8f, 2.6f);
+            so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             GameObject room = EnsureObject("Animalerie - Intérieur", null);

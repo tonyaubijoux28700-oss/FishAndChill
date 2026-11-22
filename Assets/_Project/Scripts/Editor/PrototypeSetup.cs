@@ -411,6 +411,30 @@ namespace FishAndChill.Editor
                 spotSo.ApplyModifiedPropertiesWithoutUndo();
             }
 
+            // Salle des spécimens : une légende par tube, dans l'ordre des légendes, et sa bête redressée tête en haut.
+            foreach (SpecimenTube tube in Object.FindObjectsByType<SpecimenTube>(FindObjectsInactive.Include))
+            {
+                var tubeSo = new SerializedObject(tube);
+                tubeSo.FindProperty("_progress").objectReferenceValue = progress;
+                LegendFish legend = tube.Slot < legends.Length ? legends[tube.Slot] : null;
+                tubeSo.FindProperty("_legend").objectReferenceValue = legend;
+                var specimen = (SpriteRenderer)tubeSo.FindProperty("_specimen").objectReferenceValue;
+                if (specimen != null)
+                {
+                    Sprite sprite = null;
+                    if (legend != null && legend.Art != null)
+                    {
+                        Color[,] art = PixelArt.Load(AssetDatabase.GetAssetPath(legend.Art));
+                        sprite = PixelArt.Save($"Assets/_Project/Art/Buildings/Laboratoire/Specimen_{legend.Id}.png", SpecimenLabArt.Specimen(art), VolumeCanvas.PixelsPerUnit, Vector2.one * 0.5f);
+                    }
+
+                    specimen.sprite = sprite;
+                    EditorUtility.SetDirty(specimen);
+                }
+
+                tubeSo.ApplyModifiedPropertiesWithoutUndo();
+            }
+
             // La scientifique du laboratoire parle des fragments trouvés.
             var labSo = new SerializedObject(buildings.Lab);
             labSo.FindProperty("_progress").objectReferenceValue = progress;

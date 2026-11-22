@@ -21,6 +21,9 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Emprise extérieure (largeur, profondeur) à partir de la façade.")]
         private Vector2 _footprint = new Vector2(5f, 2.4f);
 
+        [SerializeField, Tooltip("Décalage de l'emprise vers la droite par rapport à la porte (bâtiment à aile, comme le laboratoire).")]
+        private float _footprintShift;
+
         [SerializeField] private Color _interiorBackground = new Color(0.08f, 0.06f, 0.05f);
 
         private Color _outsideBackground;
@@ -67,7 +70,7 @@ namespace FishAndChill.World
             }
 
             // Le bâtiment vu de dehors.
-            _map.AddObstacle(new Rect(Door.x - _footprint.x * 0.5f, Door.y, _footprint.x, _footprint.y));
+            _map.AddObstacle(new Rect(Door.x + _footprintShift - _footprint.x * 0.5f, Door.y, _footprint.x, _footprint.y));
 
             Rect floor = FloorArea;
             _map.AddWalkableArea(new Rect(_interiorOrigin + floor.position, floor.size));
@@ -145,7 +148,7 @@ namespace FishAndChill.World
         protected virtual void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireCube(Door + new Vector2(0f, _footprint.y * 0.5f), _footprint);
+            Gizmos.DrawWireCube(Door + new Vector2(_footprintShift, _footprint.y * 0.5f), _footprint);
             Gizmos.DrawWireCube(InteriorRect.center, InteriorRect.size);
         }
     }

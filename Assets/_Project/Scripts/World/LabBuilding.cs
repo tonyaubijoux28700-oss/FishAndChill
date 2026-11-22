@@ -12,8 +12,37 @@ namespace FishAndChill.World
     /// </summary>
     public sealed class LabBuilding : InteriorBuilding
     {
-        public const float InteriorWidth = 11f;
+        public const float InteriorWidth = 13f;
         public const float InteriorHeight = 8f;
+
+        // ---------- Salle des spécimens (derrière la porte blindée, au fond à droite) ----------
+
+        /// <summary>Porte blindée dans le mur du fond (relatif à la pièce, en cases) : on y entre en poussant vers le haut.</summary>
+        public static readonly Rect SpecimenDoor = new Rect(11.2f, 4.2f, 1.3f, 0.6f);
+
+        public const float SpecimenRoomWidth = 30f;
+        public const float SpecimenRoomHeight = 12f;
+        /// <summary>Haut du sol de la salle des spécimens (le pied du mur), en cases depuis le bas.</summary>
+        public const float SpecimenFloorTop = 6f;
+        /// <summary>Pied des tubes, en cases depuis le bas de la salle.</summary>
+        public const float TubeFootY = 5.55f;
+
+        /// <summary>Coin bas-gauche de la salle des spécimens (à droite de la pièce, hors de l'île).</summary>
+        public Vector2 SpecimenOrigin => InteriorOrigin + new Vector2(InteriorWidth + 7f, 0f);
+
+        public Rect SpecimenRect => new Rect(SpecimenOrigin, new Vector2(SpecimenRoomWidth, SpecimenRoomHeight));
+
+        /// <summary>Le sas de la salle des spécimens, au milieu du bas : on en ressort en descendant.</summary>
+        public Vector2 SpecimenExit => SpecimenOrigin + new Vector2(SpecimenRoomWidth * 0.5f, 0.9f);
+
+        /// <summary>Le joueur est dans la salle des spécimens.</summary>
+        public bool InSpecimenRoom { get; private set; }
+
+        protected override float EntranceX => 5.5f;   // le paillasson reste sous le bureau, la pièce s'élargit à droite
+
+        protected override Rect CameraRect => InSpecimenRoom ? SpecimenRect : InteriorRect;
+
+        private SpecimenTube[] _tubes = new SpecimenTube[0];
 
         /// <summary>Nom de la scientifique, affiché sur sa boîte de dialogue.</summary>
         public const string ScientistName = "Dr Hina Teva";
@@ -104,6 +133,95 @@ namespace FishAndChill.World
             {
                 map.AddObstacle(new Rect(InteriorOrigin + r.position, r.size));
             }
+
+            // Salle des spécimens : son sol, et le socle de chaque tube.
+            map.AddWalkableArea(new Rect(SpecimenOrigin + new Vector2(0.3f, 0.15f), new Vector2(SpecimenRoomWidth - 0.6f, SpecimenFloorTop - 0.15f)));
+            _tubes = GetComponentsInChildren<SpecimenTube>(true);
+            if (_tubes.Length == 0)
+            {
+                _tubes = FindObjectsByType<SpecimenTube>(FindObjectsInactive.Include);
+            }
+
+            foreach (SpecimenTube tube in _tubes)
+            {
+                Vector2 foot = tube.transform.position;
+                map.AddObstacle(new Rect(foot.x - 1.75f, foot.y - 0.1f, 3.5f, SpecimenOrigin.y + SpecimenFloorTop - foot.y + 0.2f));
+            }
+        }
+
+        /// <summary>Passe la porte blindée : du laboratoire à la salle des spécimens, ou retour devant la porte.</summary>
+        public void GoToSpecimenRoom(bool enter)
+        {
+            InSpecimenRoom = enter;
+            if (enter)
+            {
+                Player.Teleport(SpecimenExit + new Vector2(0f, 0.3f), Vector2.up);
+            }
+            else
+            {
+                Player.Teleport(InteriorOrigin + new Vector2(SpecimenDoor.center.x, SpecimenDoor.yMin - 0.5f), Vector2.down);
+            }
+
+            if (FollowCamera != null)
+            {
+                FollowCamera.SetBoundsOverride(CameraRect);
+                FollowCamera.SnapToTarget();
+            }
+        }
+
+        /// <summary>Le tube devant lequel se tient le joueur (null : aucun).</summary>
+        private SpecimenTube TubeInFront()
+        {
+            if (!InSpecimenRoom || Player == null) return null;
+            Vector2 feet = Player.transform.position;
+            foreach (SpecimenTube tube in _tubes)
+            {
+                if (tube != null && Mathf.Abs(feet.x - tube.Front.x) < 1.4f && feet.y > tube.Front.y - 1.2f) return tube;
+            }
+
+            return null;
+        }
+
+        /// <summary>Ce que dit la plaque d'un tube.</summary>
+        public static string PlaqueText(SpecimenTube tube)
+        {
+            if (tube.HasSpecimen)
+            {
+                Collection.LegendFish legend = tube.Legend;
+                return $"{legend.Title}  —  {legend.KindName}, {legend.SizeCm:0} cm  —  {legend.Zone?.DisplayName}";
+            }
+
+            return tube.Legend != null ? "Spécimen n° " + (tube.Slot + 1) + " : ??? (en attente de capture)" : "Tube vide : aucune légende connue pour l'instant";
+        }
+
+        /// <summary>Portes de la salle des spécimens (vers le haut dans le labo, vers le bas au sas) et plaques des tubes.</summary>
+        private bool UpdateSpecimenDoors()
+        {
+            if (!IsPlayerInside || Player == null || Player.Locked)
+            {
+                return false;
+            }
+
+            Vector2 feet = Player.transform.position;
+            Vector2 input = Player.LastInput;
+            if (!InSpecimenRoom)
+            {
+                Rect door = new Rect(InteriorOrigin + SpecimenDoor.position, SpecimenDoor.size);
+                if (door.Contains(feet) && input.y > 0.5f)
+                {
+                    GoToSpecimenRoom(true);
+                    return true;
+                }
+
+                return false;
+            }
+
+            if (Mathf.Abs(feet.x - SpecimenExit.x) < 0.9f && feet.y < SpecimenOrigin.y + 0.6f && input.y < -0.5f)
+            {
+                GoToSpecimenRoom(false);
+            }
+
+            return true;
         }
 
         /// <summary>Là où l'on se tient pour ouvrir l'atelier des artefacts : devant le socle.</summary>
@@ -177,6 +295,26 @@ namespace FishAndChill.World
                 return;
             }
 
+            if (!IsPlayerInside)
+            {
+                InSpecimenRoom = false;
+            }
+
+            if (UpdateSpecimenDoors())
+            {
+                // Dans la salle des spécimens : seule la plaque du tube devant soi s'affiche.
+                SpecimenTube tube = TubeInFront();
+                PlayerAtDesk = false;
+                PlayerAtPedestal = false;
+                if (_prompt != null)
+                {
+                    _prompt.gameObject.SetActive(tube != null);
+                    if (tube != null) _prompt.text = PlaqueText(tube);
+                }
+
+                return;
+            }
+
             bool workshopOpen = Workshop != null && Workshop.IsOpen;
             base.Update();
             bool free = IsPlayerInside && Player != null && !Player.Locked;
@@ -187,8 +325,10 @@ namespace FishAndChill.World
             PlayerAtPedestal = atPedestal;   // reste vrai pendant que l'atelier est ouvert : E ne doit pas ouvrir le sac
             if (_prompt != null)
             {
-                _prompt.gameObject.SetActive((atDesk || atPedestal) && !workshopOpen);
-                _prompt.text = atPedestal ? "E : atelier des artefacts" : $"E : parler au {ScientistName}";
+                Vector2 doorFront = InteriorOrigin + new Vector2(SpecimenDoor.center.x, SpecimenDoor.yMin);
+                bool atDoor = free && Vector2.Distance(Player.transform.position, doorFront) <= 1.2f;
+                _prompt.gameObject.SetActive((atDesk || atPedestal || atDoor) && !workshopOpen);
+                _prompt.text = atPedestal ? "E : atelier des artefacts" : atDesk ? $"E : parler au {ScientistName}" : "Haut : salle des spécimens";
             }
 
             // L'appui sur E qui vient de fermer l'atelier ne le rouvre pas.

@@ -153,7 +153,7 @@ namespace FishAndChill.Editor
                 Block(aquarium.x - 6, aquarium.y, aquarium.x + 6, aquarium.y + 10);
                 Block(shop.x - 3, shop.y, shop.x + 3, shop.y + 3);
                 Block(house.x - 3, house.y, house.x + 3, house.y + 4);
-                Block(lab.x - 3, lab.y, lab.x + 3, lab.y + 4);
+                Block(lab.x - 3, lab.y, lab.x + 6, lab.y + 4);   // bâtiment principal et aile des spécimens à droite
                 Block(petShop.x - 3, petShop.y, petShop.x + 3, petShop.y + 4);
                 foreach (Vector2Int home in _villagers)
                 {
@@ -540,8 +540,8 @@ namespace FishAndChill.Editor
                 int ly = _lab.y;
                 Put(lx - 3, ly - 3, DecorKind.Lamp);
                 Put(lx - 4, ly + 1, DecorKind.Bush, 1);
-                Put(lx + 4, ly + 1, DecorKind.Crates, allowOnPaving: true);
-                Put(lx + 4, ly + 4, DecorKind.Rock, 0);
+                Put(lx + 7, ly + 1, DecorKind.Crates, allowOnPaving: true);
+                Put(lx + 7, ly + 4, DecorKind.Rock, 0);
             }
 
             /// <summary>Animalerie : massifs fleuris de part et d'autre, un buisson derrière, un lampadaire au bord de la cour.</summary>
