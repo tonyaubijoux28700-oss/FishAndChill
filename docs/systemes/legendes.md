@@ -66,7 +66,9 @@
   éclair blanc, bandeau « Tuna s'est réveillé ! », état `Summoned` ; le socle du labo montre le **dernier artefact assemblé** (`LegendProgress.LastAssembled`, sauvegardé dans `LastArtifact`).
   **Remous légendaire** (`World/LegendSpot`, objets « Remous légendaire de l'île » et « … du lac », `MapSetup.BuildLegendSpot`, relié à
   sa légende par `PrototypeSetup`) : visible seulement tant que la légende est réveillée ; eau libre fixe (graine) à
-  portée de lancer d'une rive, remous en spirale qui tourne et ondes (`Editor/LegendSpotArt` → `Art/Ambient/Remous_*.png`, à 16 px par case, jamais agrandis), ombre géante qui tourne (cachée quand la ligne est
+  portée de lancer d'une rive **qu'on rejoint à pied depuis le ponton** (`World/ShoreReach`, partagé avec les coins de pêche :
+  jamais au large d'un îlot inaccessible ; la rive retenue est `LegendSpot.Shore`, où « Aller au remous » du menu de test
+  pose le joueur), remous en spirale qui tourne et ondes (`Editor/LegendSpotArt` → `Art/Ambient/Remous_*.png`, à 16 px par case, jamais agrandis), ombre géante qui tourne (cachée quand la ligne est
   dedans), gros point doré sur la minimap. Le lancer y va tout seul (visée) ; dedans, c'est la légende qui mord
   (`FishingController.HookedLegend`, attente 5-8 s, ombre géante de 72 px sous le bouchon).
   **Combat de légende** (`Fishing/Core/LegendFight`, testé ; phases `LegendPhase` dans la fiche, `LegendFish.Phases`) :

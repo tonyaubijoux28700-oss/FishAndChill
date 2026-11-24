@@ -37,6 +37,12 @@ namespace FishAndChill.World
         public int Region => _region;
         public Vector2 Center { get; private set; }
 
+        /// <summary>Là où se tenir pour lancer sur le remous : une rive qu'on rejoint à pied depuis le ponton.</summary>
+        public Vector2 Shore { get; private set; }
+
+        /// <summary>Direction du regard depuis <see cref="Shore"/> vers le remous.</summary>
+        public Vector2 ShoreFacing { get; private set; } = Vector2.up;
+
         /// <summary>La légende attend ici (réveillée, pas encore vaincue) ?</summary>
         public bool IsAwake => _legend != null && _progress != null && _progress.Legends.State(_legend.Id) == LegendState.Summoned;
 
@@ -139,19 +145,26 @@ namespace FishAndChill.World
             }
         }
 
-        /// <summary>Eau libre, loin du ponton, avec une rive en face où se tenir à portée de lancer.</summary>
+        /// <summary>
+        /// Eau libre, loin du ponton, avec en face une rive qu'on rejoint à pied depuis le ponton, à portée de lancer
+        /// (jamais au large d'un îlot inaccessible).
+        /// </summary>
         private Vector2 PickCenter()
         {
             Rect bounds = _map.RegionBounds(_region);
+            var reach = new ShoreReach(_map, bounds, _avoid);
             for (int attempt = 0; attempt < 2000; attempt++)
             {
                 var p = new Vector2(Range(bounds.xMin + 3f, bounds.xMax - 3f), Range(bounds.yMin + 3f, bounds.yMax - 3f));
-                if (!_avoid.Contains(p) && OpenWater(p, 2.2f) && ReachableFromShore(p))
+                if (!_avoid.Contains(p) && OpenWater(p, 2.2f) && reach.FindShore(p, 2.6f, 4.2f, out Vector2 stand, out Vector2 facing))
                 {
+                    Shore = stand;
+                    ShoreFacing = facing;
                     return p;
                 }
             }
 
+            Shore = bounds.center;
             return bounds.center;
         }
 
@@ -167,20 +180,6 @@ namespace FishAndChill.World
             }
 
             return true;
-        }
-
-        private bool ReachableFromShore(Vector2 p)
-        {
-            Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
-            foreach (Vector2 d in directions)
-            {
-                for (float k = 2.6f; k <= 4.2f; k += 0.2f)
-                {
-                    if (_map.CanStandAt(p - d * k, 0.3f)) return true;
-                }
-            }
-
-            return false;
         }
     }
 }

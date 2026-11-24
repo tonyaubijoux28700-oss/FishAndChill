@@ -94,20 +94,10 @@ namespace FishAndChill.Editor
             }
 
             if (InteriorBuilding.Occupied != null) InteriorBuilding.Occupied.Exit();
-            foreach (Vector2 d in new[] { Vector2.up, Vector2.down, Vector2.left, Vector2.right })
-            {
-                for (float k = 2.6f; k <= 4.2f; k += 0.2f)
-                {
-                    Vector2 p = spot.Center - d * k;
-                    if (map.CanStandAt(p, 0.3f))
-                    {
-                        player.Teleport(p, d);
-                        Object.FindAnyObjectByType<CameraFollow>()?.SnapToTarget();
-                        Debug.Log("[FishAndChill] Face au remous : appuie sur Espace pour lancer.");
-                        return;
-                    }
-                }
-            }
+            // La rive choisie par le remous : celle qu'on rejoint à pied depuis le ponton.
+            player.Teleport(spot.Shore, spot.ShoreFacing);
+            Object.FindAnyObjectByType<CameraFollow>()?.SnapToTarget();
+            Debug.Log("[FishAndChill] Face au remous : appuie sur Espace pour lancer.");
         }
 
         [MenuItem(Root + "Remettre la légende à zéro")]
