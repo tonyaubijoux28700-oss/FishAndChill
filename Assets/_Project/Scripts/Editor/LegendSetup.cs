@@ -9,8 +9,9 @@ namespace FishAndChill.Editor
     /// <summary>
     /// Crée ou met à jour les poissons de légende (Data/Legendes) et dessine leurs artefacts (Art/Legendes).
     /// Tuna, la murène géante de l'île Mahana (Idole de corail), Bramafan, l'écrevisse titan du Lac d'Annecy (Médaillon
-    /// des palafittes), Ipupiara, le payara titan du Fleuve Amazone (Grenouille de jade), et l'Isonade, la rascasse titan de
-    /// la Baie d'Izu (Miroir des marées), chacun avec un artefact en 4 fragments.
+    /// des palafittes), Ipupiara, le payara titan du Fleuve Amazone (Grenouille de jade), l'Isonade, la rascasse titan de
+    /// la Baie d'Izu (Miroir des marées), et Rannamaari, le djinn des abysses de l'Atoll des Maldives (Lanterne de
+    /// corail), chacun avec un artefact en 4 fragments.
     /// Appelé par le menu du prototype, après la création des espèces et des zones.
     /// </summary>
     public static class LegendSetup
@@ -65,7 +66,49 @@ namespace FishAndChill.Editor
                 new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il se tord dans tous les sens !"),
             }, 600);
             EditorUtility.SetDirty(tuna);
-            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot) };
+            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot), Rannamaari(ppu, pivot) };
+        }
+
+        /// <summary>
+        /// Rannamaari, le démon de la mer de l'Atoll des Maldives (espèce de base : la bécune à nageoires noires). Dans la
+        /// légende maldivienne, il surgissait de l'horizon les nuits de pleine lune, « comme un navire couvert de
+        /// lumières ». Artefact : la Lanterne de corail, en 4 fragments.
+        /// </summary>
+        private static LegendFish Rannamaari(int ppu, Vector2 pivot)
+        {
+            Sprite lantern = PixelArt.Save($"{ArtFolder}/Lanterne_Corail.png", CoralLanternArt.Lantern(), ppu, pivot);
+            Sprite silhouette = PixelArt.Save($"{ArtFolder}/Lanterne_Corail_Silhouette.png", CoralLanternArt.Silhouette(), ppu, pivot);
+            var fragments = new Sprite[CoralLanternArt.Fragments];
+            var centers = new Vector2[CoralLanternArt.Fragments];
+            for (int i = 0; i < fragments.Length; i++)
+            {
+                fragments[i] = PixelArt.Save($"{ArtFolder}/Lanterne_Corail_Fragment_{i + 1}.png", CoralLanternArt.Piece(i), ppu, pivot);
+                centers[i] = CoralLanternArt.PieceCenter(i);
+            }
+
+            var species = FindSpecies("sphyraena-qenie", "Assets/_Project/Data/Species/SphyraenaQenie.asset");
+            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/Maldives.asset");
+            LegendFish rannamaari = LoadOrCreate(Folder + "/Rannamaari.asset");
+            rannamaari.Configure("rannamaari", "Rannamaari", species, zone, 460f, "Lanterne de corail", CoralLanternArt.Fragments,
+                FragmentRules.DefaultChance, lantern, fragments, centers, silhouette, new[]
+                {
+                    "L'anneau du haut, en corail rouge. Il est encore tiède, comme s'il venait d'être tenu.",
+                    "Une branche de la cage, et un cauri qui pend au bout d'un fil. Il tinte tout seul quand la mer monte.",
+                    "Le pied de corail mort, couvert de cauris. On dit qu'on les jetait à la mer pour qu'il passe son chemin.",
+                    "La perle, ronde comme la pleine lune. Au fond, une lueur bleue s'allume quand tu regardes l'horizon.",
+                });
+            Sprite art = PixelArt.Save($"{ArtFolder}/Rannamaari.png", RannamaariArt.Draw(), ppu, pivot);
+            rannamaari.ConfigureLook("Djinn des abysses", art, BodyShape.Rannamaari);
+            // Le combat : il file vers le large en faisant clignoter ses lumières, se tord comme un ruban, puis plonge
+            // vers les abysses de l'atoll de tout son poids. Le plus dur jusqu'ici.
+            rannamaari.ConfigureFight(new[]
+            {
+                new LegendPhase(FightStyle.Rusher, new QteDifficulty(1.7f, 0.15f, 5, 2), "Il file vers l'horizon, toutes lumières allumées !"),
+                new LegendPhase(FightStyle.Nervous, new QteDifficulty(2f, 0.13f, 5, 2), "Ses lumières clignotent, il se tord comme un ruban !"),
+                new LegendPhase(FightStyle.Heavy, new QteDifficulty(1.5f, 0.15f, 6, 1), "Il plonge vers les abysses de l'atoll !"),
+            }, 1500);
+            EditorUtility.SetDirty(rannamaari);
+            return rannamaari;
         }
 
         /// <summary>

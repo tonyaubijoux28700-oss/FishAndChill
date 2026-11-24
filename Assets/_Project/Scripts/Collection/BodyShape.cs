@@ -23,5 +23,8 @@ namespace FishAndChill.Collection
 
         /// <summary>Rascasse titan (Isonade) : tête énorme, grandes pectorales en éventail, épines du dos, queue en éventail hérissée de crochets.</summary>
         Isonade,
+
+        /// <summary>Djinn des abysses (Rannamaari) : long corps de barracuda, couronne de cornes, perle lumineuse devant la gueule, photophores le long des flancs.</summary>
+        Rannamaari,
     }
 }

@@ -610,7 +610,10 @@ namespace FishAndChill.UI
                     ? UiFactory.Plain(_panel, $"Légende {i + 1}", Color.white)
                     : UiFactory.Sliced(_panel, $"Légende {i + 1}", _skin != null ? _skin.Slot : null, _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
                 if (cards) frame.sprite = _look.Card;
-                UiFactory.Center(frame.rectTransform, new Vector2(-560f, 270f - i * 128f), new Vector2(332f, 116f));
+                // Jusqu'à 5 fiches à pleine taille ; au-delà, elles rapetissent pour tenir dans la colonne.
+                float step = Mathf.Min(128f, 640f / Mathf.Max(1, _legends.Count));
+                UiFactory.Center(frame.rectTransform, new Vector2(-560f, 270f - i * step - (128f - step) * 0.5f), new Vector2(332f, 116f));
+                frame.rectTransform.localScale = Vector3.one * (step / 128f);
                 Image icon = UiFactory.Plain(frame.rectTransform, "Icône", Color.white);
                 icon.preserveAspect = true;
                 UiFactory.Center(icon.rectTransform, new Vector2(-112f, -4f), new Vector2(66f, 88f));

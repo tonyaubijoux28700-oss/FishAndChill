@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4994546c4687664eb5edd8a7a9bb9e2, type: 3}
+  m_Name: Rannamaari
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.LegendFish
+  _id: rannamaari
+  _title: Rannamaari
+  _kindName: Djinn des abysses
+  _art: {fileID: 21300000, guid: 0300eba37a52992479224ae491897949, type: 3}
+  _shadowShape: 10
+  _species: {fileID: 11400000, guid: f3503a384ff62ed4586ee968acf924fe, type: 2}
+  _zone: {fileID: 11400000, guid: 3b48e273813a1bc43ba7dfd094286920, type: 2}
+  _sizeCm: 460
+  _phases:
+  - _style: 3
+    _difficulty:
+      _cursorSpeed: 1.7
+      _zoneWidth: 0.15
+      _requiredHits: 5
+      _maxMisses: 2
+    _cry: "Il file vers l'horizon, toutes lumi\xE8res allum\xE9es !"
+  - _style: 1
+    _difficulty:
+      _cursorSpeed: 2
+      _zoneWidth: 0.13
+      _requiredHits: 5
+      _maxMisses: 2
+    _cry: "Ses lumi\xE8res clignotent, il se tord comme un ruban !"
+  - _style: 4
+    _difficulty:
+      _cursorSpeed: 1.5
+      _zoneWidth: 0.15
+      _requiredHits: 6
+      _maxMisses: 1
+    _cry: Il plonge vers les abysses de l'atoll !
+  _rewardCoins: 1500
+  _artifactName: Lanterne de corail
+  _fragmentCount: 4
+  _fragmentChance: 0.03
+  _artifact: {fileID: 21300000, guid: 8a6230cbd125120449f20516577657d1, type: 3}
+  _fragments:
+  - {fileID: 21300000, guid: 1dc1fc6dd34cf63468e96c5281e2f8ec, type: 3}
+  - {fileID: 21300000, guid: 57408fe8c83e37b4784e3345ecd8e0a4, type: 3}
+  - {fileID: 21300000, guid: f1b96dbb3c3b36b4b8cbddf180dbc72e, type: 3}
+  - {fileID: 21300000, guid: 796159f765f83dd4c819e7b61fa8ba38, type: 3}
+  _fragmentCenters:
+  - {x: 0.5104167, y: 0.7421875}
+  - {x: 0.75, y: 0.4375}
+  - {x: 0.5, y: 0.265625}
+  - {x: 0.25, y: 0.46875}
+  _silhouette: {fileID: 21300000, guid: 9446368f425f59747be236d447561646, type: 3}
+  _fragmentLines:
+  - "L'anneau du haut, en corail rouge. Il est encore ti\xE8de, comme s'il venait d'\xEAtre tenu."
+  - Une branche de la cage, et un cauri qui pend au bout d'un fil. Il tinte tout seul quand la mer monte.
+  - "Le pied de corail mort, couvert de cauris. On dit qu'on les jetait \xE0 la mer pour qu'il passe son chemin."
+  - La perle, ronde comme la pleine lune. Au fond, une lueur bleue s'allume quand tu regardes l'horizon.

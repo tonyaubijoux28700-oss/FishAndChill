@@ -109,6 +109,7 @@ namespace FishAndChill.Fishing
                         case BodyShape.Crayfish: tone = Crayfish(u, v, phase); break;
                         case BodyShape.Payara: tone = Payara(u, v, phase); break;
                         case BodyShape.Isonade: tone = Isonade(u, v, phase); break;
+                        case BodyShape.Rannamaari: tone = Rannamaari(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -381,6 +382,61 @@ namespace FishAndChill.Fishing
 
             // Antennes.
             if (OnSegment(u, av, 0.4f, 0.04f, 0.95f, 0.5f + phase * 0.04f, 0.015f)) return EdgeTone;
+            return None;
+        }
+
+        /// <summary>
+        /// Rannamaari (djinn des abysses), vu de dessus : long corps de barracuda qui ondule comme un ruban, couronne de
+        /// cornes de chaque côté de la tête, longues pectorales en faux, queue en croissant, et ses lumières : deux yeux,
+        /// la perle au bout du filament devant la gueule, et une rangée de photophores le long de chaque flanc.
+        /// </summary>
+        private static int Rannamaari(float u, float v, int phase)
+        {
+            float s = Mathf.Clamp01((0.6f - u) * 0.6f);
+            v -= phase * 0.2f * s * s;
+            float av = Mathf.Abs(v);
+
+            if (InEllipse(u, av, 0.72f, 0.07f, 0.035f, 0.03f)) return EyeTone;
+
+            // La perle au bout du filament, devant la gueule.
+            if (InEllipse(u, v, 0.97f, 0f, 0.035f, 0.035f)) return EyeTone;
+            if (av < 0.008f && u > 0.82f && u < 0.94f) return EdgeTone;
+
+            // Corps long et fin : museau pointu, pédoncule fin.
+            float width = 0f;
+            if (u <= 0.88f && u >= -0.72f)
+            {
+                width = u >= 0.4f
+                    ? 0.14f * Mathf.Pow(Mathf.Max(0f, 1f - Mathf.Pow((u - 0.4f) / 0.48f, 2f)), 0.5f)
+                    : 0.035f + 0.105f * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.72f, 0.4f, u));
+            }
+
+            if (width > 0f && av <= width)
+            {
+                // Photophores le long des flancs.
+                if (u > -0.45f && u < 0.6f && Mathf.Abs(av - width * 0.7f) < 0.018f && Mathf.Repeat(u * 14f, 1f) < 0.3f) return EyeTone;
+                if (av > width * 0.82f) return EdgeTone;
+                return av < width * 0.35f && u > -0.5f && u < 0.8f ? CoreTone : BodyTone;
+            }
+
+            // Couronne de cornes, de chaque côté de la tête, tournées vers l'arrière.
+            for (int k = 0; k < 3; k++)
+            {
+                if (OnTaper(u, av, 0.6f - k * 0.06f, 0.1f, 0.47f - k * 0.06f, 0.22f - k * 0.02f, 0.022f, 0.004f)) return EdgeTone;
+            }
+
+            // Longues pectorales en faux, qui battent.
+            float flap = phase * 0.04f;
+            if (OnTaper(u, av, 0.32f, 0.1f, -0.05f, 0.34f + flap, 0.05f, 0.01f)) return BodyTone;
+
+            // Queue en croissant.
+            if (u < -0.68f && u >= -1f)
+            {
+                float k = (-0.68f - u) / 0.32f;
+                float outer = 0.035f + k * 0.3f;
+                if (av <= outer && !(k > 0.55f && av < (k - 0.55f) * 0.5f)) return k > 0.8f ? EdgeTone : BodyTone;
+            }
+
             return None;
         }
 

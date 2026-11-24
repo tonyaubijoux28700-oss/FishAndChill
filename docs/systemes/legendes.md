@@ -112,6 +112,20 @@
   (« Il fouette l'eau de sa queue à crochets ! »), nerveux (« Il hérisse ses épines et se secoue ! »), lourd (« Il se
   plaque au fond comme un rocher ! »), plus dur qu'Ipupiara, 1200 pièces. Remous « Remous légendaire de la baie » dans la
   région 3.
+- **Cinquième légende : Rannamaari**, djinn des abysses de 460 cm de l'**Atoll des Maldives** (espèce de base la bécune à
+  nageoires noires ; démon de la mer de la légende maldivienne, qui surgissait de l'horizon les nuits de pleine lune
+  « comme un navire couvert de lumières »). Choisi parmi trois esquisses (navire de lumières, djinn des abysses, tigre de
+  braise). Dessin `Editor/RannamaariArt` → `Art/Legendes/Rannamaari.png` (de profil : long corps de barracuda noir-vert,
+  couronne de cornes dressée derrière l'œil, côtes qui transparaissent, deux rangées de photophores bleus, dorsale en
+  ruban effilochée bordée de lueurs, longues pectorales aux veines bleues, mâchoire du bas en avant hérissée de crocs,
+  barbe de filaments aux bouts lumineux, filament du front portant une perle qui luit devant la gueule). Silhouette sous
+  l'eau `BodyShape.Rannamaari` (`FishShadowSprites.Rannamaari` : corps fin qui ondule, cornes, pectorales en faux, queue
+  en croissant, yeux, perle et photophores lumineux). Artefact **Lanterne de corail** (`Editor/CoralLanternArt`, 48×64 :
+  cage de branches de corail rouge autour d'une perle qui luit comme la lune, pied de corail mort couvert de cauris,
+  deux cauris qui pendent ; 4 quartiers dentelés). Combat : rush (« Il file vers l'horizon, toutes lumières allumées ! »),
+  nerveux (« Ses lumières clignotent, il se tord comme un ruban ! »), lourd (« Il plonge vers les abysses de l'atoll ! »),
+  le plus dur jusqu'ici, 1500 pièces. Remous « Remous légendaire de l'atoll » dans la région 5. Tube n° 5 de la salle des
+  spécimens. La liste de l'atelier des artefacts rapetisse ses fiches au-delà de 5 légendes.
 - **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
   `Center` / `Silhouette`), un `BuildLegendSpot` dans la région de sa zone (`PrototypeSetup.RegionOf` relie remous et
   légende). Le menu de test (**FishAndChill → Légendes (test)**) agit sur la légende de la zone où l'on est (sinon Tuna) et
