@@ -15,6 +15,7 @@ namespace FishAndChill.World
         [SerializeField] private PlayerProgress _progress;
         [SerializeField, Tooltip("Fond du tube (cuve, liquide, socle).")] private SpriteRenderer _back;
         [SerializeField, Tooltip("La bête, redressée tête en haut.")] private SpriteRenderer _specimen;
+        [SerializeField, Tooltip("Lueur verte du liquide sur le sol, devant le tube.")] private SpriteRenderer _floorGlow;
         [SerializeField, Tooltip("Une bulle (copiée plusieurs fois).")] private Sprite _bubble;
         [SerializeField, Tooltip("Milieu de l'intérieur du verre, relatif au pied du tube.")] private Vector2 _innerCenter = new Vector2(0f, 3f);
         [SerializeField, Tooltip("Demi-taille de l'intérieur du verre.")] private Vector2 _innerHalf = new Vector2(1.3f, 2f);
@@ -63,6 +64,7 @@ namespace FishAndChill.World
             bool shown = HasSpecimen;
             bool watched = InteriorBuilding.Occupied is LabBuilding lab && lab.InSpecimenRoom;
             if (_specimen != null) _specimen.enabled = shown;
+            if (_floorGlow != null) _floorGlow.enabled = shown && watched;
             if (_bubbles != null)
             {
                 foreach (SpriteRenderer b in _bubbles) b.enabled = shown && watched;
@@ -84,6 +86,13 @@ namespace FishAndChill.World
             if (!shown)
             {
                 return;
+            }
+
+            if (_floorGlow != null)
+            {
+                Color g = _floorGlow.color;
+                g.a = 0.55f + 0.25f * Mathf.Sin(t * 1.3f);
+                _floorGlow.color = g;
             }
 
             // La bête ondule : elle monte et descend, et tangue un peu, comme suspendue dans le liquide.

@@ -29,8 +29,13 @@
   (`PrototypeSetup`), sa bête redressée tête en haut et réduite (`SpecimenLabArt.Specimen` →
   `Art/Buildings/Laboratoire/Specimen_<id>.png`) n'apparaît qu'une fois la légende **vaincue** ; elle ondule, des bulles
   montent, le liquide pulse ; sinon le tube reste vide et sombre. Devant un tube, la plaque s'affiche (nom, espèce,
-  taille, zone, ou « ??? »). Voyants qui clignotent et écrans qui défilent (`World/SpecimenRoomLife`). Animé seulement
-  quand on est dans la salle.
+  taille, zone, ou « ??? »). Une lueur verte pulse au sol devant chaque tube occupé (`_floorGlow`). **Mobilier** (dessins
+  `SpecimenLabArt`, pieds et obstacles dans `LabBuilding` : `TableFoot`, `ConsoleFoot`, `CartFoot`, `CratesFoot`,
+  `PoolFoot`, `VentSpots`) : table de dissection au squelette géant, console d'analyse à deux écrans (courbe et sonar,
+  8 images chacun), chariot de bocaux qui luisent, caisses de transport, bassin de quarantaine où tourne un petit
+  poisson, bouches d'aération qui crachent de la vapeur, flaques de liquide, câbles au sol. Voyants qui clignotent,
+  écrans qui défilent, vapeur, écrans de console et poisson animés par `World/SpecimenRoomLife`. Animé seulement quand
+  on est dans la salle.
 - **Poissons de légende** (`Collection/LegendFish`, ScriptableObjects dans `Data/Legendes/`, générés par `LegendSetup` ;
   champ `_legends` du `FishingController`). Premier : **Tuna**, murène géante de 420 cm de l'île Mahana (espèce de base la
   murène javanaise ; nom de l'anguille géante d'une légende polynésienne), dessin `MorayArt` → `Art/Legendes/Tuna.png`

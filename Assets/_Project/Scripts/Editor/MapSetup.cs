@@ -2617,6 +2617,7 @@ namespace FishAndChill.Editor
             floor.transform.localPosition = Vector3.zero;
             SetSprite(floor, roomSprite, -5).spriteSortPoint = SpriteSortPoint.Center;
 
+            Sprite floorGlow = PixelArt.Save($"{lifeFolder}/Tube_Lueur.png", SpecimenLabArt.Glow(96, 30, new Color(0.45f, 1f, 0.70f), 0.55f), ppu, Vector2.one * 0.5f);
             float inner = (SpecimenLabArt.TubeHeight - SpecimenLabArt.Inner.center.y - SpecimenLabArt.TubePivot.y * SpecimenLabArt.TubeHeight) / ppu;
             for (int i = 0; i < SpecimenLabArt.Slots; i++)
             {
@@ -2644,6 +2645,9 @@ namespace FishAndChill.Editor
                 tubeSo.FindProperty("_back").objectReferenceValue = backRenderer;
                 tubeSo.FindProperty("_specimen").objectReferenceValue = specimen;
                 tubeSo.FindProperty("_bubble").objectReferenceValue = bubble;
+                GameObject glowObject = EnsureObject($"Lueur au sol {i + 1}", room.transform);
+                glowObject.transform.position = origin + new Vector2(SpecimenLabArt.SlotX(i), LabBuilding.TubeFootY - 0.45f);
+                tubeSo.FindProperty("_floorGlow").objectReferenceValue = SetSprite(glowObject, floorGlow, -4);
                 tubeSo.FindProperty("_innerCenter").vector2Value = new Vector2(0f, inner);
                 tubeSo.FindProperty("_innerHalf").vector2Value = new Vector2(SpecimenLabArt.Inner.width * 0.5f / ppu, SpecimenLabArt.Inner.height * 0.5f / ppu);
                 tubeSo.ApplyModifiedPropertiesWithoutUndo();
@@ -2672,9 +2676,109 @@ namespace FishAndChill.Editor
                 screens.Add(SetSprite(line, scan, -4));
             }
 
+            // Mobilier : table de dissection, console d'analyse, chariot d'échantillons, caisses, bassin de quarantaine.
+            const string folder = "Assets/_Project/Art/Buildings/Laboratoire";
+            SpriteRenderer Furniture(string name, string file, Color[,] art, Vector2 pivot, Vector2 foot)
+            {
+                GameObject go = EnsureObject(name, room.transform);
+                go.transform.position = origin + foot;
+                return SetSprite(go, PixelArt.Save($"{folder}/{file}.png", art, ppu, pivot), 10);
+            }
+
+            Furniture("Table de dissection", "Salle_Table", SpecimenLabArt.DissectionTable(), SpecimenLabArt.TablePivot, LabBuilding.TableFoot);
+            SpriteRenderer console = Furniture("Console d'analyse", "Salle_Console", SpecimenLabArt.AnalysisConsole(), SpecimenLabArt.ConsolePivot, LabBuilding.ConsoleFoot);
+            Furniture("Chariot d'échantillons", "Salle_Chariot", SpecimenLabArt.SampleCart(), SpecimenLabArt.CartPivot, LabBuilding.CartFoot);
+            Furniture("Caisses", "Salle_Caisses", SpecimenLabArt.Crates(), SpecimenLabArt.CratesPivot, LabBuilding.CratesFoot);
+            SpriteRenderer pool = Furniture("Bassin de quarantaine", "Salle_Bassin", SpecimenLabArt.QuarantinePool(), SpecimenLabArt.PoolPivot, LabBuilding.PoolFoot);
+
+            // Les deux écrans de la console, au-dessus du bureau (même groupe de tri que la console).
+            var consoleScreens = new List<SpriteRenderer>();
+            var waveFrames = new Sprite[8];
+            var sonarFrames = new Sprite[8];
+            for (int f = 0; f < 8; f++)
+            {
+                waveFrames[f] = PixelArt.Save($"{folder}/Salle_Ecran_Courbe_{f}.png", SpecimenLabArt.ScreenFrame(f, false), ppu, Vector2.one * 0.5f);
+                sonarFrames[f] = PixelArt.Save($"{folder}/Salle_Ecran_Sonar_{f}.png", SpecimenLabArt.ScreenFrame(f, true), ppu, Vector2.one * 0.5f);
+            }
+
+            for (int s = 0; s < SpecimenLabArt.ConsoleScreens.Length; s++)
+            {
+                Rect r = SpecimenLabArt.ConsoleScreens[s];
+                GameObject screen = EnsureObject($"Écran {s + 1}", console.transform);
+                float pivotY = SpecimenLabArt.ConsolePivot.y * SpecimenLabArt.ConsoleHeight;
+                screen.transform.localPosition = new Vector3((r.center.x - SpecimenLabArt.ConsoleWidth * 0.5f) / ppu, (SpecimenLabArt.ConsoleHeight - r.center.y - pivotY) / ppu, 0f);
+                SpriteRenderer sr = SetSprite(screen, s == 0 ? waveFrames[0] : sonarFrames[0], 10);
+                sr.spriteSortPoint = SpriteSortPoint.Pivot;
+                consoleScreens.Add(sr);
+            }
+
+            var group2 = console.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            if (group2 == null) group2 = console.gameObject.AddComponent<UnityEngine.Rendering.SortingGroup>();
+            group2.sortingOrder = 10;
+            foreach (SpriteRenderer sr in consoleScreens) sr.sortingOrder = 1;
+            console.sortingOrder = 0;
+
+            // Le petit poisson du bassin, au ras de l'eau.
+            Sprite poolFishSprite = AssetDatabase.LoadAssetAtPath<Sprite>($"{lifeFolder}/Poisson_Jaune_0.png");
+            float poolWaterY = (SpecimenLabArt.PoolHeight - 28f - SpecimenLabArt.PoolPivot.y * SpecimenLabArt.PoolHeight) / ppu;
+            Vector2 poolCenter = origin + LabBuilding.PoolFoot + new Vector2(0f, poolWaterY);
+            GameObject poolFishObject = EnsureObject("Poisson du bassin", pool.transform);
+            poolFishObject.transform.position = poolCenter;
+            SpriteRenderer poolFish = SetSprite(poolFishObject, poolFishSprite, 1);
+            var group3 = pool.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            if (group3 == null) group3 = pool.gameObject.AddComponent<UnityEngine.Rendering.SortingGroup>();
+            group3.sortingOrder = 10;
+            pool.sortingOrder = 0;
+
+            // Bouches d'aération et leur vapeur, flaques de liquide renversé.
+            Sprite vent = PixelArt.Save($"{folder}/Salle_Aeration.png", SpecimenLabArt.FloorVent(), ppu, Vector2.one * 0.5f);
+            Sprite steamSprite = PixelArt.Save($"{folder}/Salle_Vapeur.png", SpecimenLabArt.Steam(), ppu, Vector2.one * 0.5f);
+            Sprite puddle = PixelArt.Save($"{folder}/Salle_Flaque.png", SpecimenLabArt.Glow(56, 20, new Color(0.40f, 0.90f, 0.64f), 0.5f), ppu, Vector2.one * 0.5f);
+            var steam = new List<SpriteRenderer>();
+            for (int v = 0; v < LabBuilding.VentSpots.Length; v++)
+            {
+                GameObject ventObject = EnsureObject($"Aération {v + 1}", room.transform);
+                ventObject.transform.position = origin + LabBuilding.VentSpots[v];
+                SetSprite(ventObject, vent, -4);
+                for (int k = 0; k < 3; k++)
+                {
+                    GameObject puff = EnsureObject($"Vapeur {v + 1}-{k + 1}", room.transform);
+                    puff.transform.position = origin + LabBuilding.VentSpots[v];
+                    SpriteRenderer sr = SetSprite(puff, steamSprite, 30);
+                    steam.Add(sr);
+                }
+            }
+
+            Vector2[] puddles = { new Vector2(13.8f, 4.4f), new Vector2(7.2f, 4.6f), new Vector2(23.6f, 4.5f) };
+            for (int p = 0; p < puddles.Length; p++)
+            {
+                GameObject puddleObject = EnsureObject($"Flaque {p + 1}", room.transform);
+                puddleObject.transform.position = origin + puddles[p];
+                SetSprite(puddleObject, puddle, -4);
+            }
+
             var roomLife = room.GetComponent<SpecimenRoomLife>();
             if (roomLife == null) roomLife = room.AddComponent<SpecimenRoomLife>();
             var roomSo = new SerializedObject(roomLife);
+            SerializedProperty consoleList = roomSo.FindProperty("_consoleScreens");
+            consoleList.arraySize = consoleScreens.Count;
+            for (int i = 0; i < consoleScreens.Count; i++) consoleList.GetArrayElementAtIndex(i).objectReferenceValue = consoleScreens[i];
+            SerializedProperty waveList = roomSo.FindProperty("_waveFrames");
+            SerializedProperty sonarList = roomSo.FindProperty("_sonarFrames");
+            waveList.arraySize = waveFrames.Length;
+            sonarList.arraySize = sonarFrames.Length;
+            for (int i = 0; i < waveFrames.Length; i++)
+            {
+                waveList.GetArrayElementAtIndex(i).objectReferenceValue = waveFrames[i];
+                sonarList.GetArrayElementAtIndex(i).objectReferenceValue = sonarFrames[i];
+            }
+
+            SerializedProperty steamList = roomSo.FindProperty("_steam");
+            steamList.arraySize = steam.Count;
+            for (int i = 0; i < steam.Count; i++) steamList.GetArrayElementAtIndex(i).objectReferenceValue = steam[i];
+            roomSo.FindProperty("_poolFish").objectReferenceValue = poolFish;
+            roomSo.FindProperty("_poolCenter").vector2Value = poolCenter;
+            roomSo.FindProperty("_poolRadius").vector2Value = new Vector2(0.75f, 0.22f);
             SerializedProperty lampList = roomSo.FindProperty("_lamps");
             lampList.arraySize = lamps.Count;
             for (int i = 0; i < lamps.Count; i++) lampList.GetArrayElementAtIndex(i).objectReferenceValue = lamps[i];

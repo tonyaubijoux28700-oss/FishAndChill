@@ -27,6 +27,23 @@ namespace FishAndChill.World
         /// <summary>Pied des tubes, en cases depuis le bas de la salle.</summary>
         public const float TubeFootY = 5.55f;
 
+        // Mobilier de la salle des spécimens : pied de chaque meuble (relatif à la salle, en cases) et ce qu'il bloque.
+        public static readonly Vector2 TableFoot = new Vector2(10.5f, 2.0f);
+        public static readonly Vector2 ConsoleFoot = new Vector2(21.5f, 2.7f);
+        public static readonly Vector2 CartFoot = new Vector2(26.8f, 1.5f);
+        public static readonly Vector2 CratesFoot = new Vector2(2.4f, 1.4f);
+        public static readonly Vector2 PoolFoot = new Vector2(18.2f, 0.6f);
+        public static readonly Vector2[] VentSpots = { new Vector2(5.5f, 3.7f), new Vector2(24.5f, 0.9f) };
+
+        private static readonly Rect[] SpecimenFurniture =
+        {
+            new Rect(7.7f, 1.9f, 5.6f, 1.0f),    // table de dissection
+            new Rect(19.6f, 2.6f, 3.8f, 0.9f),   // console d'analyse
+            new Rect(25.9f, 1.4f, 1.8f, 0.5f),   // chariot d'échantillons
+            new Rect(1.0f, 1.3f, 2.8f, 1.2f),    // caisses
+            new Rect(16.8f, 0.55f, 2.8f, 1.0f),  // bassin de quarantaine
+        };
+
         /// <summary>Coin bas-gauche de la salle des spécimens (à droite de la pièce, hors de l'île).</summary>
         public Vector2 SpecimenOrigin => InteriorOrigin + new Vector2(InteriorWidth + 7f, 0f);
 
@@ -136,6 +153,10 @@ namespace FishAndChill.World
 
             // Salle des spécimens : son sol, et le socle de chaque tube.
             map.AddWalkableArea(new Rect(SpecimenOrigin + new Vector2(0.3f, 0.15f), new Vector2(SpecimenRoomWidth - 0.6f, SpecimenFloorTop - 0.15f)));
+            foreach (Rect r in SpecimenFurniture)
+            {
+                map.AddObstacle(new Rect(SpecimenOrigin + r.position, r.size));
+            }
             _tubes = GetComponentsInChildren<SpecimenTube>(true);
             if (_tubes.Length == 0)
             {
