@@ -277,7 +277,10 @@ namespace FishAndChill.World
 
         private SpriteRenderer _pedestalIdol;
 
-        /// <summary>Montre sur le socle le premier artefact assemblé ; il brille davantage une fois son gardien réveillé.</summary>
+        /// <summary>
+        /// Montre sur le socle le dernier artefact assemblé ; il bouge davantage une fois son gardien réveillé.
+        /// Ancienne sauvegarde (dernier inconnu) : le dernier assemblé dans l'ordre des légendes.
+        /// </summary>
         private void UpdatePedestal()
         {
             if (_pedestalIdol == null || !IsPlayerInside)
@@ -286,11 +289,17 @@ namespace FishAndChill.World
             }
 
             Collection.LegendFish shown = null;
+            string last = _progress.Legends.LastAssembled;
             foreach (Collection.LegendFish legend in _fishing.Legends)
             {
-                if (legend != null && _progress.Legends.State(legend.Id) != Collection.LegendState.Collecting)
+                if (legend == null || _progress.Legends.State(legend.Id) == Collection.LegendState.Collecting)
                 {
-                    shown = legend;
+                    continue;
+                }
+
+                shown = legend;
+                if (legend.Id == last)
+                {
                     break;
                 }
             }

@@ -107,6 +107,9 @@ namespace FishAndChill.Save
         /// <summary>Poissons de légende : fragments d'artefact pêchés et étape (vide pour une ancienne sauvegarde).</summary>
         public List<Legend> Legends = new List<Legend>();
 
+        /// <summary>Dernier artefact assemblé, celui qui trône sur le socle du laboratoire (vide : ancienne sauvegarde).</summary>
+        public string LastArtifact;
+
         /// <summary>Prénom et apparence du pêcheur (ancienne sauvegarde : le pêcheur d'origine, sans prénom).</summary>
         public Player.CharacterLook Look = new Player.CharacterLook();
     }

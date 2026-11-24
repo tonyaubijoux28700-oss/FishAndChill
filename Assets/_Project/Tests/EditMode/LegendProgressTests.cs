@@ -24,6 +24,29 @@ namespace FishAndChill.Tests
         }
 
         [Test]
+        public void LastAssembled_FollowsTheLatestCompletedArtifact()
+        {
+            var progress = new LegendProgress();
+            Assert.That(progress.LastAssembled, Is.Null);
+
+            progress.AddFragment("tuna", 1);
+            progress.PlaceFragment("tuna", 1);
+            Assert.That(progress.LastAssembled, Is.EqualTo("tuna"));
+
+            progress.AddFragment("ulua", 2);
+            progress.PlaceFragment("ulua", 2);
+            Assert.That(progress.LastAssembled, Is.EqualTo("tuna"), "ulua n'est pas encore complet");
+            progress.AddFragment("ulua", 2);
+            progress.PlaceFragment("ulua", 2);
+            Assert.That(progress.LastAssembled, Is.EqualTo("ulua"));
+
+            progress.Reset("ulua");
+            Assert.That(progress.LastAssembled, Is.Null);
+            progress.RestoreLastAssembled("tuna");
+            Assert.That(progress.LastAssembled, Is.EqualTo("tuna"));
+        }
+
+        [Test]
         public void Placing_GoesInOrder_AndTheLastCompletesTheArtifact()
         {
             var progress = new LegendProgress();

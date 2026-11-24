@@ -33,6 +33,12 @@ namespace FishAndChill.Collection
         /// <summary>Fragments pêchés mais pas encore posés.</summary>
         public int InHand(string id) => Fragments(id) - Placed(id);
 
+        /// <summary>Le dernier artefact assemblé (celui qui trône sur le socle), ou null.</summary>
+        public string LastAssembled { get; private set; }
+
+        /// <summary>Remet le dernier artefact assemblé d'une sauvegarde (sans déclencher Changed).</summary>
+        public void RestoreLastAssembled(string id) => LastAssembled = string.IsNullOrEmpty(id) ? null : id;
+
         public LegendState State(string id) => id != null && _entries.TryGetValue(id, out Entry e) ? e.State : LegendState.Collecting;
 
         /// <summary>Reste-t-il des fragments à pêcher pour cet artefact ?</summary>
@@ -72,6 +78,7 @@ namespace FishAndChill.Collection
             if (entry.Placed >= total)
             {
                 entry.State = LegendState.Complete;
+                LastAssembled = id;
             }
 
             Changed?.Invoke();
@@ -109,6 +116,7 @@ namespace FishAndChill.Collection
         {
             if (!string.IsNullOrEmpty(id) && _entries.Remove(id))
             {
+                if (LastAssembled == id) LastAssembled = null;
                 Changed?.Invoke();
             }
         }

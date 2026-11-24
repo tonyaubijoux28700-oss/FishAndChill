@@ -274,6 +274,7 @@ namespace FishAndChill.Save
                 data.Legends.Add(new SaveData.Legend { Id = id, Fragments = _progress.Legends.Fragments(id), Placed = _progress.Legends.Placed(id), State = (int)_progress.Legends.State(id) });
             }
 
+            data.LastArtifact = _progress.Legends.LastAssembled;
             data.Look = Look;
             try
             {
@@ -371,6 +372,8 @@ namespace FishAndChill.Save
                     }
                 }
             }
+
+            _progress.Legends.RestoreLastAssembled(data.LastArtifact);
 
             if (_cycle != null)
             {

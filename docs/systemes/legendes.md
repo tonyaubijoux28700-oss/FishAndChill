@@ -63,7 +63,7 @@
   `PlaceNext()`. La scientifique dit combien il en manque, invite à les poser, puis réagit à l'artefact complet.
   Par script : `FishingController.DebugFindFragment()`.
   **Réveil** : artefact complet → Espace dans l'atelier (`ArtifactWorkshop.Summon`) : l'idole tremble, étincelles,
-  éclair blanc, bandeau « Tuna s'est réveillé ! », état `Summoned` ; l'idole trône ensuite sur le socle du labo.
+  éclair blanc, bandeau « Tuna s'est réveillé ! », état `Summoned` ; le socle du labo montre le **dernier artefact assemblé** (`LegendProgress.LastAssembled`, sauvegardé dans `LastArtifact`).
   **Remous légendaire** (`World/LegendSpot`, objets « Remous légendaire de l'île » et « … du lac », `MapSetup.BuildLegendSpot`, relié à
   sa légende par `PrototypeSetup`) : visible seulement tant que la légende est réveillée ; eau libre fixe (graine) à
   portée de lancer d'une rive, remous en spirale qui tourne et ondes (`Editor/LegendSpotArt` → `Art/Ambient/Remous_*.png`, à 16 px par case, jamais agrandis), ombre géante qui tourne (cachée quand la ligne est
