@@ -11,7 +11,8 @@ namespace FishAndChill.Editor
     /// Tuna, la murène géante de l'île Mahana (Idole de corail), Bramafan, l'écrevisse titan du Lac d'Annecy (Médaillon
     /// des palafittes), Ipupiara, le payara titan du Fleuve Amazone (Grenouille de jade), l'Isonade, la rascasse titan de
     /// la Baie d'Izu (Miroir des marées), Rannamaari, le djinn des abysses de l'Atoll des Maldives (Lanterne de
-    /// corail), et le Moha-moha, la tortue géante au long cou de la Grande Barrière (Bouclier d'écaille), chacun avec un
+    /// corail), le Moha-moha, la tortue géante au long cou de la Grande Barrière (Bouclier d'écaille), et le Spectre des
+    /// épaves, requin scie squelette de la Côte des Squelettes (Cloche de l'épave), chacun avec un
     /// artefact en 4 fragments.
     /// Appelé par le menu du prototype, après la création des espèces et des zones.
     /// </summary>
@@ -67,7 +68,49 @@ namespace FishAndChill.Editor
                 new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il se tord dans tous les sens !"),
             }, 600);
             EditorUtility.SetDirty(tuna);
-            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot), Rannamaari(ppu, pivot), MohaMoha(ppu, pivot) };
+            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot), Rannamaari(ppu, pivot), MohaMoha(ppu, pivot), WreckSpectre(ppu, pivot) };
+        }
+
+        /// <summary>
+        /// Le Spectre des épaves, requin scie squelette de la Côte des Squelettes (espèce de base : le grand requin blanc).
+        /// Mort depuis longtemps, il nage encore parmi les épaves de ce rivage où tant de navires se sont échoués.
+        /// Artefact : la Cloche de l'épave, en 4 fragments.
+        /// </summary>
+        private static LegendFish WreckSpectre(int ppu, Vector2 pivot)
+        {
+            Sprite bell = PixelArt.Save($"{ArtFolder}/Cloche_Epave.png", ShipBellArt.Bell(), ppu, pivot);
+            Sprite silhouette = PixelArt.Save($"{ArtFolder}/Cloche_Epave_Silhouette.png", ShipBellArt.Silhouette(), ppu, pivot);
+            var fragments = new Sprite[ShipBellArt.Fragments];
+            var centers = new Vector2[ShipBellArt.Fragments];
+            for (int i = 0; i < fragments.Length; i++)
+            {
+                fragments[i] = PixelArt.Save($"{ArtFolder}/Cloche_Epave_Fragment_{i + 1}.png", ShipBellArt.Piece(i), ppu, pivot);
+                centers[i] = ShipBellArt.PieceCenter(i);
+            }
+
+            var species = FindSpecies("carcharodon-carcharias", "Assets/_Project/Data/Species/CarcharodonCarcharias.asset");
+            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/CoteDesSquelettes.asset");
+            LegendFish spectre = LoadOrCreate(Folder + "/SpectreDesEpaves.asset");
+            spectre.Configure("spectre-des-epaves", "Spectre des épaves", species, zone, 750f, "Cloche de l'épave", ShipBellArt.Fragments,
+                FragmentRules.DefaultChance, bell, fragments, centers, silhouette, new[]
+                {
+                    "Le haut d'une cloche de bronze, encore pris dans sa corde. Le vert-de-gris a mangé le nom du navire.",
+                    "Un morceau du flanc, couvert de bernacles. Quand la brume monte, il sonne tout seul.",
+                    "Le bas de la cloche, cabossé, comme mordu par quelque chose d'énorme.",
+                    "La lèvre de la cloche. Au fond, une lueur verte qui ne s'éteint jamais.",
+                });
+            Sprite art = PixelArt.Save($"{ArtFolder}/SpectreDesEpaves.png", BoneSharkArt.Draw(), ppu, pivot);
+            spectre.ConfigureLook("Requin scie squelette", art, BodyShape.BoneSawShark);
+            // Le combat : il fauche l'eau de sa scie, file entre les épaves, puis plonge vers le fond où dorment les
+            // navires. Le dernier gardien, le plus dur de tous.
+            spectre.ConfigureFight(new[]
+            {
+                new LegendPhase(FightStyle.Nervous, new QteDifficulty(2f, 0.13f, 6, 2), "Il fauche l'eau de sa scie !"),
+                new LegendPhase(FightStyle.Rusher, new QteDifficulty(2.2f, 0.12f, 7, 2), "Il file entre les épaves !"),
+                new LegendPhase(FightStyle.Heavy, new QteDifficulty(1.8f, 0.12f, 7, 1), "Il plonge vers les navires engloutis !"),
+            }, 2500);
+            EditorUtility.SetDirty(spectre);
+            return spectre;
         }
 
         /// <summary>

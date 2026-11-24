@@ -111,6 +111,7 @@ namespace FishAndChill.Fishing
                         case BodyShape.Isonade: tone = Isonade(u, v, phase); break;
                         case BodyShape.Rannamaari: tone = Rannamaari(u, v, phase); break;
                         case BodyShape.MohaMoha: tone = MohaMoha(u, v, phase); break;
+                        case BodyShape.BoneSawShark: tone = BoneSawShark(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -383,6 +384,57 @@ namespace FishAndChill.Fishing
 
             // Antennes.
             if (OnSegment(u, av, 0.4f, 0.04f, 0.95f, 0.5f + phase * 0.04f, 0.015f)) return EdgeTone;
+            return None;
+        }
+
+        /// <summary>
+        /// Requin scie squelette (Spectre des épaves), vu de dessus : corps de requin fuselé qui ondule vers l'arrière,
+        /// longue scie plate bordée de dents devant le museau, grandes pectorales en faux, queue en croissant ; les
+        /// orbites luisent et la cage des côtes laisse passer une lueur (rangée de points clairs le long du dos).
+        /// </summary>
+        private static int BoneSawShark(float u, float v, int phase)
+        {
+            float s = Mathf.Clamp01((0.4f - u) * 0.7f);
+            v -= phase * 0.2f * s * s;
+            float av = Mathf.Abs(v);
+
+            if (InEllipse(u, av, 0.42f, 0.06f, 0.03f, 0.025f)) return EyeTone;
+
+            // La scie : lame fine devant le museau, dents sur les deux bords.
+            if (u > 0.5f && u <= 1f)
+            {
+                if (av <= 0.022f) return u > 0.97f ? EdgeTone : BodyTone;
+                if (av <= 0.05f && Mathf.Repeat(u * 30f, 1f) < 0.3f) return EdgeTone;
+            }
+
+            // Le corps fuselé.
+            float width = 0f;
+            if (u <= 0.5f && u >= -0.6f)
+            {
+                width = u >= 0.05f
+                    ? 0.15f * Mathf.Pow(Mathf.Max(0f, 1f - Mathf.Pow((u - 0.05f) / 0.45f, 2f)), 0.6f)
+                    : 0.03f + 0.12f * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.6f, 0.05f, u));
+            }
+
+            if (width > 0f && av <= width)
+            {
+                if (u > -0.35f && u < 0.25f && av < 0.012f && Mathf.Repeat(u * 18f, 1f) < 0.4f) return EyeTone;   // la lueur des côtes
+                if (av > width * 0.8f) return EdgeTone;
+                return av < width * 0.4f ? CoreTone : BodyTone;
+            }
+
+            // Pectorales en faux.
+            float flap = phase * 0.03f;
+            if (OnTaper(u, av, 0.12f, 0.1f, -0.12f, 0.36f + flap, 0.05f, 0.01f)) return BodyTone;
+
+            // Queue en croissant.
+            if (u < -0.6f && u >= -1f)
+            {
+                float k = (-0.6f - u) / 0.4f;
+                float outer = 0.03f + k * 0.3f;
+                if (av <= outer && !(k > 0.5f && av < (k - 0.5f) * 0.45f)) return k > 0.8f ? EdgeTone : BodyTone;
+            }
+
             return None;
         }
 

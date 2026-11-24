@@ -144,6 +144,21 @@
   (« Il tire de tout son poids vers le fond ! »), rush (« Il fonce le long du récif ! »), nerveux (« Il secoue son long
   cou dans tous les sens ! »), le plus dur jusqu'ici, 1800 pièces. Remous « Remous légendaire du récif » dans la région 4.
   Tube n° 6 de la salle des spécimens.
+- **Septième et dernière légende : le Spectre des épaves**, requin scie squelette de 750 cm de la **Côte des Squelettes**
+  (espèce de base le grand requin blanc ; créature inventée, morte depuis longtemps, qui nage encore parmi les épaves de
+  ce rivage). Choisi parmi trois têtes de requin squelette (tigre, marteau, scie) ; `Editor/BoneSharkArt.Draw(v)` garde
+  les trois, `Draw()` la scie retenue → `Art/Legendes/SpectreDesEpaves.png` (de profil : corps fuselé en lambeaux de chair
+  grise pourrie, colonne et côtes à nu au milieu avec une lueur verte dans la cage, nageoires en rayons d'os et membrane
+  trouée, queue au grand lobe du haut, gueule en croissant sous le museau aux rangées de dents, fentes des ouïes
+  déchirées, orbite où brûle une lueur verte, long rostre d'os bordé de dents inégales, deux barbillons, chaîne d'ancre
+  rouillée enroulée autour de la queue, bernacles). Silhouette sous l'eau `BodyShape.BoneSawShark`
+  (`FishShadowSprites.BoneSawShark` : corps fuselé, scie dentée, pectorales en faux, queue en croissant, orbites et
+  côtes qui luisent). Artefact **Cloche de l'épave** (`Editor/ShipBellArt`, 48×64 : cloche de navire en bronze, corde
+  effilochée dans l'anneau, bandes gravées, vert-de-gris, bernacles et étoile de mer, battant, lueur verte au fond ;
+  la cloche étant étroite, elle se casse en 4 morceaux égaux haut / bas et gauche / droite). Combat : nerveux (« Il
+  fauche l'eau de sa scie ! »), rush (« Il file entre les épaves ! »), lourd (« Il plonge vers les navires
+  engloutis ! »), le plus dur de tous, 2500 pièces. Remous « Remous légendaire de la Côte des Squelettes » dans la région
+  6. Tube n° 7 : **les sept tubes de la salle des spécimens sont pris**, une légende par zone.
 - **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
   `Center` / `Silhouette`), un `BuildLegendSpot` dans la région de sa zone (`PrototypeSetup.RegionOf` relie remous et
   légende). Le menu de test (**FishAndChill → Légendes (test)**) agit sur la légende de la zone où l'on est (sinon Tuna) et

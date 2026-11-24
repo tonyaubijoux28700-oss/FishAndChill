@@ -29,5 +29,8 @@ namespace FishAndChill.Collection
 
         /// <summary>Tortue géante au long cou (Moha-moha) : carapace ovale couverte de corail, long cou, quatre nageoires qui pagaient, queue en nageoire, yeux qui luisent.</summary>
         MohaMoha,
+
+        /// <summary>Requin scie squelette (Spectre des épaves) : corps de requin fuselé, longue scie dentée devant, côtes à nu, orbites qui luisent.</summary>
+        BoneSawShark,
     }
 }

@@ -373,7 +373,7 @@ namespace FishAndChill.Editor
             FishingSpots reefSpots = BuildSpots(mapObject.transform, "Coins de pêche du récif", worldMap, 4, reefDock.Area);
             FishingSpots atollSpots = BuildSpots(mapObject.transform, "Coins de pêche de l'atoll", worldMap, 5, atollDock.Area);
             FishingSpots skeletonSpots = BuildSpots(mapObject.transform, "Coins de pêche de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);
-            // Remous légendaires (Tuna, Bramafan, Ipupiara, Isonade, Rannamaari, Moha-moha) : visibles une fois la légende
+            // Remous légendaires (un par zone) : visibles une fois la légende
             // réveillée au laboratoire.
             BuildLegendSpot(mapObject.transform, "Remous légendaire de l'île", worldMap, 0, islandDock.Area);
             BuildLegendSpot(mapObject.transform, "Remous légendaire du lac", worldMap, 1, lakeDock.Area);   // Bramafan
@@ -381,6 +381,7 @@ namespace FishAndChill.Editor
             BuildLegendSpot(mapObject.transform, "Remous légendaire de la baie", worldMap, 3, japanDock.Area);   // Isonade
             BuildLegendSpot(mapObject.transform, "Remous légendaire de l'atoll", worldMap, 5, atollDock.Area);   // Rannamaari
             BuildLegendSpot(mapObject.transform, "Remous légendaire du récif", worldMap, 4, reefDock.Area);   // Moha-moha
+            BuildLegendSpot(mapObject.transform, "Remous légendaire de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);   // Spectre des épaves
             spotList.arraySize = 7;
             spotList.GetArrayElementAtIndex(5).objectReferenceValue = atollSpots;
             spotList.GetArrayElementAtIndex(6).objectReferenceValue = skeletonSpots;
