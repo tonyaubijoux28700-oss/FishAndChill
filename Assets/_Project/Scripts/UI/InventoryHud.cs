@@ -81,6 +81,7 @@ namespace FishAndChill.UI
         [Header("Vitrine du matériel")]
         [SerializeField, Tooltip("Fond en bois de la vitrine.")] private Sprite _showcaseBack;
         [SerializeField, Tooltip("Support en laiton sous la canne.")] private Sprite _peg;
+        [SerializeField, Tooltip("Vue de près des bassins : l'aide devant la vitre la mentionne.")] private AquariumCloseUp _closeUp;
         [SerializeField, Tooltip("L'animal de compagnie : tourné vers lui, E le caresse (au lieu d'ouvrir le sac).")] private Pets.PetFollower _pet;
         [SerializeField, Tooltip("Empreinte de patte de l'emplacement de l'animal de compagnie.")] private Sprite _petPaw;
         [SerializeField, Tooltip("Étiquette en papier (étirable).")] private Sprite _tag;
@@ -367,7 +368,8 @@ namespace FishAndChill.UI
             if (_aquarium != null && _aquarium.CanDeposit && !IsOpen && _toastTimer <= 0f)
             {
                 _prompt.gameObject.SetActive(true);
-                _prompt.text = _progress.Bag.Count > 0 ? "E : déposer tes poissons dans le bassin" : "Ton sac est vide : va pêcher !";
+                _prompt.text = (_progress.Bag.Count > 0 ? "E : déposer tes poissons dans le bassin" : "Ton sac est vide : va pêcher !")
+                    + (_closeUp != null && _closeUp.CanOpen ? "    Haut : regarder de près" : string.Empty);
             }
             else if (_pet != null && _pet.PlayerCanPet && !IsOpen && _toastTimer <= 0f && CanOpenNow())
             {

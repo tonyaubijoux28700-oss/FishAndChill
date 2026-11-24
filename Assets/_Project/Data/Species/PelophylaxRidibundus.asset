@@ -32,3 +32,8 @@ MonoBehaviour:
   _weather: 1
   _sprite: {fileID: 21300000, guid: 6a0275122b27820419e3d2852c69b655, type: 3}
   _miniSprite: {fileID: 21300000, guid: 8f462dee43650ac44be18352de14ceb5, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 8f462dee43650ac44be18352de14ceb5, type: 3}
+  - {fileID: 21300000, guid: 3e76c4e684d94f34fb2c8ba1a9af2891, type: 3}
+  - {fileID: 21300000, guid: dca2b4e619a50614196fa3ef0ef1b8dd, type: 3}
+  - {fileID: 21300000, guid: daf3e7499951a62438b9b54ae8bd5a6b, type: 3}

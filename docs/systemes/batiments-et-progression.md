@@ -183,9 +183,24 @@
   (`AmbientLife`) se cache à l'intérieur des bâtiments. Obstacles : `AquariumBuilding.JellyfishColumns` / `Benches`. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus
   gros de chaque nouvelle espèce entre ; **la taille ne compte pas ensuite** : une espèce déjà exposée n'est jamais
   remplacée, même par un plus gros, et tous ses exemplaires restent dans le sac pour le marchand (`FishShop` les achète).
-  Les poissons nagent dans le bassin (`AquariumTank`) avec leur petite version `FishSpecies.MiniSprite`
-  (≈ 32 px, réduite au tiers du grand dessin par `FishArt.GenerateMini` → `Art/Fish/Mini/`), entre le fond (ordre -5) et
-  la vitre (`Aquarium_Vitre.png`, ordre -3). L'index des poissons indique les espèces exposées.
+  Les poissons nagent dans le bassin (`AquariumTank`) avec leur **miniature animée** (`FishSpecies.MiniFrames`, 4 images,
+  `MiniSprite` = la première), entre le fond (ordre -5) et la vitre (`Aquarium_Vitre.png`, ordre -3). Miniatures faites
+  par `FishArt.GenerateMiniFrames` → `Art/Fish/Mini/<id>.png` et `<id>_1..3.png` : **32 px par case** (comme le décor),
+  déjà à leur taille d'affichage (longueur de 24 à 104 px selon la taille typique de l'espèce, échelle de
+  `FishDisplayScale`), donc plus aucune échelle fractionnaire qui déforme les pixels ; réduction fine du grand dessin
+  rogné (`PixelArt.Resize`, moyenne pondérée des pixels recouverts ; seuil bas pour les bêtes du fond, ce qui garde les
+  pattes fines du crabe-araignée), contour léger. Animation : les poissons **battent de la queue** (colonnes de l'arrière
+  qui montent et descendent, `TailBeat`), les bêtes du fond **marchent** (bandes de pattes qui avancent et reculent,
+  corps qui se soulève, `Scuttle`). Dans le bassin : **demi-tours en douceur** (le dessin se rétrécit, se retourne,
+  s'élargit), **coups de queue** (accélération qui retombe), **bancs** de 3 ou 5 pour les petites espèces
+  (`AquariumMath.SchoolSize`, les copies suivent le premier), **trois plans** (`AquariumMath.PlaneTint` / `PlaneSpeed` /
+  `DepthInPlane` : le fond plus sombre, plus bleu, plus lent et plus haut, le devant vif et plus bas), position calée
+  à 32 px par case. **Vue de près** (`UI/AquariumCloseUp`, canvas ordre 16, sur « Partie ») : devant la vitre, l'aide
+  ajoute « Haut : regarder de près » ; tenir Haut 0,2 s zoome la caméra sur le bassin en 0,45 s
+  (`AquariumMath.CloseUpSize` : le bassin remplit l'écran en hauteur), Gauche / Droite longent la vitre, la souris ou
+  Espace (poisson suivant, la vue le suit) choisissent un pensionnaire : coins dorés autour de lui et fiche en bas à
+  gauche (nom à la couleur de sa rareté, nom savant et nature, rareté et taille, description). Échap, Bas ou E reviennent.
+  Le pêcheur est immobile pendant ce temps. L'index des poissons indique les espèces exposées.
 - `UI/InventoryHud` (canvas ordre 11) : **icône de sac** en bas à gauche (compteur « 2/3 », `UiArt.BagIcon`), **E** ouvre la
   **grande fenêtre « Mon inventaire »** au centre (joueur `Locked`, E/Échap ferme) : à gauche la **vitrine « Mon matériel »** (fond de feutre :
   la **canne entière** en grand, `GearLevel.Illustration` = `GearArt.RodLarge` 96×160 affiché ×3, son fil qui finit au pixel

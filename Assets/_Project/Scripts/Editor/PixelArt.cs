@@ -228,6 +228,51 @@ namespace FishAndChill.Editor
         /// Réduit un dessin d'un facteur entier : chaque bloc devient un pixel (moyenne des pixels pleins),
         /// transparent si le bloc est trop vide. Sert aux petits poissons de l'aquarium.
         /// </summary>
+        /// <summary>
+        /// Réduction à n'importe quelle taille (<paramref name="width"/> pixels de large, proportions gardées) : chaque
+        /// pixel d'arrivée fait la moyenne des pixels pleins qu'il recouvre (fractions comprises), et n'est plein que si
+        /// la part couverte dépasse <paramref name="coverage"/>. Un seuil bas garde les traits fins (pattes, antennes).
+        /// </summary>
+        public static Color[,] Resize(Color[,] source, int width, float coverage = 0.4f)
+        {
+            int sw = source.GetLength(0), sh = source.GetLength(1);
+            float f = sw / (float)Mathf.Max(1, width);
+            int height = Mathf.Max(1, Mathf.RoundToInt(sh / f));
+            var result = new Color[width, height];
+            for (int bx = 0; bx < width; bx++)
+            {
+                for (int by = 0; by < height; by++)
+                {
+                    float x0 = bx * f, x1 = (bx + 1) * f, y0 = by * f, y1 = (by + 1) * f;
+                    Color sum = Color.clear;
+                    float filled = 0f, total = 0f;
+                    for (int x = Mathf.FloorToInt(x0); x < Mathf.CeilToInt(x1) && x < sw; x++)
+                    {
+                        for (int y = Mathf.FloorToInt(y0); y < Mathf.CeilToInt(y1) && y < sh; y++)
+                        {
+                            float w = (Mathf.Min(x + 1, x1) - Mathf.Max(x, x0)) * (Mathf.Min(y + 1, y1) - Mathf.Max(y, y0));
+                            if (w <= 0f) continue;
+                            total += w;
+                            if (source[x, y].a > 0.5f)
+                            {
+                                sum += source[x, y] * w;
+                                filled += w;
+                            }
+                        }
+                    }
+
+                    if (total > 0f && filled >= total * coverage)
+                    {
+                        Color c = sum / filled;
+                        c.a = 1f;
+                        result[bx, by] = c;
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public static Color[,] Downscale(Color[,] source, int factor, float coverage = 0.4f)
         {
             int width = Mathf.CeilToInt(source.GetLength(0) / (float)factor);

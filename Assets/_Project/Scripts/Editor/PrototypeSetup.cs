@@ -260,7 +260,11 @@ namespace FishAndChill.Editor
             so.FindProperty("_activeTime").enumValueIndex = (int)data.Time;
             so.FindProperty("_weather").enumValueIndex = (int)data.Weather;
             so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color, data);
-            so.FindProperty("_miniSprite").objectReferenceValue = FishArt.GenerateMini(data.Id);
+            Sprite[] miniFrames = FishArt.GenerateMiniFrames(data.Id, (data.SizeCm.x + data.SizeCm.y) * 0.5f, data.Kind.LivesOnBottom());
+            so.FindProperty("_miniSprite").objectReferenceValue = miniFrames[0];
+            SerializedProperty frameList = so.FindProperty("_miniFrames");
+            frameList.arraySize = miniFrames.Length;
+            for (int i = 0; i < miniFrames.Length; i++) frameList.GetArrayElementAtIndex(i).objectReferenceValue = miniFrames[i];
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(asset);
             return asset;
@@ -760,6 +764,22 @@ namespace FishAndChill.Editor
 
             // Animaux de compagnie : celui qui suit le joueur, et la boutique du vendeur de l'animalerie.
             PetSetup.Place(partie, movement, progress, skin);
+
+            // Vue de près des bassins de l'aquarium (Haut devant la vitre).
+            var closeUp = partie.GetComponent<UI.AquariumCloseUp>();
+            if (closeUp == null) closeUp = partie.AddComponent<UI.AquariumCloseUp>();
+            var closeUpSo = new SerializedObject(closeUp);
+            closeUpSo.FindProperty("_building").objectReferenceValue = Object.FindAnyObjectByType<AquariumBuilding>();
+            closeUpSo.FindProperty("_camera").objectReferenceValue = Object.FindAnyObjectByType<CameraFollow>();
+            closeUpSo.FindProperty("_skin").objectReferenceValue = skin;
+            AquariumTank[] allTanks = Object.FindObjectsByType<AquariumTank>();
+            SerializedProperty tankList = closeUpSo.FindProperty("_tanks");
+            tankList.arraySize = allTanks.Length;
+            for (int i = 0; i < allTanks.Length; i++) tankList.GetArrayElementAtIndex(i).objectReferenceValue = allTanks[i];
+            closeUpSo.ApplyModifiedPropertiesWithoutUndo();
+            var hudCloseUpSo = new SerializedObject(partie.GetComponent<UI.InventoryHud>());
+            hudCloseUpSo.FindProperty("_closeUp").objectReferenceValue = closeUp;
+            hudCloseUpSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Écran titre (3 emplacements de sauvegarde), posé sur l'île tant qu'aucune partie n'est choisie.
             var titleScreen = partie.GetComponent<UI.TitleScreen>();

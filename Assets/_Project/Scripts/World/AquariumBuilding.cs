@@ -181,6 +181,9 @@ namespace FishAndChill.World
         /// <summary>Eau d'un bassin en coordonnées du monde.</summary>
         public Rect WorldRect(Rect local) => new Rect(InteriorOrigin + local.position, local.size);
 
+        /// <summary>Le pêcheur (pour la vue de près des bassins).</summary>
+        public PlayerMovement Visitor => Player;
+
         /// <summary>Le joueur est devant la vitre d'un des bassins et peut déposer.</summary>
         public bool PlayerAtTank
         {

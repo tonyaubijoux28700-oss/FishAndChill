@@ -98,6 +98,130 @@ namespace FishAndChill.Editor
         /// Petite version du poisson (≈ 32 px de long) pour l'aquarium, réduite depuis son dessin complet
         /// (à appeler après <see cref="Generate"/>). Même échelle que l'île : 16 px par case.
         /// </summary>
+        /// <summary>Images de l'animation de l'aquarium (la première est la miniature au repos).</summary>
+        public const int MiniFrames = 4;
+
+        /// <summary>Pixels par case des miniatures : comme le décor des salles, deux fois plus fin que l'ancienne version.</summary>
+        public const int MiniPixelsPerUnit = 32;
+
+        /// <summary>
+        /// Miniature de l'aquarium et son animation, à 32 px par case et déjà à sa taille d'affichage (plus d'échelle
+        /// fractionnaire qui déforme les pixels) : longueur selon la taille typique de l'espèce (échelle de
+        /// <see cref="FishAndChill.Collection.FishDisplayScale"/>), réduction fine du grand dessin
+        /// (<see cref="PixelArt.Resize"/>, seuil bas pour les pattes des crustacés), contour léger. 4 images : les poissons
+        /// battent de la queue et ondulent ; les bêtes du fond bougent les pattes (les rangées du bas vont et viennent).
+        /// </summary>
+        public static Sprite[] GenerateMiniFrames(string speciesId, float typicalCm, bool bottomDweller)
+        {
+            Color[,] full = PixelArt.Load($"{Folder}/{speciesId}.png");
+            Trim(ref full);
+            float display = FishAndChill.Collection.FishDisplayScale.For(typicalCm);
+            int length = Mathf.RoundToInt(Mathf.Lerp(24f, 104f, Mathf.InverseLerp(FishAndChill.Collection.FishDisplayScale.MinScale, 1f, display)));
+            if (bottomDweller) length = Mathf.RoundToInt(length * 0.9f);
+            length = Mathf.Clamp(length, 16, full.GetLength(0));
+            Color[,] mini = PixelArt.Resize(full, length, bottomDweller ? 0.22f : 0.38f);
+
+            PixelArt.EnsureFolder($"{Folder}/Mini");
+            var frames = new Sprite[MiniFrames];
+            for (int k = 0; k < MiniFrames; k++)
+            {
+                Color[,] moved = bottomDweller ? Scuttle(mini, k) : TailBeat(mini, k);
+                int width = moved.GetLength(0) + 2, height = moved.GetLength(1) + 2;
+                var framed = new Color[width, height];
+                for (int x = 0; x < moved.GetLength(0); x++)
+                {
+                    for (int y = 0; y < moved.GetLength(1); y++)
+                    {
+                        framed[x + 1, y + 1] = moved[x, y];
+                    }
+                }
+
+                PixelArt.SelectiveOutline(framed, new Color(0.06f, 0.08f, 0.12f), 0.35f);
+                string file = k == 0 ? $"{Folder}/Mini/{speciesId}.png" : $"{Folder}/Mini/{speciesId}_{k}.png";
+                frames[k] = PixelArt.Save(file, framed, MiniPixelsPerUnit, new Vector2(0.5f, 0.5f));
+            }
+
+            return frames;
+        }
+
+        /// <summary>Coupe les bords vides du dessin (la taille visée est celle de la bête, pas de la toile).</summary>
+        private static void Trim(ref Color[,] p)
+        {
+            int w = p.GetLength(0), h = p.GetLength(1), x0 = w, x1 = -1, y0 = h, y1 = -1;
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    if (p[x, y].a <= 0.5f) continue;
+                    x0 = Mathf.Min(x0, x); x1 = Mathf.Max(x1, x); y0 = Mathf.Min(y0, y); y1 = Mathf.Max(y1, y);
+                }
+            }
+
+            if (x1 < x0) return;
+            var t = new Color[x1 - x0 + 1, y1 - y0 + 1];
+            for (int x = x0; x <= x1; x++)
+            {
+                for (int y = y0; y <= y1; y++)
+                {
+                    t[x - x0, y - y0] = p[x, y];
+                }
+            }
+
+            p = t;
+        }
+
+        /// <summary>
+        /// Battement de queue (tête à droite) : les colonnes de l'arrière montent ou descendent d'autant plus qu'elles
+        /// sont loin de la tête ; images 0, haut, 0, bas. Le corps ondule un peu avec.
+        /// </summary>
+        private static Color[,] TailBeat(Color[,] p, int frame)
+        {
+            int w = p.GetLength(0), h = p.GetLength(1);
+            float swing = new[] { 0f, 1f, 0f, -1f }[frame % 4];
+            float amplitude = Mathf.Max(1f, h * 0.14f);
+            float tailStart = w * 0.55f;
+            int pad = Mathf.CeilToInt(amplitude);
+            var r = new Color[w, h + pad * 2];
+            for (int x = 0; x < w; x++)
+            {
+                float k = Mathf.Clamp01((tailStart - x) / tailStart);
+                int dy = Mathf.RoundToInt(swing * amplitude * Mathf.Pow(k, 1.6f));
+                for (int y = 0; y < h; y++)
+                {
+                    if (p[x, y].a > 0.5f) r[x, y + pad + dy] = p[x, y];
+                }
+            }
+
+            return r;
+        }
+
+        /// <summary>
+        /// Marche des bêtes du fond : dans le tiers du bas (les pattes), une bande sur deux avance d'un pixel pendant
+        /// que l'autre recule, puis l'inverse ; le corps se soulève d'un pixel au milieu du pas.
+        /// </summary>
+        private static Color[,] Scuttle(Color[,] p, int frame)
+        {
+            int w = p.GetLength(0), h = p.GetLength(1);
+            int step = new[] { 0, 1, 0, -1 }[frame % 4];
+            int lift = frame % 2 == 1 ? 1 : 0;
+            int legTop = Mathf.Max(1, Mathf.RoundToInt(h * 0.38f));
+            int band = Mathf.Max(2, w / 10);
+            var r = new Color[w + 2, h + 1];
+            for (int x = 0; x < w; x++)
+            {
+                for (int y = 0; y < h; y++)
+                {
+                    if (p[x, y].a <= 0.5f) continue;
+                    bool leg = y < legTop;
+                    int dx = leg ? ((x / band) % 2 == 0 ? step : -step) : 0;
+                    int dy = leg ? 0 : lift;
+                    r[x + 1 + dx, y + dy] = p[x, y];
+                }
+            }
+
+            return r;
+        }
+
         public static Sprite GenerateMini(string speciesId)
         {
             Color[,] full = PixelArt.Load($"{Folder}/{speciesId}.png");
