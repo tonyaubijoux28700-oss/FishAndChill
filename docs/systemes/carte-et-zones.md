@@ -5,8 +5,11 @@
 
 - Île de départ sur Tilemaps (`Carte` → `Eau` + `Terre`), générée par `IslandGenerator` (graine fixe,
   96×72 cases, 1 case = 1 unité) via `MapSetup.cs`, appelé par le menu du prototype.
-- **Attention** : relancer le menu régénère l'île et **écrase les retouches faites à la main**
-  dans la Tile Palette. Une fois l'île retouchée, ne plus relancer la génération de la carte.
+- **Tuiles hors de la scène** : en fin de génération, `Editor/TilemapExport` range les 8 Tilemaps de `Carte` dans
+  `Data/Carte_Tuiles.asset` (`World/TilemapStoreData` : palette + suites de cases identiques par ligne, environ 2 Mo) et
+  les vide ; la scène pèse ainsi moins de 1 Mo au lieu de 60. `World/TilemapStore` (sur `Carte`, Awake en tout premier)
+  les remplit au lancement ; dans l'éditeur il montre des copies cachées « (aperçu) », jamais sauvegardées. Les tuiles
+  ne se retouchent donc plus à la main : tout passe par la génération.
 - `Terre` est une couche **logique** (renderer désactivé) : une tuile par case de terre.
 - **Côtes sans angles (double grille)** : le rendu passe par 3 couches décalées d'une demi-case
   (`Rendu - Lagon`, `Rendu - Sable`, `Rendu - Herbe`) ; chaque tuile lit ses 4 coins (16 masques) et dessine une

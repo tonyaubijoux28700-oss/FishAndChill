@@ -790,8 +790,10 @@ namespace FishAndChill.Editor
                 Debug.LogError("[FishAndChill] Zone de test introuvable : la scène n'a pas de zone assignée.");
             }
 
+            TilemapExport.StoreMapTiles();
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
+            TilemapExport.RefreshPreview();
 
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
         }
