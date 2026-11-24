@@ -106,5 +106,50 @@ namespace FishAndChill.Tests
             Assert.That(PetMath.ZoneWidth(0.7f, 1.2f), Is.EqualTo(0.7f).Within(1e-5f), "déjà au-dessus : inchangé");
             Assert.That(PetMath.ZoneWidth(0.25f, 1f), Is.EqualTo(0.25f).Within(1e-5f));
         }
+
+        [Test]
+        public void Reaction_MovesOnlyDuringItsTime_AndEveryPetReacts()
+        {
+            foreach (PetKind kind in System.Enum.GetValues(typeof(PetKind)))
+            {
+                float moved = 0f;
+                for (float t = 0f; t < PetMath.ReactionSeconds; t += 0.05f)
+                {
+                    moved = Mathf.Max(moved, PetMath.ReactionOffset(kind, t, out float tilt).magnitude + Mathf.Abs(tilt) * 0.01f);
+                }
+
+                Assert.That(moved, Is.GreaterThan(0.05f), $"{kind} doit bouger");
+                Assert.That(PetMath.ReactionOffset(kind, PetMath.ReactionSeconds, out float after), Is.EqualTo(Vector2.zero));
+                Assert.That(after, Is.EqualTo(0f));
+                Assert.That(PetMath.ReactionOffset(kind, -0.1f, out _), Is.EqualTo(Vector2.zero));
+            }
+        }
+
+        [Test]
+        public void Heart_ForRareCatches_NewSpecies_NotForCommonOnes()
+        {
+            Assert.That(PetMath.HeartFor(Rarity.Common, false), Is.False);
+            Assert.That(PetMath.HeartFor(Rarity.Common, true), Is.True, "nouvelle espèce");
+            Assert.That(PetMath.HeartFor(Rarity.Rare, false), Is.True);
+        }
+
+        [Test]
+        public void SitPoint_BesideThePlayer_OnSolidGround()
+        {
+            Vector2 left = PetMath.SitPoint(Vector2.zero, Vector2.up, null);
+            Assert.That(left.x, Is.LessThan(-0.5f), "face au nord : à gauche du joueur");
+            Vector2 right = PetMath.SitPoint(Vector2.zero, Vector2.up, p => p.x > 0f);
+            Assert.That(right.x, Is.GreaterThan(0.5f), "à gauche c'est l'eau : à droite");
+            Vector2 behind = PetMath.SitPoint(Vector2.zero, Vector2.up, p => false);
+            Assert.That(behind.y, Is.LessThan(-0.5f), "nulle part à côté : derrière");
+        }
+
+        [Test]
+        public void CanPet_OnlyWhenCloseAndFacingThePet()
+        {
+            Assert.That(PetMath.CanPet(Vector2.zero, Vector2.left, new Vector2(-1f, 0f)), Is.True);
+            Assert.That(PetMath.CanPet(Vector2.zero, Vector2.right, new Vector2(-1f, 0f)), Is.False, "dos tourné");
+            Assert.That(PetMath.CanPet(Vector2.zero, Vector2.left, new Vector2(-3f, 0f)), Is.False, "trop loin");
+        }
     }
 }

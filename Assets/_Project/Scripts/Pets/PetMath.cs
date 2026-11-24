@@ -41,6 +41,77 @@ namespace FishAndChill.Pets
             return random.Next(Mathf.Min(min, max), Mathf.Max(min, max) + 1);
         }
 
+        /// <summary>Durée d'une réaction de joie (prise, caresse).</summary>
+        public const float ReactionSeconds = 1.2f;
+
+        /// <summary>
+        /// Réaction de joie, <paramref name="t"/> secondes après son début : décalage du dessin (en cases) et inclinaison
+        /// (<paramref name="tilt"/>, en degrés). Le chat fait un grand bond, le chien frétille en sautillant, le perroquet
+        /// s'envole un peu, le manchot se dandine, le crocodile se cabre, l'araignée trépigne. Rien hors de la réaction.
+        /// </summary>
+        public static Vector2 ReactionOffset(PetKind kind, float t, out float tilt)
+        {
+            tilt = 0f;
+            if (t < 0f || t >= ReactionSeconds) return Vector2.zero;
+            float fade = 1f - t / ReactionSeconds;
+            switch (kind)
+            {
+                case PetKind.Cat:
+                    // Un grand bond, puis un petit.
+                    return new Vector2(0f, t < 0.55f ? 0.55f * Mathf.Sin(Mathf.PI * t / 0.55f) : 0.18f * Mathf.Abs(Mathf.Sin(Mathf.PI * (t - 0.55f) / 0.65f)));
+                case PetKind.Dog:
+                    tilt = 8f * Mathf.Sin(t * 30f) * fade;
+                    return new Vector2(0.05f * Mathf.Sin(t * 40f) * fade, 0.16f * Mathf.Abs(Mathf.Sin(t * 9f)) * fade);
+                case PetKind.Parrot:
+                    return new Vector2(0.12f * Mathf.Sin(t * 5f), 0.45f * Mathf.Sin(Mathf.PI * t / ReactionSeconds));
+                case PetKind.Penguin:
+                    tilt = 14f * Mathf.Sin(t * 14f) * fade;
+                    return new Vector2(0f, 0.12f * Mathf.Abs(Mathf.Sin(t * 7f)) * fade);
+                case PetKind.Crocodile:
+                    tilt = 12f * Mathf.Sin(Mathf.PI * Mathf.Min(1f, t / 0.6f));
+                    return new Vector2(0f, 0.14f * Mathf.Sin(Mathf.PI * Mathf.Min(1f, t / 0.6f)));
+                case PetKind.Spider:
+                    return new Vector2(0.04f * Mathf.Sin(t * 60f) * fade, 0.2f * Mathf.Abs(Mathf.Sin(t * 8f)) * fade);
+                default:
+                    return new Vector2(0f, 0.3f * Mathf.Sin(Mathf.PI * t / ReactionSeconds));
+            }
+        }
+
+        /// <summary>
+        /// Une prise réjouit-elle assez l'animal pour qu'il montre un cœur ? Les rares et plus, une nouvelle espèce ou
+        /// une légende.
+        /// </summary>
+        public static bool HeartFor(Rarity rarity, bool newSpecies) => newSpecies || rarity >= Rarity.Rare;
+
+        /// <summary>
+        /// Place de l'animal assis pendant la pêche : à côté du joueur, sur son flanc gauche (sinon droit), un peu en
+        /// retrait, en regardant l'eau comme lui. <paramref name="canStand"/> dit si une place est sur la terre ferme ;
+        /// aucune : derrière lui.
+        /// </summary>
+        public static Vector2 SitPoint(Vector2 player, Vector2 facing, System.Func<Vector2, bool> canStand)
+        {
+            Vector2 f = facing.sqrMagnitude > 0.0001f ? facing.normalized : Vector2.down;
+            Vector2 side = new Vector2(-f.y, f.x);
+            foreach (Vector2 candidate in new[] { player + side * 0.9f - f * 0.15f, player - side * 0.9f - f * 0.15f })
+            {
+                if (canStand == null || canStand(candidate)) return candidate;
+            }
+
+            return player - f * 0.9f;
+        }
+
+        /// <summary>
+        /// Le joueur peut-il caresser l'animal ? Assez près (1,5 case) et tourné vers lui.
+        /// </summary>
+        public static bool CanPet(Vector2 player, Vector2 facing, Vector2 pet)
+        {
+            Vector2 to = pet - player;
+            float d = to.magnitude;
+            if (d > 1.5f) return false;
+            if (d < 0.2f) return true;
+            return Vector2.Dot(facing.normalized, to / d) > 0.55f;
+        }
+
         /// <summary>
         /// Point de suivi : derrière le joueur, à <paramref name="distance"/> le long de son chemin récent
         /// (<paramref name="trail"/>, du plus récent au plus ancien). Pas assez de chemin : le dernier point connu.

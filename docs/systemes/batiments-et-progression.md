@@ -134,7 +134,15 @@
   déjà à soi, Échap : fermer. Un seul animal à la fois (`PetCollection`, testée : achat, choix, rechargement), gardé
   dans `PlayerProgress.Pets` et sauvegardé (`SaveData.Pets`, `EquippedPet`). Il suit le joueur (`Pets/PetFollower`,
   objet « Animal de compagnie ») le long de son chemin à une case derrière lui (`PetMath.FollowPoint`), s'arrête avec
-  lui et le rejoint d'un coup après une porte ou un voyage (plus de 5 cases d'écart). Bonus appliqués par
+  lui et le rejoint d'un coup après une porte ou un voyage (plus de 5 cases d'écart). **Pendant la pêche**, il vient
+  s'asseoir à côté du joueur, sur son flanc gauche sinon droit, sur la terre ferme (`PetMath.SitPoint`), et regarde l'eau
+  avec lui. **À chaque prise** il saute de joie à sa façon (`PetMath.ReactionOffset`, 1,2 s : le chat fait un grand bond, le
+  chien frétille en sautillant, le perroquet s'envole un peu, le manchot se dandine, le crocodile se cabre, l'araignée
+  trépigne), avec une **bulle cœur** (`BubbleArt.Heart` → `Art/UI/Bulle_Coeur.png`) pour une belle prise
+  (`PetMath.HeartFor` : rare et plus, nouvelle espèce) et pour une légende vaincue. **Caresser** : tourné vers lui, à
+  moins d'une case et demie (`PetMath.CanPet`), « E : caresser ton compagnon » ; il saute de joie avec un cœur. C'est
+  `InventoryHud` qui reçoit E et le passe à l'animal (`PetFollower.Pet`), pour garder les priorités de la touche ; dos
+  tourné, E ouvre toujours le sac. Bonus appliqués par
   `FishingController` (tirage des espèces et attente de la touche). L'emplacement « ANIMAL » de l'inventaire montre son
   portrait et son nom.
 - **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu, **une tour**. Façade

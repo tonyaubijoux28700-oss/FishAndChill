@@ -3627,6 +3627,7 @@ MonoBehaviour:
   _travel: {fileID: 332295279}
   _showcaseBack: {fileID: 21300000, guid: db5df83aab0f02d4ca0de5d3dc4a9fef, type: 3}
   _peg: {fileID: 21300000, guid: 8d8e4f5751ebaee45bad037a006c8aa6, type: 3}
+  _pet: {fileID: 1778980690}
   _petPaw: {fileID: 21300000, guid: 8268c38ba1b7b0b419977ce2f7a7c10b, type: 3}
   _tag: {fileID: 21300000, guid: 7bf5b043295e34a47ba840bdbfea0f7e, type: 3}
   _roundTag: {fileID: 21300000, guid: ad14f35180b5721408810e5627ac7ba4, type: 3}
@@ -31947,7 +31948,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: FishAndChill::FishAndChill.Pets.PetFollower
   _player: {fileID: 1141459283}
   _progress: {fileID: 332295271}
+  _fishing: {fileID: 1235020156}
+  _map: {fileID: 1254510490}
   _coinBubble: {fileID: 21300000, guid: 297b2bb5cf8e97440b8a2d6386e1db60, type: 3}
+  _heartBubble: {fileID: 21300000, guid: 612ca63b3bbf51347ae3fc5f8c8413ff, type: 3}
 --- !u!212 &1778980691
 SpriteRenderer:
   serializedVersion: 3

@@ -81,6 +81,7 @@ namespace FishAndChill.UI
         [Header("Vitrine du matériel")]
         [SerializeField, Tooltip("Fond en bois de la vitrine.")] private Sprite _showcaseBack;
         [SerializeField, Tooltip("Support en laiton sous la canne.")] private Sprite _peg;
+        [SerializeField, Tooltip("L'animal de compagnie : tourné vers lui, E le caresse (au lieu d'ouvrir le sac).")] private Pets.PetFollower _pet;
         [SerializeField, Tooltip("Empreinte de patte de l'emplacement de l'animal de compagnie.")] private Sprite _petPaw;
         [SerializeField, Tooltip("Étiquette en papier (étirable).")] private Sprite _tag;
         [SerializeField, Tooltip("Étiquette en papier à coins arrondis.")] private Sprite _roundTag;
@@ -190,7 +191,9 @@ namespace FishAndChill.UI
                 }
                 else if (!IsOpen && InteractInput.PressedThisFrame() && CanOpenNow())
                 {
-                    Open();
+                    // Tourné vers son animal, E le caresse ; sinon E ouvre le sac.
+                    if (_pet != null && _pet.PlayerCanPet) _pet.Pet();
+                    else Open();
                 }
                 else if (IsOpen)
                 {
@@ -365,6 +368,11 @@ namespace FishAndChill.UI
             {
                 _prompt.gameObject.SetActive(true);
                 _prompt.text = _progress.Bag.Count > 0 ? "E : déposer tes poissons dans le bassin" : "Ton sac est vide : va pêcher !";
+            }
+            else if (_pet != null && _pet.PlayerCanPet && !IsOpen && _toastTimer <= 0f && CanOpenNow())
+            {
+                _prompt.gameObject.SetActive(true);
+                _prompt.text = "E : caresser ton compagnon";
             }
             else
             {

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using FishAndChill.Collection;
+using FishAndChill.Fishing;
 using FishAndChill.Player;
+using FishAndChill.World;
 using UnityEngine;
 
 namespace FishAndChill.Pets
@@ -8,8 +10,11 @@ namespace FishAndChill.Pets
     /// <summary>
     /// L'animal qui accompagne le joueur (<see cref="PlayerProgress.EquippedPet"/>) : il suit son chemin à une case
     /// derrière lui (<see cref="PetMath.FollowPoint"/>), marche quand il marche, s'arrête quand il s'arrête, et le
-    /// rejoint d'un coup quand le joueur est loin (porte, voyage). Le bouledogue trouve parfois des pièces en se
-    /// promenant (bulle avec une pièce au-dessus de lui). Aucun animal : rien n'est affiché.
+    /// rejoint d'un coup quand le joueur est loin (porte, voyage). Pendant la pêche, il vient s'asseoir à côté du joueur
+    /// et regarde l'eau avec lui ; à chaque prise il saute de joie à sa façon (<see cref="PetMath.ReactionOffset"/>),
+    /// avec un cœur pour une belle prise (rare et plus, nouvelle espèce, légende). Tourné vers lui, E le caresse
+    /// (petit bond et cœur ; c'est l'inventaire qui transmet la touche, pour garder ses priorités). Le bouledogue trouve
+    /// parfois des pièces en se promenant (bulle avec une pièce). Aucun animal : rien n'est affiché.
     /// </summary>
     [RequireComponent(typeof(SpriteRenderer))]
     public sealed class PetFollower : MonoBehaviour
@@ -18,29 +23,88 @@ namespace FishAndChill.Pets
         private const float FollowDistance = 1.05f;
         private const float SnapDistance = 5f;
         private const float FramesPerSecond = 7f;
+        private const float BubbleSeconds = 1.6f;
 
         [SerializeField] private PlayerMovement _player;
         [SerializeField] private PlayerProgress _progress;
+        [SerializeField, Tooltip("La pêche : l'animal s'assoit pendant qu'on pêche et réagit aux prises.")] private FishingController _fishing;
+        [SerializeField, Tooltip("Pour s'asseoir sur la terre ferme, pas dans l'eau.")] private WorldMap _map;
         [SerializeField, Tooltip("Bulle avec une pièce : le bouledogue a trouvé des pièces.")] private Sprite _coinBubble;
+        [SerializeField, Tooltip("Bulle avec un cœur : une caresse, une belle prise.")] private Sprite _heartBubble;
 
         private readonly List<Vector2> _trail = new List<Vector2>();
         private readonly System.Random _random = new System.Random(7);
         private SpriteRenderer _renderer;
         private SpriteRenderer _bubble;
         private PetDefinition _pet;
+        private Vector2 _ground;
         private Vector2 _facing = Vector2.down;
         private float _walkTime;
         private float _bubbleTimer;
+        private float _reaction = -1f;
+
+        /// <summary>Le joueur est tourné vers son animal, assez près pour le caresser (E).</summary>
+        public bool PlayerCanPet => _pet != null && _player != null && !IsFishing && _reaction < 0f
+                                    && PetMath.CanPet(_player.transform.position, _player.Facing, _ground);
+
+        public string PetName => _pet != null ? _pet.DisplayName : string.Empty;
+
+        private bool IsFishing => _fishing != null && _fishing.State != FishingState.Idle;
 
         private void Start()
         {
             _renderer = GetComponent<SpriteRenderer>();
+            _ground = transform.position;
             var bubbleObject = new GameObject("Bulle de l'animal");
             bubbleObject.transform.SetParent(transform, false);
             _bubble = bubbleObject.AddComponent<SpriteRenderer>();
             _bubble.sortingOrder = 100;
             _bubble.sprite = _coinBubble;
             bubbleObject.SetActive(false);
+            if (_fishing != null)
+            {
+                _fishing.FishCaught += OnFishCaught;
+                _fishing.LegendBeaten += OnLegendBeaten;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_fishing != null)
+            {
+                _fishing.FishCaught -= OnFishCaught;
+                _fishing.LegendBeaten -= OnLegendBeaten;
+            }
+        }
+
+        private void OnFishCaught(CaughtFish fish, bool isNew, bool bagFull)
+        {
+            React(fish != null && fish.Species != null && PetMath.HeartFor(fish.Species.Rarity, isNew));
+        }
+
+        private void OnLegendBeaten(LegendFish legend, int coins) => React(true);
+
+        /// <summary>E devant l'animal : il saute de joie et montre un cœur.</summary>
+        public void Pet()
+        {
+            if (_pet == null) return;
+            if (_player != null) _facing = (Vector2)_player.transform.position - _ground;
+            React(true);
+        }
+
+        private void React(bool heart)
+        {
+            if (_pet == null) return;
+            _reaction = 0f;
+            if (heart) ShowBubble(_heartBubble);
+        }
+
+        private void ShowBubble(Sprite sprite)
+        {
+            if (sprite == null) return;
+            _bubble.sprite = sprite;
+            _bubble.gameObject.SetActive(true);
+            _bubbleTimer = BubbleSeconds;
         }
 
         private void Update()
@@ -51,13 +115,15 @@ namespace FishAndChill.Pets
             {
                 _pet = pet;
                 _trail.Clear();
-                if (pet != null) transform.position = (Vector2)_player.transform.position + Vector2.left * 0.8f;
+                _reaction = -1f;
+                if (pet != null) _ground = (Vector2)_player.transform.position + Vector2.left * 0.8f;
             }
 
             _renderer.enabled = pet != null;
             if (pet == null)
             {
                 _bubble.gameObject.SetActive(false);
+                transform.position = _ground;
                 return;
             }
 
@@ -68,35 +134,59 @@ namespace FishAndChill.Pets
                 if (_trail.Count > TrailLength) _trail.RemoveAt(_trail.Count - 1);
             }
 
-            Vector2 position = transform.position;
-            if (Vector2.Distance(position, feet) > SnapDistance)
+            bool moving;
+            if (Vector2.Distance(_ground, feet) > SnapDistance)
             {
                 // Le joueur a franchi une porte ou voyagé : l'animal le rejoint aussitôt.
                 _trail.Clear();
                 _trail.Add(feet);
-                transform.position = feet + Vector2.left * 0.8f;
-                return;
+                _ground = feet + Vector2.left * 0.8f;
+                moving = false;
             }
-
-            Vector2 target = PetMath.FollowPoint(_trail, FollowDistance);
-            Vector2 toTarget = target - position;
-            bool moving = toTarget.magnitude > 0.06f && Vector2.Distance(position, feet) > 0.7f;
-            if (moving)
+            else if (IsFishing)
             {
-                float speed = Mathf.Max(3.2f, toTarget.magnitude * 4f);
-                Vector2 step = Vector2.ClampMagnitude(toTarget, speed * Time.deltaTime);
-                transform.position = position + step;
-                _facing = step;
-                _walkTime += Time.deltaTime;
+                // Pendant la pêche : il vient s'asseoir à côté du joueur et regarde l'eau avec lui.
+                Vector2 seat = PetMath.SitPoint(feet, _player.Facing, p => _map == null || _map.CanStandAt(p, 0.2f) || pet.Flies);
+                moving = WalkTo(seat, 0.05f);
+                if (!moving) _facing = _player.Facing;
             }
             else
             {
-                _walkTime = 0f;
-                if (Vector2.Distance(position, feet) <= 1.4f) _facing = feet - position;
+                Vector2 target = PetMath.FollowPoint(_trail, FollowDistance);
+                moving = Vector2.Distance(_ground, feet) > 0.7f && WalkTo(target, 0.06f);
+                if (!moving && _reaction < 0f && Vector2.Distance(_ground, feet) <= 1.4f) _facing = feet - _ground;
             }
 
-            ApplySprite(pet, moving);
+            if (moving) _walkTime += Time.deltaTime;
+            else _walkTime = 0f;
+
+            // La réaction de joie : bond, frétillement… par-dessus la place au sol.
+            float tilt = 0f;
+            Vector2 offset = Vector2.zero;
+            if (_reaction >= 0f)
+            {
+                offset = PetMath.ReactionOffset(pet.Kind, _reaction, out tilt);
+                _reaction += Time.deltaTime;
+                if (_reaction >= PetMath.ReactionSeconds) _reaction = -1f;
+            }
+
+            transform.position = _ground + offset;
+            transform.rotation = Quaternion.Euler(0f, 0f, _renderer.flipX ? -tilt : tilt);
+            ApplySprite(pet, moving || _reaction >= 0f && pet.Flies);
+            UpdateBubble();
             FindCoins(pet, moving);
+        }
+
+        /// <summary>Avance vers <paramref name="target"/> ; vrai s'il marche encore.</summary>
+        private bool WalkTo(Vector2 target, float stopDistance)
+        {
+            Vector2 toTarget = target - _ground;
+            if (toTarget.magnitude <= stopDistance) return false;
+            float speed = Mathf.Max(3.2f, toTarget.magnitude * 4f);
+            Vector2 step = Vector2.ClampMagnitude(toTarget, speed * Time.deltaTime);
+            _ground += step;
+            _facing = step;
+            return true;
         }
 
         private void ApplySprite(PetDefinition pet, bool moving)
@@ -114,28 +204,30 @@ namespace FishAndChill.Pets
             }
 
             if (frames == null || frames.Length == 0) return;
-            // Le perroquet bat des ailes même à l'arrêt.
-            bool animate = moving || pet.Flies;
-            int frame = animate ? PlayerAnimator.WalkFrameIndex(moving ? _walkTime : Time.time, FramesPerSecond, frames.Length) : 0;
+            // Le perroquet bat des ailes même à l'arrêt ; pendant une réaction, tout le monde s'agite.
+            bool animate = moving || pet.Flies || _reaction >= 0f;
+            float clock = moving ? _walkTime : Time.time * (_reaction >= 0f ? 1.8f : 1f);
+            int frame = animate ? PlayerAnimator.WalkFrameIndex(clock, FramesPerSecond, frames.Length) : 0;
             _renderer.sprite = frames[Mathf.Clamp(frame, 0, frames.Length - 1)];
             _renderer.flipX = flip;
+        }
+
+        private void UpdateBubble()
+        {
+            if (_bubbleTimer <= 0f) return;
+            _bubbleTimer -= Time.deltaTime;
+            _bubble.transform.localPosition = new Vector3(0f, 1.05f + Mathf.Round(Mathf.Sin(Time.time * 4f) * 1.5f) / 16f, 0f);
+            _bubble.transform.rotation = Quaternion.identity;
+            if (_bubbleTimer <= 0f) _bubble.gameObject.SetActive(false);
         }
 
         /// <summary>Le bouledogue (ou tout animal qui a cette chance) trouve parfois des pièces en marchant.</summary>
         private void FindCoins(PetDefinition pet, bool moving)
         {
-            if (_bubbleTimer > 0f)
-            {
-                _bubbleTimer -= Time.deltaTime;
-                _bubble.transform.localPosition = new Vector3(0f, 1.05f + Mathf.Round(Mathf.Sin(Time.time * 4f) * 1.5f) / 16f, 0f);
-                if (_bubbleTimer <= 0f) _bubble.gameObject.SetActive(false);
-            }
-
             int coins = PetMath.FoundCoins(_random, Time.deltaTime, moving, pet.CoinChancePerSecond, pet.CoinMin, pet.CoinMax);
             if (coins <= 0) return;
             _progress.Wallet.Add(coins);
-            _bubble.gameObject.SetActive(_coinBubble != null);
-            _bubbleTimer = 1.6f;
+            ShowBubble(_coinBubble);
         }
     }
 }

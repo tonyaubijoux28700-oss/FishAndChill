@@ -111,7 +111,20 @@ namespace FishAndChill.Editor
             petSo.FindProperty("_progress").objectReferenceValue = progress;
             petSo.FindProperty("_coinBubble").objectReferenceValue =
                 PixelArt.Save("Assets/_Project/Art/UI/Bulle_Piece.png", BubbleArt.Coin(), CharacterSprites.PixelsPerUnit, BubbleArt.ExclamationPivot);
+            petSo.FindProperty("_heartBubble").objectReferenceValue =
+                PixelArt.Save("Assets/_Project/Art/UI/Bulle_Coeur.png", BubbleArt.Heart(), CharacterSprites.PixelsPerUnit, BubbleArt.ExclamationPivot);
+            petSo.FindProperty("_fishing").objectReferenceValue = Object.FindAnyObjectByType<Fishing.FishingController>();
+            petSo.FindProperty("_map").objectReferenceValue = Object.FindAnyObjectByType<World.WorldMap>();
             petSo.ApplyModifiedPropertiesWithoutUndo();
+
+            // Tourné vers l'animal, E le caresse : c'est l'inventaire qui reçoit la touche et la lui passe.
+            var hud = partie.GetComponent<UI.InventoryHud>();
+            if (hud != null)
+            {
+                var hudSo = new SerializedObject(hud);
+                hudSo.FindProperty("_pet").objectReferenceValue = pet;
+                hudSo.ApplyModifiedPropertiesWithoutUndo();
+            }
 
             var menu = partie.GetComponent<UI.PetShopMenu>();
             if (menu == null) menu = partie.AddComponent<UI.PetShopMenu>();

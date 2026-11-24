@@ -55,6 +55,49 @@ namespace FishAndChill.Editor
             return p;
         }
 
+        /// <summary>
+        /// Bulle avec un cœur rouge (l'animal est content : on le caresse, ou une belle prise), 12×15, même pivot que
+        /// <see cref="Exclamation"/>.
+        /// </summary>
+        public static Color[,] Heart()
+        {
+            Color[,] p = Bubble(12, 15);
+            var red = new Color(0.90f, 0.20f, 0.26f);
+            var dark = new Color(0.62f, 0.10f, 0.16f);
+            var shine = new Color(1f, 0.66f, 0.70f);
+            string[] rows =
+            {
+                ".##..##.",
+                "#ss##..#",
+                "#s.....#",
+                "#......#",
+                ".#....#.",
+                "..#..#..",
+                "...##...",
+            };
+            for (int r = 0; r < rows.Length; r++)
+            {
+                for (int c = 0; c < rows[r].Length; c++)
+                {
+                    char ch = rows[r][c];
+                    int x = 2 + c, y = 12 - r;
+                    // Contour foncé, intérieur rouge, reflet clair en haut à gauche.
+                    if (ch == '#') p[x, y] = dark;
+                    else if (ch == 's') p[x, y] = shine;
+                    else if (r > 0 && r < rows.Length - 1 && IsInside(rows, r, c)) p[x, y] = red;
+                }
+            }
+
+            return p;
+        }
+
+        private static bool IsInside(string[] rows, int r, int c)
+        {
+            string row = rows[r];
+            int first = row.IndexOfAny(new[] { '#', 's' }), last = row.LastIndexOfAny(new[] { '#', 's' });
+            return first >= 0 && c > first && c < last;
+        }
+
         /// <summary>Bulle arrondie à fond crème, ombrée en bas, pointe au milieu du bas.</summary>
         private static Color[,] Bubble(int width, int height)
         {
