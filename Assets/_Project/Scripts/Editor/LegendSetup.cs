@@ -10,8 +10,9 @@ namespace FishAndChill.Editor
     /// Crée ou met à jour les poissons de légende (Data/Legendes) et dessine leurs artefacts (Art/Legendes).
     /// Tuna, la murène géante de l'île Mahana (Idole de corail), Bramafan, l'écrevisse titan du Lac d'Annecy (Médaillon
     /// des palafittes), Ipupiara, le payara titan du Fleuve Amazone (Grenouille de jade), l'Isonade, la rascasse titan de
-    /// la Baie d'Izu (Miroir des marées), et Rannamaari, le djinn des abysses de l'Atoll des Maldives (Lanterne de
-    /// corail), chacun avec un artefact en 4 fragments.
+    /// la Baie d'Izu (Miroir des marées), Rannamaari, le djinn des abysses de l'Atoll des Maldives (Lanterne de
+    /// corail), et le Moha-moha, la tortue géante au long cou de la Grande Barrière (Bouclier d'écaille), chacun avec un
+    /// artefact en 4 fragments.
     /// Appelé par le menu du prototype, après la création des espèces et des zones.
     /// </summary>
     public static class LegendSetup
@@ -66,7 +67,49 @@ namespace FishAndChill.Editor
                 new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il se tord dans tous les sens !"),
             }, 600);
             EditorUtility.SetDirty(tuna);
-            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot), Rannamaari(ppu, pivot) };
+            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot), Rannamaari(ppu, pivot), MohaMoha(ppu, pivot) };
+        }
+
+        /// <summary>
+        /// Le Moha-moha, tortue géante de la Grande Barrière (espèce de base : le mérou géant). Aperçu en 1890 près de
+        /// l'île Fraser, dans le Queensland : une immense tortue au long cou et à queue de poisson. Ici, une vraie tortue
+        /// marine géante envahie par le récif. Artefact : le Bouclier d'écaille, en 4 fragments.
+        /// </summary>
+        private static LegendFish MohaMoha(int ppu, Vector2 pivot)
+        {
+            Sprite shield = PixelArt.Save($"{ArtFolder}/Bouclier_Ecaille.png", ShellShieldArt.Shield(), ppu, pivot);
+            Sprite silhouette = PixelArt.Save($"{ArtFolder}/Bouclier_Ecaille_Silhouette.png", ShellShieldArt.Silhouette(), ppu, pivot);
+            var fragments = new Sprite[ShellShieldArt.Fragments];
+            var centers = new Vector2[ShellShieldArt.Fragments];
+            for (int i = 0; i < fragments.Length; i++)
+            {
+                fragments[i] = PixelArt.Save($"{ArtFolder}/Bouclier_Ecaille_Fragment_{i + 1}.png", ShellShieldArt.Piece(i), ppu, pivot);
+                centers[i] = ShellShieldArt.PieceCenter(i);
+            }
+
+            var species = FindSpecies("epinephelus-lanceolatus", "Assets/_Project/Data/Species/EpinephelusLanceolatus.asset");
+            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/GrandeBarriere.asset");
+            LegendFish mohaMoha = LoadOrCreate(Folder + "/MohaMoha.asset");
+            mohaMoha.Configure("moha-moha", "Moha-moha", species, zone, 600f, "Bouclier d'écaille", ShellShieldArt.Fragments,
+                FragmentRules.DefaultChance, shield, fragments, centers, silhouette, new[]
+                {
+                    "Le haut d'un bouclier en écaille blonde, bordé d'une corde tressée. Il sent encore la mer.",
+                    "Un morceau gravé : une tortue au cou très long, bien plus long que celui d'une vraie tortue.",
+                    "Le bas du bouclier, avec des vagues gravées. Une branche de corail y a poussé toute seule.",
+                    "Un éclat du bord, poli par le sable. Gravé dessous : « Il dort sous le récif depuis 1890 ».",
+                });
+            Sprite art = PixelArt.Save($"{ArtFolder}/MohaMoha.png", MohaMohaArt.Draw(), ppu, pivot);
+            mohaMoha.ConfigureLook("Tortue géante au long cou", art, BodyShape.MohaMoha);
+            // Le combat : il tire de tout son poids vers le fond, longe le récif à toute allure, puis secoue son long cou
+            // dans tous les sens. Le plus dur jusqu'ici.
+            mohaMoha.ConfigureFight(new[]
+            {
+                new LegendPhase(FightStyle.Heavy, new QteDifficulty(1.6f, 0.14f, 6, 2), "Il tire de tout son poids vers le fond !"),
+                new LegendPhase(FightStyle.Rusher, new QteDifficulty(1.85f, 0.13f, 6, 2), "Il fonce le long du récif !"),
+                new LegendPhase(FightStyle.Nervous, new QteDifficulty(2.1f, 0.12f, 6, 1), "Il secoue son long cou dans tous les sens !"),
+            }, 1800);
+            EditorUtility.SetDirty(mohaMoha);
+            return mohaMoha;
         }
 
         /// <summary>

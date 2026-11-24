@@ -4012,13 +4012,13 @@ MonoBehaviour:
   _camera: {fileID: 519420033}
   _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
   _tanks:
-  - {fileID: 360895268}
   - {fileID: 26758889}
   - {fileID: 2046593193}
-  - {fileID: 148596318}
-  - {fileID: 1098986844}
   - {fileID: 1324183801}
+  - {fileID: 1098986844}
+  - {fileID: 148596318}
   - {fileID: 1244758331}
+  - {fileID: 360895268}
 --- !u!1 &335281838
 GameObject:
   m_ObjectHideFlags: 0
@@ -12554,6 +12554,78 @@ SortingGroup:
   m_SortingOrder: 10
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
+--- !u!1 &915697351
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 915697352}
+  - component: {fileID: 915697353}
+  m_Layer: 0
+  m_Name: "Remous l\xE9gendaire du r\xE9cif"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &915697352
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 915697351}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1254510492}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &915697353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 915697351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8489e8b96f5347498bc8e16f4580013, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.LegendSpot
+  _map: {fileID: 1254510490}
+  _region: 4
+  _avoid:
+    serializedVersion: 2
+    x: 625
+    y: -21
+    width: 12
+    height: 16
+  _legend: {fileID: 11400000, guid: 6592c7f2b5429cf499a69394d15497e0, type: 2}
+  _progress: {fileID: 332295271}
+  _eddyFrames:
+  - {fileID: 21300000, guid: 44b2d23be27e31f46b68e04941e0b021, type: 3}
+  - {fileID: 21300000, guid: ecd2265f99e18e1448a44264d18c50de, type: 3}
+  - {fileID: 21300000, guid: 77487c58471dee64abc6deb4c85fef1c, type: 3}
+  - {fileID: 21300000, guid: a9690e001a4fe754ba11f54c4848be0b, type: 3}
+  - {fileID: 21300000, guid: f0ef050ac2440a0449b4c1fccbeecd89, type: 3}
+  - {fileID: 21300000, guid: ed294dd588542a943af16530df27a809, type: 3}
+  _waveFrames:
+  - {fileID: 21300000, guid: c558be1a6290edb4da31a75516cf0169, type: 3}
+  - {fileID: 21300000, guid: 18eb9990a2ff20f4b8d194118d40db55, type: 3}
+  - {fileID: 21300000, guid: 906b8db2b8f5f3a48be8892876ddb037, type: 3}
+  - {fileID: 21300000, guid: 733451041bea27e468cdd085cb8e2669, type: 3}
+  - {fileID: 21300000, guid: 17432096abc9df447b86bef1830f8c33, type: 3}
+  - {fileID: 21300000, guid: f19dfa2f2ccf6c54a80f04cfa2df4e47, type: 3}
+  - {fileID: 21300000, guid: 1a0e6cdd796f7bd448dc2ce8b08498e9, type: 3}
+  - {fileID: 21300000, guid: 17df02ff58fd5c644af11b8a714fa557, type: 3}
+  - {fileID: 21300000, guid: f08d793cd92033d47a0aa698cd6291fb, type: 3}
+  - {fileID: 21300000, guid: c4a2ca5ec67a9e4459caf0f187d536b5, type: 3}
 --- !u!1 &929473037
 GameObject:
   m_ObjectHideFlags: 0
@@ -17861,6 +17933,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e169c074ae3066e439946c7b1a79e68f, type: 2}
   - {fileID: 11400000, guid: aeb8cbc2d7fd573488c5c5f802c44100, type: 2}
   - {fileID: 11400000, guid: e6068468ab871694297448fc0948ab7e, type: 2}
+  - {fileID: 11400000, guid: 6592c7f2b5429cf499a69394d15497e0, type: 2}
 --- !u!4 &1235020157
 Transform:
   m_ObjectHideFlags: 0
@@ -25448,6 +25521,7 @@ Transform:
   - {fileID: 2130904868}
   - {fileID: 1387484669}
   - {fileID: 944529755}
+  - {fileID: 915697352}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1254510493
@@ -26168,7 +26242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FishAndChill::FishAndChill.World.SpecimenTube
   _slot: 5
-  _legend: {fileID: 0}
+  _legend: {fileID: 11400000, guid: 6592c7f2b5429cf499a69394d15497e0, type: 2}
   _progress: {fileID: 332295271}
   _back: {fileID: 1014763344}
   _specimen: {fileID: 1554987075}
@@ -28733,15 +28807,15 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 0fea7f479d727944f8d2f0e831689797, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.25, y: 4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
 --- !u!1 &1560061167

@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4994546c4687664eb5edd8a7a9bb9e2, type: 3}
+  m_Name: MohaMoha
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.LegendFish
+  _id: moha-moha
+  _title: Moha-moha
+  _kindName: "Tortue g\xE9ante au long cou"
+  _art: {fileID: 21300000, guid: 0d01ff2a7791b6646a48796927cfe7b2, type: 3}
+  _shadowShape: 11
+  _species: {fileID: 11400000, guid: 48b13a29e26720b43b34363048d6e37b, type: 2}
+  _zone: {fileID: 11400000, guid: b3bab3c8683334044805b234f309ae0b, type: 2}
+  _sizeCm: 600
+  _phases:
+  - _style: 4
+    _difficulty:
+      _cursorSpeed: 1.6
+      _zoneWidth: 0.14
+      _requiredHits: 6
+      _maxMisses: 2
+    _cry: Il tire de tout son poids vers le fond !
+  - _style: 3
+    _difficulty:
+      _cursorSpeed: 1.85
+      _zoneWidth: 0.13
+      _requiredHits: 6
+      _maxMisses: 2
+    _cry: "Il fonce le long du r\xE9cif !"
+  - _style: 1
+    _difficulty:
+      _cursorSpeed: 2.1
+      _zoneWidth: 0.12
+      _requiredHits: 6
+      _maxMisses: 1
+    _cry: Il secoue son long cou dans tous les sens !
+  _rewardCoins: 1800
+  _artifactName: "Bouclier d'\xE9caille"
+  _fragmentCount: 4
+  _fragmentChance: 0.03
+  _artifact: {fileID: 21300000, guid: b78a5e0bfb248ca4dabd3bd775a70666, type: 3}
+  _fragments:
+  - {fileID: 21300000, guid: 714d501aa3e6da64b9b07c087e764ab8, type: 3}
+  - {fileID: 21300000, guid: 267696353e22c96488c8ecf5795aaa77, type: 3}
+  - {fileID: 21300000, guid: 2adf3d05712b1b44a86eaae6def1f413, type: 3}
+  - {fileID: 21300000, guid: 684bd59856e13214eaa09e0b08a8290b, type: 3}
+  _fragmentCenters:
+  - {x: 0.5104167, y: 0.71875}
+  - {x: 0.7395833, y: 0.484375}
+  - {x: 0.48958334, y: 0.28125}
+  - {x: 0.29166666, y: 0.515625}
+  _silhouette: {fileID: 21300000, guid: 45e016583d6619f42a1d2f6cfe2a4fde, type: 3}
+  _fragmentLines:
+  - "Le haut d'un bouclier en \xE9caille blonde, bord\xE9 d'une corde tress\xE9e. Il sent encore la mer."
+  - "Un morceau grav\xE9 : une tortue au cou tr\xE8s long, bien plus long que celui d'une vraie tortue."
+  - "Le bas du bouclier, avec des vagues grav\xE9es. Une branche de corail y a pouss\xE9 toute seule."
+  - "Un \xE9clat du bord, poli par le sable. Grav\xE9 dessous : \xAB Il dort sous le r\xE9cif depuis 1890 \xBB."

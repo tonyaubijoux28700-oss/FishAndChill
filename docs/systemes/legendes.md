@@ -128,6 +128,22 @@
   nerveux (« Ses lumières clignotent, il se tord comme un ruban ! »), lourd (« Il plonge vers les abysses de l'atoll ! »),
   le plus dur jusqu'ici, 1500 pièces. Remous « Remous légendaire de l'atoll » dans la région 5. Tube n° 5 de la salle des
   spécimens. La liste de l'atelier des artefacts rapetisse ses fiches au-delà de 5 légendes.
+- **Sixième légende : le Moha-moha**, tortue géante au long cou de 600 cm de la **Grande Barrière** (espèce de base le
+  mérou géant ; monstre marin aperçu en 1890 près de l'île Fraser, dans le Queensland, décrit comme une immense tortue au
+  long cou et à queue de poisson). Choisi parmi trois esquisses (tortue de corail, ancêtre des profondeurs, épave
+  vivante), puis redessiné en **vraie tortue marine envahie par le récif** à la demande du propriétaire. Dessin
+  `Editor/MohaMohaArt` → `Art/Legendes/MohaMoha.png` (de profil : carapace en goutte et en dôme aux vraies plaques avec
+  anneaux de croissance, couverte de croûtes d'algues roses en relief, cerveaux de Neptune, coraux cornes de cerf aux
+  pointes mauves, deux gorgones rouges en éventail, éponges en tubes et anémones ; corail jusque sur la nageoire avant et
+  le crâne ; petits poissons du récif autour ; tête écailleuse, gros œil sous une paupière lourde, bec dentelé, cou ridé
+  allongé, grandes nageoires à écailles et griffe, queue charnue finie en nageoire). Silhouette sous l'eau
+  `BodyShape.MohaMoha` (`FishShadowSprites.MohaMoha` : carapace ovale bosselée, long cou qui ondule, tête aux yeux qui
+  luisent, nageoires avant qui pagaient, palettes arrière, queue). Artefact **Bouclier d'écaille**
+  (`Editor/ShellShieldArt`, 48×64 : bouclier ovale en écaille blonde et brune, gravé d'une tortue au long cou et de
+  vagues, cerclé d'une corde tressée, une branche de corail poussée sur le bord ; 4 quartiers dentelés). Combat : lourd
+  (« Il tire de tout son poids vers le fond ! »), rush (« Il fonce le long du récif ! »), nerveux (« Il secoue son long
+  cou dans tous les sens ! »), le plus dur jusqu'ici, 1800 pièces. Remous « Remous légendaire du récif » dans la région 4.
+  Tube n° 6 de la salle des spécimens.
 - **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
   `Center` / `Silhouette`), un `BuildLegendSpot` dans la région de sa zone (`PrototypeSetup.RegionOf` relie remous et
   légende). Le menu de test (**FishAndChill → Légendes (test)**) agit sur la légende de la zone où l'on est (sinon Tuna) et

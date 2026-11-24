@@ -110,6 +110,7 @@ namespace FishAndChill.Fishing
                         case BodyShape.Payara: tone = Payara(u, v, phase); break;
                         case BodyShape.Isonade: tone = Isonade(u, v, phase); break;
                         case BodyShape.Rannamaari: tone = Rannamaari(u, v, phase); break;
+                        case BodyShape.MohaMoha: tone = MohaMoha(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -382,6 +383,53 @@ namespace FishAndChill.Fishing
 
             // Antennes.
             if (OnSegment(u, av, 0.4f, 0.04f, 0.95f, 0.5f + phase * 0.04f, 0.015f)) return EdgeTone;
+            return None;
+        }
+
+        /// <summary>
+        /// Moha-moha (tortue géante au long cou), vu de dessus : carapace ovale aux bords bosselés de corail, long cou qui
+        /// ondule jusqu'à une petite tête aux deux yeux qui luisent, deux grandes nageoires avant en aile qui pagaient
+        /// (en avant, en arrière), deux petites palettes à l'arrière, queue en nageoire.
+        /// </summary>
+        private static int MohaMoha(float u, float v, int phase)
+        {
+            float av = Mathf.Abs(v);
+
+            // Le cou ondule un peu, la tête au bout.
+            if (u > 0.3f)
+            {
+                float k = (u - 0.3f) / 0.6f;
+                float center = phase * 0.05f * Mathf.Sin(k * Mathf.PI);
+                float dv = Mathf.Abs(v - center);
+                if (InEllipse(u, dv, 0.84f, 0.05f, 0.028f, 0.025f)) return EyeTone;
+                if (InEllipse(u, v - center, 0.84f, 0f, 0.11f, 0.09f)) return dv > 0.075f ? EdgeTone : BodyTone;
+                if (u <= 0.8f && dv <= 0.045f) return dv > 0.035f ? EdgeTone : BodyTone;
+            }
+
+            // La carapace : ovale, bord bosselé par le corail.
+            float bump = Mathf.Repeat((u + v) * 9f, 1f) < 0.35f ? 0.02f : 0f;
+            if (InEllipse(u, v, -0.05f, 0f, 0.4f + bump, 0.27f + bump))
+            {
+                if (!InEllipse(u, v, -0.05f, 0f, 0.36f, 0.23f)) return EdgeTone;
+                return InEllipse(u, v, -0.05f, 0f, 0.22f, 0.13f) ? CoreTone : BodyTone;
+            }
+
+            // Grandes nageoires avant : elles pagaient d'avant en arrière.
+            float sweep = phase * 0.08f;
+            if (OnTaper(u, av, 0.18f, 0.2f, 0.02f - sweep, 0.62f, 0.07f, 0.015f)) return BodyTone;
+
+            // Petites palettes arrière.
+            if (OnTaper(u, av, -0.3f, 0.18f, -0.42f + sweep * 0.5f, 0.34f, 0.05f, 0.02f)) return BodyTone;
+
+            // Queue charnue finie en nageoire.
+            if (u < -0.42f && u >= -0.9f)
+            {
+                float k = (-0.42f - u) / 0.48f;
+                float width = k < 0.65f ? 0.05f * (1f - k) + 0.015f : 0.02f + (k - 0.65f) * 0.5f;
+                float tv = v - phase * 0.05f * k;
+                if (Mathf.Abs(tv) <= width) return k > 0.85f ? EdgeTone : BodyTone;
+            }
+
             return None;
         }
 

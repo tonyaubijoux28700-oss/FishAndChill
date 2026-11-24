@@ -26,5 +26,8 @@ namespace FishAndChill.Collection
 
         /// <summary>Djinn des abysses (Rannamaari) : long corps de barracuda, couronne de cornes, perle lumineuse devant la gueule, photophores le long des flancs.</summary>
         Rannamaari,
+
+        /// <summary>Tortue géante au long cou (Moha-moha) : carapace ovale couverte de corail, long cou, quatre nageoires qui pagaient, queue en nageoire, yeux qui luisent.</summary>
+        MohaMoha,
     }
 }
