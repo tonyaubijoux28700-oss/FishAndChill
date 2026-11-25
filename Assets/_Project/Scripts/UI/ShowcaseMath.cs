@@ -11,6 +11,17 @@ namespace FishAndChill.UI
             return next < 0 ? next + count : next;
         }
 
+        /// <summary>
+        /// Premier objet de la rangée de vignettes : la fenêtre de <paramref name="window"/> vignettes suit l'objet choisi
+        /// (centré), sans dépasser le début ni la fin.
+        /// </summary>
+        public static int WindowStart(int selected, int count, int window)
+        {
+            if (count <= window || window <= 0) return 0;
+            int start = selected - window / 2;
+            return start < 0 ? 0 : start > count - window ? count - window : start;
+        }
+
         /// <summary>Agrandissement entier le plus grand pour qu'un dessin tienne dans la boîte (au moins 1).</summary>
         public static int FitScale(float width, float height, float boxWidth, float boxHeight)
         {

@@ -22,5 +22,14 @@ namespace FishAndChill.Tests
             Assert.That(ShowcaseMath.FitScale(56f, 44f, 170f, 170f), Is.EqualTo(3));
             Assert.That(ShowcaseMath.FitScale(400f, 400f, 170f, 170f), Is.EqualTo(1), "jamais moins de 1");
         }
+
+        [Test]
+        public void WindowStart_FollowsTheSelection_AndStopsAtTheEnds()
+        {
+            Assert.AreEqual(0, ShowcaseMath.WindowStart(5, 6, 8));
+            Assert.AreEqual(0, ShowcaseMath.WindowStart(2, 29, 8));
+            Assert.AreEqual(6, ShowcaseMath.WindowStart(10, 29, 8));
+            Assert.AreEqual(21, ShowcaseMath.WindowStart(28, 29, 8));
+        }
     }
 }

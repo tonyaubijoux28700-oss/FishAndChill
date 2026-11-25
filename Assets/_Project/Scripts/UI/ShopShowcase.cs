@@ -43,6 +43,7 @@ namespace FishAndChill.UI
         private readonly Vector2 _rodStandSize;
 
         private float _itemBottom;
+        private int _shownFirst;
         private int _shownSelected;
         private int _shownCount;
 
@@ -148,7 +149,9 @@ namespace FishAndChill.UI
             _position.text = count > 0 ? $"{Mathf.Clamp(selected, 0, count - 1) + 1} / {count}" : string.Empty;
 
             int shown = Mathf.Min(count, MaxThumbnails);
-            _shownSelected = selected;
+            int first = ShowcaseMath.WindowStart(selected, count, MaxThumbnails);
+            _shownFirst = first;
+            _shownSelected = selected - first;
             _shownCount = shown;
             const float step = 92f;
             for (int i = 0; i < MaxThumbnails; i++)
@@ -156,11 +159,11 @@ namespace FishAndChill.UI
                 bool visible = i < shown;
                 _thumbFrames[i].gameObject.SetActive(visible);
                 if (!visible) continue;
-                bool current = i == selected;
+                bool current = first + i == selected;
                 float size = current ? 92f : 76f;
                 UiFactory.Center(_thumbFrames[i].rectTransform, new Vector2(-330f + (i - (shown - 1) * 0.5f) * step, -250f), new Vector2(size, size));
                 _thumbFrames[i].color = current ? Gold : new Color(1f, 1f, 1f, 0.75f);
-                _thumbPictures[i].sprite = entries[i].Picture;
+                _thumbPictures[i].sprite = entries[first + i].Picture;
                 _thumbPictures[i].color = current ? Color.white : new Color(1f, 1f, 1f, 0.7f);
             }
         }
@@ -189,7 +192,7 @@ namespace FishAndChill.UI
             for (int i = 0; i < _shownCount; i++)
             {
                 bool current = i == _shownSelected;
-                bool hovered = i == thumb;
+                bool hovered = _shownFirst + i == thumb;
                 _thumbFrames[i].color = current ? Gold : hovered ? Color.white : new Color(1f, 1f, 1f, 0.75f);
                 _thumbPictures[i].color = current || hovered ? Color.white : new Color(1f, 1f, 1f, 0.7f);
             }
@@ -203,12 +206,12 @@ namespace FishAndChill.UI
             return 0;
         }
 
-        /// <summary>Numéro de la vignette sous la souris, ou -1.</summary>
+        /// <summary>Numéro de la vignette sous la souris (numéro de l'objet), ou -1.</summary>
         public int ThumbnailAt(Vector2 screen)
         {
             for (int i = 0; i < _thumbFrames.Count; i++)
             {
-                if (_thumbFrames[i].gameObject.activeInHierarchy && Over(_thumbFrames[i].rectTransform, screen)) return i;
+                if (_thumbFrames[i].gameObject.activeInHierarchy && Over(_thumbFrames[i].rectTransform, screen)) return _shownFirst + i;
             }
 
             return -1;
