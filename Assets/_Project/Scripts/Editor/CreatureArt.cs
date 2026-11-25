@@ -26,6 +26,7 @@ namespace FishAndChill.Editor
                 case "macrobrachium-amazonicum": pixels = AmazonCreatureArt.AmazonPrawn(); return true;
                 case "macrocheira-kaempferi": pixels = JapanCreatureArt.SpiderCrab(); return true;
                 case "paralithodes-camtschaticus": pixels = KingCrab(); return true;
+                case "loligo-forbesii": pixels = LakeArt.Tint(PixelArt.Resize(KrakenArt.Draw(), 120, 0.3f), 0.02f, 0.85f, 1.45f); return true;
                 case "mobula-alfredi": pixels = RayArt.ReefManta(); return true;
                 default: pixels = null; return false;
             }

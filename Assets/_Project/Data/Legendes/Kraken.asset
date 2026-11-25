@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4994546c4687664eb5edd8a7a9bb9e2, type: 3}
+  m_Name: Kraken
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.LegendFish
+  _id: kraken
+  _title: Kraken
+  _kindName: Calmar colossal
+  _art: {fileID: 21300000, guid: 1c7e24b420685514ea1bd48c0df3b967, type: 3}
+  _shadowShape: 13
+  _species: {fileID: 11400000, guid: b7d18dadd4cbfd241881f6e3972a96c9, type: 2}
+  _zone: {fileID: 11400000, guid: 8bcd8d84eef02ef4da0fef7bccc6df31, type: 2}
+  _sizeCm: 1400
+  _phases:
+  - _style: 4
+    _difficulty:
+      _cursorSpeed: 1.9
+      _zoneWidth: 0.12
+      _requiredHits: 7
+      _maxMisses: 2
+    _cry: Il enroule ses bras autour de la ligne !
+  - _style: 3
+    _difficulty:
+      _cursorSpeed: 2.3
+      _zoneWidth: 0.11
+      _requiredHits: 7
+      _maxMisses: 2
+    _cry: Il file vers le fond du fjord !
+  - _style: 1
+    _difficulty:
+      _cursorSpeed: 2.5
+      _zoneWidth: 0.11
+      _requiredHits: 7
+      _maxMisses: 1
+    _cry: "Il se d\xE9bat de ses dix bras \xE0 la fois !"
+  _rewardCoins: 3000
+  _artifactName: Corne des marins
+  _fragmentCount: 4
+  _fragmentChance: 0.03
+  _artifact: {fileID: 21300000, guid: f19ddfd68effd6d46b002b44e1200b5c, type: 3}
+  _fragments:
+  - {fileID: 21300000, guid: b83e96d1bbc4f7f43809d7c394c79eed, type: 3}
+  - {fileID: 21300000, guid: ce115738a8ddc4f4193e830524f96556, type: 3}
+  - {fileID: 21300000, guid: fc2590c107bb458458df893de9ed5530, type: 3}
+  - {fileID: 21300000, guid: ee5d3d35f1b7cf8418c58020e14d8d44, type: 3}
+  _fragmentCenters:
+  - {x: 0.32291666, y: 0.25}
+  - {x: 0.40625, y: 0.546875}
+  - {x: 0.46875, y: 0.6640625}
+  - {x: 0.6979167, y: 0.7578125}
+  _silhouette: {fileID: 21300000, guid: c3fc24d8e10ad7a4e8dddf252face966, type: 3}
+  _fragmentLines:
+  - "Le pavillon d'une corne d'appel en os, noirci par la mer. Une lueur dor\xE9e dort tout au fond."
+  - "Un tron\xE7on cercl\xE9 d'argent. Les runes disent : \xAB Qui souffle ici r\xE9veille ce qui dort sous l'\xEEle \xBB."
+  - Un morceau de la corne, couvert de petites cicatrices rondes, comme des marques de ventouses.
+  - "L'embouchure, cercl\xE9e d'argent. Les anciens marins ne la portaient jamais \xE0 leurs l\xE8vres."

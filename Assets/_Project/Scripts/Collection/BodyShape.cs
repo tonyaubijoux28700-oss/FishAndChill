@@ -32,5 +32,8 @@ namespace FishAndChill.Collection
 
         /// <summary>Requin scie squelette (Spectre des épaves) : corps de requin fuselé, longue scie dentée devant, côtes à nu, orbites qui luisent.</summary>
         BoneSawShark,
+
+        /// <summary>Calmar colossal (Kraken) : long manteau à nageoires en losange, gros yeux qui luisent, huit bras et deux longues tentacules à massues qui ondulent.</summary>
+        Kraken,
     }
 }

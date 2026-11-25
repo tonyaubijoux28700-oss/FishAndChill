@@ -22,9 +22,9 @@
   **tableau noir** où les légendes sont esquissées à la craie (carte du monde punaisée dans le coin), lampe de banquier,
   parquet de bateau avec flaques de lumière, tapis de marin à rose des vents, câble au sol, papiers tombés. Au fond à
   droite, la **porte blindée** (`LabBuilding.SpecimenDoor`, « Haut : salle des spécimens ») mène à la **salle des
-  spécimens** (30×12 cases, `SpecimenOrigin` = 7 cases à droite de la pièce ; `SpecimenLabArt.Room` : panneaux d'acier
+  spécimens** (34×12 cases, élargie à 8 tubes pour la 8e légende, `SpecimenOrigin` = 7 cases à droite de la pièce ; `SpecimenLabArt.Room` : panneaux d'acier
   rivetés, tuyaux, câbles, tableaux de voyants, caillebotis, bandes jaunes et noires, sas au milieu du bas pour
-  ressortir). La caméra suit la salle où l'on est (`CameraRect`, `InSpecimenRoom`). **7 tubes** (`World/SpecimenTube`,
+  ressortir). La caméra suit la salle où l'on est (`CameraRect`, `InSpecimenRoom`). **8 tubes** (`World/SpecimenTube`,
   un par place, cuve + spécimen + verre dans un `SortingGroup`) : la légende n° i du `FishingController` dans le tube i
   (`PrototypeSetup`), sa bête redressée tête en haut et réduite (`SpecimenLabArt.Specimen` →
   `Art/Buildings/Laboratoire/Specimen_<id>.png`) n'apparaît qu'une fois la légende **vaincue** ; elle ondule, des bulles
@@ -158,7 +158,21 @@
   la cloche étant étroite, elle se casse en 4 morceaux égaux haut / bas et gauche / droite). Combat : nerveux (« Il
   fauche l'eau de sa scie ! »), rush (« Il file entre les épaves ! »), lourd (« Il plonge vers les navires
   engloutis ! »), le plus dur de tous, 2500 pièces. Remous « Remous légendaire de la Côte des Squelettes » dans la région
-  6. Tube n° 7 : **les sept tubes de la salle des spécimens sont pris**, une légende par zone.
+  6. Tube n° 7 : les sept premiers tubes de la salle des spécimens sont pris.
+- **Huitième légende : le Kraken**, calmar colossal de 1400 cm des **fjords de Norvège** (espèce de base le **calmar
+  veiné**, ajouté pour l'occasion : dessin = calmar colossal réduit et éclairci, `CreatureArt` ; dans les récits des marins
+  norvégiens, le Kraken était si grand qu'on prenait son dos pour une île). Choisi parmi trois esquisses (calmar
+  colossal, pieuvre des abysses, Kraken des légendes au dos de rocher) ; `Editor/KrakenArt.Draw(v)` garde les trois,
+  `Draw()` le calmar retenu → `Art/Legendes/Kraken.png` (de profil : long manteau rouge presque noir aux points
+  pigmentés, crête plus claire, cicatrices rondes de ventouses de cachalot, nageoires en losange nervurées et déchirées,
+  œil gigantesque cerclé, iris doré et reflet, bec noir entre les bras, huit bras épais aux ventouses (crochets sur les
+  deux plus longs), deux longues tentacules à massues armées de crochets). Silhouette sous l'eau `BodyShape.Kraken`
+  (`FishShadowSprites.Kraken` : manteau, nageoires, yeux qui luisent, bras qui ondulent, tentacules à massues).
+  Artefact **Corne des marins** (`Editor/SeaHornArt`, 48×64 : corne d'appel viking en os jauni, trois bagues d'argent
+  gravées de runes, lanière de cuir tressé, lueur dorée au fond du pavillon ; cassée en **4 tronçons le long de sa
+  longueur**, du pavillon à l'embouchure). Combat : lourd (« Il enroule ses bras autour de la ligne ! »), rush (« Il file
+  vers le fond du fjord ! »), nerveux (« Il se débat de ses dix bras à la fois ! »), le plus dur de tous, 3000 pièces.
+  Remous « Remous légendaire du fjord » dans la région 7. Tube n° 8 : la salle des spécimens passe à 34 cases et 8 tubes.
 - **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
   `Center` / `Silhouette`), un `BuildLegendSpot` dans la région de sa zone (`PrototypeSetup.RegionOf` relie remous et
   légende). Le menu de test (**FishAndChill → Légendes (test)**) agit sur la légende de la zone où l'on est (sinon Tuna) et

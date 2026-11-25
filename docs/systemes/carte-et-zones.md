@@ -133,13 +133,13 @@
   20 cases à l'est de la Côte des Squelettes, `MapSetup.BuildFjord` (tuiles `FjordArt` : eau du fjord, galets, toundra,
   gravier ; arbres, rochers, bruyère et neige dans `FjordTerrainArt` ; repères, passerelle, falaises et cascade dans
   `FjordLandmarkArt`). Lumière froide et bleutée (`SetGloom`), climat changeant et pluvieux. Vie (`BuildFjordLife`,
-  `FjordLifeArt`) : phoques sous l'eau, macareux sur les galets, pygargue à queue blanche qui plane. 15 espèces faites par
+  `FjordLifeArt`) : phoques sous l'eau, macareux sur les galets, pygargue à queue blanche qui plane. 16 espèces faites par
   la table (`Zone` = `FjordsNorvege` : hareng, maquereau, lieu noir, églefin, plie, lompe, lingue, morue, saumon
-  atlantique, sébaste du Nord, baudroie commune, loup de mer, flétan, **crabe royal** au casier (dessin du crabe-araignée
+  atlantique, sébaste du Nord, baudroie commune, calmar veiné, loup de mer, flétan, **crabe royal** au casier (dessin du crabe-araignée
   recoloré, `CreatureArt.KingCrab`), **requin du Groenland** légendaire). **Salle des fjords** à l'aquarium (8e étage,
   `AquariumFjordArt`, `FjordTank`, mobilier `AquariumRoomLayout.Fjord`) : cabane de pêcheur en rondins jointés de
   mousse, plancher de pin, bassin d'eau froide aux laminaires, rochers aux algues roses, oursins et étoiles de mer ;
-  poêle à bois, tonneau au filet, lampes-tempête. Pas encore de gardien (légende) ni d'aurores boréales.
+  poêle à bois, tonneau au filet, lampes-tempête. Gardien : le Kraken (voir `legendes.md`). Pas encore d'aurores boréales.
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`). **Le même ponton dans toutes les zones**
   (`Editor/DockArt`, style en volume, `Art/Tiles/Ponton.png` et `Ponton_VersLeHaut.png` retourné pour les pontons qui

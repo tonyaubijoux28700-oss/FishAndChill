@@ -20,7 +20,7 @@ namespace FishAndChill.World
         /// <summary>Porte blindée dans le mur du fond (relatif à la pièce, en cases) : on y entre en poussant vers le haut.</summary>
         public static readonly Rect SpecimenDoor = new Rect(11.2f, 4.2f, 1.3f, 0.6f);
 
-        public const float SpecimenRoomWidth = 30f;
+        public const float SpecimenRoomWidth = 34f;
         public const float SpecimenRoomHeight = 12f;
         /// <summary>Haut du sol de la salle des spécimens (le pied du mur), en cases depuis le bas.</summary>
         public const float SpecimenFloorTop = 6f;

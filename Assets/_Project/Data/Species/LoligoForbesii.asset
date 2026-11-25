@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: LoligoForbesii
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: loligo-forbesii
+  _commonName: "Calmar vein\xE9"
+  _scientificName: Loligo forbesii
+  _rarity: 2
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 30, y: 90}
+  _basePrice: 45
+  _placeholderColor: {r: 0.7529412, g: 0.47843137, b: 0.41568628, a: 1}
+  _description: "Il chasse la nuit en bancs, attir\xE9 par la lumi\xE8re des lampes. Il change de couleur en un clin d'oeil et s'enfuit en crachant son encre."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 985800a567f23784f9313416edd441de, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 5e2f3830e55c34c49bcf97ddebb0b085, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 5e2f3830e55c34c49bcf97ddebb0b085, type: 3}
+  - {fileID: 21300000, guid: 93c3895456c2ab54d91dd0d3c4b33b4d, type: 3}
+  - {fileID: 21300000, guid: 9c89d165938b50041aa1b524f8ce1d4f, type: 3}
+  - {fileID: 21300000, guid: d04931bebb2e152408a46e3a4fa229d9, type: 3}

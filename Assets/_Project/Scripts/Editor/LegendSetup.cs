@@ -11,8 +11,9 @@ namespace FishAndChill.Editor
     /// Tuna, la murène géante de l'île Mahana (Idole de corail), Bramafan, l'écrevisse titan du Lac d'Annecy (Médaillon
     /// des palafittes), Ipupiara, le payara titan du Fleuve Amazone (Grenouille de jade), l'Isonade, la rascasse titan de
     /// la Baie d'Izu (Miroir des marées), Rannamaari, le djinn des abysses de l'Atoll des Maldives (Lanterne de
-    /// corail), le Moha-moha, la tortue géante au long cou de la Grande Barrière (Bouclier d'écaille), et le Spectre des
-    /// épaves, requin scie squelette de la Côte des Squelettes (Cloche de l'épave), chacun avec un
+    /// corail), le Moha-moha, la tortue géante au long cou de la Grande Barrière (Bouclier d'écaille), le Spectre des
+    /// épaves, requin scie squelette de la Côte des Squelettes (Cloche de l'épave), et le Kraken, calmar colossal des fjords
+    /// de Norvège (Corne des marins), chacun avec un
     /// artefact en 4 fragments.
     /// Appelé par le menu du prototype, après la création des espèces et des zones.
     /// </summary>
@@ -68,7 +69,49 @@ namespace FishAndChill.Editor
                 new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il se tord dans tous les sens !"),
             }, 600);
             EditorUtility.SetDirty(tuna);
-            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot), Rannamaari(ppu, pivot), MohaMoha(ppu, pivot), WreckSpectre(ppu, pivot) };
+            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot), Rannamaari(ppu, pivot), MohaMoha(ppu, pivot), WreckSpectre(ppu, pivot), Kraken(ppu, pivot) };
+        }
+
+        /// <summary>
+        /// Le Kraken, calmar colossal des fjords de Norvège (espèce de base : le calmar veiné). Dans les récits des marins
+        /// norvégiens, il était si grand qu'on prenait son dos pour une île, et il entraînait les navires par le fond.
+        /// Artefact : la Corne des marins, en 4 tronçons.
+        /// </summary>
+        private static LegendFish Kraken(int ppu, Vector2 pivot)
+        {
+            Sprite horn = PixelArt.Save($"{ArtFolder}/Corne_Marins.png", SeaHornArt.HornArt(), ppu, pivot);
+            Sprite silhouette = PixelArt.Save($"{ArtFolder}/Corne_Marins_Silhouette.png", SeaHornArt.Silhouette(), ppu, pivot);
+            var fragments = new Sprite[SeaHornArt.Fragments];
+            var centers = new Vector2[SeaHornArt.Fragments];
+            for (int i = 0; i < fragments.Length; i++)
+            {
+                fragments[i] = PixelArt.Save($"{ArtFolder}/Corne_Marins_Fragment_{i + 1}.png", SeaHornArt.Piece(i), ppu, pivot);
+                centers[i] = SeaHornArt.PieceCenter(i);
+            }
+
+            var species = FindSpecies("loligo-forbesii", "Assets/_Project/Data/Species/LoligoForbesii.asset");
+            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/FjordsNorvege.asset");
+            LegendFish kraken = LoadOrCreate(Folder + "/Kraken.asset");
+            kraken.Configure("kraken", "Kraken", species, zone, 1400f, "Corne des marins", SeaHornArt.Fragments,
+                FragmentRules.DefaultChance, horn, fragments, centers, silhouette, new[]
+                {
+                    "Le pavillon d'une corne d'appel en os, noirci par la mer. Une lueur dorée dort tout au fond.",
+                    "Un tronçon cerclé d'argent. Les runes disent : « Qui souffle ici réveille ce qui dort sous l'île ».",
+                    "Un morceau de la corne, couvert de petites cicatrices rondes, comme des marques de ventouses.",
+                    "L'embouchure, cerclée d'argent. Les anciens marins ne la portaient jamais à leurs lèvres.",
+                });
+            Sprite art = PixelArt.Save($"{ArtFolder}/Kraken.png", KrakenArt.Draw(), ppu, pivot);
+            kraken.ConfigureLook("Calmar colossal", art, BodyShape.Kraken);
+            // Le combat : il enroule ses bras autour de la ligne, file vers le fond du fjord, puis se débat de ses dix
+            // bras à la fois. Le plus dur de tous.
+            kraken.ConfigureFight(new[]
+            {
+                new LegendPhase(FightStyle.Heavy, new QteDifficulty(1.9f, 0.12f, 7, 2), "Il enroule ses bras autour de la ligne !"),
+                new LegendPhase(FightStyle.Rusher, new QteDifficulty(2.3f, 0.11f, 7, 2), "Il file vers le fond du fjord !"),
+                new LegendPhase(FightStyle.Nervous, new QteDifficulty(2.5f, 0.11f, 7, 1), "Il se débat de ses dix bras à la fois !"),
+            }, 3000);
+            EditorUtility.SetDirty(kraken);
+            return kraken;
         }
 
         /// <summary>

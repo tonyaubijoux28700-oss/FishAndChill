@@ -402,6 +402,7 @@ namespace FishAndChill.Editor
             BuildLegendSpot(mapObject.transform, "Remous légendaire de l'atoll", worldMap, 5, atollDock.Area);   // Rannamaari
             BuildLegendSpot(mapObject.transform, "Remous légendaire du récif", worldMap, 4, reefDock.Area);   // Moha-moha
             BuildLegendSpot(mapObject.transform, "Remous légendaire de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);   // Spectre des épaves
+            BuildLegendSpot(mapObject.transform, "Remous légendaire du fjord", worldMap, 7, fjordDock.Area);   // Kraken
             spotList.arraySize = 8;
             spotList.GetArrayElementAtIndex(7).objectReferenceValue = fjordSpots;
             spotList.GetArrayElementAtIndex(5).objectReferenceValue = atollSpots;

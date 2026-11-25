@@ -112,6 +112,7 @@ namespace FishAndChill.Fishing
                         case BodyShape.Rannamaari: tone = Rannamaari(u, v, phase); break;
                         case BodyShape.MohaMoha: tone = MohaMoha(u, v, phase); break;
                         case BodyShape.BoneSawShark: tone = BoneSawShark(u, v, phase); break;
+                        case BodyShape.Kraken: tone = Kraken(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -384,6 +385,51 @@ namespace FishAndChill.Fishing
 
             // Antennes.
             if (OnSegment(u, av, 0.4f, 0.04f, 0.95f, 0.5f + phase * 0.04f, 0.015f)) return EdgeTone;
+            return None;
+        }
+
+        /// <summary>
+        /// Calmar colossal (Kraken), vu de dessus, tête vers l'avant : long manteau effilé et ses nageoires en losange à
+        /// l'arrière, tête aux deux gros yeux qui luisent, huit bras en éventail qui ondulent, deux longues tentacules
+        /// terminées par des massues.
+        /// </summary>
+        private static int Kraken(float u, float v, int phase)
+        {
+            float av = Mathf.Abs(v);
+
+            if (InEllipse(u, av, 0.16f, 0.1f, 0.04f, 0.035f)) return EyeTone;
+
+            // Le manteau, effilé vers l'arrière.
+            if (u <= 0.22f && u >= -0.8f)
+            {
+                float width = 0.03f + 0.12f * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-0.8f, 0.05f, u));
+                if (av <= width) return av > width * 0.8f ? EdgeTone : av < width * 0.4f ? CoreTone : BodyTone;
+            }
+
+            // Les nageoires en losange, au bout du manteau.
+            if (u < -0.6f && u >= -0.95f)
+            {
+                float k = 1f - Mathf.Abs(u + 0.8f) / 0.15f;
+                if (av <= 0.18f * k) return av > 0.15f * k ? EdgeTone : BodyTone;
+            }
+
+            // Les huit bras, en éventail, qui ondulent.
+            for (int a = 0; a < 8; a++)
+            {
+                float spread = (a - 3.5f) * 0.035f;
+                float wave = Mathf.Sin((u - 0.22f) * 18f + a + phase * 1.2f) * 0.015f;
+                float center = spread * (1f + (u - 0.22f) * 3f) + wave;
+                if (u > 0.2f && u < 0.72f && Mathf.Abs(v - center) < 0.022f * (1f - (u - 0.2f) / 0.6f) + 0.006f) return BodyTone;
+            }
+
+            // Les deux longues tentacules et leurs massues.
+            foreach (float side in new[] { -1f, 1f })
+            {
+                float center = side * (0.05f + (u - 0.2f) * 0.12f) + Mathf.Sin(u * 10f + phase) * 0.02f;
+                if (u > 0.2f && u < 0.98f && Mathf.Abs(v - center) < 0.01f) return EdgeTone;
+                if (InEllipse(u, v - center, 0.95f, 0f, 0.05f, 0.03f)) return BodyTone;
+            }
+
             return None;
         }
 
