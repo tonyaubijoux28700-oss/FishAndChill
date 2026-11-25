@@ -76,6 +76,43 @@ namespace FishAndChill.Player
         /// <summary>Un habitant de profil, regard vers la droite.</summary>
         public static Color[,] Side(CharacterLook look, NpcExtras extras, int frame) => DrawSide(new Palette(look) { Extras = extras }, frame);
 
+        /// <summary>Rangées gardées pour la tête du dormeur (depuis le haut) : cheveux, visage, menton.</summary>
+        public const int SleepTop = 3, SleepBottom = 14;
+
+        /// <summary>
+        /// Tête du pêcheur endormi, vue de face, sans chapeau et les yeux fermés : posée sur l'oreiller pendant qu'il
+        /// dort (le reste du corps est sous la couette). Image [x, y] de 16 × 12, y depuis le bas.
+        /// </summary>
+        public static Color[,] SleepingHead(CharacterLook look)
+        {
+            var p = new Palette(look) { Hat = HatNone };
+            var c = new Canvas();
+            c.Cylinder(4, 13, 11, 15, p.Shirt, Part.Shirt, roundTop: true);   // épaules, cachées par la couette
+            c.Ellipse(8f, 10.2f, 3.75f, 3.1f, p.Skin, Part.Skin);
+            DrawFace(c, p);
+
+            // Yeux fermés : une petite paupière sombre à la place de chaque oeil.
+            foreach (int x in new[] { 6, 9 })
+            {
+                c.Flat(x, 9, p.Skin, Part.Skin);
+                c.Flat(x, 10, Color.Lerp(p.Skin, Eye, 0.7f), Part.Skin);
+            }
+
+            DrawHairFront(c, p);
+            Color[,] full = c.Render();
+            int rows = SleepBottom - SleepTop + 1;
+            var head = new Color[Width, rows];
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < rows; y++)
+                {
+                    head[x, y] = full[x, Height - 1 - SleepBottom + y];
+                }
+            }
+
+            return head;
+        }
+
         // ---------- Toile : couleur de base + lumière par pixel (y compté depuis le HAUT) ----------
 
         private enum Part { None, Hat, Hair, Skin, Shirt, Shorts, Sandal }

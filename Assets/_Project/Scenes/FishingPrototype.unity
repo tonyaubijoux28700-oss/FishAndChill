@@ -5306,13 +5306,13 @@ MonoBehaviour:
   _camera: {fileID: 519420033}
   _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
   _tanks:
-  - {fileID: 2046593193}
   - {fileID: 360895268}
-  - {fileID: 148596318}
-  - {fileID: 1244758331}
-  - {fileID: 1098986844}
   - {fileID: 26758889}
+  - {fileID: 148596318}
+  - {fileID: 1098986844}
   - {fileID: 1324183801}
+  - {fileID: 2046593193}
+  - {fileID: 1244758331}
   - {fileID: 1088656230}
 --- !u!1 &335281838
 GameObject:
@@ -37705,6 +37705,7 @@ MonoBehaviour:
   _interiorBackground: {r: 0.08, g: 0.06, b: 0.05, a: 1}
   _cycle: {fileID: 0}
   _bedRadius: 1.1
+  _sleeperBlanket: {fileID: 21300000, guid: 348dd0d1f23ac05459561f7eb5e6e76d, type: 3}
 --- !u!212 &1805292654
 SpriteRenderer:
   serializedVersion: 3

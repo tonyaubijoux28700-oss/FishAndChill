@@ -2737,6 +2737,7 @@ namespace FishAndChill.Editor
             const string folder = "Assets/_Project/Art/Buildings";
             Sprite exterior = PixelArt.Save($"{folder}/Maison.png", HouseArt.Exterior(), TileArt.Size, HouseArt.ExteriorPivot);
             Sprite interior = PixelArt.Save($"{folder}/Maison_Interieur.png", VolumeHouseArt.Interior(), VolumeCanvas.PixelsPerUnit, Vector2.zero);
+            Sprite blanket = PixelArt.Save($"{folder}/Maison_Couette.png", VolumeHouseArt.SleeperBlanket(), VolumeCanvas.PixelsPerUnit, Vector2.zero);
 
             GameObject go = EnsureObject("Maison", null);
             go.transform.position = position;
@@ -2753,6 +2754,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_camera").objectReferenceValue = follow;
             so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
             so.FindProperty("_footprint").vector2Value = new Vector2(5f, 2.6f);
+            so.FindProperty("_sleeperBlanket").objectReferenceValue = blanket;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             GameObject room = EnsureObject("Maison - Intérieur", null);

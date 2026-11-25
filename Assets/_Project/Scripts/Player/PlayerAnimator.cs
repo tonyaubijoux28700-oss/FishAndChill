@@ -55,9 +55,13 @@ namespace FishAndChill.Player
             }
         }
 
+        /// <summary>Apparence actuelle (null tant que le pêcheur n'est pas habillé).</summary>
+        public CharacterLook Look { get; private set; }
+
         /// <summary>Habille le pêcheur : ses images sont redessinées selon l'apparence choisie.</summary>
         public void SetLook(CharacterLook look)
         {
+            Look = look;
             CharacterSprites sprites = CharacterSprites.Build(look);
             _down = sprites.Down;
             _up = sprites.Up;
