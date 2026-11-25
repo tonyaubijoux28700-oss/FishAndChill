@@ -23,6 +23,7 @@ namespace FishAndChill.Editor
         private const string ReefZonePath = ZonesFolder + "/GrandeBarriere.asset";
         private const string AtollZonePath = ZonesFolder + "/Maldives.asset";
         private const string SkeletonZonePath = ZonesFolder + "/CoteDesSquelettes.asset";
+        private const string FjordZonePath = ZonesFolder + "/FjordsNorvege.asset";
         private const string ScenesFolder = Root + "/Scenes";
         private const string ScenePath = ScenesFolder + "/FishingPrototype.unity";
         private const string TemplateScenePath = "Assets/Scenes/SampleScene.unity";
@@ -99,6 +100,11 @@ namespace FishAndChill.Editor
                 "Désert de Namibie qui plonge dans un Atlantique glacé : brume, épaves rouillées, ossements de baleines et otaries. On dit que la côte ne rend jamais ses noyés.", new Color(0.14f, 0.24f, 0.26f), rows,
                 new Vector2(0.54f, 0.32f), "Namibie");
 
+            // Huitième zone : les fjords de Norvège : eau sombre entre les falaises enneigées, village de pêcheurs.
+            CreateOrUpdateZone(FjordZonePath, "Fjords de Norvège",
+                "Bras de mer sombre entre des falaises enneigées, cascade, rorbuer rouges sur pilotis et séchoirs à morue. La nuit, le ciel s'allume d'aurores vertes.", new Color(0.08f, 0.20f, 0.26f), rows,
+                new Vector2(0.53f, 0.86f), "Norvège");
+
             string startPath = ZonesFolder + "/IleMahana.asset";
             CreateOrUpdateZone(startPath, "Île Mahana",
                 "Île tropicale fictive : lagon turquoise, plages de sable blanc et cocotiers. Point de départ de l'aventure.",
@@ -113,6 +119,8 @@ namespace FishAndChill.Editor
             SetClimate(AtollZonePath, new WeatherClimate(60f, 20f, 15f, 5f, 0f));
             SetClimate(SkeletonZonePath, new WeatherClimate(10f, 30f, 5f, 10f, 45f));  // courant froid de Benguela : brume de mer presque tous les jours
             SetGloom(SkeletonZonePath, new Color(0.62f, 0.66f, 0.72f), 0.35f);
+            SetClimate(FjordZonePath, new WeatherClimate(30f, 30f, 25f, 5f, 10f));      // côte norvégienne : pluie fine, ciel changeant
+            SetGloom(FjordZonePath, new Color(0.84f, 0.90f, 1f), 0.05f);                // lumière froide et bleutée
             return startPath;
         }
 
@@ -553,7 +561,9 @@ namespace FishAndChill.Editor
             var reefZone = AssetDatabase.LoadAssetAtPath<FishingZone>(ReefZonePath);
             var atollZone = AssetDatabase.LoadAssetAtPath<FishingZone>(AtollZonePath);
             var skeletonZone = AssetDatabase.LoadAssetAtPath<FishingZone>(SkeletonZonePath);
-            zones.arraySize = 7;
+            var fjordZone = AssetDatabase.LoadAssetAtPath<FishingZone>(FjordZonePath);
+            zones.arraySize = 8;
+            zones.GetArrayElementAtIndex(7).objectReferenceValue = fjordZone;
             zones.GetArrayElementAtIndex(6).objectReferenceValue = skeletonZone;
             zones.GetArrayElementAtIndex(5).objectReferenceValue = atollZone;
             zones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
@@ -597,7 +607,8 @@ namespace FishAndChill.Editor
             saveSo.FindProperty("_progress").objectReferenceValue = progress;
             saveSo.FindProperty("_fishing").objectReferenceValue = controller;
             SerializedProperty saveZones = saveSo.FindProperty("_zones");
-            saveZones.arraySize = 7;
+            saveZones.arraySize = 8;
+            saveZones.GetArrayElementAtIndex(7).objectReferenceValue = fjordZone;
             saveZones.GetArrayElementAtIndex(6).objectReferenceValue = skeletonZone;
             saveZones.GetArrayElementAtIndex(5).objectReferenceValue = atollZone;
             saveZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
@@ -615,7 +626,8 @@ namespace FishAndChill.Editor
 
             var travelSo = new SerializedObject(travel);
             SerializedProperty destinations = travelSo.FindProperty("_destinations");
-            destinations.arraySize = 7;
+            destinations.arraySize = 8;
+            SetDestination(destinations.GetArrayElementAtIndex(7), fjordZone, 7, buildings.FjordDock);
             SetDestination(destinations.GetArrayElementAtIndex(6), skeletonZone, 6, buildings.SkeletonDock);
             SetDestination(destinations.GetArrayElementAtIndex(5), atollZone, 5, buildings.AtollDock);
             SetDestination(destinations.GetArrayElementAtIndex(0), zone, 0, buildings.IslandDock);
@@ -651,7 +663,7 @@ namespace FishAndChill.Editor
             // L'ascenseur de l'aquarium : la zone de chaque étage (même ordre que AquariumBuilding.Floors) et le panneau.
             var floorsSo = new SerializedObject(aquarium);
             SerializedProperty floorZones = floorsSo.FindProperty("_floorZones");
-            FishingZone[] byFloor = { zone, lakeZone, amazonZone, japanZone, reefZone, atollZone, skeletonZone };
+            FishingZone[] byFloor = { zone, lakeZone, amazonZone, japanZone, reefZone, atollZone, skeletonZone, fjordZone };
             floorZones.arraySize = byFloor.Length;
             for (int i = 0; i < byFloor.Length; i++)
             {
@@ -698,7 +710,7 @@ namespace FishAndChill.Editor
             GameObject decorObject = GameObject.Find("Décor");
             cycleSo.FindProperty("_decor").objectReferenceValue = decorObject != null ? decorObject.GetComponent<UnityEngine.Tilemaps.Tilemap>() : null;
             SerializedProperty lanterns = cycleSo.FindProperty("_lanterns");
-            MapSetup.DockInfo[] docks = { buildings.IslandDock, buildings.LakeDock, buildings.AmazonDock, buildings.JapanDock, buildings.ReefDock, buildings.AtollDock, buildings.SkeletonDock };
+            MapSetup.DockInfo[] docks = { buildings.IslandDock, buildings.LakeDock, buildings.AmazonDock, buildings.JapanDock, buildings.ReefDock, buildings.AtollDock, buildings.SkeletonDock, buildings.FjordDock };
             lanterns.arraySize = docks.Length;
             for (int i = 0; i < docks.Length; i++)
             {
@@ -795,7 +807,8 @@ namespace FishAndChill.Editor
             titleSo.FindProperty("_minimap").objectReferenceValue = minimap;
             titleSo.FindProperty("_skin").objectReferenceValue = skin;
             SerializedProperty titleZones = titleSo.FindProperty("_zones");
-            titleZones.arraySize = 7;
+            titleZones.arraySize = 8;
+            titleZones.GetArrayElementAtIndex(7).objectReferenceValue = fjordZone;
             titleZones.GetArrayElementAtIndex(6).objectReferenceValue = skeletonZone;
             titleZones.GetArrayElementAtIndex(5).objectReferenceValue = atollZone;
             titleZones.GetArrayElementAtIndex(0).objectReferenceValue = zone;
@@ -830,6 +843,7 @@ namespace FishAndChill.Editor
                 case "GrandeBarriere": return 4;
                 case "Maldives": return 5;
                 case "CoteDesSquelettes": return 6;
+                case "FjordsNorvege": return 7;
                 default: return -1;
             }
         }

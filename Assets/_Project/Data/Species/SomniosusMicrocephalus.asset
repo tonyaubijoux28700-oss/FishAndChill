@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: SomniosusMicrocephalus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: somniosus-microcephalus
+  _commonName: Requin du Groenland
+  _scientificName: Somniosus microcephalus
+  _rarity: 4
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 2.2
+    _zoneWidth: 0.11
+    _requiredHits: 5
+    _maxMisses: 1
+  _fightStyle: 4
+  _sizeRangeCm: {x: 300, y: 700}
+  _basePrice: 250
+  _placeholderColor: {r: 0.2901961, g: 0.3137255, b: 0.34509805, a: 1}
+  _description: "Le plus vieux vert\xE9br\xE9 du monde : il peut vivre plus de quatre cents ans dans l'eau glac\xE9e, si lent qu'il semble dormir."
+  _activeTime: 2
+  _weather: 3
+  _sprite: {fileID: 21300000, guid: 6db7ad71041a48f4b85c464b1e03f15f, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 063834d2e63168646bad2a70e453c441, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 063834d2e63168646bad2a70e453c441, type: 3}
+  - {fileID: 21300000, guid: 126888704d871fa4f85f67f027dd93ab, type: 3}
+  - {fileID: 21300000, guid: 1c38c13149612e946aba161533e13bc9, type: 3}
+  - {fileID: 21300000, guid: d7bea0cf85b2462419662c9710c577c7, type: 3}

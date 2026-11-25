@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: LophiusPiscatorius
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: lophius-piscatorius
+  _commonName: Baudroie commune
+  _scientificName: Lophius piscatorius
+  _rarity: 2
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 4
+  _sizeRangeCm: {x: 50, y: 200}
+  _basePrice: 45
+  _placeholderColor: {r: 0.43137255, g: 0.36862746, b: 0.27450982, a: 1}
+  _description: Tapie sur le fond, une gueule immense pleine de dents en aiguille, elle agite le leurre de son front pour attirer ses proies.
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: c5ae953d6a1c2484abc72e73a9722396, type: 3}
+  _miniSprite: {fileID: 21300000, guid: f3ffc429538d02741b1c022ab51d6620, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: f3ffc429538d02741b1c022ab51d6620, type: 3}
+  - {fileID: 21300000, guid: c827dfc6a1b94b14f909061c3199f501, type: 3}
+  - {fileID: 21300000, guid: a6dd0bd7a0131004299ab9b5b3b78b6f, type: 3}
+  - {fileID: 21300000, guid: d0d3ccf6083fc9f44982a73c4890b121, type: 3}

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: AnarhichasLupus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: anarhichas-lupus
+  _commonName: Loup de mer
+  _scientificName: Anarhichas lupus
+  _rarity: 3
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 4
+  _sizeRangeCm: {x: 60, y: 150}
+  _basePrice: 100
+  _placeholderColor: {r: 0.41568628, g: 0.45490196, b: 0.5019608, a: 1}
+  _description: "Ses m\xE2choires arm\xE9es de crocs broient oursins et coquillages, sa grimace fait peur aux p\xEAcheurs depuis des si\xE8cles."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: bb70f3d6d90c7c24589da933032f5866, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 257eb0d2b96a31f49981d814d3175e89, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 257eb0d2b96a31f49981d814d3175e89, type: 3}
+  - {fileID: 21300000, guid: 1bb352193f5079d4397375c468479bb8, type: 3}
+  - {fileID: 21300000, guid: 9118b344005501b428ee9dc8db06f504, type: 3}
+  - {fileID: 21300000, guid: 0d33a11bb7099bf42ab44c02dfda6609, type: 3}

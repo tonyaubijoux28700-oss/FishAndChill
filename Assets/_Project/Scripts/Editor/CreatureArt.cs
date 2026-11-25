@@ -25,6 +25,7 @@ namespace FishAndChill.Editor
                 case "chelus-fimbriata": pixels = AmazonCreatureArt.Matamata(); return true;
                 case "macrobrachium-amazonicum": pixels = AmazonCreatureArt.AmazonPrawn(); return true;
                 case "macrocheira-kaempferi": pixels = JapanCreatureArt.SpiderCrab(); return true;
+                case "paralithodes-camtschaticus": pixels = KingCrab(); return true;
                 case "mobula-alfredi": pixels = RayArt.ReefManta(); return true;
                 default: pixels = null; return false;
             }
@@ -109,6 +110,24 @@ namespace FishAndChill.Editor
         /// bord avant, yeux pédonculés, deux grosses pinces massives aux doigts orangés, trois paires de pattes
         /// marcheuses et la dernière paire aplatie en palettes de nage.
         /// </summary>
+        /// <summary>
+        /// Crabe royal (fjords de Norvège) : même grande silhouette aux longues pattes que le crabe-araignée, en rouge
+        /// sombre tirant sur le pourpre, semé de petites épines claires.
+        /// </summary>
+        private static Color[,] KingCrab()
+        {
+            Color[,] p = LakeArt.Tint(JapanCreatureArt.SpiderCrab(), -0.045f, 0.95f, 0.72f);
+            for (int x = 0; x < p.GetLength(0); x++)
+            {
+                for (int y = 0; y < p.GetLength(1); y++)
+                {
+                    if (p[x, y].a > 0.5f && ((x * 7 + y * 13) % 23 == 0)) p[x, y] = Color.Lerp(p[x, y], new Color(0.96f, 0.86f, 0.80f), 0.7f);
+                }
+            }
+
+            return p;
+        }
+
         private static Color[,] MudCrab()
         {
             var p = new Color[96, 56];

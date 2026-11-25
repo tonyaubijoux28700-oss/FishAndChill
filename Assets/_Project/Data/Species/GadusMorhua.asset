@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: GadusMorhua
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: gadus-morhua
+  _commonName: Morue de l'Atlantique
+  _scientificName: Gadus morhua
+  _rarity: 2
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 4
+  _sizeRangeCm: {x: 50, y: 150}
+  _basePrice: 45
+  _placeholderColor: {r: 0.5411765, g: 0.5411765, b: 0.3764706, a: 1}
+  _description: "Le poisson qui a nourri la Norv\xE8ge : s\xE9ch\xE9e au vent sur les grands s\xE9choirs de bois, elle devient le stockfisch."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: c3f535d96f05eba4a92ad2fffaf3fd2d, type: 3}
+  _miniSprite: {fileID: 21300000, guid: d44079cb5dbc8eb4ba41f8d8b866dfbc, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: d44079cb5dbc8eb4ba41f8d8b866dfbc, type: 3}
+  - {fileID: 21300000, guid: 49b170a68092995439b3180f8fe70fab, type: 3}
+  - {fileID: 21300000, guid: 7930960c15a2224469138463ec3f0cb4, type: 3}
+  - {fileID: 21300000, guid: 481e97ae26944324cad696c4fc379f64, type: 3}

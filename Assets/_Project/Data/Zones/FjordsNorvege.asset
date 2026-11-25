@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d1726b683e3a34cb42cf076922ab57, type: 3}
+  m_Name: FjordsNorvege
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
+  _displayName: "Fjords de Norv\xE8ge"
+  _description: "Bras de mer sombre entre des falaises enneig\xE9es, cascade, rorbuer rouges sur pilotis et s\xE9choirs \xE0 morue. La nuit, le ciel s'allume d'aurores vertes."
+  _waterColor: {r: 0.08, g: 0.2, b: 0.26, a: 1}
+  _species:
+  - _species: {fileID: 11400000, guid: fc2e029293ea03d459ca0c0ba5c95f0d, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: b1990fe46a03981488ef26347b9d8430, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: c66d7fe3e38982f42a7eea4d2e1b553c, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 2f3b042e189f2a04e8c1fb86be58a3d5, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 8c62f6242db15ea47994f39a031b23d3, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 8d02cc93cb4fca045bf3684c2be18ca0, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: c5db16362d0508546af6899eeb8e98ce, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 5f407ce11c639b748971ede00f2694a9, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 5fb9e21422ea2bc4e8ce8bf5d5c57a4f, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: b92d4be9c37749442867b5e94c97754b, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 5700724bf4614f1488357a9e2966975c, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: df971b5a5a41826409463948f00a2f5c, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 4a5a8886ebc3b4b45a3959d1f92b9808, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 48a3e25491deb38409d05fc6d3e1f496, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: eff5476a19b04ea4a954e821f7209d80, type: 2}
+    _weight: 2
+  _mapPosition: {x: 0.53, y: 0.86}
+  _region: "Norv\xE8ge"
+  _climate:
+    _clear: 30
+    _cloudy: 30
+    _rain: 25
+    _storm: 5
+    _fog: 10
+  _ambient: {r: 0.84, g: 0.9, b: 1, a: 1}
+  _minimumFog: 0.05

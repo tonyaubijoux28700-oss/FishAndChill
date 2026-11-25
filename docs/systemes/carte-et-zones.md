@@ -120,6 +120,26 @@
   l'épave, barre à roue, scaphandre, lanternes de navire. **L'intérieur de l'aquarium est 40 cases sous l'île**
   (`bounds.yMin - 40`) : sa rangée de salles s'allonge à chaque zone sans déborder sur le lac (ne pas décaler `LakeGap` :
   les casiers posés sont sauvegardés avec leur position dans le monde).
+- **Fjords de Norvège** (8e zone, région 7) : plan dessiné `World/FjordPlan` (90×64 cases, testé : un long **fjord**
+  d'eau sombre qui entre par le sud et se resserre vers le nord (`CenterAt` / `HalfWidthAt`) jusqu'à son fond arrondi, au
+  pied d'une rangée de **falaises de granit enneigées** (pans de 8 cases, solides, `CliffFoot` = 54) d'où tombe une
+  **grande cascade animée** (tuile `AnimatedWaterTile` de 3 images sur la couche du décor, devant les falaises) ; sur la
+  rive est, le **village** au bord d'une petite **anse** (`FjordPlan.Bay`) : trois **rorbuer** rouges sur pilotis
+  au-dessus de l'eau, **église en bois blanc** à flèche, **séchoir à morue**, barques, **chemin de gravier** du ponton à
+  l'église avec une branche vers la passerelle ; sur la rive ouest, la **forêt** de sapins poudrés de neige et de
+  bouleaux et un **grenier au toit d'herbe** sur pilotis de pierre ; une **passerelle de bois** praticable au fond du
+  fjord relie les deux rives (`FjordBridgeArea`, rangée `BridgeRow`) ; rives de galets gris, toundra, blocs de granit au
+  lichen, bruyère, plaques de neige au pied des falaises). Ponton des voyages dans l'anse, vers le sud. À `FjordGap` =
+  20 cases à l'est de la Côte des Squelettes, `MapSetup.BuildFjord` (tuiles `FjordArt` : eau du fjord, galets, toundra,
+  gravier ; arbres, rochers, bruyère et neige dans `FjordTerrainArt` ; repères, passerelle, falaises et cascade dans
+  `FjordLandmarkArt`). Lumière froide et bleutée (`SetGloom`), climat changeant et pluvieux. Vie (`BuildFjordLife`,
+  `FjordLifeArt`) : phoques sous l'eau, macareux sur les galets, pygargue à queue blanche qui plane. 15 espèces faites par
+  la table (`Zone` = `FjordsNorvege` : hareng, maquereau, lieu noir, églefin, plie, lompe, lingue, morue, saumon
+  atlantique, sébaste du Nord, baudroie commune, loup de mer, flétan, **crabe royal** au casier (dessin du crabe-araignée
+  recoloré, `CreatureArt.KingCrab`), **requin du Groenland** légendaire). **Salle des fjords** à l'aquarium (8e étage,
+  `AquariumFjordArt`, `FjordTank`, mobilier `AquariumRoomLayout.Fjord`) : cabane de pêcheur en rondins jointés de
+  mousse, plancher de pin, bassin d'eau froide aux laminaires, rochers aux algues roses, oursins et étoiles de mer ;
+  poêle à bois, tonneau au filet, lampes-tempête. Pas encore de gardien (légende) ni d'aurores boréales.
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`). **Le même ponton dans toutes les zones**
   (`Editor/DockArt`, style en volume, `Art/Tiles/Ponton.png` et `Ponton_VersLeHaut.png` retourné pour les pontons qui

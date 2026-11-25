@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PollachiusVirens
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: pollachius-virens
+  _commonName: Lieu noir
+  _scientificName: Pollachius virens
+  _rarity: 0
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 40, y: 110}
+  _basePrice: 6
+  _placeholderColor: {r: 0.22745098, g: 0.27450982, b: 0.3137255, a: 1}
+  _description: Cousin de la morue au dos presque noir, il chasse en bandes le long des falaises du fjord.
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 86d7ed07ba665f84c960b8751a4c28ad, type: 3}
+  _miniSprite: {fileID: 21300000, guid: e0c6259eb53362e4780b061defebd914, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: e0c6259eb53362e4780b061defebd914, type: 3}
+  - {fileID: 21300000, guid: 17c91665808c24b49a7132d48b596a63, type: 3}
+  - {fileID: 21300000, guid: 919fa52ccdb2a3d4ebfd04596d7b4538, type: 3}
+  - {fileID: 21300000, guid: c95304e9dc788eb43b018497e50b5188, type: 3}

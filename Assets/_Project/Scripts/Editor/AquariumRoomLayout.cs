@@ -81,6 +81,16 @@ namespace FishAndChill.Editor
             new Prop("Bouée", AquariumPropArt.Lifebuoy, 2.2f, 1.2f, 0.6f, 0.4f),
         };
 
+        /// <summary>Salle des fjords : poêle à bois et tonneau au filet devant le bassin, lampes-tempête, bouée.</summary>
+        public static readonly Prop[] Fjord =
+        {
+            new Prop("Poêle à bois", AquariumFjordArt.Stove, 6f, 8.2f, 1.6f, 0.5f),
+            new Prop("Tonneau au filet", AquariumFjordArt.NetBarrel, 18f, 8.2f, 1.6f, 0.5f),
+            new Prop("Lampe-tempête", AquariumFjordArt.StormLantern, 1.3f, 8.4f, 0.5f, 0.3f),
+            new Prop("Lampe-tempête", AquariumFjordArt.StormLantern, 22.7f, 8.4f, 0.5f, 0.3f),
+            new Prop("Bouée", AquariumPropArt.Lifebuoy, 2.2f, 1.2f, 0.6f, 0.4f),
+        };
+
         /// <summary>Rochers du jardin zen : le sol dessine des cercles ratissés autour.</summary>
         public static readonly Vector2[] JapanRocks = { new Vector2(8f, 3.6f), new Vector2(10.2f, 3.0f), new Vector2(17.5f, 4.8f) };
 

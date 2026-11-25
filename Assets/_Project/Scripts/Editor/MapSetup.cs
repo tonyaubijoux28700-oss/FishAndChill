@@ -83,6 +83,8 @@ namespace FishAndChill.Editor
             public DockInfo AtollDock;
             public Rect SkeletonRegion;
             public DockInfo SkeletonDock;
+            public Rect FjordRegion;
+            public DockInfo FjordDock;
         }
 
         /// <summary>Un ponton : sol praticable au-dessus de l'eau, point d'arrivée au bout, regard vers le large.</summary>
@@ -155,6 +157,16 @@ namespace FishAndChill.Editor
         };
 
         private const int SkeletonGap = 20;
+
+        /// <summary>Les fjords de Norvège : fjord sombre, falaises enneigées, village de pêcheurs, à l'est de la Côte des Squelettes.</summary>
+        private static readonly IslandGenerator.Settings FjordSettings = new IslandGenerator.Settings
+        {
+            Width = 90,
+            Height = 64,
+            Seed = 8484,
+        };
+
+        private const int FjordGap = 20;
 
         private const int DockLength = 5;
 
@@ -337,6 +349,11 @@ namespace FishAndChill.Editor
             var skeletonBounds = new BoundsInt(atollBounds.xMax + SkeletonGap, -SkeletonSettings.Height / 2, 0, SkeletonSettings.Width, SkeletonSettings.Height, 1);
             DockInfo skeletonDock = BuildSkeleton(mapObject.transform, skeletonBounds, skeletonTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
 
+            // Les fjords de Norvège, à l'est de la Côte des Squelettes.
+            TileSet fjordTiles = CreateFjordTiles();
+            var fjordBounds = new BoundsInt(skeletonBounds.xMax + FjordGap, -FjordSettings.Height / 2, 0, FjordSettings.Width, FjordSettings.Height, 1);
+            DockInfo fjordDock = BuildFjord(mapObject.transform, fjordBounds, fjordTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
+
             var worldMap = mapObject.GetComponent<WorldMap>();
             if (worldMap == null)
             {
@@ -353,9 +370,11 @@ namespace FishAndChill.Editor
             var reefRegion = new Rect(reefBounds.xMin, reefBounds.yMin, reefBounds.size.x, reefBounds.size.y);
             var atollRegion = new Rect(atollBounds.xMin, atollBounds.yMin, atollBounds.size.x, atollBounds.size.y);
             var skeletonRegion = new Rect(skeletonBounds.xMin, skeletonBounds.yMin, skeletonBounds.size.x, skeletonBounds.size.y);
-            worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion, skeletonRegion },
-                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, skeletonDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea, ReefBridgeArea }.Concat(AtollJetty));
+            var fjordRegion = new Rect(fjordBounds.xMin, fjordBounds.yMin, fjordBounds.size.x, fjordBounds.size.y);
+            worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion, skeletonRegion, fjordRegion },
+                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, skeletonDock.Area, fjordDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea, ReefBridgeArea, FjordBridgeArea }.Concat(AtollJetty));
             BuildSkeletonLife(mapObject.transform, worldMap, player.transform, skeletonDock.Area);
+            BuildFjordLife(mapObject.transform, worldMap, player.transform, fjordDock.Area);
             BuildAtollLife(mapObject.transform, worldMap, player.transform, atollDock.Area);
             BuildReefLife(mapObject.transform, worldMap, player.transform, reefDock.Area);
             BuildJapanLife(mapObject.transform, worldMap, player.transform, japanDock.Area);
@@ -373,6 +392,7 @@ namespace FishAndChill.Editor
             FishingSpots reefSpots = BuildSpots(mapObject.transform, "Coins de pêche du récif", worldMap, 4, reefDock.Area);
             FishingSpots atollSpots = BuildSpots(mapObject.transform, "Coins de pêche de l'atoll", worldMap, 5, atollDock.Area);
             FishingSpots skeletonSpots = BuildSpots(mapObject.transform, "Coins de pêche de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);
+            FishingSpots fjordSpots = BuildSpots(mapObject.transform, "Coins de pêche du fjord", worldMap, 7, fjordDock.Area);
             // Remous légendaires (un par zone) : visibles une fois la légende
             // réveillée au laboratoire.
             BuildLegendSpot(mapObject.transform, "Remous légendaire de l'île", worldMap, 0, islandDock.Area);
@@ -382,7 +402,8 @@ namespace FishAndChill.Editor
             BuildLegendSpot(mapObject.transform, "Remous légendaire de l'atoll", worldMap, 5, atollDock.Area);   // Rannamaari
             BuildLegendSpot(mapObject.transform, "Remous légendaire du récif", worldMap, 4, reefDock.Area);   // Moha-moha
             BuildLegendSpot(mapObject.transform, "Remous légendaire de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);   // Spectre des épaves
-            spotList.arraySize = 7;
+            spotList.arraySize = 8;
+            spotList.GetArrayElementAtIndex(7).objectReferenceValue = fjordSpots;
             spotList.GetArrayElementAtIndex(5).objectReferenceValue = atollSpots;
             spotList.GetArrayElementAtIndex(6).objectReferenceValue = skeletonSpots;
             spotList.GetArrayElementAtIndex(0).objectReferenceValue = islandSpots;
@@ -460,7 +481,7 @@ namespace FishAndChill.Editor
                 }
             }
 
-            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, atollTiles, skeletonTiles, shop, aquarium, house.transform, lighthouse.transform, lab.transform, petShop.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker, atollDock.Marker, skeletonDock.Marker });
+            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, atollTiles, skeletonTiles, fjordTiles, shop, aquarium, house.transform, lighthouse.transform, lab.transform, petShop.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker, atollDock.Marker, skeletonDock.Marker, fjordDock.Marker });
             return new Buildings
             {
                 Shop = shop, Aquarium = aquarium, Lab = lab,
@@ -471,6 +492,7 @@ namespace FishAndChill.Editor
                 ReefRegion = reefRegion, ReefDock = reefDock,
                 AtollRegion = atollRegion, AtollDock = atollDock,
                 SkeletonRegion = skeletonRegion, SkeletonDock = skeletonDock,
+                FjordRegion = fjordRegion, FjordDock = fjordDock,
             };
         }
 
@@ -2237,6 +2259,278 @@ namespace FishAndChill.Editor
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        // ---------- Fjords de Norvège ----------
+
+        /// <summary>Passerelle de bois au fond du fjord (praticable au-dessus de l'eau), en coordonnées du monde.</summary>
+        private static Rect FjordBridgeArea;
+
+        /// <summary>Tuiles des fjords : celles de l'île recolorées (eau sombre du fjord, galets gris, toundra éteinte).</summary>
+        private static TileSet CreateFjordTiles()
+        {
+            var set = new TileSet { Deep = new Tile[2], Shallow = new Tile[2], Sand = new Tile[3], Grass = new Tile[3] };
+            for (int i = 0; i < 2; i++)
+            {
+                set.Deep[i] = SaveAnimatedWater($"Fjord_Eau_{i}", f => FjordArt.Deep(TileArt.DeepWater(i, f)));
+                set.Shallow[i] = set.Deep[i];
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                set.Sand[i] = SaveTile($"Fjord_Galets_{i}", FjordArt.Pebbles(TileArt.Sand(i)), Vector2.one * 0.5f, TileArt.Size);
+                set.Grass[i] = SaveTile($"Fjord_Toundra_{i}", FjordArt.Tundra(TileArt.Grass(i)), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            var shallow = new TransitionArt.Style
+            {
+                Fill = FjordArt.Shallow(TileArt.ShallowWater(0)),
+                InnerBand = 0.06f, InnerColor = FjordArt.Shallow(new Color(0.46f, 0.88f, 0.86f)), InnerBlend = 0.6f,
+                OuterBand = 0.07f, OuterColor = FjordArt.Shallow(new Color(0.24f, 0.70f, 0.80f)), DitherOuter = true,
+            };
+            var pebbles = new TransitionArt.Style
+            {
+                Fill = FjordArt.Pebbles(TileArt.Sand(0)),
+                InnerBand = 0.07f, InnerColor = new Color(0.40f, 0.42f, 0.42f), InnerBlend = 1f,     // galets mouillés
+                OuterBand = 0.07f, OuterColor = new Color(0.86f, 0.90f, 0.92f), DitherOuter = false, // écume
+            };
+            var tundra = new TransitionArt.Style
+            {
+                Fill = FjordArt.Tundra(TileArt.Grass(0)),
+                InnerBand = 0.06f, InnerColor = FjordArt.Tundra(new Color(0.22f, 0.50f, 0.24f)), InnerBlend = 1f,
+                OuterBand = 0.06f, OuterColor = FjordArt.Tundra(new Color(0.40f, 0.70f, 0.34f)), DitherOuter = true,
+            };
+
+            set.LagoonEdges = SaveEdges("FjordEau", shallow);
+            set.SandEdges = SaveEdges("FjordGalets", pebbles);
+            set.GrassEdges = SaveEdges("FjordToundra", tundra);
+            set.LagoonFull = new[] { set.LagoonEdges[15], SaveTile("Bords/FjordEau_15b", FjordArt.Shallow(TileArt.ShallowWater(1)), Vector2.one * 0.5f, TileArt.Size) };
+            set.SandFull = new[]
+            {
+                set.SandEdges[15],
+                SaveTile("Bords/FjordGalets_15b", FjordArt.Pebbles(TileArt.Sand(1)), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/FjordGalets_15c", FjordArt.Pebbles(TileArt.Sand(2)), Vector2.one * 0.5f, TileArt.Size),
+            };
+            set.GrassFull = new[] { set.GrassEdges[15], set.GrassEdges[15], set.GrassEdges[15] };
+            return set;
+        }
+
+        /// <summary>
+        /// Dessine les fjords de Norvège d'après leur plan (<see cref="FjordPlan"/>) : fjord sombre, anse du village, rives de
+        /// galets, toundra, chemin de gravier, falaises enneigées et cascade animée au fond, rorbuer sur pilotis, église,
+        /// séchoir à morue, grenier au toit d'herbe, passerelle praticable, barques, forêt de sapins et de bouleaux, blocs de
+        /// granit, bruyère, plaques de neige ; puis le ponton.
+        /// </summary>
+        private static DockInfo BuildFjord(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap pavingLayer, Tilemap decorMap, List<Rect> obstacles)
+        {
+            FjordPlan plan = FjordPlan.Build();
+            TerrainType[,] terrain = plan.Terrain;
+            int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
+            int width = terrain.GetLength(0);
+            int height = terrain.GetLength(1);
+            int seed = FjordSettings.Seed;
+            int ppu = VolumeCanvas.PixelsPerUnit;
+            Vector3Int Cell(int x, int y) => new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0);
+            Vector3 World(float x, float y) => new Vector3(bounds.xMin + x, bounds.yMin + y, 0f);
+            void Solid(float cx, float y, float w, float h) => obstacles.Add(new Rect(bounds.xMin + cx - w * 0.5f, bounds.yMin + y, w, h));
+
+            var waterTiles = new TileBase[width * height];
+            var landTiles = new TileBase[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = x + y * width;
+                    float hash = IslandGenerator.CellHash(x, y, seed);
+                    waterTiles[index] = tiles.Deep[hash < 0.5f ? 0 : 1];
+                    if (terrain[x, y] == TerrainType.Sand) landTiles[index] = tiles.Sand[hash < 0.9f ? 0 : hash < 0.96f ? 1 : 2];
+                    else if (terrain[x, y] == TerrainType.Grass) landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
+                }
+            }
+
+            waterMap.SetTilesBlock(bounds, waterTiles);
+            landMap.SetTilesBlock(bounds, landTiles);
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance, tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
+            FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
+            FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
+
+            // Chemin de gravier du village (double grille, couche des pavés).
+            var path = new TransitionArt.Style
+            {
+                Fill = FjordArt.PathFill(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.42f, 0.40f, 0.36f), InnerBlend = 0.7f,
+                OuterBand = 0.06f, OuterColor = FjordArt.Tundra(new Color(0.40f, 0.66f, 0.32f)), DitherOuter = true,
+            };
+            Tile[] pathEdges = SaveEdges("FjordChemin", path);
+            Tile[] pathFull = { pathEdges[15], SaveTile("Bords/FjordChemin_15b", FjordArt.PathFill(1), Vector2.one * 0.5f, TileArt.Size) };
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Path[x, y], pathEdges, pathFull, seed + 6, false);
+
+            // Ponton dans l'anse, vers le sud (BuildDock essaie d'abord 3 cases à droite du point donné).
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Fjords de Norvège", terrain, bounds, plan.DockFoot - new Vector2Int(3, 0), Vector2Int.down);
+
+            GameObject Landmark(string name, string file, Color[,] pixels, Vector2 pivot, float x, float y, int order = 10)
+            {
+                Sprite sprite = PixelArt.Save(file, pixels, ppu, pivot);
+                GameObject go = EnsureObject(name, mapRoot);
+                go.transform.position = World(x, y);
+                SetSprite(go, sprite, order);
+                return go;
+            }
+
+            // Falaises enneigées tout le long du nord, et la cascade qui tombe au fond du fjord, devant elles.
+            Color[][,] cliffArt = { FjordLandmarkArt.Cliff(0), FjordLandmarkArt.Cliff(1) };
+            for (int i = 0; i < plan.Cliffs.Count; i++)
+            {
+                Vector2Int c = plan.Cliffs[i];
+                Landmark($"Falaise {i + 1}", $"{TilesFolder}/Fjord_Falaise_{i % 2}.png", cliffArt[i % 2], FjordLandmarkArt.CliffPivot, c.x + 0.5f, c.y);
+                Solid(c.x + 0.5f, c.y - 0.1f, 8f, 7f);
+                MinimapBlocks.Add((new Rect(bounds.xMin + c.x + 0.5f - 4f, bounds.yMin + c.y, 8f, height - c.y), new Color(0.56f, 0.58f, 0.62f), true));
+            }
+
+            var fallFrames = new Sprite[FjordLandmarkArt.FallFrames];
+            for (int f = 0; f < fallFrames.Length; f++)
+            {
+                fallFrames[f] = PixelArt.Save($"{TilesFolder}/Fjord_Cascade_f{f}.png", FjordLandmarkArt.Waterfall(f), ppu, FjordLandmarkArt.FallPivot);
+            }
+
+            string fallPath = $"{TilesFolder}/Fjord_Cascade.asset";
+            var fall = AssetDatabase.LoadAssetAtPath<AnimatedWaterTile>(fallPath);
+            if (fall == null)
+            {
+                fall = ScriptableObject.CreateInstance<AnimatedWaterTile>();
+                AssetDatabase.CreateAsset(fall, fallPath);
+            }
+
+            fall.Setup(fallFrames, 8f);
+            fall.colliderType = Tile.ColliderType.None;
+            EditorUtility.SetDirty(fall);
+            decorMap.SetTile(Cell(plan.Waterfall.x, plan.Waterfall.y), fall);
+
+            // Le village : rorbuer sur pilotis, église, séchoir à morue ; le grenier sur la rive ouest.
+            Color red = new Color(0.62f, 0.16f, 0.12f);
+            Sprite rorbu = PixelArt.Save($"{TilesFolder}/Fjord_Rorbu.png", FjordLandmarkArt.Rorbu(), ppu, FjordLandmarkArt.RorbuPivot);
+            for (int i = 0; i < plan.Rorbuer.Count; i++)
+            {
+                Vector2Int r = plan.Rorbuer[i];
+                GameObject go = EnsureObject($"Rorbu {i + 1}", mapRoot);
+                go.transform.position = World(r.x + 0.5f, r.y + 0.2f);
+                SetSprite(go, rorbu, 10);
+                Solid(r.x + 0.5f, r.y + 0.2f, 3.6f, 1.6f);
+                MinimapBlocks.Add((new Rect(bounds.xMin + r.x + 0.5f - 1.8f, bounds.yMin + r.y + 0.2f, 3.6f, 3f), red, false));
+            }
+
+            Landmark("Église en bois", $"{TilesFolder}/Fjord_Eglise.png", FjordLandmarkArt.Church(), FjordLandmarkArt.ChurchPivot, plan.Church.x + 0.5f, plan.Church.y);
+            Solid(plan.Church.x + 0.5f, plan.Church.y - 0.1f, 4.2f, 2.4f);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Church.x + 0.5f - 2.2f, bounds.yMin + plan.Church.y, 4.4f, 3.4f), new Color(0.92f, 0.90f, 0.84f), false));
+            Landmark("Séchoir à morue", $"{TilesFolder}/Fjord_Sechoir.png", FjordLandmarkArt.Rack(), FjordLandmarkArt.RackPivot, plan.Rack.x + 0.5f, plan.Rack.y);
+            Solid(plan.Rack.x + 0.5f, plan.Rack.y - 0.1f, 5.8f, 0.6f);
+            Landmark("Grenier au toit d'herbe", $"{TilesFolder}/Fjord_Grenier.png", FjordLandmarkArt.Storehouse(), FjordLandmarkArt.StorehousePivot, plan.Storehouse.x + 0.5f, plan.Storehouse.y);
+            Solid(plan.Storehouse.x + 0.5f, plan.Storehouse.y - 0.1f, 3f, 1.8f);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Storehouse.x + 0.5f - 1.6f, bounds.yMin + plan.Storehouse.y, 3.2f, 2.6f), new Color(0.40f, 0.28f, 0.18f), false));
+
+            // La passerelle de bois au fond du fjord, praticable.
+            int bridgeCells = plan.BridgeEast - plan.BridgeWest + 1;
+            GameObject bridge = Landmark("Passerelle du fjord", $"{TilesFolder}/Fjord_Passerelle.png", FjordLandmarkArt.Bridge(bridgeCells), new Vector2(0.5f, 0.5f),
+                plan.BridgeWest + bridgeCells * 0.5f, FjordPlan.BridgeRow + 1f, -9);
+            bridge.GetComponent<SpriteRenderer>().spriteSortPoint = SpriteSortPoint.Center;
+            FjordBridgeArea = new Rect(bounds.xMin + plan.BridgeWest, bounds.yMin + FjordPlan.BridgeRow, bridgeCells, 2f);
+            MinimapBlocks.Add((FjordBridgeArea, new Color(0.50f, 0.36f, 0.22f), false));
+
+            // Barques dans le fjord et dans l'anse.
+            Sprite boat = PixelArt.Save($"{TilesFolder}/Fjord_Barque.png", FjordLandmarkArt.Boat(), ppu, FjordLandmarkArt.BoatPivot);
+            for (int i = 0; i < plan.Boats.Count; i++)
+            {
+                GameObject go = EnsureObject($"Barque du fjord {i + 1}", mapRoot);
+                go.transform.position = World(plan.Boats[i].x + 0.5f, plan.Boats[i].y + 0.5f);
+                SetSprite(go, boat, -8).spriteSortPoint = SpriteSortPoint.Center;
+            }
+
+            // Forêt, bouleaux, blocs de granit, bruyère, plaques de neige.
+            Tile[] pines = { SaveTile("Fjord_Sapin_0", FjordTerrainArt.Pine(0), FjordTerrainArt.PinePivot, ppu),
+                SaveTile("Fjord_Sapin_1", FjordTerrainArt.Pine(1), FjordTerrainArt.PinePivot, ppu),
+                SaveTile("Fjord_Sapin_2", FjordTerrainArt.Pine(2), FjordTerrainArt.PinePivot, ppu) };
+            Tile[] birches = { SaveTile("Fjord_Bouleau_0", FjordTerrainArt.Birch(0), FjordTerrainArt.BirchPivot, ppu),
+                SaveTile("Fjord_Bouleau_1", FjordTerrainArt.Birch(1), FjordTerrainArt.BirchPivot, ppu) };
+            Tile[] boulders = { SaveTile("Decor/Fjord_Bloc_0", FjordTerrainArt.Boulder(0), FjordTerrainArt.BoulderPivot, ppu),
+                SaveTile("Decor/Fjord_Bloc_1", FjordTerrainArt.Boulder(1), FjordTerrainArt.BoulderPivot, ppu) };
+            Tile[] heather = { SaveTile("Decor/Fjord_Bruyere_0", FjordTerrainArt.Heather(0), FjordTerrainArt.HeatherPivot, ppu),
+                SaveTile("Decor/Fjord_Bruyere_1", FjordTerrainArt.Heather(1), FjordTerrainArt.HeatherPivot, ppu) };
+            Sprite[] snow = { PixelArt.Save($"{TilesFolder}/Fjord_Neige_0.png", FjordTerrainArt.SnowPatch(0), ppu, Vector2.one * 0.5f),
+                PixelArt.Save($"{TilesFolder}/Fjord_Neige_1.png", FjordTerrainArt.SnowPatch(1), ppu, Vector2.one * 0.5f) };
+            int snowCount = 0;
+            foreach ((Vector2Int cell, FjordPlan.Plant kind, int variant) in plan.Plants)
+            {
+                switch (kind)
+                {
+                    case FjordPlan.Plant.Pine:
+                        decorMap.SetTile(Cell(cell.x, cell.y), pines[variant % 3]);
+                        obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
+                        break;
+                    case FjordPlan.Plant.Birch:
+                        decorMap.SetTile(Cell(cell.x, cell.y), birches[variant % 2]);
+                        obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
+                        break;
+                    case FjordPlan.Plant.Boulder:
+                        decorMap.SetTile(Cell(cell.x, cell.y), boulders[variant % 2]);
+                        Solid(cell.x + 0.5f, cell.y + 0.1f, 1.4f, 0.6f);
+                        break;
+                    case FjordPlan.Plant.Heather:
+                        decorMap.SetTile(Cell(cell.x, cell.y), heather[variant % 2]);
+                        break;
+                    case FjordPlan.Plant.Snow:
+                        GameObject patch = EnsureObject($"Neige {++snowCount}", mapRoot);
+                        patch.transform.position = World(cell.x + 0.5f, cell.y + 0.5f);
+                        SetSprite(patch, snow[variant % 2], -9).spriteSortPoint = SpriteSortPoint.Center;
+                        break;
+                }
+            }
+
+            return dock;
+        }
+
+        /// <summary>La vie des fjords : phoques dans l'eau, macareux sur les galets, pygargue qui plane au-dessus du fjord.</summary>
+        private static void BuildFjordLife(Transform root, WorldMap map, Transform player, Rect dock)
+        {
+            const string folder = "Assets/_Project/Art/Ambient";
+            PixelArt.EnsureFolder(folder);
+            Sprite[] Frames(string name, int count, System.Func<int, Color[,]> draw)
+            {
+                var sprites = new Sprite[count];
+                for (int i = 0; i < count; i++)
+                {
+                    sprites[i] = PixelArt.Save($"{folder}/{name}_{i}.png", draw(i), TileArt.Size, Vector2.one * 0.5f);
+                }
+
+                return sprites;
+            }
+
+            GameObject go = EnsureObject("Vie des fjords", root);
+            var life = go.GetComponent<AmbientLife>();
+            if (life == null) life = go.AddComponent<AmbientLife>();
+
+            var so = new SerializedObject(life);
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_region").intValue = 7;
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 1.5f, dock.yMin - 1f, dock.width + 4f, dock.height + 2f);
+            SerializedProperty swimmers = so.FindProperty("_swimmers");
+            swimmers.arraySize = 1;
+            SetSwimmer(swimmers.GetArrayElementAtIndex(0), Frames("OtarieSousLEau", 2, SkeletonLifeArt.SealSwimming), 3, 0.6f);
+            swimmers.GetArrayElementAtIndex(0).FindPropertyRelative("Order").intValue = -17; // sous l'eau
+            SerializedProperty walkers = so.FindProperty("_walkers");
+            walkers.arraySize = 1;
+            SetSwimmer(walkers.GetArrayElementAtIndex(0), Frames("Macareux", 2, FjordLifeArt.Puffin), 8, 0.3f);
+            SetSprites(so.FindProperty("_dragonfly"), new Sprite[0]);
+            so.FindProperty("_dragonflies").intValue = 0;
+            SetSprites(so.FindProperty("_jumpingFish"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
+            SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
+            SetSprites(so.FindProperty("_passer"), Frames("Pygargue", 2, FjordLifeArt.Eagle));
+            so.FindProperty("_passerShadow").objectReferenceValue = PixelArt.Save($"{folder}/Pygargue_Ombre.png", FjordLifeArt.EagleShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_cloud").objectReferenceValue = PixelArt.Save($"{folder}/OmbreNuage.png", LakeLifeArt.CloudShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_clouds").intValue = 5;
+            SetNightLife(so, Frames);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         /// <summary>
         /// Pose un ponton de 2 cases de large qui part de la terre (depuis <paramref name="from"/>, en allant vers
         /// <paramref name="direction"/>) et avance de <see cref="DockLength"/> cases dans l'eau, avec une barque amarrée.
@@ -3080,6 +3374,19 @@ namespace FishAndChill.Editor
             skeletonGlassObject.transform.localPosition = new Vector3(skeletonX, 0f, 0f);
             SetSprite(skeletonGlassObject, skeletonGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
+            // Salle des fjords de Norvège, au bout de la salle Côte des Squelettes.
+            float fjordX = AquariumBuilding.FjordRoomX - AquariumBuilding.PassageWidth;
+            Color[,] fjordRoomPixels = AquariumFjordArt.FjordRoom();
+            AquariumAmazonArt.CloseLeftPassage(fjordRoomPixels);
+            Sprite fjordRoom = PixelArt.Save($"{folder}/Aquarium_SalleFjords.png", fjordRoomPixels, TileArt.Size, Vector2.zero);
+            Sprite fjordGlass = PixelArt.Save($"{folder}/Aquarium_SalleFjords_Vitre.png", AquariumFjordArt.TankGlass(), TileArt.Size, Vector2.zero);
+            GameObject fjordObject = EnsureObject("Salle des fjords", room.transform);
+            fjordObject.transform.localPosition = new Vector3(fjordX, 0f, 0f);
+            SetSprite(fjordObject, fjordRoom, -6).spriteSortPoint = SpriteSortPoint.Center;
+            GameObject fjordGlassObject = EnsureObject("Vitre du bassin des fjords", room.transform);
+            fjordGlassObject.transform.localPosition = new Vector3(fjordX, 0f, 0f);
+            SetSprite(fjordGlassObject, fjordGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
+
             // L'ascenseur de chaque étage est dans le mur du bas, qu'on ne voit pas : un tapis contre ce mur indique sa
             // porte, comme le paillasson de sortie (la 2e colonne à méduses du hall a disparu).
             Transform oldColumn = room.transform.Find("Colonne à méduses 2");
@@ -3148,6 +3455,7 @@ namespace FishAndChill.Editor
             Furnish("Recif", AquariumRoomLayout.Reef, AquariumBuilding.ReefRoomX);
             Furnish("Maldives", AquariumRoomLayout.Atoll, AquariumBuilding.AtollRoomX);
             Furnish("Squelettes", AquariumRoomLayout.Skeleton, AquariumBuilding.SkeletonRoomX);
+            Furnish("Fjords", AquariumRoomLayout.Fjord, AquariumBuilding.FjordRoomX);
             var furnitureSo = new SerializedObject(aquarium);
             SerializedProperty furnitureList = furnitureSo.FindProperty("_furniture");
             furnitureList.arraySize = furniture.Count;
@@ -3179,6 +3487,8 @@ namespace FishAndChill.Editor
             BuildTank(room.transform, "Poissons du bassin Maldives", aquarium, atollZone, AquariumBuilding.AtollTank);
             var skeletonZone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/CoteDesSquelettes.asset");
             BuildTank(room.transform, "Poissons du bassin Côte des Squelettes", aquarium, skeletonZone, AquariumBuilding.SkeletonTank);
+            var fjordZone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/FjordsNorvege.asset");
+            BuildTank(room.transform, "Poissons du bassin des fjords", aquarium, fjordZone, AquariumBuilding.FjordTank);
 
             BuildTankLife(room.transform, aquarium, folder);
             // Visiteurs mis de côté pour l'instant (AquariumVisitors et BuildVisitors restent prêts à resservir).
@@ -3293,6 +3603,10 @@ namespace FishAndChill.Editor
             Sprite[] paleCaustics = Frames("Reflets_Squelettes", 3, f => AquariumLifeArt.Caustics(f, new Color(0.62f, 0.70f, 0.68f)), center);
             BuildLife(room, "Vie du bassin Côte des Squelettes", aquarium, AquariumBuilding.SkeletonTank, 71, new[] { (kelpBrown, 6, false), (redWeed, 5, true) },
                 bubble, 3, ray, 2, pilchards, 4, 14, paleCaustics, new Sprite[0][], new Transform[0]);
+            Sprite[] herring = Frames("Harengs_Fjords", 2, f => AquariumLifeArt.TinyFish(f, new Color(0.56f, 0.66f, 0.76f), new Color(0.90f, 0.94f, 0.96f), new Color(0.24f, 0.36f, 0.48f)), center);
+            Sprite[] coldCaustics = Frames("Reflets_Fjords", 3, f => AquariumLifeArt.Caustics(f, new Color(0.56f, 0.70f, 0.76f)), center);
+            BuildLife(room, "Vie du bassin des fjords", aquarium, AquariumBuilding.FjordTank, 83, new[] { (kelpBrown, 7, false), (redWeed, 4, true) },
+                bubble, 3, ray, 2, herring, 4, 16, coldCaustics, new Sprite[0][], new Transform[0]);
         }
 
         private static void BuildLife(Transform room, string name, AquariumBuilding aquarium, Rect area, int seed,
@@ -3683,7 +3997,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, TileSet atollTiles, TileSet skeletonTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform house, Transform lighthouse, Transform lab, Transform petShop, Transform[] docks)
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, TileSet atollTiles, TileSet skeletonTiles, TileSet fjordTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform house, Transform lighthouse, Transform lab, Transform petShop, Transform[] docks)
         {
             Sprite shopIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeBoutique.png", ShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
             Sprite aquariumIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeAquarium.png", AquariumArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
@@ -3734,6 +4048,9 @@ namespace FishAndChill.Editor
             foreach (Tile t in skeletonTiles.Deep) entries.Add((t, new Color(0.16f, 0.24f, 0.26f)));
             foreach (Tile t in skeletonTiles.Sand) entries.Add((t, new Color(0.76f, 0.72f, 0.64f)));
             foreach (Tile t in skeletonTiles.Grass) entries.Add((t, new Color(0.58f, 0.46f, 0.34f)));
+            foreach (Tile t in fjordTiles.Deep) entries.Add((t, new Color(0.08f, 0.18f, 0.22f)));
+            foreach (Tile t in fjordTiles.Sand) entries.Add((t, new Color(0.62f, 0.62f, 0.60f)));
+            foreach (Tile t in fjordTiles.Grass) entries.Add((t, new Color(0.36f, 0.46f, 0.30f)));
 
             // Arbres et décor des zones redessinées (tuiles créées pendant la construction des zones).
             void Named(string tileName, Color color)

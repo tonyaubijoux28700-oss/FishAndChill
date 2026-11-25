@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: SalmoSalar
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: salmo-salar
+  _commonName: Saumon atlantique
+  _scientificName: Salmo salar
+  _rarity: 2
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 50, y: 120}
+  _basePrice: 45
+  _placeholderColor: {r: 0.627451, g: 0.6666667, b: 0.7058824, a: 1}
+  _description: "Il remonte les rivi\xE8res jusqu'aux cascades en sautant contre le courant, pour revenir pondre l\xE0 o\xF9 il est n\xE9."
+  _activeTime: 1
+  _weather: 1
+  _sprite: {fileID: 21300000, guid: d2709d475a931ee478bb8d8073435e8e, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 5c626d21e21c7a34f97523ac66ca29e5, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 5c626d21e21c7a34f97523ac66ca29e5, type: 3}
+  - {fileID: 21300000, guid: 2fd3422b7fdd98e41826c3e1eaec2187, type: 3}
+  - {fileID: 21300000, guid: cfd0a1cc563ebb445a69e1949eae577e, type: 3}
+  - {fileID: 21300000, guid: 5e8fb126f1031534fa5ed3d13fbcaca3, type: 3}

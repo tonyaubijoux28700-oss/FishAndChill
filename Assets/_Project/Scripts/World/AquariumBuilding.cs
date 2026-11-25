@@ -17,7 +17,8 @@ namespace FishAndChill.World
     /// - la salle Japon (24×18 cases) : jardin zen, shōji, bassin d'eau de mer aux rochers et algues ;
     /// - la salle Grande Barrière (24×18 cases) : cabane de plage, fresque marine, bassin de coraux ;
     /// - la salle Maldives (24×18 cases) : pavillon sur pilotis au plancher vitré, bassin d'océan profond ;
-    /// - la salle Côte des Squelettes (24×18 cases), au bout : cale de cargo, hublots sur la brume, bassin froid et kelp.
+    /// - la salle Côte des Squelettes (24×18 cases), ensuite : cale de cargo, hublots sur la brume, bassin froid et kelp.
+    /// - la salle des fjords de Norvège (24×18 cases), au bout : cabane de pêcheur en rondins, bassin d'eau froide aux laminaires.
     /// Chaque bassin montre les espèces de sa zone. Devant l'un ou l'autre, E dépose le sac : chaque nouvelle espèce entre,
     /// une espèce déjà exposée ne change plus (la taille ne compte pas) ; les doublons restent dans le sac.
     /// </summary>
@@ -37,7 +38,9 @@ namespace FishAndChill.World
         public const float AtollRoomX = ReefRoomX + ReefRoomWidth + PassageWidth;
         public const float SkeletonRoomWidth = 24f;
         public const float SkeletonRoomX = AtollRoomX + AtollRoomWidth + PassageWidth;
-        public const float InteriorWidth = SkeletonRoomX + SkeletonRoomWidth;
+        public const float FjordRoomWidth = 24f;
+        public const float FjordRoomX = SkeletonRoomX + SkeletonRoomWidth + PassageWidth;
+        public const float InteriorWidth = FjordRoomX + FjordRoomWidth;
         public const float InteriorHeight = 18f;
 
         /// <summary>Haut du sol : au-delà commencent les bassins.</summary>
@@ -55,6 +58,7 @@ namespace FishAndChill.World
         public static readonly Rect ReefTank = new Rect(ReefRoomX + 2.4f, 12.4f, ReefRoomWidth - 4.8f, 4.4f);
         public static readonly Rect AtollTank = new Rect(AtollRoomX + 2.4f, 12.4f, AtollRoomWidth - 4.8f, 4.4f);
         public static readonly Rect SkeletonTank = new Rect(SkeletonRoomX + 2.4f, 12.4f, SkeletonRoomWidth - 4.8f, 4.4f);
+        public static readonly Rect FjordTank = new Rect(FjordRoomX + 2.4f, 12.4f, FjordRoomWidth - 4.8f, 4.4f);
 
         /// <summary>
         /// Les étages : le hall au rez-de-chaussée, puis une salle par zone. Les salles restent côte à côte dans le monde,
@@ -69,6 +73,7 @@ namespace FishAndChill.World
             new Rect(ReefRoomX, 0f, ReefRoomWidth, InteriorHeight),
             new Rect(AtollRoomX, 0f, AtollRoomWidth, InteriorHeight),
             new Rect(SkeletonRoomX, 0f, SkeletonRoomWidth, InteriorHeight),
+            new Rect(FjordRoomX, 0f, FjordRoomWidth, InteriorHeight),
         };
 
         /// <summary>
@@ -84,6 +89,7 @@ namespace FishAndChill.World
             new Vector2(ReefRoomX + ReefRoomWidth * 0.5f, 0f),
             new Vector2(AtollRoomX + AtollRoomWidth * 0.5f, 0f),
             new Vector2(SkeletonRoomX + SkeletonRoomWidth * 0.5f, 0f),
+            new Vector2(FjordRoomX + FjordRoomWidth * 0.5f, 0f),
         };
 
         /// <summary>Colonnes à méduses (pied, relatif au coin de la salle).</summary>
@@ -203,7 +209,7 @@ namespace FishAndChill.World
                 return (feet.x >= HallTank.xMin && feet.x <= HallTank.xMax) || (feet.x >= LakeTank.xMin && feet.x <= LakeTank.xMax)
                     || (feet.x >= AmazonTank.xMin && feet.x <= AmazonTank.xMax) || (feet.x >= JapanTank.xMin && feet.x <= JapanTank.xMax)
                     || (feet.x >= ReefTank.xMin && feet.x <= ReefTank.xMax) || (feet.x >= AtollTank.xMin && feet.x <= AtollTank.xMax)
-                    || (feet.x >= SkeletonTank.xMin && feet.x <= SkeletonTank.xMax);
+                    || (feet.x >= SkeletonTank.xMin && feet.x <= SkeletonTank.xMax) || (feet.x >= FjordTank.xMin && feet.x <= FjordTank.xMax);
             }
         }
 

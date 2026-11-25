@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ScomberScombrus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: scomber-scombrus
+  _commonName: Maquereau commun
+  _scientificName: Scomber scombrus
+  _rarity: 0
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 25, y: 45}
+  _basePrice: 6
+  _placeholderColor: {r: 0.2901961, g: 0.5411765, b: 0.47843137, a: 1}
+  _description: "Rapide et nerveux, il chasse en surface les petits poissons, son dos est z\xE9br\xE9 de bandes vertes et noires."
+  _activeTime: 1
+  _weather: 4
+  _sprite: {fileID: 21300000, guid: 629bfedcc8be9b0438b4f56adfab307b, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 2b782dcb0a32e42498c49b999d329109, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 2b782dcb0a32e42498c49b999d329109, type: 3}
+  - {fileID: 21300000, guid: 44d18fd9baf570e42aa32712402c5c80, type: 3}
+  - {fileID: 21300000, guid: 161da2c2cd30c1b47af0246a20754711, type: 3}
+  - {fileID: 21300000, guid: f66fff6ce6f928247bf51b9fd35e025d, type: 3}
