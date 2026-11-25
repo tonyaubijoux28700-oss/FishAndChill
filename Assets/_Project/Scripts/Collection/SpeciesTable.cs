@@ -24,7 +24,7 @@ namespace FishAndChill.Collection
         {
             "Id", "Nom", "Scientifique", "Zone", "Rarete", "Nature", "Forme", "TailleMin", "TailleMax", "Prix", "Frequence",
             "Vitesse", "LargeurZone", "Reussites", "Rates", "Combat", "Heure", "Meteo", "Appats", "Description", "Couleur",
-            "Dessin", "Dos", "Flancs", "Ventre", "Nageoires", "Motif", "CouleurMotif", "Queue", "Oeil", "Extras",
+            "Dessin", "Dos", "Flancs", "Ventre", "Nageoires", "Motif", "CouleurMotif", "Queue", "Oeil", "Extras", "Hamecons",
         };
 
         /// <summary>Le résultat de la lecture : les espèces valides et les erreurs (numéro de ligne et explication).</summary>
@@ -136,6 +136,7 @@ namespace FishAndChill.Collection
             row.Hits = Int(Cell("Reussites"), DefaultHits(row.Rarity), "Reussites", row.Id);
             row.Misses = Int(Cell("Rates"), DefaultMisses(row.Rarity), "Rates", row.Id);
             row.Baits = List(Cell("Appats"));
+            row.Hooks = List(Cell("Hamecons"));
             row.Extras = List(Cell("Extras"));
 
             row.Color = ParseColor(Cell("Couleur"), new Color(0.6f, 0.6f, 0.6f), row.Id);

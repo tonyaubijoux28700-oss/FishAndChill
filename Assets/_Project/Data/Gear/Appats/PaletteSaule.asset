@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b729c5ebdbd7c4fb75cdff2acb7630, type: 3}
+  m_Name: PaletteSaule
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Gear.Bait
+  _displayName: "Cuill\xE8re palette Saule"
+  _icon: {fileID: 21300000, guid: 2304d62c3e8b85846bc33de925b641a9, type: 3}
+  _description: "Une palette longue en feuille de saule, cuivr\xE9e : elle descend vite dans le courant."
+  _price: 160
+  _uses: 0
+  _favorites: []
+  _favoriteBonus: 3
+  _rareBonus: 1
+  _nightBonus: 1
+  _favoritesOnly: 0
+  _biteWaitFactor: 0.9
+  _lureType: 1
+  _model: "Palette effil\xE9e qui file vite et profond."

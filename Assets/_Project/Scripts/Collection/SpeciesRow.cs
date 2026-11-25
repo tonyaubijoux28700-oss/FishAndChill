@@ -35,8 +35,11 @@ namespace FishAndChill.Collection
         /// <summary>Temps qu'il faut pour qu'elle morde (colonne Meteo).</summary>
         public WeatherNeed Weather;
 
-        /// <summary>Appâts préférés (mie, ver, crevette, leurre, lumineux, calmar).</summary>
+        /// <summary>Types de leurres auxquels l'espèce mord (naturel, cuillere, ondulante, nageur, souple, surface, jig, turlutte, traine, mouche).</summary>
         public string[] Baits = new string[0];
+
+        /// <summary>Hameçons qui la tiennent (aberdeen, triple, circulaire, forge, texan, mouche).</summary>
+        public string[] Hooks = new string[0];
 
         public string Description;
 

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b729c5ebdbd7c4fb75cdff2acb7630, type: 3}
+  m_Name: OndulanteToby
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Gear.Bait
+  _displayName: Ondulante Toby
+  _icon: {fileID: 21300000, guid: 05a999cead4078a47bf18a0c335c1c92, type: 3}
+  _description: "L'ondulante \xE0 ailettes des p\xEAcheurs de saumon : elle zigzague comme un petit poisson bless\xE9."
+  _price: 180
+  _uses: 0
+  _favorites: []
+  _favoriteBonus: 3
+  _rareBonus: 1
+  _nightBonus: 1
+  _favoritesOnly: 0
+  _biteWaitFactor: 1
+  _lureType: 2
+  _model: "Ondulation large gr\xE2ce \xE0 ses ailettes."

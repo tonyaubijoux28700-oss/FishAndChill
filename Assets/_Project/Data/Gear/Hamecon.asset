@@ -16,7 +16,7 @@ MonoBehaviour:
   _displayName: "Hame\xE7on"
   _icon: {fileID: 21300000, guid: b0749ee6728817149930c8007d707f32, type: 3}
   _levels:
-  - _name: "Hame\xE7on simple"
+  - _name: "Hame\xE7on Aberdeen"
     _price: 0
     _value: 0
     _value2: 0
@@ -27,7 +27,7 @@ MonoBehaviour:
     _nervousFactor: 1
     _rushFactor: 1
     _driftFactor: 1
-    _specialty: "Rien de sp\xE9cial."
+    _specialty: "Simple, fin, longue hampe : petits poissons et app\xE2ts naturels."
     _illustration: {fileID: 0}
   - _name: "Hame\xE7on triple"
     _price: 60
@@ -40,7 +40,7 @@ MonoBehaviour:
     _nervousFactor: 1
     _rushFactor: 1
     _driftFactor: 1
-    _specialty: "Tient mieux : 2 rat\xE9s de plus."
+    _specialty: "Trois pointes : cuill\xE8res, poissons nageurs, surface, jigs. 2 rat\xE9s de plus."
     _illustration: {fileID: 0}
   - _name: "Hame\xE7on circulaire"
     _price: 150
@@ -53,9 +53,9 @@ MonoBehaviour:
     _nervousFactor: 1
     _rushFactor: 1.3
     _driftFactor: 1
-    _specialty: Moins de tension, rushs plus rares.
+    _specialty: "Se plante au coin de la m\xE2choire : thons, requins, gros du large."
     _illustration: {fileID: 0}
-  - _name: "Hame\xE7on forg\xE9"
+  - _name: "Hame\xE7on O'Shaughnessy forg\xE9"
     _price: 340
     _value: 3
     _value2: 0
@@ -66,5 +66,31 @@ MonoBehaviour:
     _nervousFactor: 1
     _rushFactor: 1
     _driftFactor: 0.6
-    _specialty: "3 rat\xE9s de plus, les fuyants glissent moins."
+    _specialty: "\xC9pais et forg\xE9 : gros poissons de mer. 3 rat\xE9s de plus, les fuyants glissent moins."
+    _illustration: {fileID: 0}
+  - _name: "Hame\xE7on texan"
+    _price: 90
+    _value: 1
+    _value2: 0
+    _icon: {fileID: 21300000, guid: 04b158baded98e244af2dad8f76c68e0, type: 3}
+    _cursorFactor: 1
+    _tensionFactor: 0.9
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1
+    _driftFactor: 1
+    _specialty: "Hampe coud\xE9e qui cache la pointe dans le leurre souple : rochers et herbiers."
+    _illustration: {fileID: 0}
+  - _name: "Hame\xE7on \xE0 mouche"
+    _price: 70
+    _value: 0
+    _value2: 0
+    _icon: {fileID: 21300000, guid: ee2c31dcfa34f124090f1c3ca9413ff4, type: 3}
+    _cursorFactor: 0.95
+    _tensionFactor: 1
+    _castBonus: 0
+    _nervousFactor: 1
+    _rushFactor: 1
+    _driftFactor: 1
+    _specialty: "L\xE9ger, oeillet relev\xE9 : truites, ombles, saumons."
     _illustration: {fileID: 0}

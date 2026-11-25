@@ -355,10 +355,11 @@ namespace FishAndChill.Save
                 var stocks = new List<KeyValuePair<string, int>>();
                 foreach (SaveData.BaitStock stock in data.Baits)
                 {
-                    stocks.Add(new KeyValuePair<string, int>(stock.Id, stock.Count));
+                    // Les anciens appâts deviennent les leurres et appâts d'aujourd'hui.
+                    stocks.Add(new KeyValuePair<string, int>(Gear.LureRules.ConvertOldBait(stock.Id), stock.Count));
                 }
 
-                _progress.Baits.Restore(stocks, data.EquippedBait);
+                _progress.Baits.Restore(stocks, Gear.LureRules.ConvertOldBait(data.EquippedBait));
             }
 
             _progress.EnsureDefaultBait();

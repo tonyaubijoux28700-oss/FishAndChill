@@ -26,6 +26,8 @@ namespace FishAndChill.Gear
         [SerializeField, Min(0f), Tooltip("Multiplicateur des espèces de nuit, quand il fait nuit (appât lumineux).")] private float _nightBonus = 1f;
         [SerializeField, Tooltip("Leurre : les espèces qui ne sont pas ses favorites mordent deux fois moins.")] private bool _favoritesOnly;
         [SerializeField, Range(0.3f, 1.5f), Tooltip("Attente de la touche (fraction de l'attente normale).")] private float _biteWaitFactor = 1f;
+        [SerializeField, Tooltip("Famille du leurre : les espèces qui mordent à ce type le préfèrent.")] private LureType _lureType;
+        [SerializeField, Tooltip("Ce qui le distingue des autres modèles de son type (nage, couleur, solidité).")] private string _model;
 
         public string Id => name;
         public string DisplayName => string.IsNullOrEmpty(_displayName) ? name : _displayName;
@@ -36,8 +38,29 @@ namespace FishAndChill.Gear
         public bool Unlimited => _uses <= 0;
         public float BiteWaitFactor => _biteWaitFactor;
         public IReadOnlyList<FishSpecies> Favorites => _favorites;
+        public LureType LureType => _lureType;
+        public string Model => _model;
 
-        public bool IsFavorite(FishSpecies species) => species != null && _favorites.Contains(species);
+        /// <summary>L'espèce préfère cet appât : elle mord à son type de leurre, ou elle est dans sa liste.</summary>
+        public bool IsFavorite(FishSpecies species) => species != null && (_favorites.Contains(species) || ContainsType(species.Lures));
+
+        private bool ContainsType(IReadOnlyCollection<LureType> lures)
+        {
+            if (lures == null) return false;
+            foreach (LureType type in lures)
+            {
+                if (type == _lureType) return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>Type de leurre et petite phrase sur le modèle (génération des données).</summary>
+        public void ConfigureType(LureType type, string model)
+        {
+            _lureType = type;
+            _model = model;
+        }
 
         /// <summary>Multiplicateur de fréquence de cette espèce avec cet appât (de nuit ou de jour).</summary>
         public float Multiplier(FishSpecies species, bool isNight)

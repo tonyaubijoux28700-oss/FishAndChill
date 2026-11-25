@@ -35,7 +35,7 @@ namespace FishAndChill.UI
         private const string GearGreeting = "« Chaque canne a son caractère : achète celle qui te plaît, tu pourras changer quand tu veux ! »";
         private const string HookGreeting = "« Un bon hameçon, c'est un poisson qui ne se décroche pas ! »";
         private const string BagGreeting = "« Plus de place dans ton sac, moins d'allers-retours ! Et un casier pour les crustacés ? »";
-        private const string BaitGreeting = "« Chaque appât a ses amateurs : regarde le carnet pour savoir qui aime quoi ! »";
+        private const string BaitGreeting = "« Les poissons rares ne mordent qu'à leur leurre : le carnet te dit lequel ! »";
         private const float RowsAreaHeight = 560f;
 
         [SerializeField] private PlayerProgress _progress;
@@ -595,6 +595,8 @@ namespace FishAndChill.UI
             }
         }
 
+        private static string UpperFirst(string text) => string.IsNullOrEmpty(text) ? text : char.ToUpperInvariant(text[0]) + text.Substring(1);
+
         private void AddBaits()
         {
             BaitCatalog catalog = _progress.BaitCatalog;
@@ -608,7 +610,7 @@ namespace FishAndChill.UI
                 {
                     Picture = bait.Icon,
                     Name = bait.DisplayName,
-                    Detail = $"{bait.Description}\n{(bait.Unlimited ? "Réutilisable." : $"Paquet de {bait.Uses}.")}",
+                    Detail = $"{bait.Description}\n{UpperFirst(LureRules.Name(bait.LureType))}, {(bait.Unlimited ? "réutilisable" : $"paquet de {bait.Uses}")}. {bait.Model}",
                     Buy = () => BuyBait(index),
                 };
 
@@ -622,7 +624,7 @@ namespace FishAndChill.UI
                 else
                 {
                     Price(entry, bait.Price);
-                    entry.Action = bait.Price > 0 ? "acheter un paquet" : "prendre";
+                    entry.Action = bait.Price <= 0 ? "prendre" : bait.Unlimited ? "acheter" : "acheter un paquet";
                 }
 
                 _entries.Add(entry);
@@ -862,7 +864,7 @@ namespace FishAndChill.UI
             UiFactory.TitlePlaque(panel.rectTransform, _skin, "Boutique de Mahana", 42, new Vector2(0f, 462f), new Vector2(620f, 88f), out _);
 
             // Les rayons.
-            string[] titles = { "Vendre", "Cannes", "Hameçons", "Appâts", "Sacs, casiers" };
+            string[] titles = { "Vendre", "Cannes", "Hameçons", "Leurres", "Sacs, casiers" };
             _tabs = new Image[titles.Length];
             for (int i = 0; i < titles.Length; i++)
             {

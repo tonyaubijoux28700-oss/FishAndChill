@@ -37,14 +37,17 @@ namespace FishAndChill.Editor
                 RodItem(3, "Canne lourde", 220, 0.05f).WithStats("Tient la tension des gros, rushs plus espacés.", cursor: 1.1f, tension: 0.5f, rush: 1.4f),
                 RodItem(4, "Canne de compétition", 480, 0.35f).WithStats("La meilleure en tout : zone large, curseur lent.", cursor: 0.85f, tension: 0.8f));
 
-            // Hameçons : Value = ratés tolérés en plus.
+            // Hameçons : de vrais modèles (dans l'ordre de HookType : les 4 premiers gardent la place des anciens).
+            // Value = ratés tolérés en plus. Les épiques et les légendaires exigent l'hameçon qui leur va.
             GearLevel HookItem(int i, string name, int price, float value) =>
-                new GearLevel(name, price, value).WithIcon(Item($"Hamecon_{i}", GearArt.Hook(i)));
+                new GearLevel(name, price, value).WithIcon(Item($"Hamecon_{i}", LureArt.Hook(i)));
             GearLine hook = Line("Hamecon", GearCategory.Hook, "Hameçon", hookIcon,
-                HookItem(0, "Hameçon simple", 0, 0f).WithStats("Rien de spécial."),
-                HookItem(1, "Hameçon triple", 60, 2f).WithStats("Tient mieux : 2 ratés de plus."),
-                HookItem(2, "Hameçon circulaire", 150, 1f).WithStats("Moins de tension, rushs plus rares.", tension: 0.8f, rush: 1.3f),
-                HookItem(3, "Hameçon forgé", 340, 3f).WithStats("3 ratés de plus, les fuyants glissent moins.", drift: 0.6f));
+                HookItem(0, "Hameçon Aberdeen", 0, 0f).WithStats("Simple, fin, longue hampe : petits poissons et appâts naturels."),
+                HookItem(1, "Hameçon triple", 60, 2f).WithStats("Trois pointes : cuillères, poissons nageurs, surface, jigs. 2 ratés de plus."),
+                HookItem(2, "Hameçon circulaire", 150, 1f).WithStats("Se plante au coin de la mâchoire : thons, requins, gros du large.", tension: 0.8f, rush: 1.3f),
+                HookItem(3, "Hameçon O'Shaughnessy forgé", 340, 3f).WithStats("Épais et forgé : gros poissons de mer. 3 ratés de plus, les fuyants glissent moins.", drift: 0.6f),
+                HookItem(4, "Hameçon texan", 90, 1f).WithStats("Hampe coudée qui cache la pointe dans le leurre souple : rochers et herbiers.", tension: 0.9f),
+                HookItem(5, "Hameçon à mouche", 70, 0f).WithStats("Léger, oeillet relevé : truites, ombles, saumons.", cursor: 0.95f));
 
             // Sac : Value = nombre de places.
             GearLine bag = Line("Sac", GearCategory.Bag, "Sac", bagIcon,

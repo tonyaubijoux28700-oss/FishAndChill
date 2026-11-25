@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b729c5ebdbd7c4fb75cdff2acb7630, type: 3}
+  m_Name: ShadPalette
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Gear.Bait
+  _displayName: "Shad \xE0 palette"
+  _icon: {fileID: 21300000, guid: 12f2cb0a1f848034cb0dd399bb9e134a, type: 3}
+  _description: "Un poisson en caoutchouc \xE0 queue en palette, qui vibre en nageant : sandres, perches et m\xE9rous."
+  _price: 150
+  _uses: 0
+  _favorites: []
+  _favoriteBonus: 3
+  _rareBonus: 1
+  _nightBonus: 1
+  _favoritesOnly: 0
+  _biteWaitFactor: 1
+  _lureType: 4
+  _model: "Queue qui vibre, mont\xE9 sur t\xEAte plomb\xE9e."

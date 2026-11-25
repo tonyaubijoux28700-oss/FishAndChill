@@ -5306,14 +5306,14 @@ MonoBehaviour:
   _camera: {fileID: 519420033}
   _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
   _tanks:
-  - {fileID: 1324183801}
-  - {fileID: 360895268}
   - {fileID: 2046593193}
-  - {fileID: 1244758331}
-  - {fileID: 1088656230}
-  - {fileID: 26758889}
-  - {fileID: 1098986844}
+  - {fileID: 360895268}
   - {fileID: 148596318}
+  - {fileID: 1244758331}
+  - {fileID: 1098986844}
+  - {fileID: 26758889}
+  - {fileID: 1324183801}
+  - {fileID: 1088656230}
 --- !u!1 &335281838
 GameObject:
   m_ObjectHideFlags: 0

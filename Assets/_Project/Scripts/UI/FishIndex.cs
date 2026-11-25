@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FishAndChill.Collection;
 using FishAndChill.Fishing;
 using FishAndChill.Gear;
@@ -828,7 +829,10 @@ namespace FishAndChill.UI
             _aquarium.color = specimen != null ? new Color(0.22f, 0.50f, 0.18f) : InkSoft;
         }
 
-        /// <summary>« Appât préféré : crevette » (en couleur), vide si l'espèce n'a pas d'appât préféré.</summary>
+        /// <summary>
+        /// Ce qu'il faut pour la prendre, en couleur : ses types de leurres (exigés à partir de peu commune, sinon
+        /// simplement préférés) et ses hameçons (exigés à partir d'épique). Casier pour les crustacés.
+        /// </summary>
         private string FavoriteBaitText(FishSpecies species, bool newLine = false)
         {
             if (species.Kind.CaughtInTrap())
@@ -838,14 +842,27 @@ namespace FishAndChill.UI
                 return newLine ? "\n" + trap : " " + trap + ".";
             }
 
-            Bait bait = _progress != null && _progress.BaitCatalog != null ? _progress.BaitCatalog.FavoriteOf(species) : null;
-            if (bait == null)
+            if (species.Lures.Count == 0)
             {
                 return string.Empty;
             }
 
-            string text = $"<color=#2E6B2A>Appât préféré : {bait.DisplayName.ToLowerInvariant()}</color>";
+            string lures = JoinOr(species.Lures.Select(l => LureRules.Name(l)));
+            string text = LureRules.NeedsLure(species.Rarity) ? $"Ne mord qu'aux {lures}" : $"Mord à tout, surtout aux {lures}";
+            if (LureRules.NeedsHook(species.Rarity) && species.Hooks.Count > 0)
+            {
+                text += $", hameçon {JoinOr(species.Hooks.Select(h => LureRules.Name(h)))} obligatoire";
+            }
+
+            text = $"<color=#2E6B2A>{text}</color>";
             return newLine ? "\n" + text : " " + text + ".";
+        }
+
+        /// <summary>« a », « a ou b », « a, b ou c ».</summary>
+        private static string JoinOr(IEnumerable<string> words)
+        {
+            var list = words.ToList();
+            return list.Count <= 1 ? string.Concat(list) : string.Join(", ", list.Take(list.Count - 1)) + " ou " + list[list.Count - 1];
         }
 
         /// <summary>« Toute la journée », « Mord la nuit », « Sous la pluie », « Le jour, par temps d'orage »…</summary>

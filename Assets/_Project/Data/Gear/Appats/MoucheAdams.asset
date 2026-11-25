@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b729c5ebdbd7c4fb75cdff2acb7630, type: 3}
+  m_Name: MoucheAdams
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Gear.Bait
+  _displayName: Mouche Adams
+  _icon: {fileID: 21300000, guid: c65e3d0e2ceb6984b9a9694abbf73e88, type: 3}
+  _description: "La mouche s\xE8che la plus connue au monde, grise, qui flotte comme un insecte pos\xE9 sur l'eau."
+  _price: 90
+  _uses: 0
+  _favorites: []
+  _favoriteBonus: 3
+  _rareBonus: 1
+  _nightBonus: 1
+  _favoritesOnly: 0
+  _biteWaitFactor: 1
+  _lureType: 9
+  _model: "Mouche s\xE8che qui flotte."

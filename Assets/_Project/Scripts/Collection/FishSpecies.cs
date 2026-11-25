@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FishAndChill.Fishing;
 using UnityEngine;
 
@@ -52,6 +53,15 @@ namespace FishAndChill.Collection
 
         [SerializeField, Tooltip("Animation de l'aquarium (queue qui bat, pattes qui marchent) ; la première est la miniature.")]
         private Sprite[] _miniFrames = new Sprite[0];
+
+        [SerializeField, Tooltip("Types de leurres auxquels elle mord (exigés à partir de peu commune).")]
+        private List<Gear.LureType> _lures = new List<Gear.LureType>();
+
+        [SerializeField, Tooltip("Hameçons qui la tiennent (exigés à partir d'épique).")]
+        private List<Gear.HookType> _hooks = new List<Gear.HookType>();
+
+        public IReadOnlyCollection<Gear.LureType> Lures => _lures;
+        public IReadOnlyCollection<Gear.HookType> Hooks => _hooks;
 
         public string Id => string.IsNullOrEmpty(_id) ? name : _id;
         public string CommonName => string.IsNullOrEmpty(_commonName) ? name : _commonName;

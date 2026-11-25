@@ -37,3 +37,5 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0a8e4e7d6ad3ac84c99fb25885b02170, type: 3}
   - {fileID: 21300000, guid: 3cf497d5a4ea52f4c9b02704346174b1, type: 3}
   - {fileID: 21300000, guid: 87ef86662822fb74c9105d2d8ba67757, type: 3}
+  _lures: 0300000001000000i
+  _hooks: 01000000i

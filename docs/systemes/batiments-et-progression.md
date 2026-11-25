@@ -36,29 +36,37 @@
   pour « Sacs, casiers », qui montre tous les sacs puis le casier). Échap/E ferme. Règles dans `FishShop` (testées) : il n'achète que les doublons (espèce déjà dans
   l'aquarium, ou exemplaires en trop : il laisse le plus gros), prix de 80 % à 130 % du `BasePrice` selon la taille.
 - **Matériel** (`Scripts/Gear`, données dans `Data/Gear/`, générées par `GearSetup`) : 3 familles (`GearLine`,
-  ScriptableObjects) réunies dans `GearCatalog` (l'appât a son propre système, voir Appâts), chacune avec un niveau 0 gratuit puis 3 améliorations :
+  ScriptableObjects) réunies dans `GearCatalog` (l'appât a son propre système, voir Leurres et appâts), chacune avec un niveau 0 gratuit puis 3 améliorations :
   sac (4/5/6 places, niveaux). **Cannes et hameçons = objets à choisir** (pas des niveaux) : on les achète puis on
   équipe celui qu'on veut ; chacun a sa **spécialité** (`GearLevel.WithStats` : curseur, tension, portée du lancer,
   poissons nerveux / rushs / fuyants ; `GearEffects` multiplie canne × hameçon, appliqué par `QteChallenge` et
   `FishingController`). Cannes : bambou, légère (calme les nerveux, tension ×1,25), longue (+2,5 cases), lourde
-  (tension ×0,5, rushs espacés), compétition. Hameçons : simple, triple (+2 ratés), circulaire (tension ×0,8, rushs
-  rares), forgé (+3 ratés, fuyants ralentis). Possédés dans `GearLoadout` (`Owns`/`Own`/`Equip`/`Cycle`), achat par
+  (tension ×0,5, rushs espacés), compétition. Hameçons : Aberdeen, triple (+2 ratés), circulaire (tension ×0,8, rushs
+  rares), forgé (+3 ratés, fuyants ralentis), texan, à mouche. Possédés dans `GearLoadout` (`Owns`/`Own`/`Equip`/`Cycle`), achat par
   `GearShop.TryBuyItem` / `PlayerProgress.BuyGearItem` (testés), sauvegardés dans `SaveData.GearOwned` (ancienne
   sauvegarde : tout ce qui était sous le niveau atteint est gardé). Marchand : onglets Vendre / Cannes / Hameçons /
-  Appâts / Sacs, casiers. Inventaire : **R** (physique) change de canne, **F** d'hameçon (gâchettes hautes à la manette). Niveaux du joueur dans
+  Leurres / Sacs, casiers. Inventaire : **R** (physique) change de canne, **F** d'hameçon (gâchettes hautes à la manette). Niveaux du joueur dans
   `PlayerProgress.Gear` (`GearLoadout`), achat par `PlayerProgress.BuyGear` / `GearShop` (testés). Effets calculés par
   `GearEffects` (testé) et appliqués par `FishingController` (QTE, tirage de l'espèce, attente de la touche).
-- **Appâts** (`Scripts/Gear` : `Bait` et `BaitCatalog`, ScriptableObjects dans `Data/Gear/Appats/`, générés par `BaitSetup`) :
-  ils ne sont plus du matériel à niveaux. Six appâts, chacun avec ses **espèces favorites** (×3) d'après leur vrai régime :
-  mie de pain (départ, gratuite, illimitée : poissons blancs), ver de terre (20 p. ×15, touches ×0,85), crevette (35 p.
-  ×12 : crustacés, récif), leurre brillant (140 p., réutilisable : chasseurs ; les autres ×0,5), appât lumineux (45 p.
-  ×10 : espèces de nuit ×3 la nuit), calmar entier (90 p. ×6 : rares ×2,2). Possédés et accroché dans
-  `PlayerProgress.Baits` (`BaitBag`, testé ; sauvegardé : `SaveData.Baits`, `EquippedBait`) ; **un lancer consomme une
-  utilisation**, le dernier parti on revient à la mie de pain (message). Effet au tirage et à l'attente dans
-  `FishingController.Cast`. Marchand : 3ᵉ onglet **« Appâts »** (Tab/←/→ font tourner les onglets, 1 à 6 achète un paquet,
-  accroché tout de suite). Inventaire : la rangée Appât montre l'appât accroché et ce qu'il en reste ; touche physique
-  Q (A en AZERTY) ou X manette pour changer. Carnet : « Appât préféré : … » sur chaque fiche (indice même pour les
-  « ??? », `BaitCatalog.FavoriteOf`).
+- **Leurres et appâts** (`Scripts/Gear` : `Bait`, `BaitCatalog`, `LureType`, `HookType`, `LureRules` ; ScriptableObjects dans
+  `Data/Gear/Appats/`, générés par `BaitSetup`, dessins `Editor/LureArt` 48×32 nez à droite, icônes
+  `Art/UI/Materiel/Leurre_<id>.png`). 30 vrais modèles génériques (pas de marques) rangés en 10 **types** : appâts
+  naturels (ver de terreau de départ gratuit et illimité, asticots, crevette grise, lanière de calmar : en paquets),
+  cuillères tournantes (palettes Aglia, Colorado, Saule), ondulantes (Toby, Crocodile, Devon), poissons nageurs (minnow,
+  jerkbait, crankbait), leurres souples (shad, ver finesse, grub), surface (popper, stickbait, walking-the-dog), jigs
+  (pilker, casting jig, slow jig), turluttes (egi, phosphorescente : ×3 la nuit), traîne (jupe octopus, plume),
+  mouches (Adams, Woolly Bugger, streamer Clouser). Les leurres sont **réutilisables** ; certains attirent plus de rares
+  ou font mordre plus vite. **Qui mord à quoi** (`LureRules.Allows`, testé, appliqué au tirage par
+  `FishingController.Cast`) : chaque espèce a ses types de leurres et ses hameçons (colonnes Appats et Hamecons de la
+  table) ; les **communes** mordent à tout ; les **peu communes et rares** exigent un de leurs types de leurre ; les
+  **épiques et légendaires** exigent en plus un de leurs hameçons. Le bon type de leurre attire aussi l'espèce ×3.
+  Hameçons (`GearSetup`, ordre = `HookType`) : Aberdeen (départ), triple (60 p., +2 ratés), circulaire (150 p.,
+  tension ×0,8), O'Shaughnessy forgé (340 p., +3 ratés), texan (90 p., tension ×0,9), à mouche (70 p.). Anciens appâts
+  des sauvegardes convertis (`LureRules.ConvertOldBait`). Possédés et accroché dans `PlayerProgress.Baits` (`BaitBag`,
+  testé ; `SaveData.Baits`, `EquippedBait`) ; un lancer consomme une utilisation d'appât naturel, le dernier parti on
+  revient au ver de terreau. Marchand : onglet **« Leurres »** (type, modèle, effet). Inventaire : touche physique Q
+  (A en AZERTY) ou X manette pour changer. Carnet : « Ne mord qu'aux … , hameçon … obligatoire » (ou « Mord à tout,
+  surtout aux … » pour les communes), indice même pour les « ??? » ; la bouteille à la mer donne aussi le type.
 - **Casiers à crustacés** (`Gear/TrapDefinition`, `Data/Gear/Casier.asset` et dessins `Editor/TrapArt` créés par
   `GearSetup.CreateTrap` ; logique pure testée `TrapSet` + `TrapRules`) : **les crustacés ne s'attrapent qu'au casier**, jamais
   à la canne (`CreatureKind.CaughtInTrap`, filtré dans `FishingController.Cast`). 150 pièces dans l'onglet « Sacs, casiers »
@@ -71,7 +79,7 @@
   longue attente (`TrapRules.RarityFactor`). Seuls les crustacés de la zone où il est posé (fréquences de la zone). Les
   prises vont dans le sac et le journal comme une prise normale (message « Dans le casier : … », `FishingController.ShowNote`) ;
   sac plein : on ne peut pas relever (s'il reste un peu de place, le reste est relâché). Index : sur la fiche d'un crustacé,
-  « S'attrape au casier » à la place de l'appât préféré. Sauvegarde : `SaveData.Traps` (possédés), `PlacedTraps` (zone,
+  « S'attrape au casier » à la place des leurres. Sauvegarde : `SaveData.Traps` (possédés), `PlacedTraps` (zone,
   position, heure de pose) et `TotalHours`.
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et

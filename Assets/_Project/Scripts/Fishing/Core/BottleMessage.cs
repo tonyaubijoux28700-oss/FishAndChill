@@ -78,7 +78,7 @@ namespace FishAndChill.Fishing
             if (!string.IsNullOrEmpty(bait))
             {
                 string pronoun = species.Kind == CreatureKind.Fish ? "il" : "elle";
-                text += $" On dit qu'{pronoun} ne résiste pas à : {bait.ToLowerInvariant()}.";
+                text += $" On dit qu'{pronoun} ne résiste pas aux {bait.ToLowerInvariant()}.";
             }
 
             return text;

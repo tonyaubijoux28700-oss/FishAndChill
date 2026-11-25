@@ -40,7 +40,7 @@
   toutes les 3 / 2,2 / 1,6 s ; étincelles dorées sur les légendaires. Carte de prise, fiche et cases du carnet.
 - **Bouteille à la mer** (`Fishing/Core/BottleMessage`, testé ; `FishingController.FindBottle`, `_bottleChance` = 5 %) :
   une prise réussie sur 20 est une bouteille. 10 à 40 pièces, et un message signé : 2 fois sur 3 un indice sur une
-  espèce de la zone pas encore pêchée (rareté, heure, taille max, appât préféré, sans la nommer), sinon une anecdote.
+  espèce de la zone pas encore pêchée (rareté, heure, taille max, type de leurre, sans la nommer), sinon une anecdote.
   Carte `Fishing/BottleCard` (bouteille de verre qui flotte, message sur papier), à la place de la carte de prise.
 - **Photo de prise** (nouvelle espèce seulement, `CatchCard.AnimateCelebration`) : flash d'appareil photo, bord blanc de
   photo souvenir qui se redresse, tampon rouge « AJOUTÉE AU CARNET ! » qui s'abat en biais, 70 confettis qui tombent
@@ -67,7 +67,7 @@
 - **Toutes les espèces sont dans `Assets/_Project/Data/Especes.csv`** : une ligne par espèce, séparateur `;`, s'ouvre
   dans un tableur (Excel, LibreOffice). Lue par `Collection/SpeciesTable` (testé) → `SpeciesRow`, puis le menu de
   génération crée les `FishSpecies`, remplit les zones (colonne Zone = nom de l'asset de zone : IleMahana, LacAnnecy,
-  FleuveAmazone, BaieJaponaise, GrandeBarriere, Maldives, CoteDesSquelettes) et les appâts favoris (colonne Appats : mie, ver, crevette, leurre, lumineux, calmar).
+  FleuveAmazone, BaieJaponaise, GrandeBarriere, Maldives, CoteDesSquelettes, FjordsNorvege), les types de leurres (colonne Appats : naturel, cuillere, ondulante, nageur, souple, surface, jig, turlutte, traine, mouche) et les hameçons (colonne Hamecons, la dernière : aberdeen, triple, circulaire, forge, texan, mouche), voir `LureRules`.
   Erreurs de la table (valeur inconnue, nombre mal écrit) affichées dans la console, la ligne est sautée.
 - Valeurs en français, sans souci des accents : Rarete (commune, peu commune, rare, épique, légendaire), Nature
   (poisson, crustacé, reptile, amphibien), Forme (ombre sous l'eau : poisson, crabe, langouste, tortue, grenouille),

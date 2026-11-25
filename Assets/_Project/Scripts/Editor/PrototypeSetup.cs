@@ -270,6 +270,17 @@ namespace FishAndChill.Editor
             so.FindProperty("_sprite").objectReferenceValue = FishArt.Generate(data.Id, data.Color, data);
             Sprite[] miniFrames = FishArt.GenerateMiniFrames(data.Id, (data.SizeCm.x + data.SizeCm.y) * 0.5f, data.Kind.LivesOnBottom());
             so.FindProperty("_miniSprite").objectReferenceValue = miniFrames[0];
+            // Leurres et hameçons de l'espèce (colonnes Appats et Hamecons de la table).
+            SerializedProperty lureList = so.FindProperty("_lures");
+            var lures = new System.Collections.Generic.List<int>();
+            foreach (string word in data.Baits) { Gear.LureType? lure = Gear.LureRules.ParseLure(word); if (lure.HasValue && !lures.Contains((int)lure.Value)) lures.Add((int)lure.Value); }
+            lureList.arraySize = lures.Count;
+            for (int i = 0; i < lures.Count; i++) lureList.GetArrayElementAtIndex(i).enumValueIndex = lures[i];
+            SerializedProperty hookList = so.FindProperty("_hooks");
+            var hooks = new System.Collections.Generic.List<int>();
+            foreach (string word in data.Hooks) { Gear.HookType? hook = Gear.LureRules.ParseHook(word); if (hook.HasValue && !hooks.Contains((int)hook.Value)) hooks.Add((int)hook.Value); }
+            hookList.arraySize = hooks.Count;
+            for (int i = 0; i < hooks.Count; i++) hookList.GetArrayElementAtIndex(i).enumValueIndex = hooks[i];
             SerializedProperty frameList = so.FindProperty("_miniFrames");
             frameList.arraySize = miniFrames.Length;
             for (int i = 0; i < miniFrames.Length; i++) frameList.GetArrayElementAtIndex(i).objectReferenceValue = miniFrames[i];

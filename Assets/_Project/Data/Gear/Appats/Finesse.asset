@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b729c5ebdbd7c4fb75cdff2acb7630, type: 3}
+  m_Name: Finesse
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Gear.Bait
+  _displayName: Ver finesse
+  _icon: {fileID: 21300000, guid: 4c87e6a4a0991024e823c92fa467d151, type: 3}
+  _description: "Un ver souple tout fin, mont\xE9 en texan, qu'on tra\xEEne sur le fond sans bruit."
+  _price: 130
+  _uses: 0
+  _favorites: []
+  _favoriteBonus: 3
+  _rareBonus: 1
+  _nightBonus: 1
+  _favoritesOnly: 0
+  _biteWaitFactor: 0.9
+  _lureType: 4
+  _model: "Discret : les m\xE9fiants mordent plus vite."

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b729c5ebdbd7c4fb75cdff2acb7630, type: 3}
+  m_Name: JupeOctopus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Gear.Bait
+  _displayName: Jupe octopus
+  _icon: {fileID: 21300000, guid: e898e0c0a0c9222469579186ca9515d2, type: 3}
+  _description: "Un leurre de tra\xEEne \xE0 t\xEAte de r\xE9sine et jupe de lani\xE8res qui pulse derri\xE8re le bateau : thons et coryph\xE8nes."
+  _price: 320
+  _uses: 0
+  _favorites: []
+  _favoriteBonus: 3
+  _rareBonus: 1
+  _nightBonus: 1
+  _favoritesOnly: 0
+  _biteWaitFactor: 1
+  _lureType: 8
+  _model: "T\xEAte de r\xE9sine et jupe de lani\xE8res."

@@ -434,16 +434,20 @@ namespace FishAndChill.Fishing
             // L'animal qui accompagne le joueur : le perroquet repère les rares, le chat fait mordre plus vite.
             Pets.PetDefinition pet = _progress != null ? _progress.EquippedPet : null;
             float petRare = pet != null ? pet.RareMultiplier : 1f;
+            // Le leurre et l'hameçon : peu communes et rares exigent leur type de leurre, épiques et légendaires aussi leur hameçon.
+            Gear.LureType lure = bait != null ? bait.LureType : Gear.LureType.Natural;
+            Gear.HookType hook = _progress != null ? (Gear.HookType)_progress.Gear.Level(Gear.GearCategory.Hook) : Gear.HookType.Aberdeen;
+            bool Fits(FishSpecies s) => Gear.LureRules.Allows(s.Rarity, lure, hook, s.Lures, s.Hooks);
             // Les crustacés ne mordent jamais à la canne : ils ne s'attrapent qu'au casier.
             HookedSpecies = _zone.PickSpecies(_random, species =>
-                !species.Kind.CaughtInTrap() && DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
+                !species.Kind.CaughtInTrap() && Fits(species) && DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
                     ? gear.RarityMultiplier(species.Rarity) * (inSpot ? FishingSpotRules.SpeciesMultiplier(spotKind, species) : 1f)
                         * (bait != null ? bait.Multiplier(species, night) : 1f)
                         * Pets.PetMath.RarityFactor(species.Rarity, petRare)
                     : 0f);
             if (HookedSpecies == null)
             {
-                HookedSpecies = _zone.PickSpecies(_random, species => species.Kind.CaughtInTrap() ? 0f : gear.RarityMultiplier(species.Rarity));
+                HookedSpecies = _zone.PickSpecies(_random, species => species.Kind.CaughtInTrap() || !Fits(species) ? 0f : gear.RarityMultiplier(species.Rarity));
             }
             if (HookedSpecies == null)
             {
@@ -767,8 +771,8 @@ namespace FishAndChill.Fishing
 
             string Favorite(FishSpecies s)
             {
-                Bait bait = _progress.BaitCatalog != null ? _progress.BaitCatalog.FavoriteOf(s) : null;
-                return bait != null ? bait.DisplayName : null;
+                foreach (Gear.LureType lure in s.Lures) return Gear.LureRules.Name(lure);   // son premier type de leurre
+                return null;
             }
 
             string message = BottleMessage.Write(species, CatchLog, Favorite, _random);
