@@ -12,8 +12,10 @@
 - **Maison du joueur** (`World/HouseBuilding`, objet « Maison », dessins `HouseArt` : enduit à colombages, toit de tuiles,
   volets bleus) : dans la prairie de l'ouest (`MapSetup.FindBuildingSite` autour du centre - 24 cases), cour pavée et
   chemin jusqu'au chemin principal (`TownLayout`, `DecorateHouse`). Intérieur 9×7 (lit, tapis, table, coffre, fenêtre
-  sur la mer ; intérieur à `bounds.xMax + 180`). Devant le lit, **E** fait dormir jusqu'à 7 h, seulement de 18 h à 5 h
-  (`SleepRules`, testé) : fondu au noir et message ; le sac ne s'ouvre pas devant le lit (`HouseBuilding.PlayerAtBed`).
+  sur la mer ; intérieur à `bounds.xMax + 180`). Devant le lit, **E** fait dormir jusqu'à 7 h la nuit (18 h - 7 h) ou faire
+  la **sieste jusqu'à 18 h** le jour (`SleepRules`, testé) : fondu, le pêcheur couché tête sur l'oreiller sous une
+  couette à carreaux créée en jeu, « Z » qui montent pendant que l'horloge file jusqu'au réveil, puis **sauvegarde**
+  automatique et message ; le sac ne s'ouvre pas devant le lit (`HouseBuilding.PlayerAtBed`).
 - **Phare** (`World/Lighthouse`, objet « Phare », dessin `LighthouseArt`) : sur la pointe nord (`FindLighthouseSite`),
   pied solide. La nuit (`DayCycleMath.LampLevel`), lanterne allumée (`Light2D`) et double faisceau qui tourne
   (sprite créé en jeu, matériau *Sprite-Unlit-Default*). Maison et phare ont leur icône sur la minimap.
