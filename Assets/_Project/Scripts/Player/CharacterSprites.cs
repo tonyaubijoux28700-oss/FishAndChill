@@ -18,6 +18,9 @@ namespace FishAndChill.Player
         public readonly Sprite[] Left = new Sprite[3];
         public readonly Sprite[] Right = new Sprite[3];
 
+        /// <summary>Poses d'attente, de face (<see cref="CharacterPainter.IdleLookLeft"/>…).</summary>
+        public readonly Sprite[] Idle = new Sprite[CharacterPainter.IdlePoses];
+
         public static CharacterSprites Build(CharacterLook look) => Build(look, null);
 
         /// <summary>Les images d'un habitant : apparence de pêcheur plus ses accessoires (<see cref="NpcExtras"/>).</summary>
@@ -31,6 +34,11 @@ namespace FishAndChill.Player
                 Color[,] side = CharacterPainter.Side(look, extras, frame);
                 result.Right[frame] = ToSprite(side, $"Droite_{frame}");
                 result.Left[frame] = ToSprite(PixelShading.MirrorX(side), $"Gauche_{frame}");
+            }
+
+            for (int pose = 0; pose < CharacterPainter.IdlePoses; pose++)
+            {
+                result.Idle[pose] = ToSprite(CharacterPainter.Idle(look, extras, pose), $"Attente_{pose}");
             }
 
             return result;

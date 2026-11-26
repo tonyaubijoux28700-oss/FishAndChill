@@ -32,6 +32,7 @@ namespace FishAndChill.Pets
         [SerializeField] private Sprite[] _down = new Sprite[3];
         [SerializeField] private Sprite[] _up = new Sprite[3];
         [SerializeField] private Sprite[] _side = new Sprite[3];
+        [SerializeField, Tooltip("Attente, de face : la pose puis le geste (le perroquet : perché, pivot sous les pattes).")] private Sprite[] _idle = new Sprite[2];
         [SerializeField, Tooltip("Vole à hauteur d'épaule au lieu de marcher au sol.")] private bool _flies;
 
         public string Id => _id;
@@ -50,6 +51,7 @@ namespace FishAndChill.Pets
         public Sprite[] Down => _down;
         public Sprite[] Up => _up;
         public Sprite[] Side => _side;
+        public Sprite[] Idle => _idle;
         public bool Flies => _flies;
         public Sprite Portrait => _down != null && _down.Length > 0 ? _down[0] : null;
     }

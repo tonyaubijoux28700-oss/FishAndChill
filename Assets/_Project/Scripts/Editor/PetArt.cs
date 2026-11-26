@@ -72,6 +72,206 @@ namespace FishAndChill.Editor
             return p;
         }
 
+        // ---------- Attente (de face, 2 images : la pose, puis le geste) ----------
+
+        /// <summary>
+        /// Pose d'attente de face, quand le joueur ne bouge plus : le chat s'assoit et se lèche la patte, le bouledogue
+        /// se couche et bâille, le perroquet perché (sur la tête du pêcheur) penche la tête et ébouriffe une aile, le manchot
+        /// bat des ailerons le bec au ciel, le crocodile ouvre grand la gueule au soleil, l'araignée se frotte les pattes
+        /// avant. <paramref name="frame"/> 0 = la pose, 1 = le geste.
+        /// </summary>
+        public static Color[,] DrawIdle(Kind kind, int frame)
+        {
+            var cv = new VolumeCanvas(Width, Height);
+            bool act = frame == 1;
+            switch (kind)
+            {
+                case Kind.Cat:
+                {
+                    Color fur = CatFur;
+                    System.Func<int, int, Color, Color> stripes = (x, y, c) => (x + y / 2) % 4 == 0 ? CatStripe : c;
+                    cv.Piece(Union(Capsule(13.5f, 15.5f, 7f, 16.3f, 1f), Capsule(7f, 16.3f, 5.5f, 15f, 0.9f)), fur, 1.2f, stripes);   // queue enroulée devant
+                    cv.Piece(Ellipse(10f, 13.2f, 4.4f, 3.4f), fur, 2.5f, stripes);                                                       // assis, les hanches
+                    cv.Piece(Ellipse(10f, 12.6f, 1.8f, 2.4f), White, 1.5f);                                                              // poitrail
+                    cv.Piece(Capsule(8.3f, 13.5f, 8.3f, 16.2f, 1f), fur, 1f);                                                            // pattes avant
+                    if (!act) cv.Piece(Capsule(11.7f, 13.5f, 11.7f, 16.2f, 1f), fur, 1f);
+                    float headY = act ? 7.8f : 7.5f;
+                    cv.Piece(Ellipse(10f, headY, 3.8f, 3.3f), fur, 2f, stripes);
+                    cv.Piece((x, y) => y > headY - 5f && y < headY - 2f && Mathf.Abs(x - 7.5f) < (y - headY + 5f) * 0.7f, fur, 1f);
+                    cv.Piece((x, y) => y > headY - 5f && y < headY - 2f && Mathf.Abs(x - 12.5f) < (y - headY + 5f) * 0.7f, fur, 1f);
+                    cv.Piece(Ellipse(10f, headY + 1.8f, 1.8f, 1.4f), White, 1f);
+                    if (act)
+                    {
+                        // Il lève la patte jusqu'à la bouche, les yeux fermés, petite langue rose.
+                        cv.Piece(Capsule(11.7f, 13.5f, 11.2f, 10.2f, 1f), fur, 1f);
+                        cv.Piece(Ellipse(11.2f, 10f, 1.2f, 1f), White, 1f);
+                        cv.Dot(8, 7, Darker(fur, 0.5f));
+                        cv.Dot(12, 7, Darker(fur, 0.5f));
+                        cv.Dot(10, 10, Pink);
+                    }
+                    else
+                    {
+                        cv.Dot(8, 7, Eye);
+                        cv.Dot(12, 7, Eye);
+                        cv.Dot(10, 9, Pink);
+                    }
+
+                    break;
+                }
+
+                case Kind.Dog:
+                {
+                    // Couché à plat ventre, la tête posée sur les pattes ; il bâille.
+                    Color fur = DogFur;
+                    cv.Piece(Ellipse(10f, 13f, 6.5f, 2.6f), fur, 2.5f);
+                    cv.Piece(Capsule(7f, 15.2f, 7f, 16.3f, 1.3f), fur, 1f);
+                    cv.Piece(Capsule(13f, 15.2f, 13f, 16.3f, 1.3f), fur, 1f);
+                    foreach (float side in new[] { -1f, 1f })
+                    {
+                        float ex = 10f + side * 3.9f;
+                        cv.Piece(Ellipse(ex, 7.4f, 1.9f, 2f), fur, 1.2f, (x, y, c) => y > 6 && Mathf.Abs(x - ex) < 0.8f ? Pink : c);
+                    }
+
+                    cv.Piece(Ellipse(10f, 11f, 4.7f, 3.3f), fur, 2.5f);
+                    cv.Piece(Ellipse(10f, 12.6f, 2.4f, act ? 2.2f : 1.5f), Mask, 1.2f);
+                    if (act)
+                    {
+                        cv.Piece(Ellipse(10f, 13.2f, 1.4f, 1.4f), C(0.62f, 0.18f, 0.22f), 0.8f);   // gueule grande ouverte
+                        cv.Dot(10, 14, Pink);
+                        cv.Dot(8, 10, Darker(fur, 0.5f));
+                        cv.Dot(12, 10, Darker(fur, 0.5f));
+                    }
+                    else
+                    {
+                        cv.Dot(8, 10, Eye);
+                        cv.Dot(12, 10, Eye);
+                        cv.Dot(10, 12, Eye);
+                    }
+
+                    break;
+                }
+
+                case Kind.Parrot:
+                {
+                    // Perché, ailes repliées, pattes serrées ; il penche la tête et ébouriffe une aile.
+                    float tilt = act ? 1f : 0f;
+                    cv.Piece(Capsule(10f, 12f, 10f, 17f, 1.3f), Wing, 1f);                                 // queue qui pend
+                    cv.Piece(Capsule(6.8f, 8f, act ? 3.5f : 6.8f, act ? 6.5f : 13f, 1.6f), Wing, 1.5f);      // aile gauche (ébouriffée)
+                    cv.Piece(Capsule(13.2f, 8f, 13.2f, 13f, 1.6f), Wing, 1.5f);
+                    cv.Piece(Ellipse(10f, 10.5f, 3.5f, 4f), Feather, 2.5f, (x, y, c) => y > 11 ? C(0.98f, 0.86f, 0.30f) : c);
+                    cv.Piece(Capsule(9f, 14.5f, 9f, 16f, 0.5f), C(0.50f, 0.50f, 0.54f), 0.6f);              // pattes
+                    cv.Piece(Capsule(11f, 14.5f, 11f, 16f, 0.5f), C(0.50f, 0.50f, 0.54f), 0.6f);
+                    cv.Piece(Ellipse(10f + tilt, 5.6f, 2.8f, 2.5f), Feather, 2f);
+                    cv.Piece(Ellipse(10f + tilt * 1.3f, 3.2f, 1.4f, 1f), Crest, 1f);
+                    cv.Piece(Ellipse(10f + tilt, 7.1f, 1.2f, 1.4f), Beak, 1f);
+                    cv.Dot(Mathf.RoundToInt(8f + tilt), 5, Eye);
+                    cv.Dot(Mathf.RoundToInt(11f + tilt), act ? 6 : 5, Eye);
+                    break;
+                }
+
+                case Kind.Penguin:
+                {
+                    // Il bat des ailerons, le bec levé vers le ciel.
+                    foreach (float fx in new[] { 8.3f, 11.7f }) cv.Piece(Ellipse(fx, 16f, 1.6f, 0.9f), PenguinBeak, 0.8f);
+                    foreach (float side in new[] { -1f, 1f })
+                    {
+                        float sx = 10f + side * 4f;
+                        cv.Piece(Capsule(sx, 8.5f, sx + side * (act ? 4.5f : 3f), act ? 5f : 9.5f, 1.1f), Darker(PenguinBlack, 0.85f), 1.2f);
+                    }
+
+                    cv.Piece(Ellipse(10f, 10.5f, 4.2f, 5.6f), PenguinBlack, 2.5f);
+                    cv.Piece(Ellipse(10f, 11.6f, 2.9f, 4.1f), White, 1.8f);
+                    cv.Piece(Ellipse(10f, 7.4f, 2.4f, 1f), PenguinNeck, 1f);
+                    cv.Dot(8, act ? 4 : 5, Eye);
+                    cv.Dot(12, act ? 4 : 5, Eye);
+                    cv.Piece(Ellipse(10f, act ? 3.6f : 6.4f, 0.9f, act ? 1.2f : 0.8f), PenguinBeak, 0.8f);
+                    break;
+                }
+
+                case Kind.Crocodile:
+                {
+                    // Couché au soleil, il ouvre grand la gueule.
+                    Color skin = CrocSkin;
+                    System.Func<int, int, Color, Color> rows = (x, y, c) => y % 2 == 0 && x % 2 == 1 ? Darker(c, 0.82f) : c;
+                    cv.Piece(Capsule(10f, 5f, 10.5f, 2.5f, 1.1f), Darker(skin, 0.85f), 1f);
+                    foreach (float side in new[] { -1f, 1f })
+                    {
+                        cv.Piece(Capsule(10f + side * 3f, 12f, 10f + side * 6f, 13.6f, 1f), Darker(skin, 0.9f), 1f);
+                        cv.Piece(Capsule(10f + side * 3f, 8f, 10f + side * 6f, 9.2f, 1f), Darker(skin, 0.9f), 1f);
+                    }
+
+                    cv.Piece(Ellipse(10f, 8.4f, 4.2f, 3.2f), skin, 2.4f, rows);
+                    cv.Piece(Ellipse(10f, 11.6f, 3.6f, 2.2f), skin, 2f);
+                    if (act)
+                    {
+                        // Mâchoires grandes ouvertes : le dessus relevé, l'intérieur rose, les dents.
+                        cv.Piece(Ellipse(10f, 14.6f, 3.2f, 2.6f), C(0.86f, 0.50f, 0.52f), 1.5f);
+                        cv.Piece(Ellipse(10f, 17f, 3f, 1f), skin, 1.2f, (x, y, c) => CrocBelly);
+                        for (int x = 8; x <= 12; x += 2) { cv.Dot(x, 13, White); cv.Dot(x, 16, White); }
+                    }
+                    else
+                    {
+                        cv.Piece(Ellipse(10f, 14.2f, 3f, 1.9f), skin, 1.6f, (x, y, c) => y >= 15 ? CrocBelly : c);
+                        cv.Dot(8, 15, White);
+                        cv.Dot(11, 15, White);
+                    }
+
+                    foreach (float ex in new[] { 7.5f, 12.5f }) cv.Piece(Ellipse(ex, 10.2f, 1.4f, 1.2f), skin, 1.4f);
+                    cv.Dot(7, 10, CrocEye);
+                    cv.Dot(8, 10, Eye);
+                    cv.Dot(12, 10, CrocEye);
+                    cv.Dot(11, 10, Eye);
+                    break;
+                }
+
+                default:
+                {
+                    // L'araignée se frotte les pattes avant, levées devant elle.
+                    Color hair = SpiderHair;
+                    System.Func<int, int, Color, Color> fuzz = (x, y, c) => (x * 7 + y * 13) % 5 == 0 ? Darker(c, 1.2f) : (x * 3 + y * 5) % 7 == 0 ? Darker(c, 0.8f) : c;
+                    for (int i = 1; i < 4; i++)
+                    {
+                        foreach (float side in new[] { -1f, 1f })
+                        {
+                            float by = 9.5f + i * 0.9f;
+                            float kx = 10f + side * (4.5f + Mathf.Abs(i - 1.5f) * 0.6f);
+                            float ky = 5.5f + i * 2.4f;
+                            float fx = 10f + side * (8.2f - Mathf.Abs(i - 1.5f) * 0.5f);
+                            float fy = 6.5f + i * 3.1f;
+                            SpiderLeg(cv, 10f + side * 1.5f, by, kx, ky, fx, Mathf.Min(16.5f, fy), i < 2 ? hair : Darker(hair, 0.85f));
+                        }
+                    }
+
+                    cv.Piece(Ellipse(10f, 7.4f, 3.9f, 3.3f), Darker(hair, 0.9f), 2.5f, fuzz);
+                    cv.Piece(Ellipse(10f, 11.4f, 3f, 2.4f), hair, 2f, fuzz);
+                    // Les deux pattes avant levées, qui se croisent puis s'écartent.
+                    float cross = act ? 0.8f : -0.6f;
+                    SpiderLeg(cv, 8.6f, 12.5f, 7f, 9f, 10f + cross, 6.5f, hair);
+                    SpiderLeg(cv, 11.4f, 12.5f, 13f, 9f, 10f - cross, 6.5f, hair);
+                    cv.Dot(9, 11, Eye);
+                    cv.Dot(11, 11, Eye);
+                    cv.Dot(10, 10, Eye);
+                    cv.Dot(9, 10, White);
+                    cv.Dot(11, 10, White);
+                    break;
+                }
+            }
+
+            Color[,] p = cv.Finish(C(0.14f, 0.09f, 0.08f), 0.6f);
+            if (kind == Kind.Parrot) return p;   // perché sur la tête du pêcheur : pas d'ombre au sol
+            float rx = kind == Kind.Crocodile || kind == Kind.Spider || kind == Kind.Dog ? 8f : 6f;
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < 2; y++)
+                {
+                    float u = (x + 0.5f - Width / 2f) / rx, v = (y + 0.5f - 0.8f) / 1.2f;
+                    if (u * u + v * v <= 1f && p[x, y].a < 0.01f) p[x, y] = Shadow;
+                }
+            }
+
+            return p;
+        }
+
         // ---------- Chat ----------
 
         private static void Cat(VolumeCanvas cv, Facing facing, int frame)

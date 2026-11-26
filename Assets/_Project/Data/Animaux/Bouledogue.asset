@@ -22,6 +22,9 @@ MonoBehaviour:
   _coinChancePerSecond: 0.013333334
   _coinMin: 5
   _coinMax: 15
+  _sellFactor: 1
+  _sizeBias: 1
+  _zoneFactor: 1
   _down:
   - {fileID: 21300000, guid: af7609bce8904a8478becf8667a3758d, type: 3}
   - {fileID: 21300000, guid: d2e127df714db6f4dab5809b54655b43, type: 3}
@@ -34,4 +37,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e91d81117103f004ea1991f03a1ceac5, type: 3}
   - {fileID: 21300000, guid: 364933196bf60fb4ba13769c6fe3e88e, type: 3}
   - {fileID: 21300000, guid: 044fadd3972c6dd45a2752bc32bf03f2, type: 3}
+  _idle:
+  - {fileID: 21300000, guid: 358571352a8ddc94e9b77f4a5b2b7ab7, type: 3}
+  - {fileID: 21300000, guid: 0b157c93a059b184dbb25d47046c0057, type: 3}
   _flies: 0

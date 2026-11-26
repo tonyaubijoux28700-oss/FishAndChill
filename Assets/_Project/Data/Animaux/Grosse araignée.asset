@@ -37,4 +37,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 72225626afd74d04cbe3ee43b6409b7f, type: 3}
   - {fileID: 21300000, guid: 78326dec6c7535f45aea739ee5504938, type: 3}
   - {fileID: 21300000, guid: bcfe3fae953a89944bac6b8712974bad, type: 3}
+  _idle:
+  - {fileID: 21300000, guid: abfc48e7a3e942e459c34c738ec949d9, type: 3}
+  - {fileID: 21300000, guid: 55bd41550ac61a84c8091990f0614d4b, type: 3}
   _flies: 0

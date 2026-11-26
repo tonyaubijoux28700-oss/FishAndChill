@@ -14,12 +14,14 @@ namespace FishAndChill.Player
         [SerializeField] private Sprite[] _up;
         [SerializeField] private Sprite[] _left;
         [SerializeField] private Sprite[] _right;
+        [SerializeField, Tooltip("Poses d'attente, de face (quand on ne bouge plus).")] private Sprite[] _idle;
 
         [SerializeField, Min(1f), Tooltip("Vitesse de l'animation de marche (images par seconde).")]
         private float _walkFramesPerSecond = 8f;
 
         private SpriteRenderer _renderer;
         private float _walkTime;
+        private float _idleTime;
 
         private void Awake()
         {
@@ -51,8 +53,13 @@ namespace FishAndChill.Player
             else
             {
                 _walkTime = 0f;
-                _renderer.sprite = frames[0];
+                // Immobile et libre (ni menu, ni pêche) : au bout d'un moment, les petites animations d'attente.
+                _idleTime = _movement.CanMove ? _idleTime + Time.deltaTime : 0f;
+                int pose = IdleMath.PlayerPose(_idleTime);
+                _renderer.sprite = pose >= 0 && _idle != null && pose < _idle.Length && _idle[pose] != null ? _idle[pose] : frames[0];
             }
+
+            if (_movement.IsMoving || _movement.LastInput != Vector2.zero) _idleTime = 0f;
         }
 
         /// <summary>Apparence actuelle (null tant que le pêcheur n'est pas habillé).</summary>
@@ -67,6 +74,7 @@ namespace FishAndChill.Player
             _up = sprites.Up;
             _left = sprites.Left;
             _right = sprites.Right;
+            _idle = sprites.Idle;
             if (_renderer == null)
             {
                 _renderer = GetComponent<SpriteRenderer>();

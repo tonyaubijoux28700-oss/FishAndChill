@@ -264,13 +264,19 @@ namespace FishAndChill.Player
 
         // ---------- Face et dos ----------
 
-        private static Color[,] DrawFront(Palette p, int frame, bool back)
+        /// <summary>Poses d'attente, de face (quand le joueur ne bouge plus) : regard à gauche, à droite, étirement en bâillant, pied qui tape.</summary>
+        public const int IdleLookLeft = 0, IdleLookRight = 1, IdleStretch = 2, IdleTap = 3, IdlePoses = 4;
+
+        /// <summary>Une pose d'attente, de face (<see cref="IdleLookLeft"/>…).</summary>
+        public static Color[,] Idle(CharacterLook look, NpcExtras extras, int pose) => DrawFront(new Palette(look) { Extras = extras }, 0, false, pose);
+
+        private static Color[,] DrawFront(Palette p, int frame, bool back, int idle = -1)
         {
             var c = new Canvas();
 
-            // Jambes et sandales (une jambe se lève à chaque pas).
+            // Jambes et sandales (une jambe se lève à chaque pas, ou le pied droit tape en attendant).
             DrawLegFront(c, p, 5, frame == 1, strapRight: false);
-            DrawLegFront(c, p, 9, frame == 2, strapRight: true);
+            DrawLegFront(c, p, 9, frame == 2 || idle == IdleTap, strapRight: true);
 
             // Short, avec l'entrejambe ouvert et l'ourlet plus sombre.
             c.Cylinder(4, 18, 11, 20, p.Shorts, Part.Shorts);
@@ -283,8 +289,17 @@ namespace FishAndChill.Player
 
             // Haut, porté par-dessus le short ; bras qui se balancent.
             c.Cylinder(3, 13, 12, 18, p.Shirt, Part.Shirt, roundTop: true);
-            DrawArmFront(c, p, 2, frame == 1 ? -1 : 0, -0.7f);
-            DrawArmFront(c, p, 13, frame == 2 ? -1 : 0, 0.7f);
+            if (idle == IdleStretch)
+            {
+                // Les deux bras tendus au-dessus de la tête.
+                DrawArmRaised(c, p, 2, -0.7f);
+                DrawArmRaised(c, p, 13, 0.7f);
+            }
+            else
+            {
+                DrawArmFront(c, p, 2, frame == 1 ? -1 : 0, -0.7f);
+                DrawArmFront(c, p, 13, frame == 2 ? -1 : 0, 0.7f);
+            }
 
             // Tête.
             if (back)
@@ -296,12 +311,19 @@ namespace FishAndChill.Player
             else
             {
                 c.Ellipse(8f, 10.2f, 3.75f, 3.1f, p.Skin, Part.Skin);
-                DrawFace(c, p);
+                DrawFace(c, p, idle);
                 DecorateTopFront(c, p);
                 DrawHairFront(c, p);
             }
 
             DrawHatFront(c, p, back);
+            if (idle == IdleStretch)
+            {
+                // Les bras tendus passent devant le bord du chapeau.
+                DrawArmRaised(c, p, 2, -0.7f);
+                DrawArmRaised(c, p, 13, 0.7f);
+            }
+
             return Finish(c, p, side: false, back);
         }
 
@@ -412,13 +434,24 @@ namespace FishAndChill.Player
             return result;
         }
 
-        private static void DrawFace(Canvas c, Palette p)
+        private static void DrawFace(Canvas c, Palette p, int idle = -1)
         {
-            // Yeux de deux pixels (le bas plus clair), joues roses, petit sourire.
-            c.Flat(6, 9, Eye, Part.Skin);
-            c.Flat(6, 10, EyeLow, Part.Skin);
-            c.Flat(9, 9, Eye, Part.Skin);
-            c.Flat(9, 10, EyeLow, Part.Skin);
+            // Yeux de deux pixels (le bas plus clair), joues roses, petit sourire ; en attente, le regard file d'un côté
+            // ou les yeux se ferment pour bâiller.
+            int look = idle == IdleLookLeft ? -1 : idle == IdleLookRight ? 1 : 0;
+            if (idle == IdleStretch)
+            {
+                c.Flat(6, 10, Eye, Part.Skin);
+                c.Flat(9, 10, Eye, Part.Skin);
+            }
+            else
+            {
+                c.Flat(6 + look, 9, Eye, Part.Skin);
+                c.Flat(6 + look, 10, EyeLow, Part.Skin);
+                c.Flat(9 + look, 9, Eye, Part.Skin);
+                c.Flat(9 + look, 10, EyeLow, Part.Skin);
+            }
+
             c.Paint(5, 11, Color.Lerp(p.Skin, Blush, 0.5f));
             c.Paint(10, 11, Color.Lerp(p.Skin, Blush, 0.5f));
 
@@ -434,7 +467,15 @@ namespace FishAndChill.Player
                 }
             }
 
-            c.Paint(7, 12, Color.Lerp(p.Skin, Lips, 0.35f));
+            if (idle == IdleStretch)
+            {
+                c.Flat(7, 12, new Color(0.40f, 0.12f, 0.12f), Part.Skin);   // grande bouche ouverte : il bâille
+                c.Flat(8, 12, new Color(0.40f, 0.12f, 0.12f), Part.Skin);
+            }
+            else
+            {
+                c.Paint(7, 12, Color.Lerp(p.Skin, Lips, 0.35f));
+            }
         }
 
         private static void DrawHairFront(Canvas c, Palette p)
@@ -616,6 +657,21 @@ namespace FishAndChill.Player
             if (!bareArms)
             {
                 c.Paint(x, 15 + swing, Color.Lerp(p.Shirt, Color.white, 0.25f), Part.Shirt);   // ourlet de manche
+            }
+        }
+
+        /// <summary>Bras levé tout droit au-dessus de l'épaule (étirement) : manche en bas, main tout en haut.</summary>
+        private static void DrawArmRaised(Canvas c, Palette p, int x, float side)
+        {
+            bool bareArms = p.Top == TopTank;
+            for (int y = 3; y <= 14; y++)
+            {
+                bool sleeve = y >= 12 && !bareArms;
+                bool hand = y <= 4;
+                float light = side < 0 ? (hand ? 1.1f : 1f) : (hand ? 0.85f : 0.72f);
+                int column = y < 9 ? x + (side < 0 ? -1 : 1) : x;   // les bras s'écartent en V vers le haut
+                c.Set(column, y, sleeve ? p.Shirt : p.Skin, sleeve ? Part.Shirt : Part.Skin, light);
+                if (hand) c.Set(column - (side < 0 ? -1 : 1), y, p.Skin, Part.Skin, light);   // la main, plus large
             }
         }
 

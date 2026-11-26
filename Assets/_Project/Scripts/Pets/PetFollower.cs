@@ -24,6 +24,8 @@ namespace FishAndChill.Pets
         private const float SnapDistance = 5f;
         private const float FramesPerSecond = 7f;
         private const float BubbleSeconds = 1.6f;
+        /// <summary>Hauteur du haut du chapeau, où se pose l'oiseau (en cases au-dessus des pieds du joueur).</summary>
+        private const float PerchHeight = 1.42f;
 
         [SerializeField] private PlayerMovement _player;
         [SerializeField] private PlayerProgress _progress;
@@ -42,6 +44,7 @@ namespace FishAndChill.Pets
         private float _walkTime;
         private float _bubbleTimer;
         private float _reaction = -1f;
+        private float _idleTime;
 
         /// <summary>Le joueur est tourné vers son animal, assez près pour le caresser (E).</summary>
         public bool PlayerCanPet => _pet != null && _player != null && !IsFishing && _reaction < 0f
@@ -135,6 +138,7 @@ namespace FishAndChill.Pets
             }
 
             bool moving;
+            bool perching = false;
             if (Vector2.Distance(_ground, feet) > SnapDistance)
             {
                 // Le joueur a franchi une porte ou voyagé : l'animal le rejoint aussitôt.
@@ -150,12 +154,25 @@ namespace FishAndChill.Pets
                 moving = WalkTo(seat, 0.05f);
                 if (!moving) _facing = _player.Facing;
             }
+            else if (pet.Flies && IdleMath.PetIdle(_idleTime))
+            {
+                // L'oiseau en attente vient se poser sur la tête du pêcheur.
+                Vector2 perch = feet + Vector2.up * PerchHeight;
+                _ground = Vector2.MoveTowards(_ground, perch, 3.5f * Time.deltaTime);
+                perching = true;
+                moving = Vector2.Distance(_ground, perch) > 0.02f;
+                _facing = Vector2.down;
+            }
             else
             {
                 Vector2 target = PetMath.FollowPoint(_trail, FollowDistance);
                 moving = Vector2.Distance(_ground, feet) > 0.7f && WalkTo(target, 0.06f);
                 if (!moving && _reaction < 0f && Vector2.Distance(_ground, feet) <= 1.4f) _facing = feet - _ground;
             }
+
+            // L'attente : le joueur et l'animal immobiles depuis un moment (l'oiseau compte encore quand il vole vers la tête).
+            bool calm = !IsFishing && _reaction < 0f && !_player.IsMoving && (!moving || perching);
+            _idleTime = calm ? _idleTime + Time.deltaTime : 0f;
 
             if (moving) _walkTime += Time.deltaTime;
             else _walkTime = 0f;
@@ -172,7 +189,19 @@ namespace FishAndChill.Pets
 
             transform.position = _ground + offset;
             transform.rotation = Quaternion.Euler(0f, 0f, _renderer.flipX ? -tilt : tilt);
-            ApplySprite(pet, moving || _reaction >= 0f && pet.Flies);
+            bool idlePose = calm && IdleMath.PetIdle(_idleTime) && !(perching && moving) && pet.Idle != null && pet.Idle.Length >= 2;
+            if (idlePose)
+            {
+                _renderer.sprite = pet.Idle[Mathf.Clamp(IdleMath.PetFrame(_idleTime), 0, pet.Idle.Length - 1)];
+                _renderer.flipX = false;
+            }
+            else
+            {
+                ApplySprite(pet, moving || _reaction >= 0f && pet.Flies);
+            }
+
+            // Perché sur la tête, l'oiseau passe devant le pêcheur.
+            _renderer.sortingOrder = perching ? 11 : 10;
             UpdateBubble();
             FindCoins(pet, moving);
         }

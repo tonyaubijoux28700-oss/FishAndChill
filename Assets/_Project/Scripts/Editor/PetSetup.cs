@@ -90,6 +90,15 @@ namespace FishAndChill.Editor
                 for (int f = 0; f < 3; f++) frames.GetArrayElementAtIndex(f).objectReferenceValue = Frame(facing, f);
             }
 
+            // L'attente, de face (le perroquet est perché sur la tête du pêcheur : pivot sous ses pattes).
+            SerializedProperty idle = so.FindProperty("_idle");
+            idle.arraySize = 2;
+            for (int f = 0; f < 2; f++)
+            {
+                idle.GetArrayElementAtIndex(f).objectReferenceValue =
+                    PixelArt.Save($"{ArtFolder}/{displayName}_Attente_{f}.png", PetArt.DrawIdle(art, f), CharacterSprites.PixelsPerUnit, PetArt.Pivot);
+            }
+
             so.ApplyModifiedPropertiesWithoutUndo();
             return pet;
         }

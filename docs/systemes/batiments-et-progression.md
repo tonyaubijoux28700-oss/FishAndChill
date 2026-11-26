@@ -164,6 +164,11 @@
   tourné, E ouvre toujours le sac. Bonus appliqués par
   `FishingController` (tirage des espèces et attente de la touche). L'emplacement « ANIMAL » de l'inventaire montre son
   portrait et son nom.
+  **Attente** (`Player/IdleMath`, testé) : joueur et animal immobiles 4 s, l'animal prend sa pose de face
+  (`PetDefinition.Idle`, `PetArt.DrawIdle`, 2 images : la pose puis le geste qui revient) : le chat s'assoit et se lèche
+  la patte, le bouledogue se couche et bâille, le manchot bat des ailerons le bec au ciel, le crocodile ouvre grand la
+  gueule, l'araignée se frotte les pattes avant, et le **perroquet vient se poser sur le chapeau du pêcheur** (perché,
+  il passe devant lui : ordre 11) ; il redécolle dès qu'on bouge.
 - **Aquarium** (`AquariumBuilding`, objet « Aquarium ») : un des plus grands bâtiments du jeu, **une tour**. Façade
   `AquariumArt.TowerExterior` (192×320 px, pivot `TowerPivot`) : en bas l'ancien bâtiment sans son dôme (perron,
   colonnes, 4 vitrines, rosace), au-dessus 4 étages de carreaux et de bandeaux de laiton, hublots où nagent des poissons,
@@ -285,7 +290,10 @@
   les lettres servent au prénom. Grand aperçu qui marche et se retourne. Choix et prénom dans `Player/CharacterOptions`
   (testé), apparence `Player/CharacterLook` (valeurs par défaut = pêcheur d'origine), sauvegardée (`SaveData.Look`).
   Le pêcheur est **dessiné en jeu** (`Player/CharacterPainter`, `CharacterSprites`, outils `PixelShading`) et appliqué par
-  `SaveManager` (`PlayerAnimator.SetLook`) ; `CharacterArt` (éditeur) s'en sert pour les PNG par défaut. Le prénom
+  `SaveManager` (`PlayerAnimator.SetLook`) ; `CharacterArt` (éditeur) s'en sert pour les PNG par défaut. **Attente** :
+  immobile et libre 6 s (ni menu ni pêche), le pêcheur se tourne vers nous et regarde à gauche, à droite, tape du pied,
+  puis s'étire en bâillant (bras levés devant le chapeau, yeux fermés), toutes les 12 s (`IdleMath.PlayerPose`,
+  poses `CharacterPainter.Idle` → `CharacterSprites.Idle`). Le prénom
   remplace « Partie N » sur la carte de l'écran titre. Par script : `TitleScreen.OpenCreator(slot)` ;
   `TitleScreen.Play(slot)` garde le pêcheur par défaut.
 - **Menu pause** (`UI/PauseMenu`, objet « Partie », canvas ordre 20) : **Échap** ou Start, seulement si aucun autre
