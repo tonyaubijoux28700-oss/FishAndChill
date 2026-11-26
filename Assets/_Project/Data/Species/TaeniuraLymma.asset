@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: TaeniuraLymma
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: taeniura-lymma
+  _commonName: "Pastenague \xE0 points bleus"
+  _scientificName: Taeniura lymma
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 16
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 20, y: 35}
+  _basePrice: 18
+  _placeholderColor: {r: 0.65882355, g: 0.61960787, b: 0.3372549, a: 1}
+  _description: "Ses points bleus pr\xE9viennent les pr\xE9dateurs : sa queue porte un aiguillon venimeux. Elle se cache sous les tables de corail."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 269b411ae492c594980fab7ca67dc4c3, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 9096ea4d0a3bd0d47baf26358dc2ba95, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 9096ea4d0a3bd0d47baf26358dc2ba95, type: 3}
+  - {fileID: 21300000, guid: 1ee6126a036107d4cae74286438b2e93, type: 3}
+  - {fileID: 21300000, guid: 37f3c7afd026d654aad3502baffc6a1e, type: 3}
+  - {fileID: 21300000, guid: 9108df9ee32a30c429135b7854f779d8, type: 3}
+  _lures: 00000000i
+  _hooks: 00000000i

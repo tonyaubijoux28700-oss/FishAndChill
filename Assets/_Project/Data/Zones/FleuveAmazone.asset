@@ -50,6 +50,10 @@ MonoBehaviour:
     _weight: 28
   - _species: {fileID: 11400000, guid: c3c9da6e2e600764e8c527253451faa7, type: 2}
     _weight: 13
+  - _species: {fileID: 11400000, guid: f30eabe2708cc144a86f18c47d21ed0f, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: c030c06afc2ba1c4282a20ca044102cc, type: 2}
+    _weight: 7
   _mapPosition: {x: 0.35, y: 0.44}
   _region: "Amazonas, Br\xE9sil"
   _climate:

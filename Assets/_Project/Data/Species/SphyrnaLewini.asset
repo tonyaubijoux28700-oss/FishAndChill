@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: SphyrnaLewini
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: sphyrna-lewini
+  _commonName: Requin-marteau halicorne
+  _scientificName: Sphyrna lewini
+  _rarity: 3
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 3
+  _sizeRangeCm: {x: 150, y: 370}
+  _basePrice: 100
+  _placeholderColor: {r: 0.5411765, g: 0.5411765, b: 0.5019608, a: 1}
+  _description: "Sa t\xEAte en marteau porte un oeil \xE0 chaque bout : il voit tout autour de lui et sent les poissons cach\xE9s sous le sable. Il chasse en grands bancs."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 9cece2473daa59d4898b519e5676c66b, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 56221529ea39aeb428b051abb5baf951, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 56221529ea39aeb428b051abb5baf951, type: 3}
+  - {fileID: 21300000, guid: 1cea5da17add85b47a461ea5c1d9b8e5, type: 3}
+  - {fileID: 21300000, guid: 462c5235cb2e3b74f8257e095939a8e1, type: 3}
+  - {fileID: 21300000, guid: 3ba6fe3d8ce9f0f408c9c49c069f7dbd, type: 3}
+  _lures: 0000000008000000i
+  _hooks: 0300000002000000i

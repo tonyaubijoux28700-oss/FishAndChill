@@ -17,7 +17,7 @@ MonoBehaviour:
   _scientificName: Mobula alfredi
   _rarity: 3
   _kind: 0
-  _bodyShape: 0
+  _bodyShape: 16
   _difficulty:
     _cursorSpeed: 1.75
     _zoneWidth: 0.13

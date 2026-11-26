@@ -28,6 +28,18 @@ namespace FishAndChill.Editor
                 case "paralithodes-camtschaticus": pixels = KingCrab(); return true;
                 case "loligo-forbesii": pixels = LakeArt.Tint(PixelArt.Resize(KrakenArt.Draw(), 120, 0.3f), 0.02f, 0.85f, 1.45f); return true;
                 case "mobula-alfredi": pixels = RayArt.ReefManta(); return true;
+                case "aetobatus-ocellatus": pixels = StingrayArt.SpottedEagleRay(); return true;
+                case "taeniura-lymma": pixels = StingrayArt.BlueSpottedRibbontail(); return true;
+                case "potamotrygon-motoro": pixels = StingrayArt.Motoro(); return true;
+                case "raja-clavata": pixels = StingrayArt.ThornbackRay(); return true;
+                case "tetronarce-nobiliana": pixels = StingrayArt.ElectricRay(); return true;
+                case "octopus-cyanea": pixels = CephalopodArt.DayOctopus(); return true;
+                case "enteroctopus-dofleini": pixels = CephalopodArt.GiantPacificOctopus(); return true;
+                case "octopus-vulgaris": pixels = CephalopodArt.CommonOctopus(); return true;
+                case "sepia-latimanus": pixels = CephalopodArt.BroadclubCuttlefish(); return true;
+                case "watasenia-scintillans": pixels = CephalopodArt.FireflySquid(); return true;
+                case "hippocampus-kuda": pixels = CuriosityArt.Seahorse(); return true;
+                case "mola-mola": pixels = CuriosityArt.Sunfish(); return true;
                 default: pixels = null; return false;
             }
         }

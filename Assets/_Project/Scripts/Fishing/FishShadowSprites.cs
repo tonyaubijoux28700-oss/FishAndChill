@@ -113,6 +113,9 @@ namespace FishAndChill.Fishing
                         case BodyShape.MohaMoha: tone = MohaMoha(u, v, phase); break;
                         case BodyShape.BoneSawShark: tone = BoneSawShark(u, v, phase); break;
                         case BodyShape.Kraken: tone = Kraken(u, v, phase); break;
+                        case BodyShape.Octopus: tone = Octopus(u, v, phase); break;
+                        case BodyShape.Squid: tone = Squid(u, v, phase); break;
+                        case BodyShape.Ray: tone = Ray(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -849,6 +852,130 @@ namespace FishAndChill.Fishing
             float footU = -0.05f - kick * 0.85f;
             float footV = 0.42f - kick * 0.2f;
             return OnSegment(u, av, -0.2f, 0.18f, kneeU, kneeV, 0.07f) || OnSegment(u, av, kneeU, kneeV, footU, footV, 0.06f);
+        }
+
+        // ---------- Poulpe, calmar, raie ----------
+
+        /// <summary>
+        /// Poulpe vu de dessus : tête ronde (le manteau) devant, huit bras qui s'étalent en éventail derrière elle et
+        /// ondulent chacun à son rythme, plus fins vers le bout.
+        /// </summary>
+        private static int Octopus(float u, float v, int phase)
+        {
+            float av = Mathf.Abs(v);
+            if (InEllipse(u, v, 0.48f, 0f, 0.34f, 0.24f))
+            {
+                return InEllipse(u, v, 0.52f, 0f, 0.2f, 0.12f) ? CoreTone : BodyTone;
+            }
+
+            // Le centre des bras, juste derrière la tête.
+            float ru = u - 0.12f;
+            float r = Mathf.Sqrt(ru * ru + v * v);
+            if (r < 0.16f)
+            {
+                return BodyTone;
+            }
+
+            if (r > 0.88f)
+            {
+                return None;
+            }
+
+            // Huit bras, de 100° à 260° (vers l'arrière et les côtés) ; chacun ondule en s'éloignant.
+            float angle = Mathf.Atan2(v, ru) * Mathf.Rad2Deg;
+            if (angle < 0f) angle += 360f;
+            for (int k = 0; k < 8; k++)
+            {
+                float armAngle = 106f + k * 21f + Mathf.Sin(r * 9f + phase * 1.4f + k * 1.7f) * 9f * r;
+                float d = Mathf.Abs(Mathf.DeltaAngle(angle, armAngle)) * Mathf.Deg2Rad * r;
+                float thickness = Mathf.Lerp(0.07f, 0.015f, r / 0.88f);
+                if (d <= thickness)
+                {
+                    return r < 0.4f ? BodyTone : EdgeTone;
+                }
+            }
+
+            return av < 0.12f && r < 0.24f ? BodyTone : None;
+        }
+
+        /// <summary>
+        /// Calmar ou seiche vu de dessus : manteau en torpille, pointu devant, bordé de nageoires qui ondulent ;
+        /// derrière, la tête et un faisceau de bras serrés qui traînent en se balançant.
+        /// </summary>
+        private static int Squid(float u, float v, int phase)
+        {
+            float av = Mathf.Abs(v);
+            if (u > -0.15f && u <= 1f)
+            {
+                float t = (u + 0.15f) / 1.15f;                           // 0 à l'arrière du manteau, 1 à la pointe
+                float width = 0.17f * Mathf.Sqrt(Mathf.Max(0f, 1f - t * t * t));
+                if (av <= width)
+                {
+                    return av < width * 0.4f ? CoreTone : BodyTone;
+                }
+
+                // Nageoires : un liseré qui ondule tout le long du manteau.
+                float fin = width + 0.06f + Mathf.Sin(u * 14f + phase * 1.6f) * 0.02f;
+                if (av <= fin && t < 0.95f)
+                {
+                    return EdgeTone;
+                }
+            }
+
+            // Tête et yeux, puis les bras qui traînent en balançant.
+            if (InEllipse(u, v, -0.22f, 0f, 0.1f, 0.13f))
+            {
+                return BodyTone;
+            }
+
+            if (u < -0.28f && u > -1f)
+            {
+                float s = (-0.28f - u) / 0.72f;
+                float sway = Mathf.Sin(s * 4f + phase * 1.2f) * 0.06f * s;
+                for (int k = -2; k <= 2; k++)
+                {
+                    float armV = sway + k * 0.035f * (1f - s * 0.4f);
+                    if (Mathf.Abs(v - armV) < 0.016f + (1f - s) * 0.012f && s < 0.75f + Mathf.Abs(k) * -0.06f + (k == 0 ? 0.25f : 0f))
+                    {
+                        return s < 0.3f ? BodyTone : EdgeTone;
+                    }
+                }
+            }
+
+            return None;
+        }
+
+        /// <summary>
+        /// Raie vue de dessus : disque en losange arrondi, plus large que long, dont le bout des ailes monte et descend
+        /// lentement ; longue queue fine qui ondule derrière.
+        /// </summary>
+        private static int Ray(float u, float v, int phase)
+        {
+            float av = Mathf.Abs(v);
+            const float front = 0.62f, rear = -0.3f, widest = 0.12f;
+            if (u >= rear && u <= front)
+            {
+                float t = u >= widest ? (u - widest) / (front - widest) : (widest - u) / (widest - rear);
+                float span = (0.66f - phase * 0.04f) * Mathf.Pow(Mathf.Max(0f, 1f - t), u >= widest ? 0.75f : 1.1f);
+                if (av <= span)
+                {
+                    if (av > span * 0.82f) return EdgeTone;                  // le bout des ailes, estompé
+                    return av < 0.14f && u > rear + 0.05f ? CoreTone : BodyTone;
+                }
+            }
+
+            // Queue : fine, de plus en plus fine, qui ondule.
+            if (u < rear + 0.02f && u > -1f)
+            {
+                float s = (rear - u) / (1f + rear);
+                float tailV = Mathf.Sin(s * 5f + phase) * 0.05f * s;
+                if (Mathf.Abs(v - tailV) < Mathf.Lerp(0.035f, 0.01f, s))
+                {
+                    return s < 0.4f ? BodyTone : EdgeTone;
+                }
+            }
+
+            return None;
         }
     }
 }

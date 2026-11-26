@@ -48,6 +48,10 @@ MonoBehaviour:
     _weight: 2
   - _species: {fileID: 11400000, guid: b7d18dadd4cbfd241881f6e3972a96c9, type: 2}
     _weight: 7
+  - _species: {fileID: 11400000, guid: 5fb179ecdc3490b47a8c49f3cb3319c9, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: a17f524b741125c4197376c31d05fba3, type: 2}
+    _weight: 13
   _mapPosition: {x: 0.53, y: 0.86}
   _region: "Norv\xE8ge"
   _climate:

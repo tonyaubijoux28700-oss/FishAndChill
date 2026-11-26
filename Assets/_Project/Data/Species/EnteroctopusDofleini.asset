@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: EnteroctopusDofleini
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: enteroctopus-dofleini
+  _commonName: "Poulpe g\xE9ant du Pacifique"
+  _scientificName: Enteroctopus dofleini
+  _rarity: 3
+  _kind: 4
+  _bodyShape: 14
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 4
+  _sizeRangeCm: {x: 150, y: 400}
+  _basePrice: 100
+  _placeholderColor: {r: 0.72156864, g: 0.29803923, b: 0.20392157, a: 1}
+  _description: "Le plus grand poulpe du monde : ses bras peuvent d\xE9passer quatre m\xE8tres d'envergure. Tr\xE8s malin, il d\xE9visse les bocaux et s'\xE9chappe des aquariums."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 2af89c470288ad742ba44415221131a5, type: 3}
+  _miniSprite: {fileID: 21300000, guid: b0e17aa8a54fb974990880cab849f15d, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: b0e17aa8a54fb974990880cab849f15d, type: 3}
+  - {fileID: 21300000, guid: 5b2ea6f6feccbfb49a60a11d37b5e705, type: 3}
+  - {fileID: 21300000, guid: 29231a96be26b264d83f263fe9bbad36, type: 3}
+  - {fileID: 21300000, guid: 174a6767917483944b8bf5794cb20748, type: 3}
+  _lures: 00000000i
+  _hooks: 03000000i

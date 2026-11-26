@@ -50,6 +50,10 @@ MonoBehaviour:
     _weight: 28
   - _species: {fileID: 11400000, guid: 8d0fe8682601b264eb8d2d9e16b24b7c, type: 2}
     _weight: 13
+  - _species: {fileID: 11400000, guid: 4aefd3beabe9fce4d83e4cab61d542d9, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: b80417dc4c848cb4cb2ac66d43c85277, type: 2}
+    _weight: 13
   _mapPosition: {x: 0.69, y: 0.47}
   _region: "Oc\xE9an Indien, Maldives"
   _climate:

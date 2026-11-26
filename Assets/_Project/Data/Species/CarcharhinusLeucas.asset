@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: CarcharhinusLeucas
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: carcharhinus-leucas
+  _commonName: Requin-bouledogue
+  _scientificName: Carcharhinus leucas
+  _rarity: 3
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 3
+  _sizeRangeCm: {x: 150, y: 340}
+  _basePrice: 100
+  _placeholderColor: {r: 0.47843137, g: 0.4862745, b: 0.4862745, a: 1}
+  _description: "Le seul grand requin qui vit aussi en eau douce : il remonte l'Amazone sur des milliers de kilom\xE8tres, jusqu'au P\xE9rou."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 554e0df9532f2b24a9ec53c1f659b647, type: 3}
+  _miniSprite: {fileID: 21300000, guid: e4ea9c0e5d051f7479654e549258d0d5, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: e4ea9c0e5d051f7479654e549258d0d5, type: 3}
+  - {fileID: 21300000, guid: ad933d6c1a0bb6745afc71addef40ffc, type: 3}
+  - {fileID: 21300000, guid: a3870e8c117d0884abc012a781437dc2, type: 3}
+  - {fileID: 21300000, guid: 45224e8545417fa469d7a017c88da5e3, type: 3}
+  _lures: 00000000i
+  _hooks: 03000000i

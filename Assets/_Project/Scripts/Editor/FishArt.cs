@@ -255,7 +255,7 @@ namespace FishAndChill.Editor
                 return PixelArt.Save($"{Folder}/{speciesId}.png", creature, 16, new Vector2(0.5f, 0.5f));
             }
 
-            if (MahanaFishArt.TryGet(speciesId, out DetailedFish detailed) || AnnecyFishArt.TryGet(speciesId, out detailed) || ExtraFishArt.TryGet(speciesId, out detailed) || AmazonFishArt.TryGet(speciesId, out detailed) || JapanFishArt.TryGet(speciesId, out detailed)
+            if (SharkArt.TryGet(speciesId, out DetailedFish detailed) || MahanaFishArt.TryGet(speciesId, out detailed) || AnnecyFishArt.TryGet(speciesId, out detailed) || ExtraFishArt.TryGet(speciesId, out detailed) || AmazonFishArt.TryGet(speciesId, out detailed) || JapanFishArt.TryGet(speciesId, out detailed)
                 || FishArchetypes.TryBuild(row, out detailed)) // sans fiche à la main : dessin d'après la table
             {
                 return PixelArt.Save($"{Folder}/{speciesId}.png", detailed.Draw(), 16, new Vector2(0.5f, 0.5f));

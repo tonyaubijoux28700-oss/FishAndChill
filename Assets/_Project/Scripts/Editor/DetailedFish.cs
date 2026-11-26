@@ -94,6 +94,9 @@ namespace FishAndChill.Editor
         /// <summary>Détails peints après le corps et la tête (bec, dents, écussons…).</summary>
         public List<Action<DetailedFish, Color[,]>> Details = new List<Action<DetailedFish, Color[,]>>();
 
+        /// <summary>Peints après l'éclairage du corps, avant l'œil et le contour : ailerons et nageoires déjà éclairés (requins).</summary>
+        public List<Action<DetailedFish, Color[,]>> Overlays = new List<Action<DetailedFish, Color[,]>>();
+
         // ---------- Géométrie ----------
 
         public float UpperAt(float x) => Sample(Upper, x);
@@ -159,6 +162,11 @@ namespace FishAndChill.Editor
             foreach (Pectoral pectoral in PectoralFins)
             {
                 DrawPectoral(p, pectoral);
+            }
+
+            foreach (var overlay in Overlays)
+            {
+                overlay(this, p);
             }
 
             DrawEye(p);

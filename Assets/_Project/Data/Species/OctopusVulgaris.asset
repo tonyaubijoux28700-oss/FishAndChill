@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: OctopusVulgaris
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: octopus-vulgaris
+  _commonName: Poulpe commun
+  _scientificName: Octopus vulgaris
+  _rarity: 1
+  _kind: 4
+  _bodyShape: 14
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 2
+  _sizeRangeCm: {x: 30, y: 100}
+  _basePrice: 18
+  _placeholderColor: {r: 0.5568628, g: 0.4627451, b: 0.3764706, a: 1}
+  _description: "Trois coeurs, du sang bleu et neuf cerveaux : un dans la t\xEAte et un dans chaque bras. Il aime se cacher dans les \xE9paves."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 406adafb8bdd2c74c997b7f9710f3a73, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 4becfef8c63a30b42b2c41f07ba67583, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 4becfef8c63a30b42b2c41f07ba67583, type: 3}
+  - {fileID: 21300000, guid: 09f493fb382ca6f41abefc9c2c71905a, type: 3}
+  - {fileID: 21300000, guid: 76ce1fa2b3357234b9a4814eed322ea1, type: 3}
+  - {fileID: 21300000, guid: 898bb03be418df04ea4510d603fb12b2, type: 3}
+  _lures: 00000000i
+  _hooks: 03000000i

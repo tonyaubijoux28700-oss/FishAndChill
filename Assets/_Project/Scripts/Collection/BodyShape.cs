@@ -35,5 +35,11 @@ namespace FishAndChill.Collection
 
         /// <summary>Calmar colossal (Kraken) : long manteau à nageoires en losange, gros yeux qui luisent, huit bras et deux longues tentacules à massues qui ondulent.</summary>
         Kraken,
+        /// <summary>Poulpe : tête ronde et huit bras qui s'étalent et ondulent autour.</summary>
+        Octopus,
+        /// <summary>Calmar ou seiche : manteau allongé bordé de nageoires qui ondulent, bras serrés qui traînent derrière.</summary>
+        Squid,
+        /// <summary>Raie : disque plat aux ailes qui battent lentement, longue queue fine.</summary>
+        Ray,
     }
 }

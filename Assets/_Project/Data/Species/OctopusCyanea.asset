@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: OctopusCyanea
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: octopus-cyanea
+  _commonName: "Poulpe cyan\xE9"
+  _scientificName: Octopus cyanea
+  _rarity: 2
+  _kind: 4
+  _bodyShape: 14
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 2
+  _sizeRangeCm: {x: 30, y: 80}
+  _basePrice: 45
+  _placeholderColor: {r: 0.5803922, g: 0.4, b: 0.24313726, a: 1}
+  _description: "Le poulpe qui chasse en plein jour sur le r\xE9cif. Il change de couleur et de texture en un instant pour dispara\xEEtre contre le corail."
+  _activeTime: 1
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: c585b604697504f46adcae092cb7ba89, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 85c4b6ff1111d4449aa20de1e72a6fb6, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 85c4b6ff1111d4449aa20de1e72a6fb6, type: 3}
+  - {fileID: 21300000, guid: b9023f81fc0d7ce4186629c119e5623e, type: 3}
+  - {fileID: 21300000, guid: d67d8d68f183a7b4b8876881198d8e8d, type: 3}
+  - {fileID: 21300000, guid: 0b38a870463470a47a51d647bb271311, type: 3}
+  _lures: 00000000i
+  _hooks: 00000000i

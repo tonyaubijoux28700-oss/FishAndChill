@@ -44,10 +44,12 @@
   l'appât, museau tourné vers lui, avance jusqu'à l'hameçon à chaque titillement ; il arrive de biais (une légende
   presque de côté). Pendant la pêche, la caméra glisse vers le bouchon (`CameraFollow.LookAhead`).
 - **On ne pêche pas que des poissons** : `FishSpecies` (nom de classe gardé) a un `Kind` (`CreatureKind` : poisson,
-  crustacé, reptile, amphibien) et une `BodyShape` (silhouette sous l'eau : poisson, crabe, langouste, tortue,
-  grenouille, toutes dans `FishShadowSprites`, chacune animée). Dans l'aquarium, seuls les poissons nagent : les
+  crustacé, reptile, amphibien, céphalopode) et une `BodyShape` (silhouette sous l'eau : poisson, crabe, langouste, tortue,
+  grenouille, poulpe (bras en éventail qui ondulent), calmar (seiches aussi), raie (ailes qui battent, longue queue),
+  toutes dans `FishShadowSprites`, chacune animée). Dans l'aquarium, poissons et céphalopodes nagent : les
   autres (`LivesOnBottom`) coulent au fond, marchent lentement sur le sable et font des pauses (`AquariumTank`).
-  Dessins des non-poissons dans `CreatureArt` (crabe, langouste, tortue), même style que `DetailedFish`.
+  Dessins des non-poissons dans `CreatureArt` (crabe, langouste, tortue ; poulpes, seiche et calmars dans `CephalopodArt`),
+  même style que `DetailedFish`. Les céphalopodes se pêchent à la canne (pas au casier) et se balancent sur la carte de prise.
   Messages et index écrits pour toutes les espèces (« ta prise », « Index des espèces »).
   Il reste **entièrement dans l'eau** : `FishingController.IsWater` + `FitsInWater` (museau, queue, flancs) ; point
   sous le bouchon et point de départ choisis dans l'eau, et il s'arrête plutôt que d'avancer sur le sable.

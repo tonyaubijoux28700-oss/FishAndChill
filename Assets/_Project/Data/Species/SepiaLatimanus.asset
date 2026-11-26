@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: SepiaLatimanus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: sepia-latimanus
+  _commonName: "Seiche \xE0 larges bras"
+  _scientificName: Sepia latimanus
+  _rarity: 2
+  _kind: 4
+  _bodyShape: 15
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 20, y: 50}
+  _basePrice: 45
+  _placeholderColor: {r: 0.5568628, g: 0.41568628, b: 0.29803923, a: 1}
+  _description: "Elle hypnotise ses proies en faisant d\xE9filer des vagues de couleurs sur son corps, puis les attrape d'un coup de tentacule."
+  _activeTime: 1
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: ae7f75aea3c412645b76198779057802, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 33178b2399705b048b6a4a2509d54857, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 33178b2399705b048b6a4a2509d54857, type: 3}
+  - {fileID: 21300000, guid: 266c39b160a4c7e4a80d86b1aee8a9c1, type: 3}
+  - {fileID: 21300000, guid: 7a47d3e4db28bd4499d4f486bcd65731, type: 3}
+  - {fileID: 21300000, guid: 62ec0efbde6178c4bb5bc14b0e6f1911, type: 3}
+  _lures: 07000000i
+  _hooks: 00000000i

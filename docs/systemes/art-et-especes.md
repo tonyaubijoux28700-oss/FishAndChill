@@ -70,7 +70,8 @@
   FleuveAmazone, BaieJaponaise, GrandeBarriere, Maldives, CoteDesSquelettes, FjordsNorvege), les types de leurres (colonne Appats : naturel, cuillere, ondulante, nageur, souple, surface, jig, turlutte, traine, mouche) et les hameçons (colonne Hamecons, la dernière : aberdeen, triple, circulaire, forge, texan, mouche), voir `LureRules`.
   Erreurs de la table (valeur inconnue, nombre mal écrit) affichées dans la console, la ligne est sautée.
 - Valeurs en français, sans souci des accents : Rarete (commune, peu commune, rare, épique, légendaire), Nature
-  (poisson, crustacé, reptile, amphibien), Forme (ombre sous l'eau : poisson, crabe, langouste, tortue, grenouille),
+  (poisson, crustacé, reptile, amphibien, céphalopode), Forme (ombre sous l'eau : poisson, crabe, langouste, tortue,
+  grenouille, poulpe, calmar ou seiche, raie ; un céphalopode sans forme est un poulpe),
   Combat (calme, nerveux, fuyant, rush, lourd), Heure (toujours, jour, nuit), Meteo (vide = par tous les temps, pluie, orage, brouillard, beau ; « pluie » mord aussi
   pendant l'orage). Nombres avec virgule ou point.
   Vitesse, LargeurZone, Reussites, Rates, Prix, Frequence vides = valeurs par défaut de la rareté (`SpeciesTable.Default…`).
@@ -79,8 +80,16 @@
   fuseau, haut, allonge, serpent, rond, disque, poisson-chat) + couleurs `#RRVVBB` (Dos, Flancs, Ventre, Nageoires, Oeil),
   Motif (bandes, points, lignes, marbre, ocelle) + CouleurMotif, Queue (fourchue, croissant, droite, ronde), Extras
   (barbillons, dents, epines, pinnules, adipeuse). Les non-poissons ont besoin d'une fiche à la main.
-- **Raies** : dessinées à la main, vues de dessus, tête à droite (`Editor/RayArt`, branchées dans `CreatureArt.TryGet`).
-  Première : la raie manta de récif (`mobula-alfredi`, Maldives). Elles gardent l'ombre de poisson sous l'eau.
+- **Raies** : dessinées à la main, vues de dessus, tête à droite (`Editor/RayArt` pour la manta, `Editor/StingrayArt` pour
+  les raies de fond : relief tiré de la distance au bord du disque, une recette pour toutes les formes), branchées dans
+  `CreatureArt.TryGet`. Forme `raie` dans la table : ombre de raie sous l'eau.
+  Raie manta, raie léopard, pastenague à points bleus, raie motoro, raie bouclée, torpille noire.
+- **Requins** : `Editor/SharkArt` (corps `DetailedFish` sans écailles + ailerons en polygones à bords courbes peints
+  par-dessus via `DetailedFish.Overlays`) : aileron rejeté en arrière, queue au lobe haut plus long, fentes branchiales,
+  gueule sous le museau, pointes colorées (`Tip`). Tous les requins du jeu y passent ; tête en marteau, barbillons, épines
+  du requin dormeur en détails.
+- **Céphalopodes** : `Editor/CephalopodArt` (bras en courbes qui s'affinent et s'enroulent, ventouses, peau marbrée).
+  **Curiosités** : `Editor/CuriosityArt` (hippocampe debout en anneaux, poisson-lune).
 - **Nouvelle espèce = une ligne dans la table**, puis le menu **Générer seulement les poissons** (`PrototypeSetup.GenerateFishOnly`, ~20 s : zones et espèces, sans la scène). Exemples faits uniquement par la
   table : poisson-ballon à taches blanches, vairon, aimara, murène japonaise.
 

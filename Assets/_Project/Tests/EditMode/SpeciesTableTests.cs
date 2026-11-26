@@ -31,6 +31,23 @@ namespace FishAndChill.Tests
         }
 
         [Test]
+        public void Cephalopods_AndRays_HaveTheirOwnShapes()
+        {
+            string csv = Header + "o-v;Poulpe;O v;LacAnnecy;Rare;Céphalopode;;10;20;;;;;;;;;;\n"
+                + "s-o;Seiche;S o;LacAnnecy;Rare;cephalopode;seiche;10;20;;;;;;;;;;\n"
+                + "t-l;Pastenague;T l;LacAnnecy;Rare;Poisson;raie;10;20;;;;;;;;;;\n";
+            SpeciesTable.Result result = SpeciesTable.Parse(csv);
+
+            Assert.That(result.Errors, Is.Empty);
+            Assert.That(result.Rows[0].Kind, Is.EqualTo(CreatureKind.Cephalopod));
+            Assert.That(result.Rows[0].Shape, Is.EqualTo(BodyShape.Octopus), "un céphalopode sans forme : poulpe par défaut");
+            Assert.That(result.Rows[1].Shape, Is.EqualTo(BodyShape.Squid));
+            Assert.That(result.Rows[2].Shape, Is.EqualTo(BodyShape.Ray));
+            Assert.That(CreatureKind.Cephalopod.LivesOnBottom(), Is.False, "les céphalopodes nagent dans l'aquarium");
+            Assert.That(CreatureKind.Cephalopod.CaughtInTrap(), Is.False);
+        }
+
+        [Test]
         public void EmptySettings_UseTheRarityDefaults()
         {
             string csv = Header + "x-y;Poisson X;X y;LacAnnecy;Épique;;;10;20;;;;;;;;;;\n";

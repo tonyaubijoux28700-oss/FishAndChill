@@ -7,5 +7,7 @@ namespace FishAndChill.Collection
         Crustacean,
         Reptile,
         Amphibian,
+        /// <summary>Poulpes, seiches et calmars : ils nagent (pas de casier), et se balancent au lieu de frétiller.</summary>
+        Cephalopod,
     }
 }

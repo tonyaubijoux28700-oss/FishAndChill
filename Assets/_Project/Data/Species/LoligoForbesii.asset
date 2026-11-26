@@ -16,8 +16,8 @@ MonoBehaviour:
   _commonName: "Calmar vein\xE9"
   _scientificName: Loligo forbesii
   _rarity: 2
-  _kind: 0
-  _bodyShape: 0
+  _kind: 4
+  _bodyShape: 15
   _difficulty:
     _cursorSpeed: 1.5
     _zoneWidth: 0.17

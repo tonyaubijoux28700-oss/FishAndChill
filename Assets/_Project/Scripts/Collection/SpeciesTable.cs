@@ -199,12 +199,13 @@ namespace FishAndChill.Collection
         private static CreatureKind ParseKind(string v, string id) => Pick(v, CreatureKind.Fish, "Nature", id,
             ("poisson", CreatureKind.Fish), ("fish", CreatureKind.Fish), ("crustace", CreatureKind.Crustacean),
             ("crustacean", CreatureKind.Crustacean), ("reptile", CreatureKind.Reptile), ("amphibien", CreatureKind.Amphibian),
-            ("amphibian", CreatureKind.Amphibian));
+            ("amphibian", CreatureKind.Amphibian), ("cephalopode", CreatureKind.Cephalopod), ("cephalopod", CreatureKind.Cephalopod));
 
-        private static BodyShape ParseShape(string v, CreatureKind kind, string id) => Pick(v, kind == CreatureKind.Fish ? BodyShape.Fish : BodyShape.Crab, "Forme", id,
+        private static BodyShape ParseShape(string v, CreatureKind kind, string id) => Pick(v, kind == CreatureKind.Fish ? BodyShape.Fish : kind == CreatureKind.Cephalopod ? BodyShape.Octopus : BodyShape.Crab, "Forme", id,
             ("poisson", BodyShape.Fish), ("fish", BodyShape.Fish), ("crabe", BodyShape.Crab), ("crab", BodyShape.Crab),
             ("langouste", BodyShape.Lobster), ("lobster", BodyShape.Lobster), ("tortue", BodyShape.Turtle), ("turtle", BodyShape.Turtle),
-            ("grenouille", BodyShape.Frog), ("frog", BodyShape.Frog));
+            ("grenouille", BodyShape.Frog), ("frog", BodyShape.Frog), ("poulpe", BodyShape.Octopus), ("octopus", BodyShape.Octopus),
+            ("calmar", BodyShape.Squid), ("seiche", BodyShape.Squid), ("squid", BodyShape.Squid), ("raie", BodyShape.Ray), ("ray", BodyShape.Ray));
 
         private static FightStyle ParseFight(string v, string id) => Pick(v, FightStyle.Calm, "Combat", id,
             ("calme", FightStyle.Calm), ("calm", FightStyle.Calm), ("nerveux", FightStyle.Nervous), ("nervous", FightStyle.Nervous),

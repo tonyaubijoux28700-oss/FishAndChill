@@ -54,6 +54,12 @@ MonoBehaviour:
     _weight: 7
   - _species: {fileID: 11400000, guid: 5ad28d577473aff4dafb55c185565272, type: 2}
     _weight: 13
+  - _species: {fileID: 11400000, guid: 21a0764c137a82b499685fe19b737317, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 2b06ac62c806fc84dab1d74ad999cd34, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 420c9ce6c8c07994584dc4e764144308, type: 2}
+    _weight: 7
   _mapPosition: {x: 0.12, y: 0.36}
   _region: "Polyn\xE9sie (\xEEle fictive)"
   _climate:
