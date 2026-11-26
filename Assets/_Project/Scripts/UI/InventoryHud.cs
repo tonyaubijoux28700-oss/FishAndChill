@@ -42,10 +42,15 @@ namespace FishAndChill.UI
 
         private sealed class GearLabel
         {
+            public RectTransform Rect;
             public Text Name;
             public Text Effect;
             public readonly List<Image> Levels = new List<Image>();
         }
+
+        private int _hoverSlot = -1;
+        private bool _hoverIcon;
+        private int _closedByClickFrame = -1;
 
         private Image _rodImage;
         private Image _hookImage;
@@ -142,10 +147,16 @@ namespace FishAndChill.UI
 
             Refresh();
             Close();
+            FishingInput.PointerOnInterface = PointerOnInterface;
         }
 
         private void OnDestroy()
         {
+            if (FishingInput.PointerOnInterface == PointerOnInterface)
+            {
+                FishingInput.PointerOnInterface = null;
+            }
+
             if (_progress != null)
             {
                 _progress.Changed -= Refresh;
@@ -206,10 +217,92 @@ namespace FishAndChill.UI
                 }
             }
 
+            HandleMouse();
             AnimateSlots();
             UpdatePrompt();
             UpdateToast();
         }
+
+        // ---------- Souris ----------
+
+        private static bool Over(RectTransform rect, Vector2 screen) =>
+            rect != null && rect.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(rect, screen, null);
+
+        /// <summary>La souris est sur l'icône du sac ou sur la fenêtre ouverte : le clic ne lance pas la ligne.</summary>
+        private bool PointerOnInterface()
+        {
+            Mouse mouse = Mouse.current;
+            if (mouse == null || _window == null) return false;
+            if (_closedByClickFrame == Time.frameCount) return true; // le clic qui a fermé le sac ne lance pas la ligne
+            Vector2 p = mouse.position.ReadValue();
+            return IsOpen ? Over(_windowRect, p) : Over(_iconRect, p);
+        }
+
+        /// <summary>Case du sac sous la souris (places occupées seulement), ou -1.</summary>
+        private int SlotAt(Vector2 screen)
+        {
+            for (int i = 0; i < _slots.Count && i < _progress.Bag.Count; i++)
+            {
+                if (Over(_slots[i].Frame.rectTransform, screen)) return i;
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Clics : l'icône ouvre le sac ; fenêtre ouverte, les onglets changent de page, la canne, l'hameçon et l'appât
+        /// (dessin ou étiquette) passent au suivant, un clic à côté ferme. Sac plein, un clic sur une case relâche ce poisson.
+        /// Survol : l'élément grossit un peu.
+        /// </summary>
+        private void HandleMouse()
+        {
+            _hoverSlot = -1;
+            _hoverIcon = false;
+            Mouse mouse = Mouse.current;
+            if (mouse == null) return;
+            Vector2 p = mouse.position.ReadValue();
+            bool click = mouse.leftButton.wasPressedThisFrame;
+
+            if (Choosing)
+            {
+                _hoverSlot = SlotAt(p);
+                if (click && _hoverSlot >= 0) _fishing.ChooseReplace(_hoverSlot);
+                return;
+            }
+
+            if (!IsOpen)
+            {
+                _hoverIcon = Over(_iconRect, p) && CanOpenNow();
+                if (click && _hoverIcon) Open();
+                return;
+            }
+
+            bool onBag = _page == InventoryPage.Bag;
+            bool rod = onBag && (Over(_rodLabel.Rect, p) || Over(_rodImage.rectTransform, p));
+            bool hook = onBag && !rod && (Over(_hookLabel.Rect, p) || Over(_hookImage.rectTransform, p));
+            bool bait = onBag && !rod && !hook && (Over(_baitLabel.Rect, p) || Over(_baitImage.rectTransform, p));
+            Grow(_rodLabel.Rect, rod && _progress.OwnedCount(GearCategory.Rod) > 1);
+            Grow(_hookLabel.Rect, hook && _progress.OwnedCount(GearCategory.Hook) > 1);
+            Grow(_baitLabel.Rect, bait && _progress.Baits.Owned.Count > 1);
+            Grow(_bagTab.rectTransform, Over(_bagTab.rectTransform, p));
+            Grow(_relicTab.rectTransform, Over(_relicTab.rectTransform, p));
+            Grow(_questTab.rectTransform, Over(_questTab.rectTransform, p));
+            if (!click) return;
+
+            if (Over(_bagTab.rectTransform, p)) ShowPage(InventoryPage.Bag);
+            else if (Over(_relicTab.rectTransform, p)) ShowPage(InventoryPage.Relics);
+            else if (Over(_questTab.rectTransform, p)) ShowPage(InventoryPage.Quests);
+            else if (rod) _progress.CycleGear(GearCategory.Rod);
+            else if (hook) _progress.CycleGear(GearCategory.Hook);
+            else if (bait) _progress.Baits.Cycle(1);
+            else if (!Over(_windowRect, p))
+            {
+                _closedByClickFrame = Time.frameCount;
+                Close();
+            }
+        }
+
+        private static void Grow(RectTransform rect, bool hovered) => rect.localScale = Vector3.one * (hovered ? 1.05f : 1f);
 
         /// <summary>Ouvre la fenêtre du sac (le pêcheur s'arrête).</summary>
         public void Open()
@@ -356,10 +449,11 @@ namespace FishAndChill.UI
                 // En mode choix, les cases pleines « clignotent » en doré pour attirer l'œil sur leur numéro.
                 slot.Frame.color = Choosing && i < bag.Count ? Color.Lerp(Color.white, Gold, pulse * 0.8f) : baseTint;
                 slot.NumberPlaque.rectTransform.localScale = Vector3.one * (Choosing ? 1f + 0.12f * pulse : 1f);
+                slot.Frame.rectTransform.localScale = Vector3.one * (i == _hoverSlot ? 1.05f : 1f);
             }
 
-            // Petit rebond de l'icône quand le sac est plein.
-            float scale = bag.IsFull ? 1f + 0.05f * Mathf.Sin(Time.unscaledTime * 4f) : 1f;
+            // Petit rebond de l'icône quand le sac est plein ; elle grossit sous la souris.
+            float scale = (bag.IsFull ? 1f + 0.05f * Mathf.Sin(Time.unscaledTime * 4f) : 1f) * (_hoverIcon ? 1.08f : 1f);
             _iconRect.localScale = Vector3.one * scale;
         }
 
@@ -965,7 +1059,7 @@ namespace FishAndChill.UI
             const float effectTop = -80f;
             UiFactory.Place(effect.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, effectTop), new Vector2(-24f, height + effectTop - 8f));
 
-            var gearLabel = new GearLabel { Name = name, Effect = effect };
+            var gearLabel = new GearLabel { Rect = rect, Name = name, Effect = effect };
             if (levels)
             {
                 for (int k = 0; k < 4; k++)

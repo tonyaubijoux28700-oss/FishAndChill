@@ -5,6 +5,9 @@ namespace FishAndChill.Fishing
     /// <summary>Bouton d'action unique du prototype : Espace, clic gauche ou bouton A/Croix de la manette.</summary>
     public static class FishingInput
     {
+        /// <summary>Vrai quand la souris est sur un bouton de l'interface : le clic sert au bouton, pas à la pêche.</summary>
+        public static System.Func<bool> PointerOnInterface;
+
         public static bool ActionPressedThisFrame()
         {
             var keyboard = Keyboard.current;
@@ -14,7 +17,7 @@ namespace FishAndChill.Fishing
             }
 
             var mouse = Mouse.current;
-            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+            if (mouse != null && mouse.leftButton.wasPressedThisFrame && !(PointerOnInterface?.Invoke() ?? false))
             {
                 return true;
             }
