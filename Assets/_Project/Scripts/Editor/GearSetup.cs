@@ -27,15 +27,16 @@ namespace FishAndChill.Editor
             Sprite Big(int level) => PixelArt.Save($"{IconFolder}/Materiel/CanneGrande_{level}.png", GearArt.RodLarge(level), 16, Vector2.zero);
 
             // Cannes : des objets à part, chacun avec sa spécialité (on les achète puis on choisit laquelle on tient).
-            // Value = zone de réussite plus large (0,15 = +15 %) ; WithStats = curseur, tension, portée, poissons nerveux / rushs.
-            GearLevel RodItem(int i, string name, int price, float value) =>
-                new GearLevel(name, price, value).WithIcon(Item($"Canne_{i}", GearArt.Rod(i))).WithIllustration(Big(i));
+            // Value = zone de réussite plus large (0,15 = +15 %), Value2 = touches plus rapides ; WithStats = curseur, tension,
+            // portée, poissons nerveux / rushs / fuyants. Chacune a un rôle que les autres ne remplissent pas.
+            GearLevel RodItem(int i, string name, int price, float value, float value2 = 0f) =>
+                new GearLevel(name, price, value, value2).WithIcon(Item($"Canne_{i}", GearArt.Rod(i))).WithIllustration(Big(i));
             GearLine rod = Line("Canne", GearCategory.Rod, "Canne", rodIcon,
-                RodItem(0, "Canne en bambou", 0, 0f).WithStats("Simple et fiable."),
-                RodItem(1, "Canne légère", 80, 0.20f).WithStats("Calme les poissons nerveux, mais fragile face aux lourds.", tension: 1.25f, nervous: 0.5f),
-                RodItem(2, "Canne longue", 160, 0.10f).WithStats("Lance bien plus loin (+2,5 cases).", cast: 2.5f),
-                RodItem(3, "Canne lourde", 220, 0.05f).WithStats("Tient la tension des gros, rushs plus espacés.", cursor: 1.1f, tension: 0.5f, rush: 1.4f),
-                RodItem(4, "Canne de compétition", 480, 0.35f).WithStats("La meilleure en tout : zone large, curseur lent.", cursor: 0.85f, tension: 0.8f));
+                RodItem(0, "Canne en bambou", 0, 0f, 0.2f).WithStats("Discrète : les poissons mordent 20 % plus vite."),
+                RodItem(1, "Canne légère", 80, 0.20f).WithStats("Calme vraiment les nerveux, zone +20 %, mais casse vite face aux lourds.", tension: 1.5f, nervous: 0.35f),
+                RodItem(2, "Canne longue", 160, 0.10f).WithStats("Lance 3 cases plus loin et retient les fuyants.", cast: 3f, drift: 0.5f),
+                RodItem(3, "Canne lourde", 220, 0.05f).WithStats("Pour les gros et les légendes : tension très lente, rushs espacés, curseur plus vif.", cursor: 1.1f, tension: 0.4f, rush: 1.6f),
+                RodItem(4, "Canne de compétition", 480, 0.35f).WithStats("Zone +35 % et curseur lent, mais fragile face aux lourds.", cursor: 0.85f, tension: 1.35f, nervous: 0.8f));
 
             // Hameçons : de vrais modèles (dans l'ordre de HookType : les 4 premiers gardent la place des anciens).
             // Value = ratés tolérés en plus. Les épiques et les légendaires exigent l'hameçon qui leur va.

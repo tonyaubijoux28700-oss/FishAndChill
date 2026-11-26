@@ -43,24 +43,52 @@ namespace FishAndChill.Editor
                 default: blank = C(0.14f, 0.26f, 0.56f); wrap = C(0.98f, 0.80f, 0.30f); grip = C(0.82f, 0.62f, 0.32f); break; // compétition
             }
 
-            Line(p, 4f, 4f, 11f, 11f, 1.8f, grip);                       // poignée
-            Line(p, 11f, 11f, 28f, 28f, 0.9f, blank);                    // brin
-            Line(p, 21f, 21f, 29f, 29f, 0.6f, DetailedFish.Shade(blank, 1.1f));
-            for (int k = 0; k < 4; k++)
+            // Chaque canne a sa silhouette : bambou épais à nœuds sans moulinet, légère toute fine, longue qui file d'un
+            // coin à l'autre, lourde courte et épaisse au moulinet doré dessus, compétition fine aux garnitures dorées.
+            float girth = level == 0 ? 1.2f : level == 1 ? 0.55f : level == 3 ? 1.4f : 0.85f;
+            float gripLength = level == 2 ? 9f : level == 3 ? 8f : 7f;
+            Line(p, 4f, 4f, 4f + gripLength, 4f + gripLength, level == 1 ? 1.4f : 1.8f, grip);   // poignée
+            Line(p, 4f + gripLength, 4f + gripLength, 28f, 28f, girth, blank);                     // brin
+            Line(p, 21f, 21f, 29f, 29f, girth * 0.65f, DetailedFish.Shade(blank, 1.1f));
+            if (level != 0)
             {
-                float t = 13f + k * 4f;                                  // anneaux et ligatures
-                PixelArt.Set(p, Mathf.RoundToInt(t) + 1, Mathf.RoundToInt(t) - 1, wrap);
+                int rings = level == 3 ? 3 : 4;
+                for (int k = 0; k < rings; k++)
+                {
+                    float t = 13f + k * (16f / rings);                    // anneaux et ligatures
+                    PixelArt.Set(p, Mathf.RoundToInt(t) + 1, Mathf.RoundToInt(t) - 1, wrap);
+                    if (level == 3) PixelArt.Set(p, Mathf.RoundToInt(t) + 2, Mathf.RoundToInt(t) - 2, C(0.96f, 0.78f, 0.34f));   // rouleaux
+                }
             }
 
-            if (level == 0)
+            switch (level)
             {
-                for (int k = 0; k < 3; k++) PixelArt.Set(p, 15 + k * 4, 15 + k * 4, DetailedFish.Shade(blank, 0.7f)); // nœuds du bambou
+                case 0:
+                    // Nœuds du bambou et plioir de bois au lieu d'un moulinet.
+                    for (int k = 0; k < 4; k++) PixelArt.Set(p, 13 + k * 4, 13 + k * 4, DetailedFish.Shade(blank, 0.6f));
+                    CreatureArt.Blob(p, 11f, 5f, 1.6f, 2.6f, C(0.88f, 0.88f, 0.82f));
+                    PixelArt.Set(p, 9, 5, C(0.56f, 0.40f, 0.22f));
+                    PixelArt.Set(p, 13, 5, C(0.56f, 0.40f, 0.22f));
+                    break;
+                case 3:
+                    // Gros moulinet tambour doré, sur le dessus.
+                    CreatureArt.Blob(p, 8f, 14f, 3.2f, 2.8f, C(0.96f, 0.78f, 0.34f));
+                    PixelArt.Set(p, 8, 14, C(0.40f, 0.30f, 0.12f));
+                    PixelArt.Set(p, 5, 16, C(0.10f, 0.10f, 0.12f));
+                    break;
+                case 4:
+                    // Moulinet casting profilé sur le dessus.
+                    CreatureArt.Blob(p, 7.5f, 12.5f, 2.6f, 1.8f, C(0.16f, 0.22f, 0.40f), 0.75f);
+                    PixelArt.Set(p, 7, 12, C(0.96f, 0.78f, 0.34f));
+                    break;
+                default:
+                    // Moulinet à tambour fixe sous la poignée : petit pour la légère, gros pour la longue.
+                    float size = level == 2 ? 3.4f : 2.0f;
+                    CreatureArt.Blob(p, 10f + size * 0.3f, 6f - size * 0.3f, size, size * 0.85f, level == 2 ? C(0.34f, 0.36f, 0.40f) : C(0.84f, 0.86f, 0.90f));
+                    PixelArt.Set(p, Mathf.RoundToInt(10f + size * 0.3f), Mathf.RoundToInt(6f - size * 0.3f), C(0.30f, 0.30f, 0.34f));
+                    PixelArt.Set(p, 13, 3, C(0.30f, 0.30f, 0.34f));
+                    break;
             }
-
-            // Moulinet sous la poignée.
-            CreatureArt.Blob(p, 9.5f, 6f, 2.6f, 2.2f, level == 0 ? C(0.50f, 0.50f, 0.54f) : C(0.70f, 0.72f, 0.76f));
-            PixelArt.Set(p, 9, 6, C(0.30f, 0.30f, 0.34f));
-            PixelArt.Set(p, 12, 4, C(0.30f, 0.30f, 0.34f));
 
             // Fil qui pend du scion.
             for (int y = 18; y <= 28; y++) PixelArt.Set(p, 29 + (y < 22 ? 0 : 1), y, C(0.90f, 0.94f, 0.96f, 0.9f));
@@ -81,88 +109,222 @@ namespace FishAndChill.Editor
         public static Vector2 RodPoint(float t) => new Vector2(6f + t * 56f + t * t * t * 28f, 6f + t * 150f - t * t * t * 12f);
 
         /// <summary>
-        /// Grande canne pour la vitrine de l'inventaire, 96×160 : poignée en liège bagué, porte-moulinet et moulinet,
-        /// brin qui s'affine et plie vers le scion, ligatures et anneaux, et le fil qui retombe en douce courbe jusqu'à
-        /// <see cref="RodLineEnd"/> (l'hameçon et l'appât y sont posés en jeu).
+        /// Grande canne pour la vitrine de l'inventaire, 96×160, le long de la même courbe (<see cref="RodPoint"/>) pour
+        /// toutes, mais chacune construite à sa façon :
+        /// 0 bambou : perche à nœuds sans moulinet, poignée en ficelle, plioir en bois où s'enroule le fil, ligne nouée au
+        /// scion ; 1 légère : brin blanc très fin en fibre de verre, poignée de liège en deux morceaux, petit moulinet à
+        /// tambour fixe et son pick-up ; 2 longue (surfcasting) : trois brins emmanchés, longue poignée en mousse noire,
+        /// gros moulinet à bobine longue, anneaux de lancer géants ; 3 lourde (pêche au gros) : brin épais, talon à
+        /// cardan, anneaux à rouleaux, moulinet tambour doré monté dessus avec son levier de frein ; 4 compétition :
+        /// carbone tissé à reflets bleus, garnitures dorées, poignée split, moulinet casting profilé.
+        /// Le fil retombe jusqu'à <see cref="RodLineEnd"/> (l'hameçon et l'appât y sont posés en jeu).
         /// </summary>
         public static Color[,] RodLarge(int level)
         {
             var p = new Color[RodWidth, RodHeight];
-            Color blank;
-            Color wrap;
-            Color reel;
+            Color ink = C(0.12f, 0.09f, 0.08f);
+            Color metal = C(0.66f, 0.68f, 0.74f);
+            Color gold = C(0.96f, 0.78f, 0.34f);
+
+            // Fin de la poignée et du porte-moulinet, selon la canne (t de 0 au talon à 1 au scion).
+            float gripEnd, seatEnd;
             switch (level)
             {
-                case 0: blank = C(0.86f, 0.74f, 0.44f); wrap = C(0.56f, 0.40f, 0.20f); reel = C(0.52f, 0.52f, 0.56f); break;
-                case 1: blank = C(0.92f, 0.94f, 0.98f); wrap = C(0.30f, 0.62f, 0.92f); reel = C(0.80f, 0.84f, 0.90f); break;  // légère
-                case 2: blank = C(0.24f, 0.48f, 0.32f); wrap = C(0.80f, 0.82f, 0.86f); reel = C(0.62f, 0.66f, 0.70f); break;  // longue
-                case 3: blank = C(0.30f, 0.20f, 0.14f); wrap = C(0.92f, 0.50f, 0.16f); reel = C(0.40f, 0.40f, 0.44f); break;  // lourde
-                default: blank = C(0.14f, 0.26f, 0.56f); wrap = C(0.98f, 0.80f, 0.30f); reel = C(0.96f, 0.80f, 0.36f); break;
+                case 0: gripEnd = 0.14f; seatEnd = 0.14f; break;    // pas de porte-moulinet
+                case 1: gripEnd = 0.15f; seatEnd = 0.19f; break;
+                case 2: gripEnd = 0.24f; seatEnd = 0.28f; break;
+                case 3: gripEnd = 0.20f; seatEnd = 0.26f; break;
+                default: gripEnd = 0.16f; seatEnd = 0.21f; break;
             }
 
-            Color cork = C(0.80f, 0.62f, 0.40f);
-            Color metal = C(0.62f, 0.64f, 0.70f);
-            const int steps = 200;
+            Color BlankColor(float t, int i)
+            {
+                switch (level)
+                {
+                    case 0:
+                    {
+                        Color bamboo = Color.Lerp(C(0.94f, 0.80f, 0.44f), C(0.80f, 0.84f, 0.46f), t);
+                        float seg = Mathf.Repeat((t - gripEnd) * 7.5f, 1f);
+                        return seg < 0.09f ? C(0.46f, 0.34f, 0.16f) : seg < 0.16f ? DetailedFish.Shade(bamboo, 1.2f) : bamboo;
+                    }
+                    case 1: return t > 0.93f ? C(0.95f, 0.36f, 0.30f) : C(0.94f, 0.95f, 0.97f);
+                    case 2: return C(0.22f, 0.46f, 0.32f);
+                    case 3: return C(0.16f, 0.12f, 0.10f);
+                    default: return (i / 2) % 2 == 0 ? C(0.14f, 0.16f, 0.20f) : C(0.20f, 0.26f, 0.40f);   // carbone tissé
+                }
+            }
+
+            float BlankRadius(float t)
+            {
+                float k = Mathf.Clamp01((t - seatEnd) / (1f - seatEnd));
+                switch (level)
+                {
+                    case 0: return Mathf.Lerp(2.4f, 0.8f, k) + (Mathf.Repeat((t - gripEnd) * 7.5f, 1f) < 0.09f ? 0.6f : 0f);   // nœuds renflés
+                    case 1: return Mathf.Lerp(1.2f, 0.4f, k);
+                    case 2: return k < 0.35f ? 1.9f : k < 0.7f ? 1.4f : Mathf.Lerp(1.0f, 0.5f, (k - 0.7f) / 0.3f);   // trois brins emmanchés
+                    case 3: return Mathf.Lerp(2.8f, 1.2f, k);
+                    default: return Mathf.Lerp(1.6f, 0.5f, k);
+                }
+            }
+
+            const int steps = 220;
             for (int i = 0; i <= steps; i++)
             {
                 float t = i / (float)steps;
                 Vector2 a = RodPoint(t);
                 Color c;
                 float radius;
-                if (t < 0.17f)
+                if (t < gripEnd)
                 {
-                    // Poignée en liège, avec ses bagues sombres et son grain.
-                    radius = 3.4f - t * 2f;
-                    c = (i / 5) % 2 == 0 ? cork : DetailedFish.Shade(cork, 0.88f);
-                    if (i % 11 == 0) c = DetailedFish.Shade(cork, 0.6f);
+                    switch (level)
+                    {
+                        case 0: radius = 2.9f; c = i % 3 == 0 ? C(0.46f, 0.34f, 0.20f) : C(0.66f, 0.52f, 0.32f); break;   // ficelle enroulée
+                        case 1:
+                            // Liège en deux morceaux, le brin nu entre les deux.
+                            bool gap = t > 0.06f && t < 0.09f;
+                            radius = gap ? 1.3f : 2.8f;
+                            c = gap ? C(0.94f, 0.95f, 0.97f) : (i / 4) % 2 == 0 ? C(0.82f, 0.64f, 0.42f) : C(0.72f, 0.54f, 0.34f);
+                            break;
+                        case 2: radius = 3.0f; c = i % 9 == 0 ? C(0.20f, 0.20f, 0.22f) : C(0.10f, 0.10f, 0.12f); break;   // mousse noire
+                        case 3: radius = 3.6f; c = i % 2 == 0 ? C(0.90f, 0.90f, 0.86f) : C(0.12f, 0.12f, 0.14f); break;   // poignée en cordelette
+                        default:
+                            bool split = t > 0.07f && t < 0.11f;
+                            radius = split ? 1.7f : 3.0f;
+                            c = split ? C(0.16f, 0.18f, 0.24f) : C(0.18f, 0.18f, 0.20f);
+                            break;
+                    }
                 }
-                else if (t < 0.21f)
+                else if (t < seatEnd)
                 {
-                    radius = 2.4f;
-                    c = metal; // porte-moulinet
+                    radius = level == 3 ? 3.2f : 2.4f;
+                    c = level == 4 ? gold : level == 3 ? C(0.80f, 0.64f, 0.30f) : metal;   // porte-moulinet
                 }
                 else
                 {
-                    // Épaisseur du brin : fin pour la légère, épais pour la lourde.
-                    float girth = level == 1 ? 0.8f : level == 3 ? 1.45f : level == 2 ? 0.9f : 1f;
-                    radius = Mathf.Lerp(1.8f, 0.55f, (t - 0.21f) / 0.79f) * girth;
-                    c = blank;
-                    if (level == 0 && i % 26 == 0) c = DetailedFish.Shade(blank, 0.68f); // nœuds du bambou
+                    radius = BlankRadius(t);
+                    c = BlankColor(t, i);
                 }
 
                 CreatureArt.Blob(p, a.x, a.y, radius, radius, c);
-                // Volume : un reflet clair d'un côté, une ombre de l'autre.
                 CreatureArt.Blob(p, a.x - radius * 0.45f, a.y + radius * 0.25f, radius * 0.35f, radius * 0.35f, DetailedFish.Shade(c, 1.3f));
                 CreatureArt.Blob(p, a.x + radius * 0.5f, a.y - radius * 0.3f, radius * 0.3f, radius * 0.3f, DetailedFish.Shade(c, 0.75f));
             }
 
-            // Talon arrondi, ligatures et anneaux (plus petits vers le scion).
+            // Les emmanchements de la canne longue : une bague à chaque changement de brin.
+            if (level == 2)
+            {
+                foreach (float k in new[] { 0.35f, 0.7f })
+                {
+                    Vector2 at = RodPoint(seatEnd + k * (1f - seatEnd));
+                    CreatureArt.Blob(p, at.x, at.y, 2.4f, 2.4f, metal);
+                }
+            }
+
+            // Talon : bout de bambou coupé, embout de caoutchouc, cardan, embout doré.
             Vector2 butt = RodPoint(0f);
-            CreatureArt.Blob(p, butt.x, butt.y, 3.6f, 3.6f, DetailedFish.Shade(cork, 0.55f));
-            float[] guides = { 0.3f, 0.43f, 0.56f, 0.68f, 0.8f, 0.9f, 0.99f };
+            switch (level)
+            {
+                case 0: CreatureArt.Blob(p, butt.x, butt.y, 3f, 3f, C(0.58f, 0.46f, 0.24f)); break;
+                case 3:
+                    CreatureArt.Blob(p, butt.x, butt.y, 4.4f, 4.4f, C(0.80f, 0.64f, 0.30f));
+                    CreatureArt.Limb(p, butt.x - 4f, butt.y - 1f, butt.x + 4f, butt.y + 1f, 1f, C(0.40f, 0.32f, 0.16f));   // fente du cardan
+                    break;
+                case 4: CreatureArt.Blob(p, butt.x, butt.y, 3.4f, 3.4f, gold); break;
+                default: CreatureArt.Blob(p, butt.x, butt.y, 3.4f, 3.4f, C(0.20f, 0.20f, 0.22f)); break;
+            }
+
+            // Anneaux : aucun pour le bambou (le fil est noué au scion), fins pour la légère, géants puis petits pour la
+            // longue, à rouleaux pour la lourde, minuscules et dorés pour la compétition.
+            Color wrap = level == 1 ? C(0.30f, 0.62f, 0.92f) : level == 2 ? C(0.86f, 0.86f, 0.88f) : level == 3 ? C(0.92f, 0.50f, 0.16f) : C(0.30f, 0.52f, 0.96f);
+            float[] guides = level == 0 ? new float[0] : level == 3 ? new[] { 0.36f, 0.52f, 0.68f, 0.84f, 0.99f } : new[] { 0.3f, 0.43f, 0.56f, 0.68f, 0.8f, 0.9f, 0.99f };
             for (int g = 0; g < guides.Length; g++)
             {
                 Vector2 a = RodPoint(guides[g]);
                 Vector2 next = RodPoint(Mathf.Min(1f, guides[g] + 0.01f));
-                Vector2 normal = new Vector2(next.y - a.y, -(next.x - a.x)).normalized; // côté droit du brin
-                float ring = Mathf.Lerp(1.8f, 0.9f, g / (float)(guides.Length - 1));
-                CreatureArt.Blob(p, a.x, a.y, ring + 0.4f, ring * 0.7f, wrap);
-                Vector2 eye = a + normal * (ring + 1.6f);
-                CreatureArt.Blob(p, eye.x, eye.y, ring, ring, C(0.84f, 0.86f, 0.90f));
-                PixelArt.Set(p, Mathf.RoundToInt(eye.x), Mathf.RoundToInt(eye.y), C(0f, 0f, 0f, 0f));
+                Vector2 side = level == 3 || level == 4 ? new Vector2(-(next.y - a.y), next.x - a.x).normalized : new Vector2(next.y - a.y, -(next.x - a.x)).normalized;
+                float k = g / (float)Mathf.Max(1, guides.Length - 1);
+                float ring = level == 2 ? Mathf.Lerp(3.4f, 0.9f, Mathf.Sqrt(k)) : level == 4 ? Mathf.Lerp(1.1f, 0.6f, k) : Mathf.Lerp(1.6f, 0.8f, k);
+                CreatureArt.Blob(p, a.x, a.y, BlankRadius(guides[g]) + 0.6f, 1.1f, wrap);   // ligature
+                Vector2 eye = a + side * (ring + 1.6f);
+                CreatureArt.Limb(p, a.x, a.y, eye.x, eye.y, 0.45f, level == 4 ? gold : metal);
+                if (level == 3)
+                {
+                    // Rouleau : une petite roue dorée dans sa chape.
+                    CreatureArt.Blob(p, eye.x, eye.y, 1.8f, 1.8f, C(0.40f, 0.40f, 0.44f));
+                    CreatureArt.Blob(p, eye.x, eye.y, 1.1f, 1.1f, gold);
+                }
+                else
+                {
+                    CreatureArt.Blob(p, eye.x, eye.y, ring, ring, level == 4 ? gold : C(0.84f, 0.86f, 0.90f));
+                    if (ring > 1.4f) CreatureArt.Blob(p, eye.x, eye.y, ring - 0.9f, ring - 0.9f, C(0f, 0f, 0f, 0f));
+                    else PixelArt.Set(p, Mathf.RoundToInt(eye.x), Mathf.RoundToInt(eye.y), C(0f, 0f, 0f, 0f));
+                }
             }
 
-            // Moulinet sous le porte-moulinet : pied, bobine, flasque et manivelle.
-            Vector2 seat = RodPoint(0.19f);
-            CreatureArt.Limb(p, seat.x + 1f, seat.y - 1f, seat.x + 6f, seat.y - 5f, 0.9f, DetailedFish.Shade(reel, 0.6f));
-            CreatureArt.Blob(p, seat.x + 9f, seat.y - 7f, 6.5f, 6f, reel);
-            CreatureArt.Blob(p, seat.x + 9f, seat.y - 7f, 4f, 3.6f, DetailedFish.Shade(reel, 0.72f));
-            CreatureArt.Blob(p, seat.x + 9f, seat.y - 7f, 1.6f, 1.6f, DetailedFish.Shade(reel, 1.2f));
-            CreatureArt.Blob(p, seat.x + 6.5f, seat.y - 4.5f, 2f, 1.5f, DetailedFish.Shade(reel, 1.35f));
-            CreatureArt.Limb(p, seat.x + 9f, seat.y - 7f, seat.x + 15f, seat.y - 12f, 0.7f, C(0.30f, 0.30f, 0.34f));
-            CreatureArt.Blob(p, seat.x + 15.5f, seat.y - 12.5f, 1.7f, 1.7f, C(0.88f, 0.30f, 0.24f));
+            // Le moulinet (ou le plioir du bambou).
+            Vector2 seat = RodPoint((gripEnd + seatEnd) * 0.5f);
+            switch (level)
+            {
+                case 0:
+                {
+                    // Plioir de bois en H attaché contre la poignée, le fil enroulé dessus.
+                    Vector2 w = RodPoint(0.08f) + new Vector2(6f, -2f);
+                    CreatureArt.Limb(p, w.x - 3f, w.y - 6f, w.x - 3f, w.y + 6f, 1.2f, C(0.56f, 0.40f, 0.22f));
+                    CreatureArt.Limb(p, w.x + 3f, w.y - 6f, w.x + 3f, w.y + 6f, 1.2f, C(0.56f, 0.40f, 0.22f));
+                    CreatureArt.Blob(p, w.x, w.y, 3.2f, 4.2f, C(0.92f, 0.92f, 0.86f));
+                    for (int y = -4; y <= 4; y += 2) PixelArt.Set(p, Mathf.RoundToInt(w.x), Mathf.RoundToInt(w.y) + y, C(0.70f, 0.70f, 0.66f));
+                    break;
+                }
+                case 1:
+                {
+                    // Petit moulinet à tambour fixe, pendu sous la canne, pick-up en fil d'acier.
+                    Color body = C(0.84f, 0.86f, 0.90f);
+                    CreatureArt.Limb(p, seat.x + 1f, seat.y - 1f, seat.x + 4f, seat.y - 4f, 0.7f, DetailedFish.Shade(body, 0.6f));
+                    CreatureArt.Blob(p, seat.x + 6f, seat.y - 6f, 4f, 3.6f, body);
+                    CreatureArt.Blob(p, seat.x + 8.5f, seat.y - 3.5f, 2.2f, 2.8f, C(0.30f, 0.62f, 0.92f), -0.8f);   // bobine bleue
+                    CreatureArt.Limb(p, seat.x + 6f, seat.y - 6f, seat.x + 10f, seat.y - 10f, 0.5f, C(0.30f, 0.30f, 0.34f));
+                    CreatureArt.Blob(p, seat.x + 10.5f, seat.y - 10.5f, 1.2f, 1.2f, C(0.92f, 0.92f, 0.94f));
+                    break;
+                }
+                case 2:
+                {
+                    // Gros moulinet de surfcasting : bobine longue, grande manivelle.
+                    Color body = C(0.30f, 0.32f, 0.36f);
+                    CreatureArt.Limb(p, seat.x + 1f, seat.y - 1f, seat.x + 6f, seat.y - 6f, 1.1f, body);
+                    CreatureArt.Blob(p, seat.x + 10f, seat.y - 10f, 7.5f, 7f, body);
+                    CreatureArt.Blob(p, seat.x + 14f, seat.y - 5f, 3.6f, 6f, C(0.86f, 0.86f, 0.88f), -0.8f);   // bobine longue
+                    CreatureArt.Blob(p, seat.x + 10f, seat.y - 10f, 2.2f, 2.2f, C(0.60f, 0.62f, 0.66f));
+                    CreatureArt.Limb(p, seat.x + 10f, seat.y - 10f, seat.x + 17f, seat.y - 17f, 0.8f, C(0.24f, 0.24f, 0.26f));
+                    CreatureArt.Blob(p, seat.x + 17.5f, seat.y - 17.5f, 2f, 2f, C(0.10f, 0.10f, 0.12f));
+                    break;
+                }
+                case 3:
+                {
+                    // Moulinet tambour doré, monté sur le dessus, flasques larges, levier de frein rouge.
+                    Vector2 top = seat + new Vector2(-7f, 5f);
+                    CreatureArt.Blob(p, top.x, top.y, 7f, 6f, gold);
+                    CreatureArt.Blob(p, top.x, top.y, 4.6f, 4f, C(0.40f, 0.30f, 0.12f));
+                    CreatureArt.Blob(p, top.x, top.y, 3f, 2.6f, C(0.90f, 0.90f, 0.86f));   // le fil sur le tambour
+                    CreatureArt.Limb(p, top.x, top.y, top.x - 7f, top.y + 5f, 0.9f, C(0.30f, 0.30f, 0.34f));
+                    CreatureArt.Blob(p, top.x - 7.5f, top.y + 5.5f, 1.8f, 1.8f, C(0.10f, 0.10f, 0.12f));
+                    CreatureArt.Limb(p, top.x + 2f, top.y + 4f, top.x + 6f, top.y + 9f, 0.9f, C(0.86f, 0.22f, 0.18f));   // levier de frein
+                    break;
+                }
+                default:
+                {
+                    // Moulinet casting profilé, sur le dessus, flasque bleu nuit, manivelle double.
+                    Vector2 top = seat + new Vector2(-4f, 3.5f);
+                    CreatureArt.Blob(p, top.x, top.y, 8f, 5f, C(0.18f, 0.26f, 0.50f), 0.75f);
+                    CreatureArt.Blob(p, top.x, top.y, 4.6f, 3f, gold, 0.75f);
+                    CreatureArt.Blob(p, top.x, top.y, 2f, 1.4f, C(0.86f, 0.88f, 0.92f), 0.75f);
+                    CreatureArt.Limb(p, top.x - 6f, top.y + 5f, top.x + 1f, top.y + 9f, 0.7f, C(0.30f, 0.30f, 0.34f));
+                    CreatureArt.Blob(p, top.x - 6.5f, top.y + 5f, 1.8f, 1.2f, C(0.10f, 0.10f, 0.12f));
+                    CreatureArt.Blob(p, top.x + 1.5f, top.y + 9.2f, 1.8f, 1.2f, C(0.10f, 0.10f, 0.12f));
+                    break;
+                }
+            }
 
-            PixelArt.SelectiveOutline(p, C(0.12f, 0.09f, 0.08f), 0.55f);
+            PixelArt.SelectiveOutline(p, ink, 0.55f);
 
             // Le fil : du scion, il retombe en douce courbe jusqu'à l'hameçon (après le contour : fin et clair).
             Vector2 tip = RodPoint(1f);

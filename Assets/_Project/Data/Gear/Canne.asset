@@ -19,7 +19,7 @@ MonoBehaviour:
   - _name: Canne en bambou
     _price: 0
     _value: 0
-    _value2: 0
+    _value2: 0.2
     _icon: {fileID: 21300000, guid: 8e8babb606c639542bd3d62447f9ac03, type: 3}
     _cursorFactor: 1
     _tensionFactor: 1
@@ -27,7 +27,7 @@ MonoBehaviour:
     _nervousFactor: 1
     _rushFactor: 1
     _driftFactor: 1
-    _specialty: Simple et fiable.
+    _specialty: "Discr\xE8te : les poissons mordent 20 % plus vite."
     _illustration: {fileID: 21300000, guid: 6bc9c812043a2544ab910205cc96c63e, type: 3}
   - _name: "Canne l\xE9g\xE8re"
     _price: 80
@@ -35,12 +35,12 @@ MonoBehaviour:
     _value2: 0
     _icon: {fileID: 21300000, guid: 65ac4d7cae49e9b4d822faa51f01a733, type: 3}
     _cursorFactor: 1
-    _tensionFactor: 1.25
+    _tensionFactor: 1.5
     _castBonus: 0
-    _nervousFactor: 0.5
+    _nervousFactor: 0.35
     _rushFactor: 1
     _driftFactor: 1
-    _specialty: Calme les poissons nerveux, mais fragile face aux lourds.
+    _specialty: Calme vraiment les nerveux, zone +20 %, mais casse vite face aux lourds.
     _illustration: {fileID: 21300000, guid: a11a268c39f49e94c8e2be341d57b128, type: 3}
   - _name: Canne longue
     _price: 160
@@ -49,11 +49,11 @@ MonoBehaviour:
     _icon: {fileID: 21300000, guid: a95cd68c73d510d4d82a44cef6380aa8, type: 3}
     _cursorFactor: 1
     _tensionFactor: 1
-    _castBonus: 2.5
+    _castBonus: 3
     _nervousFactor: 1
     _rushFactor: 1
-    _driftFactor: 1
-    _specialty: Lance bien plus loin (+2,5 cases).
+    _driftFactor: 0.5
+    _specialty: Lance 3 cases plus loin et retient les fuyants.
     _illustration: {fileID: 21300000, guid: d9369694ab27efb41aad740f8c8c78d1, type: 3}
   - _name: Canne lourde
     _price: 220
@@ -61,12 +61,12 @@ MonoBehaviour:
     _value2: 0
     _icon: {fileID: 21300000, guid: d325255a6ee11324db60df5e191dae94, type: 3}
     _cursorFactor: 1.1
-    _tensionFactor: 0.5
+    _tensionFactor: 0.4
     _castBonus: 0
     _nervousFactor: 1
-    _rushFactor: 1.4
+    _rushFactor: 1.6
     _driftFactor: 1
-    _specialty: "Tient la tension des gros, rushs plus espac\xE9s."
+    _specialty: "Pour les gros et les l\xE9gendes : tension tr\xE8s lente, rushs espac\xE9s, curseur plus vif."
     _illustration: {fileID: 21300000, guid: b84ed6278e670a4458edc570d30f31c4, type: 3}
   - _name: "Canne de comp\xE9tition"
     _price: 480
@@ -74,10 +74,10 @@ MonoBehaviour:
     _value2: 0
     _icon: {fileID: 21300000, guid: b393bd4861381a047b5c91249b2918b0, type: 3}
     _cursorFactor: 0.85
-    _tensionFactor: 0.8
+    _tensionFactor: 1.35
     _castBonus: 0
-    _nervousFactor: 1
+    _nervousFactor: 0.8
     _rushFactor: 1
     _driftFactor: 1
-    _specialty: 'La meilleure en tout : zone large, curseur lent.'
+    _specialty: Zone +35 % et curseur lent, mais fragile face aux lourds.
     _illustration: {fileID: 21300000, guid: 100f513d311a93642baaae672e923049, type: 3}

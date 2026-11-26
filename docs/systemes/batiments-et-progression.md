@@ -45,8 +45,14 @@
   sac (4/5/6 places, niveaux). **Cannes et hameçons = objets à choisir** (pas des niveaux) : on les achète puis on
   équipe celui qu'on veut ; chacun a sa **spécialité** (`GearLevel.WithStats` : curseur, tension, portée du lancer,
   poissons nerveux / rushs / fuyants ; `GearEffects` multiplie canne × hameçon, appliqué par `QteChallenge` et
-  `FishingController`). Cannes : bambou, légère (calme les nerveux, tension ×1,25), longue (+2,5 cases), lourde
-  (tension ×0,5, rushs espacés), compétition. Hameçons : Aberdeen, triple (+2 ratés), circulaire (tension ×0,8, rushs
+  `FishingController`). **Chaque canne a un rôle** que les autres n'ont pas, et sa propre construction (`GearArt.RodLarge`
+  et `GearArt.Rod` : même courbe pour toutes, mais poignée, moulinet, anneaux et épaisseur différents) : bambou (perche à
+  nœuds sans moulinet, plioir en bois ; discrète : touches 20 % plus rapides via `Value2`, ajouté à celui de l'appât
+  dans `GearEffects`), légère (brin blanc très fin, petit moulinet ; nerveux ×0,35, zone +20 %, mais tension ×1,5), longue
+  (surfcasting, trois brins emmanchés, gros moulinet ; +3 cases, fuyants ×0,5), lourde (pêche au gros, cardan, anneaux à
+  rouleaux, moulinet doré dessus ; tension ×0,4, rushs ×1,6 plus espacés, curseur ×1,1 : la canne des gros et des légendes),
+  compétition (carbone, garnitures dorées, moulinet casting ; zone +35 %, curseur ×0,85, mais tension ×1,35). La **canne en
+  main** pendant la pêche (`FishingPrototypeView.RodLooks`) prend les couleurs, l'épaisseur et la longueur de celle équipée. Hameçons : Aberdeen, triple (+2 ratés), circulaire (tension ×0,8, rushs
   rares), forgé (+3 ratés, fuyants ralentis), texan, à mouche. Possédés dans `GearLoadout` (`Owns`/`Own`/`Equip`/`Cycle`), achat par
   `GearShop.TryBuyItem` / `PlayerProgress.BuyGearItem` (testés), sauvegardés dans `SaveData.GearOwned` (ancienne
   sauvegarde : tout ce qui était sous le niveau atteint est gardé). Marchand : onglets Vendre / Cannes / Hameçons /

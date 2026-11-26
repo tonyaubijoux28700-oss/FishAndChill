@@ -82,7 +82,7 @@ namespace FishAndChill.Gear
                 rod?.Value ?? 0f,
                 Mathf.RoundToInt(hook?.Value ?? 0f),
                 bait?.Value ?? 0f,
-                bait?.Value2 ?? 0f,
+                (bait?.Value2 ?? 0f) + (rod?.Value2 ?? 0f),   // la canne en bambou, discrète, fait mordre plus vite
                 Mathf.RoundToInt(bag?.Value ?? 0f),
                 Both(g => g.CursorFactor),
                 Both(g => g.TensionFactor),

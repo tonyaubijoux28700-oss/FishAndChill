@@ -15,7 +15,7 @@ namespace FishAndChill.Tests
         public void SetUp()
         {
             _rod = Line(GearCategory.Rod,
-                new GearLevel("Bambou", 0, 0f),
+                new GearLevel("Bambou", 0, 0f, 0.2f),
                 new GearLevel("Légère", 80, 0.2f).WithStats("légère", tension: 1.25f, nervous: 0.5f),
                 new GearLevel("Longue", 160, 0.1f).WithStats("longue", cast: 2.5f),
                 new GearLevel("Lourde", 200, 0.05f).WithStats("lourde", tension: 0.5f, rush: 1.4f));
@@ -116,6 +116,16 @@ namespace FishAndChill.Tests
             loadout.Own(GearCategory.Rod, 2);
             loadout.Equip(GearCategory.Rod, 2);
             Assert.That(GearEffects.From(_catalog, loadout).CastBonus, Is.EqualTo(2.5f));
+        }
+
+        [Test]
+        public void BambooRod_MakesFishBiteFaster_OthersDoNot()
+        {
+            var loadout = new GearLoadout();
+            Assert.That(GearEffects.From(_catalog, loadout).BiteWaitFactor, Is.EqualTo(0.8f).Within(0.0001f), "bambou : 20 % plus vite");
+            loadout.Own(GearCategory.Rod, 3);
+            loadout.Equip(GearCategory.Rod, 3);
+            Assert.That(GearEffects.From(_catalog, loadout).BiteWaitFactor, Is.EqualTo(1f).Within(0.0001f));
         }
     }
 }

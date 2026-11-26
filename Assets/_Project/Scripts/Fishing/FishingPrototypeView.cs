@@ -167,9 +167,32 @@ namespace FishAndChill.Fishing
         // l'avant, le bouchon vole en arc puis fait « plouf ». L'attente : le bouchon dodeline, tressaille à chaque
         // titillement. La touche : le bouchon coule sous l'eau. Le combat : le fil tendu suit le poisson qui se débat.
 
-        private static readonly Color RodCork = new Color(0.80f, 0.62f, 0.38f);
-        private static readonly Color RodBlank = new Color(0.22f, 0.30f, 0.44f);
-        private static readonly Color RodTip = new Color(0.85f, 0.25f, 0.22f);
+        /// <summary>Allure de la canne en main, une par canne (même ordre que le catalogue) : couleurs, épaisseur, longueur.</summary>
+        private readonly struct RodLook
+        {
+            public readonly Color Grip, Reel, Blank, Tip;
+            public readonly float GripEnd, Length;
+            public readonly int Thickness;
+
+            public RodLook(Color grip, Color reel, Color blank, Color tip, float gripEnd, float length, int thickness)
+            {
+                Grip = grip; Reel = reel; Blank = blank; Tip = tip; GripEnd = gripEnd; Length = length; Thickness = thickness;
+            }
+        }
+
+        private static readonly RodLook[] RodLooks =
+        {
+            // Bambou : ficelle, pas de moulinet, perche jaune.
+            new RodLook(new Color(0.60f, 0.46f, 0.28f), new Color(0.60f, 0.46f, 0.28f), new Color(0.90f, 0.78f, 0.42f), new Color(0.80f, 0.84f, 0.46f), 0.14f, 1f, 2),
+            // Légère : liège, petit moulinet, brin blanc très fin, scion rouge.
+            new RodLook(new Color(0.80f, 0.62f, 0.40f), new Color(0.84f, 0.86f, 0.90f), new Color(0.94f, 0.95f, 0.97f), new Color(0.95f, 0.36f, 0.30f), 0.16f, 1f, 1),
+            // Longue : mousse noire, gros moulinet gris, brin vert, plus longue.
+            new RodLook(new Color(0.12f, 0.12f, 0.14f), new Color(0.40f, 0.42f, 0.46f), new Color(0.24f, 0.48f, 0.34f), new Color(0.86f, 0.86f, 0.88f), 0.22f, 1.3f, 2),
+            // Lourde : cordelette, moulinet doré, brin noir épais, plus courte.
+            new RodLook(new Color(0.86f, 0.86f, 0.82f), new Color(0.96f, 0.78f, 0.34f), new Color(0.16f, 0.12f, 0.10f), new Color(0.92f, 0.50f, 0.16f), 0.2f, 0.85f, 3),
+            // Compétition : poignée sombre, moulinet doré, carbone bleu nuit, scion doré.
+            new RodLook(new Color(0.18f, 0.18f, 0.20f), new Color(0.96f, 0.78f, 0.34f), new Color(0.16f, 0.22f, 0.40f), new Color(0.96f, 0.78f, 0.34f), 0.16f, 1.05f, 2),
+        };
         private static readonly Color LineTint = new Color(0.96f, 0.97f, 1f, 0.9f);
 
         private PixelPolyline _rod;
@@ -372,11 +395,13 @@ namespace FishAndChill.Fishing
             Vector2 body = BodyCenter(shadow, _fishHeading);
             _shadow.transform.position = new Vector3(Mathf.Round(body.x * 16f) / 16f, Mathf.Round(body.y * 16f) / 16f, 0f);
 
-            // La canne : poignée en liège, blank bleu nuit, scion rouge.
-            _rod.DrawCurve(hand, tip, 0.04f, t => t < 0.22f ? RodCork : t > 0.9f ? RodTip : RodBlank, thickness: 2);
+            // La canne en main : celle qui est équipée, avec ses couleurs, son épaisseur et sa longueur.
+            RodLook rodLook = RodLooks[Mathf.Clamp(_controller.Progress != null ? _controller.Progress.Gear.Level(FishAndChill.Gear.GearCategory.Rod) : 0, 0, RodLooks.Length - 1)];
+            Vector2 rodTip = hand + (tip - hand) * rodLook.Length;
+            _rod.DrawCurve(hand, rodTip, 0.04f, t => t < rodLook.GripEnd ? rodLook.Grip : t < rodLook.GripEnd + 0.07f ? rodLook.Reel : t > 0.9f ? rodLook.Tip : rodLook.Blank, thickness: rodLook.Thickness);
             // Le fil part du scion et va jusqu'au bouchon (ou au poisson), plus ou moins détendu.
-            float lineSag = sag * Mathf.Clamp01(Vector2.Distance(tip, bobber) / 3f);
-            _lineDots.DrawCurve(tip, bobber, lineSag, _ => LineTint);
+            float lineSag = sag * Mathf.Clamp01(Vector2.Distance(rodTip, bobber) / 3f);
+            _lineDots.DrawCurve(rodTip, bobber, lineSag, _ => LineTint);
         }
 
         // ---------- Le poisson reste dans l'eau ----------

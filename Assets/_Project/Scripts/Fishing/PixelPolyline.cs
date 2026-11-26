@@ -59,6 +59,11 @@ namespace FishAndChill.Fishing
                 {
                     Plot(point + new Vector2(0f, 1f / PixelsPerUnit), color);
                 }
+
+                if (thickness > 2)
+                {
+                    Plot(point - new Vector2(0f, 1f / PixelsPerUnit), color);
+                }
             }
         }
 
