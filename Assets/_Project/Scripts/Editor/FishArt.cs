@@ -249,12 +249,6 @@ namespace FishAndChill.Editor
         /// <summary>Dessine le poisson et renvoie son sprite. Espèce inconnue : forme générique à sa couleur provisoire.</summary>
         public static Sprite Generate(string speciesId, Color fallbackColor, FishAndChill.Collection.SpeciesRow row = null)
         {
-            // Dessins détaillés faits sur mesure (plus grands que le format générique).
-            if (speciesId == "esox-lucius")
-            {
-                return PixelArt.Save($"{Folder}/{speciesId}.png", PikeArt.Draw(), 16, new Vector2(0.5f, 0.5f));
-            }
-
             // Crustacés, reptiles… : leurs propres dessins.
             if (CreatureArt.TryGet(speciesId, out Color[,] creature))
             {

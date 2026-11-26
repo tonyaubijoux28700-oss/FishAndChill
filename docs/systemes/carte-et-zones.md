@@ -34,7 +34,7 @@
   chemin de terre qui fait le tour, prairie fleurie, forêts de sapins mêlés de hêtres et bouleaux), à `LakeGap` = 200 cases
   à l'est de l'île (au-delà des intérieurs), construit par `MapSetup.BuildLake` dans les mêmes Tilemaps (tuiles de l'île
   recolorées par `LakeArt` ; falaise, cascade, chemin, fleurs, feuillus dans `LakeTerrainArt` ; chalet, montagnes et
-  passerelle dans `LakeLandmarkArt`). 13 espèces : 11 poissons (`AnnecyFishArt` + `PikeArt` + `ExtraFishArt`), écrevisse signal et grenouille rieuse
+  passerelle dans `LakeLandmarkArt`). 13 espèces : 11 poissons (`AnnecyFishArt` + `ExtraFishArt`), écrevisse signal et grenouille rieuse
   (`FreshwaterCreatureArt`). Sur place, **pêche seulement** (aquarium et marchand à Mahana).
   **Décor** (`BuildLake`) : roseaux sur la rive au bord de l'eau, nénuphars à 2-4 cases du bord, rochers solides,
   prés fleuris (gentianes, marguerites ; `LakeArt`). **Vie** (`World/AmbientLife`, objet « Vie du lac », dessins

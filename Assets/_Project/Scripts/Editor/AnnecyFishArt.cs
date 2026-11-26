@@ -5,7 +5,7 @@ namespace FishAndChill.Editor
 {
     /// <summary>
     /// Fiches de dessin détaillé des poissons du lac d'Annecy (eau douce alpine), d'après l'anatomie et la livrée
-    /// réelles de chaque espèce (dessins originaux). Le brochet a son propre dessin (<see cref="PikeArt"/>).
+    /// réelles de chaque espèce (dessins originaux).
     /// </summary>
     public static class AnnecyFishArt
     {
@@ -20,6 +20,7 @@ namespace FishAndChill.Editor
                 case "salmo-trutta": fish = BrownTrout(); return true;
                 case "salvelinus-umbla": fish = ArcticCharr(); return true;
                 case "coregonus-lavaretus": fish = Whitefish(); return true;
+                case "esox-lucius": fish = Pike(); return true;
                 default: fish = null; return false;
             }
         }
@@ -192,6 +193,80 @@ namespace FishAndChill.Editor
             fish.Fins.Add(new Fin { Side = FinSide.Down, XRear = 48, XFront = 54, HeightRear = 1f, HeightFront = 5f, Base = fin, Ray = C(0.48f, 0.52f, 0.56f), Edge = C(0.90f, 0.92f, 0.94f) });
             fish.PectoralFins.Add(new Pectoral { BaseX = 74, BaseYOffset = -3f, Length = 7, Width = 2f, Slope = 0.25f, Base = C(0.86f, 0.88f, 0.90f), Ray = C(0.66f, 0.70f, 0.74f), Edge = C(0.97f, 0.97f, 0.98f) });
             fish.BodyPatterns.Add(Lines(new[] { 0.40f }, C(0.55f, 0.62f, 0.68f), 0.3f, 18, 74));
+            return fish;
+        }
+
+        /// <summary>
+        /// Brochet : très long et fuselé, tête plate en bec de canard (mâchoire inférieure plus longue, gueule fendue
+        /// jusque sous l'œil), dorsale et anale très reculées face à face près de la queue, dos vert olive sombre,
+        /// flancs semés de taches claires en haricot alignées en rangs, nageoires orangées marbrées de sombre.
+        /// </summary>
+        private static DetailedFish Pike()
+        {
+            var orange = C(0.80f, 0.46f, 0.20f);
+            var ray = C(0.46f, 0.24f, 0.10f);
+            var edge = C(0.94f, 0.66f, 0.36f);
+            var olive = C(0.58f, 0.56f, 0.28f);
+            var fish = new DetailedFish
+            {
+                Width = 108, Height = 34, CenterY = 16.5f,
+                Upper = V((14, 2.5f), (22, 4f), (32, 6f), (46, 7.5f), (62, 7.5f), (74, 6.5f), (82, 4.4f), (88, 2.8f), (94, 1.9f), (101, 1.4f)),
+                Lower = V((14, 2.5f), (22, 4f), (32, 6f), (46, 7.8f), (62, 7.8f), (74, 6.8f), (82, 5f), (88, 3.6f), (94, 2.8f), (100, 2.4f), (104, 1.6f)),
+                Back = C(0.18f, 0.26f, 0.13f), Flank = C(0.40f, 0.50f, 0.24f), Belly = C(0.94f, 0.92f, 0.80f),
+                FlankStart = 0.24f, BellyStart = 0.72f,
+                Caudal = new Tail { Shape = TailShape.Forked, XTip = 2, XBase = 15, Span = 11f, Base = orange, Ray = ray, Edge = edge },
+                EyeX = 85, EyeYOffset = 2.5f, EyeRadius = 2, Iris = C(0.90f, 0.72f, 0.26f),
+                GillX = 76, GillStrength = 0.45f, GillTint = C(0.62f, 0.62f, 0.34f),
+                MouthXStart = 86, MouthXEnd = 104, MouthYOffset = -0.5f,
+                Seed = 36,
+            };
+            // Dorsale et anale reculées, face à face, juste devant la queue : le brochet démarre comme une flèche.
+            fish.Fins.Add(new Fin { Side = FinSide.Up, XRear = 19, XFront = 32, HeightRear = 6f, HeightFront = 5f, Shape = FinShape.Rounded, Base = olive, Ray = C(0.36f, 0.36f, 0.16f), Edge = C(0.80f, 0.62f, 0.32f) });
+            fish.Fins.Add(new Fin { Side = FinSide.Down, XRear = 19, XFront = 30, HeightRear = 5.5f, HeightFront = 4.5f, Shape = FinShape.Rounded, Base = orange, Ray = ray, Edge = edge });
+            fish.Fins.Add(new Fin { Side = FinSide.Down, XRear = 46, XFront = 54, HeightRear = 2f, HeightFront = 5f, Base = orange, Ray = ray, Edge = edge });
+            fish.PectoralFins.Add(new Pectoral { BaseX = 74, BaseYOffset = -4.5f, Length = 7, Width = 2f, Slope = 0.3f, Base = C(0.90f, 0.58f, 0.30f), Ray = C(0.66f, 0.36f, 0.16f), Edge = C(0.98f, 0.76f, 0.48f) });
+            fish.Details.Add((f, p) =>
+            {
+                // Taches claires en haricot, en rangs décalés sur les flancs, plus petites vers la tête.
+                var spot = C(0.84f, 0.84f, 0.52f);
+                var shade = C(0.30f, 0.38f, 0.18f);
+                var random = new System.Random(361);
+                for (int row = 0; row < 4; row++)
+                {
+                    for (int x = 20 + (row % 2) * 3; x < 76; x += 6)
+                    {
+                        int sx = x + random.Next(-1, 2);
+                        float t = 0.14f + (row * 0.15f) + ((float)random.NextDouble() * 0.04f);
+                        float top = f.CenterY + f.UpperAt(sx), bottom = f.CenterY - f.LowerAt(sx);
+                        int sy = Mathf.RoundToInt(Mathf.Lerp(top, bottom, t));
+                        int length = sx > 64 ? 2 : 3;
+                        for (int i = 0; i < length; i++)
+                        {
+                            if (f.InBody(sx + i, sy) && f.BodyT(sx + i, sy) < 0.72f) p[sx + i, sy] = spot;
+                        }
+
+                        // Le haricot : un pixel de plus au milieu, une ombre dessous.
+                        if (length == 3 && f.InBody(sx + 1, sy + 1)) p[sx + 1, sy + 1] = Color.Lerp(p[sx + 1, sy + 1], spot, 0.7f);
+                        if (f.InBody(sx + 1, sy - 1)) p[sx + 1, sy - 1] = Color.Lerp(p[sx + 1, sy - 1], shade, 0.5f);
+                    }
+                }
+
+                // Marbrures sombres sur la queue, la dorsale et l'anale.
+                var mottle = C(0.30f, 0.20f, 0.10f);
+                for (int i = 0; i < 40; i++)
+                {
+                    int x = random.Next(2, 32), y = random.Next(0, f.Height);
+                    if (p[x, y].a > 0f && !f.InBody(x, y)) p[x, y] = Color.Lerp(p[x, y], mottle, 0.55f);
+                }
+
+                // Bec de canard : petites dents pointues sous la fente, tout le long de la mâchoire inférieure
+                // (qui dépasse au bout du museau, voir les profils).
+                int mouthY = Mathf.RoundToInt(f.CenterY + f.MouthYOffset);
+                for (int x = 89; x <= 103; x += 2)
+                {
+                    if (f.InBody(x, mouthY - 1)) p[x, mouthY - 1] = C(0.96f, 0.94f, 0.86f);
+                }
+            });
             return fish;
         }
 

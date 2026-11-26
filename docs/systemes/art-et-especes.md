@@ -25,7 +25,7 @@
     `DetailedFish` (silhouette, dégradé, nageoires, queue, tête, motifs) : profils lissés (Catmull-Rom), corps
     éclairé comme un volume rond (paliers nets, ombres froides, lumières chaudes, reflet), écailles en arcs,
     nageoires à rayons inclinés, pectorales translucides, contour sélectif teinté. Fiches des espèces de l'île dans
-    `MahanaFishArt.cs`, Annecy dans `AnnecyFishArt.cs`, brochet dans `PikeArt.cs`, deuxième fournée dans `ExtraFishArt.cs`. Les autres espèces gardent le dessin simple 48×24.
+    `MahanaFishArt.cs`, Annecy (brochet compris) dans `AnnecyFishArt.cs`, deuxième fournée dans `ExtraFishArt.cs`. Les autres espèces gardent le dessin simple 48×24.
   - Nouvelle espèce = une ligne dans `Data/Especes.csv` (voir Table des espèces) ; pour un dessin plus fidèle, une fiche
     `DetailedFish` d'après l'anatomie réelle du poisson (dessin original, ne jamais recopier une illustration existante).
 - Pour remplacer un dessin par un vrai, utiliser un autre nom de fichier, sinon il sera écrasé.
@@ -75,7 +75,7 @@
   pendant l'orage). Nombres avec virgule ou point.
   Vitesse, LargeurZone, Reussites, Rates, Prix, Frequence vides = valeurs par défaut de la rareté (`SpeciesTable.Default…`).
 - **Dessin** : une fiche dessinée à la main dans le code (`MahanaFishArt`, `AnnecyFishArt`, `AmazonFishArt`, `JapanFishArt`,
-  `ExtraFishArt`, `PikeArt`, `CreatureArt`…) reste prioritaire. Sinon, colonne Dessin = silhouette (`FishArchetypes` :
+  `ExtraFishArt`, `CreatureArt`…) reste prioritaire. Sinon, colonne Dessin = silhouette (`FishArchetypes` :
   fuseau, haut, allonge, serpent, rond, disque, poisson-chat) + couleurs `#RRVVBB` (Dos, Flancs, Ventre, Nageoires, Oeil),
   Motif (bandes, points, lignes, marbre, ocelle) + CouleurMotif, Queue (fourchue, croissant, droite, ronde), Extras
   (barbillons, dents, epines, pinnules, adipeuse). Les non-poissons ont besoin d'une fiche à la main.
