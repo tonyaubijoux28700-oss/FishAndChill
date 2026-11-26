@@ -66,6 +66,16 @@ namespace FishAndChill.Editor
                 File.WriteAllBytes(fullPath, png);
             }
 
+            // Image et réglages déjà bons : aucun import (c'est l'import qui coûte, deux par image).
+            if (unchanged && AssetImporter.GetAtPath(assetPath) is TextureImporter ready && Matches(ready, pixelsPerUnit, pivot, border, filter))
+            {
+                Sprite existing = AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+                if (existing != null)
+                {
+                    return existing;
+                }
+            }
+
             AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
             var importer = (TextureImporter)AssetImporter.GetAtPath(assetPath);
             importer.textureType = TextureImporterType.Sprite;
@@ -86,6 +96,24 @@ namespace FishAndChill.Editor
             importer.SaveAndReimport();
 
             return AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+        }
+
+        /// <summary>Les réglages d'import sont-ils déjà ceux que <see cref="Save(string, Color[,], int, Vector2, Vector4, FilterMode)"/> pose ?</summary>
+        private static bool Matches(TextureImporter importer, int pixelsPerUnit, Vector2 pivot, Vector4 border, FilterMode filter)
+        {
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            return importer.textureType == TextureImporterType.Sprite
+                && importer.spriteImportMode == SpriteImportMode.Single
+                && Mathf.Approximately(importer.spritePixelsPerUnit, pixelsPerUnit)
+                && importer.filterMode == filter
+                && !importer.mipmapEnabled
+                && importer.spriteBorder == border
+                && importer.wrapMode == TextureWrapMode.Clamp
+                && importer.alphaIsTransparency
+                && importer.textureCompression == TextureImporterCompression.Uncompressed
+                && settings.spriteAlignment == (int)SpriteAlignment.Custom
+                && settings.spritePivot == pivot;
         }
 
         public static void Rect(Color[,] pixels, int xMin, int yMin, int xMax, int yMax, Color color)

@@ -30,6 +30,8 @@ générale).
 - Données et scène régénérées par le menu **FishAndChill → Prototype → Générer données et scène de pêche**
   (`PrototypeSetup` → `MapSetup`, plusieurs minutes). Tout le pixel art est généré par code et **redessiné à chaque
   génération** : pour garder un dessin fait main, lui donner un autre nom de fichier.
+  Pour une espèce ajoutée ou un dessin de poisson retouché, **FishAndChill → Prototype → Générer seulement les poissons**
+  suffit (zones et espèces, sans la scène, une vingtaine de secondes).
 - **Attention** : les Tilemaps de la scène sont sauvegardées **vides** ; leurs tuiles vivent dans `Data/Carte_Tuiles.asset`
   (`World/TilemapStore`, remplies au lancement ; dans l'éditeur, copies cachées non sauvegardées). Pas de retouche à la
   main des tuiles : tout passe par la génération.

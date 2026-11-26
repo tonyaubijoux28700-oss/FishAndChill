@@ -50,6 +50,25 @@ namespace FishAndChill.Editor
             Debug.Log($"[FishAndChill] Prototype prêt : {ScenePath} ({speciesCount} espèces lues dans {SpeciesTablePath}).");
         }
 
+        /// <summary>
+        /// Génération rapide : seulement les zones et les espèces (fiches, dessins, miniatures, leurres) d'après la table,
+        /// sans toucher à la carte ni à la scène. Suffit pour un nouveau poisson ou un dessin retouché : la scène ne
+        /// connaît les espèces qu'au travers des assets de zone.
+        /// </summary>
+        [MenuItem("FishAndChill/Prototype/Générer seulement les poissons")]
+        public static void GenerateFishOnly()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                Debug.LogError("[FishAndChill] Quitte le Play mode avant de régénérer les poissons.");
+                return;
+            }
+
+            GenerateData(out int speciesCount);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[FishAndChill] Poissons prêts : {speciesCount} espèces lues dans {SpeciesTablePath}.");
+        }
+
         /// <summary>Lit la table des espèces ; les erreurs (valeur inconnue, nombre mal écrit…) sont signalées dans la console.</summary>
         public static System.Collections.Generic.List<SpeciesRow> ReadSpeciesTable()
         {

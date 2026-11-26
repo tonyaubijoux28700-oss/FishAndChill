@@ -81,7 +81,7 @@
   (barbillons, dents, epines, pinnules, adipeuse). Les non-poissons ont besoin d'une fiche à la main.
 - **Raies** : dessinées à la main, vues de dessus, tête à droite (`Editor/RayArt`, branchées dans `CreatureArt.TryGet`).
   Première : la raie manta de récif (`mobula-alfredi`, Maldives). Elles gardent l'ombre de poisson sous l'eau.
-- **Nouvelle espèce = une ligne dans la table**, puis relancer le menu de génération. Exemples faits uniquement par la
+- **Nouvelle espèce = une ligne dans la table**, puis le menu **Générer seulement les poissons** (`PrototypeSetup.GenerateFishOnly`, ~20 s : zones et espèces, sans la scène). Exemples faits uniquement par la
   table : poisson-ballon à taches blanches, vairon, aimara, murène japonaise.
 
 
