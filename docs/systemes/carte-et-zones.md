@@ -157,7 +157,7 @@
   15 espèces faites par la table (`Zone` = `BaieHaLong` : stromatée argenté, mulet cabot, sigan doré, anchois de Commerson,
   poisson-archer, platycéphale, cohana doré, pagre jaune, crabe nageur bleu, mérou à taches orange, courbine jaune,
   cobia, squille, seiche pharaon, **requin-baleine** légendaire). Salle de la baie à l'aquarium (9e étage). Gardien
-  prévu : le dragon vietnamien (`HaLongDragonArt`, voir `legendes.md`), pas encore branché.
+  : Long Vuong, le Roi-Dragon (voir `legendes.md`).
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`). **Le même ponton dans toutes les zones**
   (`Editor/DockArt`, style en volume, `Art/Tiles/Ponton.png` et `Ponton_VersLeHaut.png` retourné pour les pontons qui

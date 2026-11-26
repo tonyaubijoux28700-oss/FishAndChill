@@ -23,15 +23,15 @@ namespace FishAndChill.Editor
         private static readonly Color Liquid = C(0.30f, 0.86f, 0.70f);
         private static readonly Color GlowGreen = C(0.50f, 1f, 0.78f);
 
-        // ---------- La salle (34×12 cases) ----------
+        // ---------- La salle (38×12 cases) ----------
 
-        public const int RoomCells = 34;
+        public const int RoomCells = 38;
         public const int RoomRows = 12;
         public const int RoomWidth = RoomCells * 32;
         public const int RoomHeight = RoomRows * 32;
         /// <summary>Limite mur / sol, en pixels depuis le haut (6 cases de mur).</summary>
         public const int WallBottom = 192;
-        public const int Slots = 8;
+        public const int Slots = 9;
 
         /// <summary>Milieu d'un emplacement de tube, en cases depuis la gauche de la salle.</summary>
         public static float SlotX(int slot) => 3f + slot * 4f;

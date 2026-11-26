@@ -423,6 +423,7 @@ namespace FishAndChill.Editor
             BuildLegendSpot(mapObject.transform, "Remous légendaire du récif", worldMap, 4, reefDock.Area);   // Moha-moha
             BuildLegendSpot(mapObject.transform, "Remous légendaire de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);   // Spectre des épaves
             BuildLegendSpot(mapObject.transform, "Remous légendaire du fjord", worldMap, 7, fjordDock.Area);   // Kraken
+            BuildLegendSpot(mapObject.transform, "Remous légendaire de la baie d'Ha Long", worldMap, 8, haLongDock.Area);   // Long Vuong
             spotList.arraySize = 9;
             spotList.GetArrayElementAtIndex(8).objectReferenceValue = haLongSpots;
             spotList.GetArrayElementAtIndex(7).objectReferenceValue = fjordSpots;

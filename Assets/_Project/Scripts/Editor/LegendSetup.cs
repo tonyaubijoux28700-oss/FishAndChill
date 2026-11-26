@@ -69,7 +69,49 @@ namespace FishAndChill.Editor
                 new LegendPhase(FightStyle.Nervous, new QteDifficulty(1.55f, 0.17f, 4, 2), "Il se tord dans tous les sens !"),
             }, 600);
             EditorUtility.SetDirty(tuna);
-            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot), Rannamaari(ppu, pivot), MohaMoha(ppu, pivot), WreckSpectre(ppu, pivot), Kraken(ppu, pivot) };
+            return new[] { tuna, Bramafan(ppu, pivot), Ipupiara(ppu, pivot), Isonade(ppu, pivot), Rannamaari(ppu, pivot), MohaMoha(ppu, pivot), WreckSpectre(ppu, pivot), Kraken(ppu, pivot), LongVuong(ppu, pivot) };
+        }
+
+        /// <summary>
+        /// Long Vuong, le Roi-Dragon de la baie d'Ha Long (espèce de base : le platycéphale, le « poisson-crocodile »).
+        /// Selon la légende, un dragon descendu du ciel a semé les pitons de la baie en frappant la mer de sa queue, pour
+        /// barrer la route aux envahisseurs. Artefact : le Tambour de bronze, en 4 morceaux.
+        /// </summary>
+        private static LegendFish LongVuong(int ppu, Vector2 pivot)
+        {
+            Sprite drum = PixelArt.Save($"{ArtFolder}/Tambour_Bronze.png", BronzeDrumArt.DrumArt(), ppu, pivot);
+            Sprite silhouette = PixelArt.Save($"{ArtFolder}/Tambour_Bronze_Silhouette.png", BronzeDrumArt.Silhouette(), ppu, pivot);
+            var fragments = new Sprite[BronzeDrumArt.Fragments];
+            var centers = new Vector2[BronzeDrumArt.Fragments];
+            for (int i = 0; i < fragments.Length; i++)
+            {
+                fragments[i] = PixelArt.Save($"{ArtFolder}/Tambour_Bronze_Fragment_{i + 1}.png", BronzeDrumArt.Piece(i), ppu, pivot);
+                centers[i] = BronzeDrumArt.PieceCenter(i);
+            }
+
+            var species = FindSpecies("platycephalus-indicus", "Assets/_Project/Data/Species/PlatycephalusIndicus.asset");
+            var zone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/BaieHaLong.asset");
+            LegendFish dragon = LoadOrCreate(Folder + "/LongVuong.asset");
+            dragon.Configure("long-vuong", "Long Vuong", species, zone, 1600f, "Tambour de bronze", BronzeDrumArt.Fragments,
+                FragmentRules.DefaultChance, drum, fragments, centers, silhouette, new[]
+                {
+                    "Un morceau de bronze vert-de-gris. On y voit des oiseaux gravés qui volent en cercle.",
+                    "Une petite grenouille de bronze est soudée sur le bord. Autrefois, on frappait ce tambour pour appeler la pluie.",
+                    "Un éclat du centre : les branches d'une étoile, et une lueur de jade qui ne s'éteint pas.",
+                    "Le bas du fût, couvert de vagues gravées. Les pêcheurs disent qu'il résonne quand le dragon passe.",
+                });
+            Sprite art = PixelArt.Save($"{ArtFolder}/LongVuong.png", HaLongDragonArt.Draw(), ppu, pivot);
+            dragon.ConfigureLook("Roi-Dragon", art, BodyShape.Dragon);
+            // Le combat : il ondule entre les pitons vers le large, plonge en spirale vers le fond, puis frappe la mer de sa
+            // queue. Le plus dur de tous.
+            dragon.ConfigureFight(new[]
+            {
+                new LegendPhase(FightStyle.Rusher, new QteDifficulty(2.0f, 0.12f, 7, 2), "Il ondule entre les pitons et file vers le large !"),
+                new LegendPhase(FightStyle.Heavy, new QteDifficulty(2.4f, 0.11f, 7, 2), "Il plonge en spirale vers le fond de la baie !"),
+                new LegendPhase(FightStyle.Nervous, new QteDifficulty(2.6f, 0.10f, 8, 1), "Il frappe la mer de sa queue, les vagues se lèvent !"),
+            }, 3500);
+            EditorUtility.SetDirty(dragon);
+            return dragon;
         }
 
         /// <summary>

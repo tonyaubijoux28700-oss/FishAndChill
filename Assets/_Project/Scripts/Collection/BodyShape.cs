@@ -41,5 +41,6 @@ namespace FishAndChill.Collection
         Squid,
         /// <summary>Raie : disque plat aux ailes qui battent lentement, longue queue fine.</summary>
         Ray,
+        Dragon,
     }
 }

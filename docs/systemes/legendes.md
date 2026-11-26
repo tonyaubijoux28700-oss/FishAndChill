@@ -173,6 +173,17 @@
   longueur**, du pavillon à l'embouchure). Combat : lourd (« Il enroule ses bras autour de la ligne ! »), rush (« Il file
   vers le fond du fjord ! »), nerveux (« Il se débat de ses dix bras à la fois ! »), le plus dur de tous, 3000 pièces.
   Remous « Remous légendaire du fjord » dans la région 7. Tube n° 8 : la salle des spécimens passe à 34 cases et 8 tubes.
+- **Neuvième légende : Long Vuong**, le Roi-Dragon de 1600 cm de la **baie d'Ha Long** (« Long Vương » sans accents, la
+  police ne les a pas ; espèce de base le **platycéphale**, le « poisson-crocodile » ; selon la légende, un dragon a semé
+  les pitons de la baie en frappant la mer de sa queue). Dessin `Editor/HaLongDragonArt` → `Art/Legendes/LongVuong.png`
+  (voir plus bas). Silhouette sous l'eau `BodyShape.Dragon` (`FishShadowSprites.Dragon` : serpent mince qui ondule,
+  quatre pattes, cornes, longues moustaches, crête en dents de scie, yeux qui luisent). Artefact **Tambour de bronze**
+  (`Editor/BronzeDrumArt`, 48×64 : tambour ancien couvert de vert-de-gris, étoile et anneaux d'oiseaux gravés sur la
+  face, quatre grenouilles sur le bord, vagues gravées sur le fût, deux anses, lueur de jade ; cassé en **4 quarts** :
+  haut gauche, haut droit, bas gauche, bas droit). Combat : rush (« Il ondule entre les pitons et file vers le large ! »),
+  lourd (« Il plonge en spirale vers le fond de la baie ! »), nerveux (« Il frappe la mer de sa queue, les vagues se
+  lèvent ! »), le plus dur de tous, 3500 pièces. Remous « Remous légendaire de la baie d'Ha Long » dans la région 8.
+  Tube n° 9 : la salle des spécimens passe à 38 cases et 9 tubes.
 - **Nouvelle légende** : une méthode dans `LegendSetup` (découpe des fragments avec `LegendArt.Cut` /
   `Center` / `Silhouette`), un `BuildLegendSpot` dans la région de sa zone (`PrototypeSetup.RegionOf` relie remous et
   légende). Le menu de test (**FishAndChill → Légendes (test)**) agit sur la légende de la zone où l'on est (sinon Tuna) et
@@ -193,9 +204,8 @@
   peindre écailles et motifs qui suivent la courbe, tubes qui s'affinent, courbes, polygones, bruit doux `Noise`,
   anneaux `Ring`, nageoires `FinAlong`). Une créature unique et
   cohérente avec sa zone, de plus en plus impressionnante au fil des zones.
-- `HaLongDragonArt` (320×176) : **dragon vietnamien** prévu pour la future légende de la **baie d'Ha Long** (9e zone,
-  voir `carte-et-zones.md`). Corps de serpent mince en deux vagues, écailles de jade sombre, ventre en plaques de bronze, crête
+- `HaLongDragonArt` (320×176) : **dragon vietnamien**, la légende de la **baie d'Ha Long** (Long Vuong, 9e zone). Corps de serpent mince en deux vagues, écailles de jade sombre, ventre en plaques de bronze, crête
   continue de petites flammes, quatre pattes à trois griffes avec touffes de flammes aux coudes, queue en gerbe de
   flammes ; museau en volute, petites cornes en bois de cerf, crinière, barbe, longues moustaches, œil d'ambre, langue
   enroulée, et la perle lumineuse qu'il poursuit devant sa gueule. Il remplace l'ancien dragon des mers
-  (`LagoonDragonArt`, supprimé). Il n'est encore utilisé nulle part.
+  (`LagoonDragonArt`, supprimé).

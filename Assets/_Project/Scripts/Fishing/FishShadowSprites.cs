@@ -116,6 +116,7 @@ namespace FishAndChill.Fishing
                         case BodyShape.Octopus: tone = Octopus(u, v, phase); break;
                         case BodyShape.Squid: tone = Squid(u, v, phase); break;
                         case BodyShape.Ray: tone = Ray(u, v, phase); break;
+                        case BodyShape.Dragon: tone = Dragon(u, v, phase); break;
                         default: tone = Fish(u, v, phase); break;
                     }
 
@@ -685,6 +686,55 @@ namespace FishAndChill.Fishing
                 if (av <= outer && av >= notch && !torn) return k > 0.7f ? EdgeTone : BodyTone;
             }
 
+            return None;
+        }
+
+        /// <summary>
+        /// Dragon vietnamien vu de dessus : corps de serpent mince qui ondule en deux vagues, quatre pattes écartées,
+        /// tête allongée aux deux petites cornes, longues moustaches qui flottent en arrière, deux yeux qui luisent.
+        /// </summary>
+        private static int Dragon(float u, float v, int phase)
+        {
+            float s = Mathf.Clamp01((1f - u) * 0.5f);
+            float wave = Mathf.Sin(u * 7.5f + phase * 1.2f) * 0.13f * Mathf.Pow(s, 0.7f);
+            float bv = v - wave;
+            float av = Mathf.Abs(bv);
+            if (InEllipse(u, av, 0.82f, 0.06f, 0.035f, 0.025f)) return EyeTone;
+
+            // Moustaches : deux fils qui partent du museau et flottent vers l'arrière en s'écartant.
+            foreach (float side in new[] { -1f, 1f })
+            {
+                float wu = Mathf.Clamp(u, 0.35f, 0.95f);
+                float wv = side * (0.06f + (0.95f - wu) * 0.5f) + Mathf.Sin(wu * 14f + phase) * 0.03f;
+                if (u > 0.35f && u < 0.95f && Mathf.Abs(bv - wv) < 0.012f) return EdgeTone;
+            }
+
+            // Petites cornes vers l'arrière.
+            if (OnTaper(u, av, 0.78f, 0.06f, 0.64f, 0.13f, 0.022f, 0.008f)) return EdgeTone;
+
+            // Quatre pattes écartées, griffes vers l'avant.
+            foreach (float hip in new[] { 0.45f, -0.25f })
+            {
+                float hv = Mathf.Sin(hip * 7.5f + phase * 1.2f) * 0.13f * Mathf.Pow(Mathf.Clamp01((1f - hip) * 0.5f), 0.7f);
+                float step = phase * 0.04f * (hip > 0f ? 1f : -1f);
+                foreach (float side in new[] { -1f, 1f })
+                {
+                    if (OnTaper(u, v, hip, hv, hip + 0.06f + step * side, hv + side * 0.2f, 0.035f, 0.02f)) return BodyTone;
+                }
+            }
+
+            float width;
+            if (u > 1f || u < -1f) width = 0f;
+            else if (u >= 0.7f) width = 0.085f * Mathf.Pow(Mathf.Max(0f, 1f - Mathf.Pow((u - 0.7f) / 0.3f, 2.4f)), 0.5f);
+            else width = 0.012f + 0.07f * Mathf.Pow(Mathf.InverseLerp(-1f, 0.7f, u), 0.6f);
+            if (width > 0f && av <= width)
+            {
+                if (av > width * 0.78f) return EdgeTone;
+                return av < width * 0.3f && u < 0.65f ? CoreTone : BodyTone;
+            }
+
+            // La crête de flammes, le long du dos : une frange en dents de scie.
+            if (u > -0.9f && u < 0.65f && av < width + 0.03f * Mathf.Abs(Mathf.Sin(u * 40f))) return EdgeTone;
             return None;
         }
 

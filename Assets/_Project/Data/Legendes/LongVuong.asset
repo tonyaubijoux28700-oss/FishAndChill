@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4994546c4687664eb5edd8a7a9bb9e2, type: 3}
+  m_Name: LongVuong
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.LegendFish
+  _id: long-vuong
+  _title: Long Vuong
+  _kindName: Roi-Dragon
+  _art: {fileID: 21300000, guid: a9494258405610649b835619be8c3d63, type: 3}
+  _shadowShape: 17
+  _species: {fileID: 11400000, guid: 8827416695ce8fe4cb68db3637d22f79, type: 2}
+  _zone: {fileID: 11400000, guid: 9204d229f8dc6e74a812fd1f376b7476, type: 2}
+  _sizeCm: 1600
+  _phases:
+  - _style: 3
+    _difficulty:
+      _cursorSpeed: 2
+      _zoneWidth: 0.12
+      _requiredHits: 7
+      _maxMisses: 2
+    _cry: Il ondule entre les pitons et file vers le large !
+  - _style: 4
+    _difficulty:
+      _cursorSpeed: 2.4
+      _zoneWidth: 0.11
+      _requiredHits: 7
+      _maxMisses: 2
+    _cry: Il plonge en spirale vers le fond de la baie !
+  - _style: 1
+    _difficulty:
+      _cursorSpeed: 2.6
+      _zoneWidth: 0.1
+      _requiredHits: 8
+      _maxMisses: 1
+    _cry: "Il frappe la mer de sa queue, les vagues se l\xE8vent !"
+  _rewardCoins: 3500
+  _artifactName: Tambour de bronze
+  _fragmentCount: 4
+  _fragmentChance: 0.03
+  _artifact: {fileID: 21300000, guid: 81e1160a61140744b95be874301ffe84, type: 3}
+  _fragments:
+  - {fileID: 21300000, guid: 109c76a7210070a438fd7fdd9ab4fa5a, type: 3}
+  - {fileID: 21300000, guid: 8e0fc9c2aba876648b66242bb2cbd217, type: 3}
+  - {fileID: 21300000, guid: ba2224faa14e4614ebaf1335125c7cbe, type: 3}
+  - {fileID: 21300000, guid: 943922e996fbf2442aeb715ef94127a5, type: 3}
+  _fragmentCenters:
+  - {x: 0.26041666, y: 0.6484375}
+  - {x: 0.7083333, y: 0.625}
+  - {x: 0.30208334, y: 0.28125}
+  - {x: 0.71875, y: 0.25}
+  _silhouette: {fileID: 21300000, guid: b110deefe4ceb734287110c284d8643c, type: 3}
+  _fragmentLines:
+  - "Un morceau de bronze vert-de-gris. On y voit des oiseaux grav\xE9s qui volent en cercle."
+  - "Une petite grenouille de bronze est soud\xE9e sur le bord. Autrefois, on frappait ce tambour pour appeler la pluie."
+  - "Un \xE9clat du centre : les branches d'une \xE9toile, et une lueur de jade qui ne s'\xE9teint pas."
+  - "Le bas du f\xFBt, couvert de vagues grav\xE9es. Les p\xEAcheurs disent qu'il r\xE9sonne quand le dragon passe."
