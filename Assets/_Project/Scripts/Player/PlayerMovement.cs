@@ -39,6 +39,9 @@ namespace FishAndChill.Player
         /// <summary>Immobilise le joueur (menu ouvert…).</summary>
         public bool Locked { get; set; }
 
+        /// <summary>Multiplie la vitesse (sous l'eau, on nage plus lentement).</summary>
+        public float SpeedFactor { get; set; } = 1f;
+
         /// <summary>Place le joueur ailleurs (entrée / sortie d'un bâtiment) en gardant sa direction.</summary>
         public void Teleport(Vector2 position, Vector2 facing)
         {
@@ -87,8 +90,8 @@ namespace FishAndChill.Player
 
             Vector2 position = transform.position;
             Vector2 next = _map != null
-                ? MovementMath.StepWithCollision(position, input, _speed, deltaTime, p => _map.CanStandAt(p, _radius))
-                : MovementMath.Step(position, input, _speed, deltaTime, _walkableArea);
+                ? MovementMath.StepWithCollision(position, input, _speed * SpeedFactor, deltaTime, p => _map.CanStandAt(p, _radius))
+                : MovementMath.Step(position, input, _speed * SpeedFactor, deltaTime, _walkableArea);
 
             IsMoving = (next - position).sqrMagnitude > 1e-8f;
             transform.position = new Vector3(next.x, next.y, transform.position.z);

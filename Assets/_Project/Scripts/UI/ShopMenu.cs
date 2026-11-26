@@ -527,7 +527,7 @@ namespace FishAndChill.UI
                 case Tab.Rods: AddItems(GearCategory.Rod); break;
                 case Tab.Hooks: AddItems(GearCategory.Hook); break;
                 case Tab.Baits: AddBaits(); break;
-                case Tab.Bag: AddBags(); AddTrap(); break;
+                case Tab.Bag: AddBags(); AddTrap(); AddMask(); break;
             }
         }
 
@@ -698,6 +698,39 @@ namespace FishAndChill.UI
             else
             {
                 Price(entry, trap.Price);
+            }
+
+            _entries.Add(entry);
+        }
+
+        /// <summary>Masque et tuba : pour plonger depuis la bouée et ramasser des décorations d'aquarium.</summary>
+        private void AddMask()
+        {
+            DecorationCatalog catalog = _progress.DecorationCatalog;
+            if (catalog == null) return;
+            bool owned = _progress.Decorations.HasMask;
+            var entry = new ShowcaseEntry
+            {
+                Picture = catalog.MaskIcon,
+                Name = "Masque et tuba",
+                Detail = "Pour plonger depuis la bouée du lagon : ramasse coraux, coquillages et trésors, puis décore ton aquarium avec.",
+                Status = owned ? "Tu l'as déjà" : "Pas encore à toi",
+                StatusColor = owned ? Good : Muted,
+            };
+
+            if (owned)
+            {
+                entry.Price = "Acheté";
+                entry.PriceColor = Gold;
+            }
+            else
+            {
+                Price(entry, _progress.MaskPrice);
+                entry.Buy = () =>
+                {
+                    bool bought = _progress.BuyMask();
+                    Say(bought ? "« Bonne plongée ! La bouée t'attend dans le lagon. »" : $"« Il te manque {_progress.MaskPrice - _progress.Wallet.Coins} pièces pour ça. »", bought ? Good : TooExpensive);
+                };
             }
 
             _entries.Add(entry);

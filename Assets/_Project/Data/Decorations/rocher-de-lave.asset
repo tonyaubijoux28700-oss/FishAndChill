@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 549f68e3ad1f0d944a8692a2b36884c9, type: 3}
+  m_Name: rocher-de-lave
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.Decoration
+  _id: rocher-de-lave
+  _displayName: Rocher de lave
+  _description: "Un bloc de lave noire et poreuse, tomb\xE9 du volcan de l'\xEEle il y a tr\xE8s longtemps."
+  _zone: {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
+  _rarity: 0
+  _sprite: {fileID: 21300000, guid: b039455e35bd5d643a80c1eeacf3e746, type: 3}

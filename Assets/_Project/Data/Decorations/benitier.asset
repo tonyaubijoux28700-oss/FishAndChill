@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 549f68e3ad1f0d944a8692a2b36884c9, type: 3}
+  m_Name: benitier
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.Decoration
+  _id: benitier
+  _displayName: "B\xE9nitier g\xE9ant"
+  _description: "Le plus grand coquillage du monde. Son manteau bleu \xE9lectrique brille au soleil."
+  _zone: {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
+  _rarity: 2
+  _sprite: {fileID: 21300000, guid: f59c8a5141953ff44a6c2df36ba6ce56, type: 3}

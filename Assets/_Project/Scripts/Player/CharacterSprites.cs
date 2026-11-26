@@ -21,6 +21,12 @@ namespace FishAndChill.Player
         /// <summary>Poses d'attente, de face (<see cref="CharacterPainter.IdleLookLeft"/>…).</summary>
         public readonly Sprite[] Idle = new Sprite[CharacterPainter.IdlePoses];
 
+        /// <summary>Le plongeur : 2 images par direction (bras le long du corps, puis la brasse).</summary>
+        public readonly Sprite[] SwimDown = new Sprite[2];
+        public readonly Sprite[] SwimUp = new Sprite[2];
+        public readonly Sprite[] SwimLeft = new Sprite[2];
+        public readonly Sprite[] SwimRight = new Sprite[2];
+
         public static CharacterSprites Build(CharacterLook look) => Build(look, null);
 
         /// <summary>Les images d'un habitant : apparence de pêcheur plus ses accessoires (<see cref="NpcExtras"/>).</summary>
@@ -39,6 +45,15 @@ namespace FishAndChill.Player
             for (int pose = 0; pose < CharacterPainter.IdlePoses; pose++)
             {
                 result.Idle[pose] = ToSprite(CharacterPainter.Idle(look, extras, pose), $"Attente_{pose}");
+            }
+
+            for (int frame = 0; frame < 2; frame++)
+            {
+                result.SwimDown[frame] = ToSprite(CharacterPainter.Swim(look, frame, CharacterPainter.SwimFront), $"Nage_Bas_{frame}");
+                result.SwimUp[frame] = ToSprite(CharacterPainter.Swim(look, frame, CharacterPainter.SwimBack), $"Nage_Haut_{frame}");
+                Color[,] swimSide = CharacterPainter.Swim(look, frame, CharacterPainter.SwimSide);
+                result.SwimRight[frame] = ToSprite(swimSide, $"Nage_Droite_{frame}");
+                result.SwimLeft[frame] = ToSprite(PixelShading.MirrorX(swimSide), $"Nage_Gauche_{frame}");
             }
 
             return result;

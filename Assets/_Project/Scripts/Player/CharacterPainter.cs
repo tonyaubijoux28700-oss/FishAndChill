@@ -267,6 +267,81 @@ namespace FishAndChill.Player
         /// <summary>Poses d'attente, de face (quand le joueur ne bouge plus) : regard à gauche, à droite, étirement en bâillant, pied qui tape.</summary>
         public const int IdleLookLeft = 0, IdleLookRight = 1, IdleStretch = 2, IdleTap = 3, IdlePoses = 4;
 
+        /// <summary>Le plongeur : 0 de face, 1 de dos, 2 de profil (regard à droite).</summary>
+        public const int SwimFront = 0, SwimBack = 1, SwimSide = 2;
+
+        private static readonly Color MaskGlass = new Color(0.62f, 0.86f, 0.96f);
+        private static readonly Color MaskStrap = new Color(0.12f, 0.20f, 0.36f);
+        private static readonly Color Flipper = new Color(0.98f, 0.82f, 0.18f);
+
+        /// <summary>
+        /// Le pêcheur qui nage sous l'eau : sans chapeau, masque sur les yeux, palmes jaunes aux pieds, pas d'ombre au sol ;
+        /// <paramref name="frame"/> 0 bras le long du corps et palmes jointes, 1 brasse (bras écartés vers le haut) et
+        /// battement de palmes.
+        /// </summary>
+        public static Color[,] Swim(CharacterLook look, int frame, int facing)
+        {
+            var p = new Palette(look) { Hat = HatNone };
+            bool stroke = frame == 1;
+            Color[,] img = facing == SwimSide ? DrawSide(p, stroke ? 1 : 0) : DrawFront(p, 0, facing == SwimBack, stroke ? IdleStretch : -1);
+
+            // Pas d'ombre au sol sous l'eau.
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < 2; y++)
+                {
+                    if (img[x, y] == GroundShadow) img[x, y] = Color.clear;
+                }
+            }
+
+            // Les palmes, à la place des sandales (elles battent pendant la brasse).
+            int[] feet = facing == SwimSide ? new[] { stroke ? 3 : 4 } : new[] { 4, 9 };
+            for (int i = 0; i < feet.Length; i++)
+            {
+                int lift = stroke && i == 1 ? 1 : 0;
+                int length = facing == SwimSide ? 5 : 3;
+                for (int dx = 0; dx < length; dx++)
+                {
+                    for (int y = 0; y < 2; y++)
+                    {
+                        int x = feet[i] + dx;
+                        if (x >= 0 && x < Width) img[x, y + lift] = y == 0 ? PixelShading.Shade(Flipper, 0.8f) : Flipper;
+                    }
+                }
+            }
+
+            // Le masque : vitre claire sur les yeux, sangle sombre autour de la tête.
+            int eyeRow = Height - 1 - 9;
+            if (facing == SwimFront)
+            {
+                for (int x = 4; x <= 11; x++)
+                {
+                    for (int y = eyeRow - 1; y <= eyeRow; y++)
+                    {
+                        if (img[x, y].a <= 0f) continue;
+                        img[x, y] = x == 4 || x == 11 ? MaskStrap : (x == 5 || x == 10 || y == eyeRow) && y == eyeRow ? Color.Lerp(MaskGlass, Color.white, 0.4f) : MaskGlass;
+                    }
+                }
+
+                img[7, eyeRow - 1] = MaskStrap;   // le pont du masque
+                img[8, eyeRow - 1] = MaskStrap;
+            }
+            else if (facing == SwimBack)
+            {
+                for (int x = 4; x <= 11; x++) if (img[x, eyeRow].a > 0f) img[x, eyeRow] = MaskStrap;
+            }
+            else
+            {
+                for (int x = 5; x <= 8; x++) if (img[x, eyeRow].a > 0f) img[x, eyeRow] = MaskStrap;
+                for (int x = 9; x <= 11; x++)
+                {
+                    for (int y = eyeRow - 1; y <= eyeRow; y++) if (img[x, y].a > 0f) img[x, y] = MaskGlass;
+                }
+            }
+
+            return img;
+        }
+
         /// <summary>Une pose d'attente, de face (<see cref="IdleLookLeft"/>…).</summary>
         public static Color[,] Idle(CharacterLook look, NpcExtras extras, int pose) => DrawFront(new Palette(look) { Extras = extras }, 0, false, pose);
 

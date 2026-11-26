@@ -283,6 +283,12 @@ namespace FishAndChill.UI
                 return false;
             }
 
+            // Devant la bouée, E fait plonger ; sous l'eau, le sac reste fermé.
+            if (FishAndChill.World.DiveSite.BlocksInteract)
+            {
+                return false;
+            }
+
             // Devant le bassin, E dépose les poissons.
             if (_aquarium != null && _aquarium.PlayerAtTank)
             {

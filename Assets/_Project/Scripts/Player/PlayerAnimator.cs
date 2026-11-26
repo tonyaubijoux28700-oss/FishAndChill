@@ -39,6 +39,16 @@ namespace FishAndChill.Player
                 return;
             }
 
+            if (Swimming)
+            {
+                // Sous l'eau : la brasse en nageant, un battement lent sur place.
+                Sprite[] swim = SwimFramesFor(DirectionOf(_movement.Facing));
+                _walkTime += Time.deltaTime * (_movement.IsMoving ? 1f : 0.4f);
+                _renderer.sprite = swim[Mathf.FloorToInt(_walkTime * 3f) % swim.Length];
+                _idleTime = 0f;
+                return;
+            }
+
             Sprite[] frames = FramesFor(DirectionOf(_movement.Facing));
             if (frames == null || frames.Length == 0)
             {
@@ -62,6 +72,23 @@ namespace FishAndChill.Player
             if (_movement.IsMoving || _movement.LastInput != Vector2.zero) _idleTime = 0f;
         }
 
+        private CharacterSprites _swim;
+
+        /// <summary>Sous l'eau : le pêcheur nage (masque, palmes, brasse).</summary>
+        public bool Swimming { get; set; }
+
+        private Sprite[] SwimFramesFor(SpriteDirection direction)
+        {
+            if (_swim == null) _swim = CharacterSprites.Build(Look ?? new CharacterLook());
+            switch (direction)
+            {
+                case SpriteDirection.Up: return _swim.SwimUp;
+                case SpriteDirection.Left: return _swim.SwimLeft;
+                case SpriteDirection.Right: return _swim.SwimRight;
+                default: return _swim.SwimDown;
+            }
+        }
+
         /// <summary>Apparence actuelle (null tant que le pêcheur n'est pas habillé).</summary>
         public CharacterLook Look { get; private set; }
 
@@ -75,6 +102,7 @@ namespace FishAndChill.Player
             _left = sprites.Left;
             _right = sprites.Right;
             _idle = sprites.Idle;
+            _swim = sprites;
             if (_renderer == null)
             {
                 _renderer = GetComponent<SpriteRenderer>();

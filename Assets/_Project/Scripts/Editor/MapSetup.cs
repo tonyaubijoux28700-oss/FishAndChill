@@ -87,6 +87,8 @@ namespace FishAndChill.Editor
             public DockInfo FjordDock;
             public Rect HaLongRegion;
             public DockInfo HaLongDock;
+            public Vector2 DiveBuoy;
+            public Vector2 DiveOrigin;
         }
 
         /// <summary>Un ponton : sol praticable au-dessus de l'eau, point d'arrivée au bout, regard vers le large.</summary>
@@ -330,6 +332,11 @@ namespace FishAndChill.Editor
             // Ponton de l'île : sur la plage sud, à côté du point de départ, vers le large.
             DockInfo islandDock = BuildDock(mapObject.transform, "Ponton - Île Mahana", terrain, bounds, spawn, Vector2Int.down);
 
+            // La bouée de plongée dans le lagon, et le fond marin où l'on plonge, loin sous l'île (comme un intérieur).
+            Vector2 diveBuoy = BuildDiveBuoy(mapObject.transform, terrain, distance, bounds, spawn, islandDock.Area);
+            var diveOrigin = new Vector2(bounds.xMax + 40f, bounds.yMin - 80f);
+            BuildDiveFloor(mapObject.transform, diveOrigin);
+
             // Le lac d'Annecy, loin à l'est (au-delà des intérieurs des bâtiments), avec son propre ponton.
             MinimapBlocks.Clear();
             TileSet lakeTiles = CreateLakeTiles();
@@ -517,6 +524,7 @@ namespace FishAndChill.Editor
                 SkeletonRegion = skeletonRegion, SkeletonDock = skeletonDock,
                 FjordRegion = fjordRegion, FjordDock = fjordDock,
                 HaLongRegion = haLongRegion, HaLongDock = haLongDock,
+                DiveBuoy = diveBuoy, DiveOrigin = diveOrigin,
             };
         }
 
@@ -2553,6 +2561,50 @@ namespace FishAndChill.Editor
             so.FindProperty("_clouds").intValue = 5;
             SetNightLife(so, Frames);
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        // ---------- Plongée ----------
+
+        /// <summary>Graine du fond marin de Mahana (la même que <c>DiveSite._seed</c>).</summary>
+        public const int MahanaDiveSeed = 4242;
+
+        /// <summary>
+        /// Pose la bouée de plongée dans le lagon : sur une case d'eau à deux cases du sable (on la touche depuis la plage),
+        /// à une douzaine de cases du point de départ et loin du ponton. Renvoie sa position dans le monde.
+        /// </summary>
+        private static Vector2 BuildDiveBuoy(Transform mapRoot, TerrainType[,] terrain, int[,] distance, BoundsInt bounds, Vector2Int spawn, Rect dock)
+        {
+            int width = terrain.GetLength(0), height = terrain.GetLength(1);
+            Vector2Int best = spawn;
+            float bestScore = float.MaxValue;
+            for (int x = 2; x < width - 2; x++)
+            {
+                for (int y = 2; y < height - 2; y++)
+                {
+                    if (terrain[x, y] != TerrainType.Water || distance[x, y] != 2) continue;
+                    var world = new Vector2(bounds.xMin + x + 0.5f, bounds.yMin + y + 0.5f);
+                    if (Vector2.Distance(world, dock.center) < 9f) continue;
+                    float score = Mathf.Abs(Vector2.Distance(new Vector2(x, y), spawn) - 12f) + Mathf.Abs(y - spawn.y) * 0.3f;
+                    if (score < bestScore) { bestScore = score; best = new Vector2Int(x, y); }
+                }
+            }
+
+            Vector2 at = new Vector2(bounds.xMin + best.x + 0.5f, bounds.yMin + best.y + 0.3f);
+            Sprite sprite = PixelArt.Save($"{TilesFolder}/Bouee_Plongee.png", DiveArt.Buoy(), DiveArt.PixelsPerUnit, DiveArt.BuoyPivot);
+            GameObject buoy = EnsureObject("Bouée de plongée", mapRoot);
+            buoy.transform.position = at;
+            SetSprite(buoy, sprite, 10);
+            return at;
+        }
+
+        /// <summary>Le fond marin de Mahana (<see cref="DivePlan"/>), hors de la carte : un grand dessin posé sous la zone de plongée.</summary>
+        private static void BuildDiveFloor(Transform mapRoot, Vector2 origin)
+        {
+            PixelArt.EnsureFolder("Assets/_Project/Art/Plongee");
+            Sprite floor = PixelArt.Save("Assets/_Project/Art/Plongee/FondMarin_Mahana.png", DiveArt.Floor(DivePlan.Build(MahanaDiveSeed)), DiveArt.PixelsPerUnit, Vector2.zero);
+            GameObject go = EnsureObject("Fond marin de Mahana", mapRoot);
+            go.transform.position = origin;
+            SetSprite(go, floor, -10).spriteSortPoint = SpriteSortPoint.Center;
         }
 
         // ---------- Baie d'Ha Long ----------

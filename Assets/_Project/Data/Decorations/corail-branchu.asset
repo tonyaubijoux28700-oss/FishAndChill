@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 549f68e3ad1f0d944a8692a2b36884c9, type: 3}
+  m_Name: corail-branchu
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.Decoration
+  _id: corail-branchu
+  _displayName: Corail branchu
+  _description: Une touffe de corail rose aux branches qui se divisent. Les petits poissons adorent s'y cacher.
+  _zone: {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
+  _rarity: 0
+  _sprite: {fileID: 21300000, guid: 471db9e2ef5466b478df8e0874829b81, type: 3}

@@ -23,6 +23,12 @@ namespace FishAndChill.Collection
         [SerializeField, Tooltip("Le casier à crustacés vendu par le marchand.")]
         private TrapDefinition _trap;
 
+        [SerializeField, Tooltip("Les décorations d'aquarium qu'on ramasse en plongée.")]
+        private DecorationCatalog _decorationCatalog;
+
+        [SerializeField, Min(0), Tooltip("Prix du masque et du tuba (pour plonger).")]
+        private int _maskPrice = 150;
+
         public event Action Changed;
 
         public Inventory Bag { get; private set; }
@@ -41,6 +47,19 @@ namespace FishAndChill.Collection
         /// <summary>Casiers à crustacés : possédés et posés dans l'eau.</summary>
         public TrapSet Traps { get; private set; }
         public TrapDefinition Trap => _trap;
+
+        /// <summary>Décorations ramassées en plongée, posées dans les bassins, et le masque.</summary>
+        public DecorationCollection Decorations { get; private set; }
+        public DecorationCatalog DecorationCatalog => _decorationCatalog;
+        public int MaskPrice => _maskPrice;
+
+        /// <summary>Achète le masque et le tuba au marchand.</summary>
+        public bool BuyMask()
+        {
+            EnsureCreated();
+            if (Decorations.HasMask || !Wallet.TrySpend(_maskPrice)) return false;
+            return Decorations.BuyMask();
+        }
 
         /// <summary>Achète un casier à crustacés (au plus <c>MaxOwned</c>).</summary>
         public TrapPurchase BuyTrap()
@@ -110,6 +129,8 @@ namespace FishAndChill.Collection
             Traps.Changed += RaiseChanged;
             Legends = new LegendProgress();
             Legends.Changed += RaiseChanged;
+            Decorations = new DecorationCollection();
+            Decorations.Changed += RaiseChanged;
             if (_baitCatalog != null && _baitCatalog.Default != null)
             {
                 Baits.Add(_baitCatalog.Default.Id, 0); // l'appât de départ, toujours là

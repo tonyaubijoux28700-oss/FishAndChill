@@ -112,5 +112,23 @@ namespace FishAndChill.Save
 
         /// <summary>Prénom et apparence du pêcheur (ancienne sauvegarde : le pêcheur d'origine, sans prénom).</summary>
         public Player.CharacterLook Look = new Player.CharacterLook();
+
+        [Serializable]
+        public sealed class DecorationStock
+        {
+            public string Id;
+            public int Count;
+        }
+
+        [Serializable]
+        public sealed class DecorationPlacement
+        {
+            public string Slot;   // "bassin:case"
+            public string Id;
+        }
+
+        public List<DecorationStock> Decorations = new List<DecorationStock>();
+        public List<DecorationPlacement> DecorationPlacements = new List<DecorationPlacement>();
+        public bool HasDiveMask;
     }
 }

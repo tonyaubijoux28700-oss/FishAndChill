@@ -260,6 +260,9 @@ namespace FishAndChill.Save
             data.VillagerRequests = Villagers.VillagerRequests.Capture();
             data.Pets = new List<string>(_progress.Pets.Owned);
             data.EquippedPet = _progress.Pets.Equipped;
+            foreach (string id in _progress.Decorations.OwnedIds) data.Decorations.Add(new SaveData.DecorationStock { Id = id, Count = _progress.Decorations.Owned(id) });
+            foreach (var kv in _progress.Decorations.Placements) data.DecorationPlacements.Add(new SaveData.DecorationPlacement { Slot = kv.Key, Id = kv.Value });
+            data.HasDiveMask = _progress.Decorations.HasMask;
             data.Traps = _progress.Traps.Owned;
             data.PlacedTraps = new List<Gear.PlacedTrap>(_progress.Traps.Placed);
             data.TotalHours = _cycle != null ? _cycle.TotalHours : 0.0;
@@ -385,6 +388,11 @@ namespace FishAndChill.Save
             Villagers.VillagerMemory.Load(data.MetVillagers);
             Villagers.VillagerRequests.Load(data.VillagerRequests);
             _progress.Pets.Load(data.Pets, data.EquippedPet);
+            var ownedDecorations = new List<KeyValuePair<string, int>>();
+            if (data.Decorations != null) foreach (SaveData.DecorationStock d in data.Decorations) ownedDecorations.Add(new KeyValuePair<string, int>(d.Id, d.Count));
+            var placedDecorations = new List<KeyValuePair<string, string>>();
+            if (data.DecorationPlacements != null) foreach (SaveData.DecorationPlacement d in data.DecorationPlacements) placedDecorations.Add(new KeyValuePair<string, string>(d.Slot, d.Id));
+            _progress.Decorations.Load(ownedDecorations, placedDecorations, data.HasDiveMask);
             _progress.Traps.Load(data.Traps, data.PlacedTraps);
             if (_weather != null && data.Weather >= 0 && System.Enum.IsDefined(typeof(Weather), data.Weather))
             {

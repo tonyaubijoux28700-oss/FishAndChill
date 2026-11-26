@@ -421,6 +421,7 @@ namespace FishAndChill.Editor
             progressSo.FindProperty("_gearCatalog").objectReferenceValue = GearSetup.CreateOrUpdate();
             progressSo.FindProperty("_baitCatalog").objectReferenceValue = BaitSetup.CreateOrUpdate();
             progressSo.FindProperty("_petCatalog").objectReferenceValue = PetSetup.CreateOrUpdate();
+            progressSo.FindProperty("_decorationCatalog").objectReferenceValue = DecorationSetup.CreateOrUpdate();
             progressSo.FindProperty("_trap").objectReferenceValue = GearSetup.CreateTrap();
             progressSo.ApplyModifiedPropertiesWithoutUndo();
 
@@ -817,6 +818,7 @@ namespace FishAndChill.Editor
 
             // Animaux de compagnie : celui qui suit le joueur, et la boutique du vendeur de l'animalerie.
             PetSetup.Place(partie, movement, progress, skin);
+            DecorationSetup.Place(partie, buildings, movement, progress, skin);
 
             // Vue de près des bassins de l'aquarium (Haut devant la vitre).
             var closeUp = partie.GetComponent<UI.AquariumCloseUp>();
