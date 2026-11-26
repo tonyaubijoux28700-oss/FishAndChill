@@ -81,6 +81,16 @@ namespace FishAndChill.Editor
             new Prop("Bouée", AquariumPropArt.Lifebuoy, 2.2f, 1.2f, 0.6f, 0.4f),
         };
 
+        /// <summary>Salle de la baie d'Ha Long : jonque miniature et bambous en pot devant le bassin, lanternes de soie.</summary>
+        public static readonly Prop[] HaLong =
+        {
+            new Prop("Jonque miniature", AquariumHaLongArt.JunkModel, 12f, 2.4f, 2.6f, 0.6f),
+            new Prop("Bambou en pot", AquariumHaLongArt.PottedBamboo, 5f, 8.2f, 1.2f, 0.5f),
+            new Prop("Bambou en pot", AquariumHaLongArt.PottedBamboo, 19f, 8.2f, 1.2f, 0.5f),
+            new Prop("Lanterne de soie", AquariumHaLongArt.SilkLantern, 1.3f, 8.4f, 0.5f, 0.3f),
+            new Prop("Lanterne de soie", AquariumHaLongArt.SilkLantern, 22.7f, 8.4f, 0.5f, 0.3f),
+        };
+
         /// <summary>Salle des fjords : poêle à bois et tonneau au filet devant le bassin, lampes-tempête, bouée.</summary>
         public static readonly Prop[] Fjord =
         {

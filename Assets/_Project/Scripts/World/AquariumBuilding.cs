@@ -40,7 +40,9 @@ namespace FishAndChill.World
         public const float SkeletonRoomX = AtollRoomX + AtollRoomWidth + PassageWidth;
         public const float FjordRoomWidth = 24f;
         public const float FjordRoomX = SkeletonRoomX + SkeletonRoomWidth + PassageWidth;
-        public const float InteriorWidth = FjordRoomX + FjordRoomWidth;
+        public const float HaLongRoomWidth = 24f;
+        public const float HaLongRoomX = FjordRoomX + FjordRoomWidth + PassageWidth;
+        public const float InteriorWidth = HaLongRoomX + HaLongRoomWidth;
         public const float InteriorHeight = 18f;
 
         /// <summary>Haut du sol : au-delà commencent les bassins.</summary>
@@ -59,6 +61,7 @@ namespace FishAndChill.World
         public static readonly Rect AtollTank = new Rect(AtollRoomX + 2.4f, 12.4f, AtollRoomWidth - 4.8f, 4.4f);
         public static readonly Rect SkeletonTank = new Rect(SkeletonRoomX + 2.4f, 12.4f, SkeletonRoomWidth - 4.8f, 4.4f);
         public static readonly Rect FjordTank = new Rect(FjordRoomX + 2.4f, 12.4f, FjordRoomWidth - 4.8f, 4.4f);
+        public static readonly Rect HaLongTank = new Rect(HaLongRoomX + 2.4f, 12.4f, HaLongRoomWidth - 4.8f, 4.4f);
 
         /// <summary>
         /// Les étages : le hall au rez-de-chaussée, puis une salle par zone. Les salles restent côte à côte dans le monde,
@@ -74,6 +77,7 @@ namespace FishAndChill.World
             new Rect(AtollRoomX, 0f, AtollRoomWidth, InteriorHeight),
             new Rect(SkeletonRoomX, 0f, SkeletonRoomWidth, InteriorHeight),
             new Rect(FjordRoomX, 0f, FjordRoomWidth, InteriorHeight),
+            new Rect(HaLongRoomX, 0f, HaLongRoomWidth, InteriorHeight),
         };
 
         /// <summary>
@@ -90,6 +94,7 @@ namespace FishAndChill.World
             new Vector2(AtollRoomX + AtollRoomWidth * 0.5f, 0f),
             new Vector2(SkeletonRoomX + SkeletonRoomWidth * 0.5f, 0f),
             new Vector2(FjordRoomX + FjordRoomWidth * 0.5f, 0f),
+            new Vector2(HaLongRoomX + HaLongRoomWidth * 0.5f, 0f),
         };
 
         /// <summary>Colonnes à méduses (pied, relatif au coin de la salle).</summary>
@@ -209,7 +214,8 @@ namespace FishAndChill.World
                 return (feet.x >= HallTank.xMin && feet.x <= HallTank.xMax) || (feet.x >= LakeTank.xMin && feet.x <= LakeTank.xMax)
                     || (feet.x >= AmazonTank.xMin && feet.x <= AmazonTank.xMax) || (feet.x >= JapanTank.xMin && feet.x <= JapanTank.xMax)
                     || (feet.x >= ReefTank.xMin && feet.x <= ReefTank.xMax) || (feet.x >= AtollTank.xMin && feet.x <= AtollTank.xMax)
-                    || (feet.x >= SkeletonTank.xMin && feet.x <= SkeletonTank.xMax) || (feet.x >= FjordTank.xMin && feet.x <= FjordTank.xMax);
+                    || (feet.x >= SkeletonTank.xMin && feet.x <= SkeletonTank.xMax) || (feet.x >= FjordTank.xMin && feet.x <= FjordTank.xMax)
+                    || (feet.x >= HaLongTank.xMin && feet.x <= HaLongTank.xMax);
             }
         }
 

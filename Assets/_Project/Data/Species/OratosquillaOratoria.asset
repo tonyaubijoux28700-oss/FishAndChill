@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: OratosquillaOratoria
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: oratosquilla-oratoria
+  _commonName: Squille
+  _scientificName: Oratosquilla oratoria
+  _rarity: 2
+  _kind: 1
+  _bodyShape: 2
+  _difficulty:
+    _cursorSpeed: 1.4
+    _zoneWidth: 0.16
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 10, y: 20}
+  _basePrice: 40
+  _placeholderColor: {r: 0.5411765, g: 0.41568628, b: 0.627451, a: 1}
+  _description: La crevette-mante frappe ses proies plus vite qu'une balle de fusil avec ses pattes en marteau, au point de fendre les coquillages.
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: bc1c1718f9275064185dbd77bffc3f05, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 3df2dc337fb2bd24f8988534b778a20b, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 3df2dc337fb2bd24f8988534b778a20b, type: 3}
+  - {fileID: 21300000, guid: d00711ee422d06f4bbcc50c2a5f50e64, type: 3}
+  - {fileID: 21300000, guid: 13c8136b11dde0e4194149a3a2530f8b, type: 3}
+  - {fileID: 21300000, guid: e28d1febebda6f3428e10f776538f57e, type: 3}
+  _lures: 00000000i
+  _hooks: 

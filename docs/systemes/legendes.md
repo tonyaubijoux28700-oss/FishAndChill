@@ -194,7 +194,7 @@
   anneaux `Ring`, nageoires `FinAlong`). Une créature unique et
   cohérente avec sa zone, de plus en plus impressionnante au fil des zones.
 - `HaLongDragonArt` (320×176) : **dragon vietnamien** prévu pour la future légende de la **baie d'Ha Long** (9e zone,
-  pas encore créée). Corps de serpent mince en deux vagues, écailles de jade sombre, ventre en plaques de bronze, crête
+  voir `carte-et-zones.md`). Corps de serpent mince en deux vagues, écailles de jade sombre, ventre en plaques de bronze, crête
   continue de petites flammes, quatre pattes à trois griffes avec touffes de flammes aux coudes, queue en gerbe de
   flammes ; museau en volute, petites cornes en bois de cerf, crinière, barbe, longues moustaches, œil d'ambre, langue
   enroulée, et la perle lumineuse qu'il poursuit devant sa gueule. Il remplace l'ancien dragon des mers

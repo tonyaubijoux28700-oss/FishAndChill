@@ -191,6 +191,9 @@
   mousse, feuilles, pirogue, tronc moussu, monsteras et palmiers), Japon en jardin zen (gravier ratissé en cercles autour
   des rochers, pas japonais, engawa devant le bassin, bonsaï, lanternes et bancs de pierre). Les bancs en fer ne
   restent que dans le grand hall (`AquariumBuilding.Benches`).
+  **9e étage, baie d'Ha Long** (`AquariumHaLongArt`, `HaLongTank`, mobilier `AquariumRoomLayout.HaLong`) : tomettes de
+  terre cuite, mur de panneaux laqués rouges à liserés dorés, bassin d'eau émeraude aux petits pitons calcaires
+  verdoyants, sable clair, herbiers et bambous d'eau ; jonque miniature sur son socle, bambous en pot, lanternes de soie.
   **Visiteurs mis de côté** pour l'instant : `World/AquariumVisitors` et `MapSetup.BuildVisitors` (pêcheur recoloré,
   promenade devant les bassins, +1 toutes les 6 espèces) existent mais ne sont plus appelés. La faune de la zone
   (`AmbientLife`) se cache à l'intérieur des bâtiments. Obstacles : `AquariumBuilding.JellyfishColumns` / `Benches`. Devant le bassin, **E** dépose le sac (`AquariumCollection.Deposit`, testé) : le plus

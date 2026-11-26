@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: EpinephelusCoioides
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: epinephelus-coioides
+  _commonName: "M\xE9rou \xE0 taches orange"
+  _scientificName: Epinephelus coioides
+  _rarity: 2
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 4
+  _sizeRangeCm: {x: 40, y: 120}
+  _basePrice: 45
+  _placeholderColor: {r: 0.47843137, g: 0.47843137, b: 0.34509805, a: 1}
+  _description: "Il se cache dans les failles au pied des pitons. Les p\xEAcheurs du village flottant l'\xE9l\xE8vent dans leurs cages."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 5e6cf70d40e17894bbee38421d6d95ef, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 1274e620f08e46d4281df31eb2f4303a, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 1274e620f08e46d4281df31eb2f4303a, type: 3}
+  - {fileID: 21300000, guid: 808d5cee62a0b5a44bfb1be25de88330, type: 3}
+  - {fileID: 21300000, guid: 74f6f3e4ce5f43c489e0f369c89137f2, type: 3}
+  - {fileID: 21300000, guid: 4ddc65036909bf24d928f8ee98a4d245, type: 3}
+  _lures: 0000000004000000i
+  _hooks: 0300000002000000i

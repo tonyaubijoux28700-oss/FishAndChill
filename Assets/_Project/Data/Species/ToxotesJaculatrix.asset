@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ToxotesJaculatrix
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: toxotes-jaculatrix
+  _commonName: Poisson-archer
+  _scientificName: Toxotes jaculatrix
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 10, y: 30}
+  _basePrice: 18
+  _placeholderColor: {r: 0.78431374, g: 0.78431374, b: 0.627451, a: 1}
+  _description: "Il crache un jet d'eau pr\xE9cis pour faire tomber les insectes pos\xE9s sur les feuilles, \xE0 plus d'un m\xE8tre au-dessus de l'eau."
+  _activeTime: 1
+  _weather: 4
+  _sprite: {fileID: 21300000, guid: 8386eed467df23b43a362ac0227dad78, type: 3}
+  _miniSprite: {fileID: 21300000, guid: c41d67b0e7164714c85ac7da7b0020a5, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: c41d67b0e7164714c85ac7da7b0020a5, type: 3}
+  - {fileID: 21300000, guid: 6d15c6f7a8aa316448e3151dad997cab, type: 3}
+  - {fileID: 21300000, guid: 1ef6c381f46dd0d46a9ffdd307b2d030, type: 3}
+  - {fileID: 21300000, guid: ba925505ff1443e49829e5091add8095, type: 3}
+  _lures: 0500000009000000i
+  _hooks: 0000000005000000i

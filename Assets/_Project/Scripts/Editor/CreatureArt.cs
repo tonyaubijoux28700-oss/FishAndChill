@@ -40,6 +40,9 @@ namespace FishAndChill.Editor
                 case "watasenia-scintillans": pixels = CephalopodArt.FireflySquid(); return true;
                 case "hippocampus-kuda": pixels = CuriosityArt.Seahorse(); return true;
                 case "mola-mola": pixels = CuriosityArt.Sunfish(); return true;
+                case "sepia-pharaonis": pixels = LakeArt.Tint(CephalopodArt.BroadclubCuttlefish(), -0.02f, 1.2f, 1.05f); return true;
+                case "portunus-pelagicus": pixels = LakeArt.Tint(MudCrab(), 0.42f, 1.1f, 1.15f); return true;
+                case "oratosquilla-oratoria": pixels = LakeArt.Tint(AmazonCreatureArt.AmazonPrawn(), 0.62f, 1.4f, 0.9f); return true;
                 default: pixels = null; return false;
             }
         }

@@ -67,7 +67,7 @@
 - **Toutes les espèces sont dans `Assets/_Project/Data/Especes.csv`** : une ligne par espèce, séparateur `;`, s'ouvre
   dans un tableur (Excel, LibreOffice). Lue par `Collection/SpeciesTable` (testé) → `SpeciesRow`, puis le menu de
   génération crée les `FishSpecies`, remplit les zones (colonne Zone = nom de l'asset de zone : IleMahana, LacAnnecy,
-  FleuveAmazone, BaieJaponaise, GrandeBarriere, Maldives, CoteDesSquelettes, FjordsNorvege), les types de leurres (colonne Appats : naturel, cuillere, ondulante, nageur, souple, surface, jig, turlutte, traine, mouche) et les hameçons (colonne Hamecons, la dernière : aberdeen, triple, circulaire, forge, texan, mouche), voir `LureRules`.
+  FleuveAmazone, BaieJaponaise, GrandeBarriere, Maldives, CoteDesSquelettes, FjordsNorvege, BaieHaLong), les types de leurres (colonne Appats : naturel, cuillere, ondulante, nageur, souple, surface, jig, turlutte, traine, mouche) et les hameçons (colonne Hamecons, la dernière : aberdeen, triple, circulaire, forge, texan, mouche), voir `LureRules`.
   Erreurs de la table (valeur inconnue, nombre mal écrit) affichées dans la console, la ligne est sautée.
 - Valeurs en français, sans souci des accents : Rarete (commune, peu commune, rare, épique, légendaire), Nature
   (poisson, crustacé, reptile, amphibien, céphalopode), Forme (ombre sous l'eau : poisson, crabe, langouste, tortue,
@@ -87,9 +87,12 @@
 - **Requins** : `Editor/SharkArt` (corps `DetailedFish` sans écailles + ailerons en polygones à bords courbes peints
   par-dessus via `DetailedFish.Overlays`) : aileron rejeté en arrière, queue au lobe haut plus long, fentes branchiales,
   gueule sous le museau, pointes colorées (`Tip`). Tous les requins du jeu y passent ; tête en marteau, barbillons, épines
-  du requin dormeur en détails.
+  du requin dormeur en détails. Requin-baleine (légendaire de la baie d'Ha Long) : tête large, bouche au bout du
+  museau, damier de rayures et de taches blanches, crêtes des flancs.
 - **Céphalopodes** : `Editor/CephalopodArt` (bras en courbes qui s'affinent et s'enroulent, ventouses, peau marbrée).
   **Curiosités** : `Editor/CuriosityArt` (hippocampe debout en anneaux, poisson-lune).
+  Recolorés dans `CreatureArt.TryGet` : seiche pharaon (seiche à larges bras), crabe nageur bleu (crabe de palétuvier),
+  squille (crevette d'Amazonie, forme langouste dans la table).
 - **Nouvelle espèce = une ligne dans la table**, puis le menu **Générer seulement les poissons** (`PrototypeSetup.GenerateFishOnly`, ~20 s : zones et espèces, sans la scène). Exemples faits uniquement par la
   table : poisson-ballon à taches blanches, vairon, aimara, murène japonaise.
 

@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: NemipterusVirgatus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: nemipterus-virgatus
+  _commonName: "Cohana dor\xE9"
+  _scientificName: Nemipterus virgatus
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 20, y: 35}
+  _basePrice: 18
+  _placeholderColor: {r: 0.8784314, g: 0.5411765, b: 0.6039216, a: 1}
+  _description: "Rose aux bandes jaune d'or, il vit sur les fonds de vase entre les \xEEles, le p\xEAcheur le reconna\xEEt \xE0 son long filament de queue."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: f7317abfd9ff31f4a889c6fbcc171914, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 04e55ab149f51b7458066bb41f7bb500, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 04e55ab149f51b7458066bb41f7bb500, type: 3}
+  - {fileID: 21300000, guid: 1a2a91967525ae541b1e7844e11c49d5, type: 3}
+  - {fileID: 21300000, guid: ef8ef692dfc26204190918e55891064e, type: 3}
+  - {fileID: 21300000, guid: 52d0305e45baf8948a4bb09e616a9aa2, type: 3}
+  _lures: 0000000006000000i
+  _hooks: 0000000001000000i

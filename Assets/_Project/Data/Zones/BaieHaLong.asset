@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52d1726b683e3a34cb42cf076922ab57, type: 3}
+  m_Name: BaieHaLong
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
+  _displayName: Baie d'Ha Long
+  _description: "Des milliers de pitons calcaires couverts de jungle dans une eau \xE9meraude, jonques aux voiles rouges et village flottant. On dit qu'un dragon les a fait na\xEEtre en frappant la mer de sa queue."
+  _waterColor: {r: 0.08, g: 0.34, b: 0.3, a: 1}
+  _species:
+  - _species: {fileID: 11400000, guid: c628e8f1410b46142ab49c91a5bfe11d, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 36a3b661a2f1d76469f9a55b5f6b9a50, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: e8ae367e294e2234fb8368da54ed0de9, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: fdd8716739164db4582fc27455ba628d, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: e925c539e50e3e34cb668e2ae2535e11, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 8827416695ce8fe4cb68db3637d22f79, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: dde9c689fe5e8624cb21f04507bc8ea7, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 40a2b9415220f524d82f6ed6715cb306, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: cc62d2c73b7faad478b6a85f15cd9156, type: 2}
+    _weight: 10
+  - _species: {fileID: 11400000, guid: 38cd5c61b943f934ba51c03663b2973f, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: e9e9d80626a9c55439e460ddfa4aea9b, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 2cf4865de28b8b641af1afd92e49680e, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 8e7f5e247f60e584fbc425a96200f2e2, type: 2}
+    _weight: 6
+  - _species: {fileID: 11400000, guid: 1c68b1a109d97a64c9188eac6c0fa4e3, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: b9ed8467c86029e47938d7887bd74657, type: 2}
+    _weight: 2
+  _mapPosition: {x: 0.77, y: 0.58}
+  _region: "Quang Ninh, Vi\xEAt Nam"
+  _climate:
+    _clear: 35
+    _cloudy: 25
+    _rain: 20
+    _storm: 10
+    _fog: 10
+  _ambient: {r: 1, g: 1, b: 1, a: 1}
+  _minimumFog: 0

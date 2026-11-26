@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: MugilCephalus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: mugil-cephalus
+  _commonName: Mulet cabot
+  _scientificName: Mugil cephalus
+  _rarity: 0
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 30, y: 70}
+  _basePrice: 6
+  _placeholderColor: {r: 0.54901963, g: 0.59607846, b: 0.61960787, a: 1}
+  _description: Il broute les algues des pitons au ras de l'eau et saute hors de la baie quand on s'en approche.
+  _activeTime: 1
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 8331f50cfaa46b04483fa54b360e57c8, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 59a28ba03c482034b89e3a056c4f0be1, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 59a28ba03c482034b89e3a056c4f0be1, type: 3}
+  - {fileID: 21300000, guid: 00381f4d6555fed48be1d200ef4b24e4, type: 3}
+  - {fileID: 21300000, guid: 445fc3cb5b57350499c78af2717402c4, type: 3}
+  - {fileID: 21300000, guid: 174211f384cf03643a804616894886b1, type: 3}
+  _lures: 0000000009000000i
+  _hooks: 0000000005000000i

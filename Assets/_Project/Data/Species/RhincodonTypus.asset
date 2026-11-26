@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: RhincodonTypus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: rhincodon-typus
+  _commonName: Requin-baleine
+  _scientificName: Rhincodon typus
+  _rarity: 4
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 2.2
+    _zoneWidth: 0.11
+    _requiredHits: 5
+    _maxMisses: 1
+  _fightStyle: 4
+  _sizeRangeCm: {x: 600, y: 1200}
+  _basePrice: 250
+  _placeholderColor: {r: 0.22745098, g: 0.2901961, b: 0.3529412, a: 1}
+  _description: "Le plus grand poisson du monde, couvert d'\xE9toiles blanches. Il glisse lentement entre les pitons, la bouche grande ouverte pour filtrer le plancton."
+  _activeTime: 1
+  _weather: 4
+  _sprite: {fileID: 21300000, guid: c2d81136ae5f86144a6dfa6999c5b7ba, type: 3}
+  _miniSprite: {fileID: 21300000, guid: cf50cfcb3506cdc4d81dee4dcc18bd6a, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: cf50cfcb3506cdc4d81dee4dcc18bd6a, type: 3}
+  - {fileID: 21300000, guid: 5ade0499f0863424da4d4d83ba001d5e, type: 3}
+  - {fileID: 21300000, guid: 16dadc085a617ab449e2170afccc6378, type: 3}
+  - {fileID: 21300000, guid: 92a686d24535a994d995ac0b3f62f51e, type: 3}
+  _lures: 0000000008000000i
+  _hooks: 0300000002000000i

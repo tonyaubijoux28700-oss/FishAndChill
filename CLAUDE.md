@@ -8,7 +8,7 @@ Conception : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 
 - [docs/systemes/peche.md](docs/systemes/peche.md) : déroulé de la pêche, QTE et styles de combat, coins de pêche,
   touche rare, silhouettes sous l'eau.
-- [docs/systemes/carte-et-zones.md](docs/systemes/carte-et-zones.md) : île et générateurs, les 8 zones (régions),
+- [docs/systemes/carte-et-zones.md](docs/systemes/carte-et-zones.md) : île et générateurs, les 9 zones (régions),
   voyage et ponton, carte du monde, aménagement (`TownLayout`).
 - [docs/systemes/batiments-et-progression.md](docs/systemes/batiments-et-progression.md) : sac, maison, phare,
   boutique et marchand, animalerie et animaux de compagnie, habitants et dialogues, matériel et appâts, aquarium, inventaire, carnet, sauvegarde, écran titre, création du

@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PlatycephalusIndicus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: platycephalus-indicus
+  _commonName: "Platyc\xE9phale"
+  _scientificName: Platycephalus indicus
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 4
+  _sizeRangeCm: {x: 30, y: 90}
+  _basePrice: 18
+  _placeholderColor: {r: 0.5411765, g: 0.47843137, b: 0.3764706, a: 1}
+  _description: "Une t\xEAte aplatie comme une pelle et un corps de crocodile : il guette, enfoui dans le sable, ce qui passe au-dessus de lui."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 0e24ab3df304eb54e8b9f35269605957, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 3e434975fd078dd43951e9beed1c0b52, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 3e434975fd078dd43951e9beed1c0b52, type: 3}
+  - {fileID: 21300000, guid: ebd7d339d136316469f1fbfd6e6c3d62, type: 3}
+  - {fileID: 21300000, guid: 454c13a6639b1f04cb045bfc0ac3e6da, type: 3}
+  - {fileID: 21300000, guid: 0784a3ae3397d1840a75a6a6f37bf9bc, type: 3}
+  _lures: 0000000004000000i
+  _hooks: 0300000002000000i

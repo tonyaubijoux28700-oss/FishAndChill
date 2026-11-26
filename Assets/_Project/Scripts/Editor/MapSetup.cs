@@ -85,6 +85,8 @@ namespace FishAndChill.Editor
             public DockInfo SkeletonDock;
             public Rect FjordRegion;
             public DockInfo FjordDock;
+            public Rect HaLongRegion;
+            public DockInfo HaLongDock;
         }
 
         /// <summary>Un ponton : sol praticable au-dessus de l'eau, point d'arrivée au bout, regard vers le large.</summary>
@@ -167,6 +169,16 @@ namespace FishAndChill.Editor
         };
 
         private const int FjordGap = 20;
+
+        /// <summary>La baie d'Ha Long : eau émeraude semée de pitons calcaires, village flottant, à l'est des fjords.</summary>
+        private static readonly IslandGenerator.Settings HaLongSettings = new IslandGenerator.Settings
+        {
+            Width = 90,
+            Height = 64,
+            Seed = 9292,
+        };
+
+        private const int HaLongGap = 20;
 
         private const int DockLength = 5;
 
@@ -354,6 +366,11 @@ namespace FishAndChill.Editor
             var fjordBounds = new BoundsInt(skeletonBounds.xMax + FjordGap, -FjordSettings.Height / 2, 0, FjordSettings.Width, FjordSettings.Height, 1);
             DockInfo fjordDock = BuildFjord(mapObject.transform, fjordBounds, fjordTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
 
+            // La baie d'Ha Long, à l'est des fjords.
+            TileSet haLongTiles = CreateHaLongTiles();
+            var haLongBounds = new BoundsInt(fjordBounds.xMax + HaLongGap, -HaLongSettings.Height / 2, 0, HaLongSettings.Width, HaLongSettings.Height, 1);
+            DockInfo haLongDock = BuildHaLong(mapObject.transform, haLongBounds, haLongTiles, waterMap, landMap, lagoonLayer, sandLayer, grassLayer, pavingLayer, decorMap, staticObstacles);
+
             var worldMap = mapObject.GetComponent<WorldMap>();
             if (worldMap == null)
             {
@@ -371,10 +388,12 @@ namespace FishAndChill.Editor
             var atollRegion = new Rect(atollBounds.xMin, atollBounds.yMin, atollBounds.size.x, atollBounds.size.y);
             var skeletonRegion = new Rect(skeletonBounds.xMin, skeletonBounds.yMin, skeletonBounds.size.x, skeletonBounds.size.y);
             var fjordRegion = new Rect(fjordBounds.xMin, fjordBounds.yMin, fjordBounds.size.x, fjordBounds.size.y);
-            worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion, skeletonRegion, fjordRegion },
-                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, skeletonDock.Area, fjordDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea, ReefBridgeArea, FjordBridgeArea }.Concat(AtollJetty));
+            var haLongRegion = new Rect(haLongBounds.xMin, haLongBounds.yMin, haLongBounds.size.x, haLongBounds.size.y);
+            worldMap.SetRegions(new[] { islandRegion, lakeRegion, amazonRegion, japanRegion, reefRegion, atollRegion, skeletonRegion, fjordRegion, haLongRegion },
+                new[] { islandDock.Area, lakeDock.Area, amazonDock.Area, japanDock.Area, reefDock.Area, atollDock.Area, skeletonDock.Area, fjordDock.Area, haLongDock.Area, LakeBridgeArea, AmazonBridgeArea, JapanBridgeArea, ReefBridgeArea, FjordBridgeArea }.Concat(AtollJetty).Concat(HaLongWalkways));
             BuildSkeletonLife(mapObject.transform, worldMap, player.transform, skeletonDock.Area);
             BuildFjordLife(mapObject.transform, worldMap, player.transform, fjordDock.Area);
+            BuildHaLongLife(mapObject.transform, worldMap, player.transform, haLongDock.Area);
             BuildAtollLife(mapObject.transform, worldMap, player.transform, atollDock.Area);
             BuildReefLife(mapObject.transform, worldMap, player.transform, reefDock.Area);
             BuildJapanLife(mapObject.transform, worldMap, player.transform, japanDock.Area);
@@ -393,6 +412,7 @@ namespace FishAndChill.Editor
             FishingSpots atollSpots = BuildSpots(mapObject.transform, "Coins de pêche de l'atoll", worldMap, 5, atollDock.Area);
             FishingSpots skeletonSpots = BuildSpots(mapObject.transform, "Coins de pêche de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);
             FishingSpots fjordSpots = BuildSpots(mapObject.transform, "Coins de pêche du fjord", worldMap, 7, fjordDock.Area);
+            FishingSpots haLongSpots = BuildSpots(mapObject.transform, "Coins de pêche de la baie d'Ha Long", worldMap, 8, haLongDock.Area);
             // Remous légendaires (un par zone) : visibles une fois la légende
             // réveillée au laboratoire.
             BuildLegendSpot(mapObject.transform, "Remous légendaire de l'île", worldMap, 0, islandDock.Area);
@@ -403,7 +423,8 @@ namespace FishAndChill.Editor
             BuildLegendSpot(mapObject.transform, "Remous légendaire du récif", worldMap, 4, reefDock.Area);   // Moha-moha
             BuildLegendSpot(mapObject.transform, "Remous légendaire de la Côte des Squelettes", worldMap, 6, skeletonDock.Area);   // Spectre des épaves
             BuildLegendSpot(mapObject.transform, "Remous légendaire du fjord", worldMap, 7, fjordDock.Area);   // Kraken
-            spotList.arraySize = 8;
+            spotList.arraySize = 9;
+            spotList.GetArrayElementAtIndex(8).objectReferenceValue = haLongSpots;
             spotList.GetArrayElementAtIndex(7).objectReferenceValue = fjordSpots;
             spotList.GetArrayElementAtIndex(5).objectReferenceValue = atollSpots;
             spotList.GetArrayElementAtIndex(6).objectReferenceValue = skeletonSpots;
@@ -482,7 +503,7 @@ namespace FishAndChill.Editor
                 }
             }
 
-            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, atollTiles, skeletonTiles, fjordTiles, shop, aquarium, house.transform, lighthouse.transform, lab.transform, petShop.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker, atollDock.Marker, skeletonDock.Marker, fjordDock.Marker });
+            BuildMinimap(worldMap, decorMap, player.transform, tiles, lakeTiles, amazonTiles, japanTiles, reefTiles, atollTiles, skeletonTiles, fjordTiles, haLongTiles, shop, aquarium, house.transform, lighthouse.transform, lab.transform, petShop.transform, new[] { islandDock.Marker, lakeDock.Marker, amazonDock.Marker, japanDock.Marker, reefDock.Marker, atollDock.Marker, skeletonDock.Marker, fjordDock.Marker, haLongDock.Marker });
             return new Buildings
             {
                 Shop = shop, Aquarium = aquarium, Lab = lab,
@@ -494,6 +515,7 @@ namespace FishAndChill.Editor
                 AtollRegion = atollRegion, AtollDock = atollDock,
                 SkeletonRegion = skeletonRegion, SkeletonDock = skeletonDock,
                 FjordRegion = fjordRegion, FjordDock = fjordDock,
+                HaLongRegion = haLongRegion, HaLongDock = haLongDock,
             };
         }
 
@@ -2532,6 +2554,296 @@ namespace FishAndChill.Editor
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        // ---------- Baie d'Ha Long ----------
+
+        /// <summary>Plate-forme du village flottant et sa passerelle (praticables au-dessus de l'eau), en coordonnées du monde.</summary>
+        private static readonly List<Rect> HaLongWalkways = new List<Rect>();
+
+        /// <summary>Tuiles de la baie d'Ha Long : celles de l'île recolorées (eau émeraude, sable doré, végétation profonde).</summary>
+        private static TileSet CreateHaLongTiles()
+        {
+            var set = new TileSet { Deep = new Tile[2], Shallow = new Tile[2], Sand = new Tile[3], Grass = new Tile[3] };
+            for (int i = 0; i < 2; i++)
+            {
+                set.Deep[i] = SaveAnimatedWater($"HaLong_Eau_{i}", f => HaLongArt.Bay(TileArt.DeepWater(i, f)));
+                set.Shallow[i] = set.Deep[i];
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                set.Sand[i] = SaveTile($"HaLong_Sable_{i}", HaLongArt.Sand(TileArt.Sand(i)), Vector2.one * 0.5f, TileArt.Size);
+                set.Grass[i] = SaveTile($"HaLong_Herbe_{i}", HaLongArt.Green(TileArt.Grass(i)), Vector2.one * 0.5f, TileArt.Size);
+            }
+
+            var shallow = new TransitionArt.Style
+            {
+                Fill = HaLongArt.Shallow(TileArt.ShallowWater(0)),
+                InnerBand = 0.06f, InnerColor = HaLongArt.Shallow(new Color(0.46f, 0.88f, 0.86f)), InnerBlend = 0.6f,
+                OuterBand = 0.07f, OuterColor = HaLongArt.Shallow(new Color(0.24f, 0.70f, 0.80f)), DitherOuter = true,
+            };
+            var sand = new TransitionArt.Style
+            {
+                Fill = HaLongArt.Sand(TileArt.Sand(0)),
+                InnerBand = 0.07f, InnerColor = HaLongArt.Sand(new Color(0.78f, 0.66f, 0.46f)), InnerBlend = 1f,   // sable mouillé
+                OuterBand = 0.07f, OuterColor = new Color(0.90f, 0.96f, 0.92f), DitherOuter = false,                // écume
+            };
+            var green = new TransitionArt.Style
+            {
+                Fill = HaLongArt.Green(TileArt.Grass(0)),
+                InnerBand = 0.06f, InnerColor = HaLongArt.Green(new Color(0.22f, 0.50f, 0.24f)), InnerBlend = 1f,
+                OuterBand = 0.06f, OuterColor = HaLongArt.Green(new Color(0.40f, 0.70f, 0.34f)), DitherOuter = true,
+            };
+
+            set.LagoonEdges = SaveEdges("HaLongEau", shallow);
+            set.SandEdges = SaveEdges("HaLongSable", sand);
+            set.GrassEdges = SaveEdges("HaLongHerbe", green);
+            set.LagoonFull = new[] { set.LagoonEdges[15], SaveTile("Bords/HaLongEau_15b", HaLongArt.Shallow(TileArt.ShallowWater(1)), Vector2.one * 0.5f, TileArt.Size) };
+            set.SandFull = new[]
+            {
+                set.SandEdges[15],
+                SaveTile("Bords/HaLongSable_15b", HaLongArt.Sand(TileArt.Sand(1)), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Bords/HaLongSable_15c", HaLongArt.Sand(TileArt.Sand(2)), Vector2.one * 0.5f, TileArt.Size),
+            };
+            set.GrassFull = new[] { set.GrassEdges[15], set.GrassEdges[15], set.GrassEdges[15] };
+            return set;
+        }
+
+        /// <summary>
+        /// Dessine la baie d'Ha Long d'après son plan (<see cref="HaLongPlan"/>) : eau émeraude, plage, végétation, chemin de
+        /// terre, montagnes de calcaire et grotte au nord, pitons dans la baie, jonques, bateaux-paniers, village flottant
+        /// (plate-forme et passerelle praticables, maisons sur radeaux, cages à poissons), temple et maisons du village,
+        /// banians, arbres, bambous, bananiers, rochers, buissons, fleurs ; puis le ponton.
+        /// </summary>
+        private static DockInfo BuildHaLong(Transform mapRoot, BoundsInt bounds, TileSet tiles, Tilemap waterMap, Tilemap landMap,
+            Tilemap lagoonLayer, Tilemap sandLayer, Tilemap grassLayer, Tilemap pavingLayer, Tilemap decorMap, List<Rect> obstacles)
+        {
+            HaLongPlan plan = HaLongPlan.Build();
+            TerrainType[,] terrain = plan.Terrain;
+            int[,] distance = IslandGenerator.DistanceToLand(terrain, ShallowDistance + 1);
+            int width = terrain.GetLength(0);
+            int height = terrain.GetLength(1);
+            int seed = HaLongSettings.Seed;
+            int ppu = VolumeCanvas.PixelsPerUnit;
+            Vector3Int Cell(int x, int y) => new Vector3Int(bounds.xMin + x, bounds.yMin + y, 0);
+            Vector3 World(float x, float y) => new Vector3(bounds.xMin + x, bounds.yMin + y, 0f);
+            void Solid(float cx, float y, float w, float h) => obstacles.Add(new Rect(bounds.xMin + cx - w * 0.5f, bounds.yMin + y, w, h));
+
+            var waterTiles = new TileBase[width * height];
+            var landTiles = new TileBase[width * height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = x + y * width;
+                    float hash = IslandGenerator.CellHash(x, y, seed);
+                    waterTiles[index] = tiles.Deep[hash < 0.5f ? 0 : 1];
+                    if (terrain[x, y] == TerrainType.Sand) landTiles[index] = tiles.Sand[hash < 0.9f ? 0 : hash < 0.96f ? 1 : 2];
+                    else if (terrain[x, y] == TerrainType.Grass) landTiles[index] = tiles.Grass[hash < 0.91f ? 0 : hash < 0.96f ? 1 : 2];
+                }
+            }
+
+            waterMap.SetTilesBlock(bounds, waterTiles);
+            landMap.SetTilesBlock(bounds, landTiles);
+            FillDualLayer(lagoonLayer, bounds, width, height, (x, y) => distance[x, y] <= ShallowDistance, tiles.LagoonEdges, tiles.LagoonFull, seed + 2, false);
+            FillDualLayer(sandLayer, bounds, width, height, (x, y) => terrain[x, y] != TerrainType.Water, tiles.SandEdges, tiles.SandFull, seed + 3, false);
+            FillDualLayer(grassLayer, bounds, width, height, (x, y) => terrain[x, y] == TerrainType.Grass, tiles.GrassEdges, tiles.GrassFull, seed + 4, false);
+
+            // Chemin de terre du village (double grille, couche des pavés).
+            var path = new TransitionArt.Style
+            {
+                Fill = JapanTerrainArt.EarthFill(0),
+                InnerBand = 0.06f, InnerColor = new Color(0.44f, 0.32f, 0.22f), InnerBlend = 0.7f,
+                OuterBand = 0.06f, OuterColor = HaLongArt.Green(new Color(0.40f, 0.66f, 0.32f)), DitherOuter = true,
+            };
+            Tile[] pathEdges = SaveEdges("HaLongChemin", path);
+            Tile[] pathFull = { pathEdges[15], SaveTile("Bords/HaLongChemin_15b", JapanTerrainArt.EarthFill(1), Vector2.one * 0.5f, TileArt.Size) };
+            FillDualLayer(pavingLayer, bounds, width, height, (x, y) => plan.Path[x, y], pathEdges, pathFull, seed + 6, false);
+
+            // Ponton des voyages sous le village, vers le sud (BuildDock essaie d'abord 3 cases à droite du point donné).
+            DockInfo dock = BuildDock(mapRoot, "Ponton - Baie d'Ha Long", terrain, bounds, plan.DockFoot - new Vector2Int(3, 0), Vector2Int.down);
+
+            GameObject Landmark(string name, Sprite sprite, float x, float y, int order = 10)
+            {
+                GameObject go = EnsureObject(name, mapRoot);
+                go.transform.position = World(x, y);
+                SetSprite(go, sprite, order);
+                return go;
+            }
+
+            // Montagnes de calcaire tout le long du nord ; l'une s'ouvre sur la grotte.
+            Sprite[] ranges = { PixelArt.Save($"{TilesFolder}/HaLong_Montagne_0.png", HaLongLandmarkArt.KarstRange(0), ppu, HaLongLandmarkArt.KarstPivot),
+                PixelArt.Save($"{TilesFolder}/HaLong_Montagne_1.png", HaLongLandmarkArt.KarstRange(1), ppu, HaLongLandmarkArt.KarstPivot) };
+            Sprite caveSprite = PixelArt.Save($"{TilesFolder}/HaLong_Grotte.png", HaLongLandmarkArt.KarstRange(2, true), ppu, HaLongLandmarkArt.KarstPivot);
+            Color limestone = new Color(0.62f, 0.62f, 0.56f);
+            for (int i = 0; i < plan.Karsts.Count; i++)
+            {
+                Vector2Int c = plan.Karsts[i];
+                Landmark(i == plan.CaveIndex ? "Grotte" : $"Montagne de calcaire {i + 1}", i == plan.CaveIndex ? caveSprite : ranges[i % 2], c.x + 0.5f, c.y);
+                Solid(c.x + 0.5f, c.y - 0.1f, 8f, 7f);
+                MinimapBlocks.Add((new Rect(bounds.xMin + c.x + 0.5f - 4f, bounds.yMin + c.y, 8f, height - c.y), new Color(0.36f, 0.50f, 0.30f), true));
+            }
+
+            // Pitons calcaires dans la baie.
+            Sprite[] pitons = new Sprite[3];
+            for (int v = 0; v < 3; v++) pitons[v] = PixelArt.Save($"{TilesFolder}/HaLong_Piton_{v}.png", HaLongLandmarkArt.Piton(v), ppu, HaLongLandmarkArt.PitonPivot);
+            for (int i = 0; i < plan.Pitons.Count; i++)
+            {
+                (Vector2Int c, int v) = plan.Pitons[i];
+                Landmark($"Piton calcaire {i + 1}", pitons[v], c.x + 0.5f, c.y);
+                Solid(c.x + 0.5f, c.y - 0.2f, 5f, 2f);
+                MinimapBlocks.Add((new Rect(bounds.xMin + c.x + 0.5f - 2.5f, bounds.yMin + c.y, 5f, 3f), limestone, false));
+            }
+
+            // Jonques et bateaux-paniers.
+            Sprite junk = PixelArt.Save($"{TilesFolder}/HaLong_Jonque.png", HaLongLandmarkArt.Junk(), ppu, HaLongLandmarkArt.JunkPivot);
+            for (int i = 0; i < plan.Junks.Count; i++)
+            {
+                Landmark($"Jonque {i + 1}", junk, plan.Junks[i].x + 0.5f, plan.Junks[i].y + 0.5f);
+                Solid(plan.Junks[i].x + 0.5f, plan.Junks[i].y + 0.3f, 6f, 1.2f);
+            }
+
+            Sprite basket = PixelArt.Save($"{TilesFolder}/HaLong_BateauPanier.png", HaLongLandmarkArt.BasketBoat(), ppu, Vector2.one * 0.5f);
+            for (int i = 0; i < plan.BasketBoats.Count; i++)
+            {
+                Landmark($"Bateau-panier {i + 1}", basket, plan.BasketBoats[i].x + 0.5f, plan.BasketBoats[i].y + 0.5f, -8).GetComponent<SpriteRenderer>().spriteSortPoint = SpriteSortPoint.Center;
+            }
+
+            // Le village flottant : plate-forme et passerelle où l'on marche (et pêche), maisons sur radeaux, cages.
+            HaLongWalkways.Clear();
+            void Boardwalk(string name, string file, RectInt r)
+            {
+                Sprite sprite = PixelArt.Save($"{TilesFolder}/{file}.png", AtollLandmarkArt.Boardwalk(r.width, r.height), TileArt.Size, new Vector2(0f, 6f / (r.height * 16 + 6)));
+                GameObject go = EnsureObject(name, mapRoot);
+                go.transform.position = World(r.xMin, r.yMin);
+                SetSprite(go, sprite, -9).spriteSortPoint = SpriteSortPoint.Center;
+                HaLongWalkways.Add(new Rect(bounds.xMin + r.xMin, bounds.yMin + r.yMin, r.width, r.height));
+                MinimapBlocks.Add((new Rect(bounds.xMin + r.xMin, bounds.yMin + r.yMin, r.width, r.height), new Color(0.62f, 0.44f, 0.28f), false));
+            }
+
+            Boardwalk("Passerelle du village flottant", "HaLong_Passerelle", plan.Walkway);
+            Boardwalk("Plate-forme du village flottant", "HaLong_PlateForme", plan.Platform);
+            Sprite cage = PixelArt.Save($"{TilesFolder}/HaLong_Cage.png", HaLongLandmarkArt.Cage(), ppu, Vector2.one * 0.5f);
+            for (int i = 0; i < plan.Cages.Count; i++)
+            {
+                Landmark($"Cage à poissons {i + 1}", cage, plan.Cages[i].x + 0.5f, plan.Cages[i].y + 0.5f, -9).GetComponent<SpriteRenderer>().spriteSortPoint = SpriteSortPoint.Center;
+            }
+
+            for (int i = 0; i < plan.FloatingHouses.Count; i++)
+            {
+                Vector2Int h = plan.FloatingHouses[i];
+                Sprite sprite = PixelArt.Save($"{TilesFolder}/HaLong_MaisonFlottante_{i % 2}.png", HaLongLandmarkArt.FloatingHouse(i % 2), ppu, HaLongLandmarkArt.FloatingPivot);
+                Landmark($"Maison flottante {i + 1}", sprite, h.x + 0.5f, h.y);
+                Solid(h.x + 0.5f, h.y - 0.1f, 3.4f, 1.2f);
+                MinimapBlocks.Add((new Rect(bounds.xMin + h.x + 0.5f - 1.7f, bounds.yMin + h.y, 3.4f, 2f), new Color(0.36f, 0.56f, 0.66f), false));
+            }
+
+            // Le temple et les maisons du village.
+            Landmark("Temple du village", PixelArt.Save($"{TilesFolder}/HaLong_Temple.png", HaLongLandmarkArt.Temple(), ppu, HaLongLandmarkArt.TemplePivot), plan.Temple.x + 0.5f, plan.Temple.y);
+            Solid(plan.Temple.x + 0.5f, plan.Temple.y - 0.1f, 6.4f, 2.2f);
+            MinimapBlocks.Add((new Rect(bounds.xMin + plan.Temple.x + 0.5f - 3.3f, bounds.yMin + plan.Temple.y, 6.6f, 4f), new Color(0.62f, 0.14f, 0.10f), false));
+            for (int i = 0; i < plan.Houses.Count; i++)
+            {
+                Vector2Int h = plan.Houses[i];
+                Sprite sprite = PixelArt.Save($"{TilesFolder}/HaLong_Maison_{i % 2}.png", HaLongLandmarkArt.VillageHouse(i % 2), ppu, HaLongLandmarkArt.HousePivot);
+                Landmark($"Maison du village {i + 1}", sprite, h.x + 0.5f, h.y);
+                Solid(h.x + 0.5f, h.y - 0.1f, 4.4f, 2.2f);
+                MinimapBlocks.Add((new Rect(bounds.xMin + h.x + 0.5f - 2.3f, bounds.yMin + h.y, 4.6f, 3.4f), new Color(0.56f, 0.24f, 0.16f), false));
+            }
+
+            // Végétation et rochers.
+            Tile[] banyans = { SaveTile("HaLong_Banian_0", HaLongTerrainArt.Banyan(0), HaLongTerrainArt.BanyanPivot, ppu),
+                SaveTile("HaLong_Banian_1", HaLongTerrainArt.Banyan(1), HaLongTerrainArt.BanyanPivot, ppu) };
+            Tile[] trees = new Tile[3];
+            for (int i = 0; i < 3; i++) trees[i] = SaveTile($"HaLong_Arbre_{i}", AmazonTerrainArt.JungleTree(i), AmazonTerrainArt.TreePivot, TileArt.Size);
+            Tile[] bamboo = { SaveTile("HaLong_Bambous_0", JapanTerrainArt.Bamboo(0), JapanTerrainArt.BambooPivot, TileArt.Size),
+                SaveTile("HaLong_Bambous_1", JapanTerrainArt.Bamboo(1), JapanTerrainArt.BambooPivot, TileArt.Size) };
+            Tile banana = SaveTile("HaLong_Bananier", AmazonTerrainArt.Banana(), AmazonTerrainArt.BananaPivot, TileArt.Size);
+            Tile[] rocks = { SaveTile("Decor/HaLong_Rocher_0", LakeArt.Tint(ReefTerrainArt.Rock(0), 0.05f, 0.2f, 1.15f), ReefTerrainArt.RockPivot, ppu),
+                SaveTile("Decor/HaLong_Rocher_1", LakeArt.Tint(ReefTerrainArt.Rock(1), 0.05f, 0.2f, 1.15f), ReefTerrainArt.RockPivot, ppu) };
+            Tile[] bushes = { SaveTile("Decor/HaLong_Buisson_0", AtollTerrainArt.Bush(0), AtollTerrainArt.BushPivot, ppu),
+                SaveTile("Decor/HaLong_Buisson_1", AtollTerrainArt.Bush(1), AtollTerrainArt.BushPivot, ppu) };
+            Tile[] flowers = { SaveTile("Decor/HaLong_Fleurs_0", AtollTerrainArt.Flowers(0), Vector2.one * 0.5f, TileArt.Size),
+                SaveTile("Decor/HaLong_Fleurs_1", AtollTerrainArt.Flowers(1), Vector2.one * 0.5f, TileArt.Size) };
+            foreach ((Vector2Int cell, HaLongPlan.Plant kind, int variant) in plan.Plants)
+            {
+                Vector3Int at = Cell(cell.x, cell.y);
+                switch (kind)
+                {
+                    case HaLongPlan.Plant.Banyan:
+                        decorMap.SetTile(at, banyans[variant % 2]);
+                        obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
+                        break;
+                    case HaLongPlan.Plant.Tree:
+                        decorMap.SetTile(at, trees[variant % 3]);
+                        obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
+                        break;
+                    case HaLongPlan.Plant.Bamboo:
+                        decorMap.SetTile(at, bamboo[variant % 2]);
+                        obstacles.Add(TownLayout.PalmFootprint(World(cell.x + 0.5f, cell.y + 0.5f)));
+                        break;
+                    case HaLongPlan.Plant.Banana:
+                        decorMap.SetTile(at, banana);
+                        break;
+                    case HaLongPlan.Plant.Rock:
+                        decorMap.SetTile(at, rocks[variant % 2]);
+                        Solid(cell.x + 0.5f, cell.y + 0.1f, 1.2f, 0.5f);
+                        break;
+                    case HaLongPlan.Plant.Bush:
+                        decorMap.SetTile(at, bushes[variant % 2]);
+                        break;
+                    case HaLongPlan.Plant.Flowers:
+                        decorMap.SetTile(at, flowers[variant % 2]);
+                        break;
+                }
+            }
+
+            return dock;
+        }
+
+        /// <summary>La vie de la baie : tortues de mer sous l'eau, bernard-l'ermite sur la plage, papillons, frégate qui plane.</summary>
+        private static void BuildHaLongLife(Transform root, WorldMap map, Transform player, Rect dock)
+        {
+            const string folder = "Assets/_Project/Art/Ambient";
+            PixelArt.EnsureFolder(folder);
+            Sprite[] Frames(string name, int count, System.Func<int, Color[,]> draw)
+            {
+                var sprites = new Sprite[count];
+                for (int i = 0; i < count; i++)
+                {
+                    sprites[i] = PixelArt.Save($"{folder}/{name}_{i}.png", draw(i), TileArt.Size, Vector2.one * 0.5f);
+                }
+
+                return sprites;
+            }
+
+            GameObject go = EnsureObject("Vie de la baie d'Ha Long", root);
+            var life = go.GetComponent<AmbientLife>();
+            if (life == null) life = go.AddComponent<AmbientLife>();
+
+            var so = new SerializedObject(life);
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_region").intValue = 8;
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 1.5f, dock.yMin - 1f, dock.width + 4f, dock.height + 2f);
+            SerializedProperty swimmers = so.FindProperty("_swimmers");
+            swimmers.arraySize = 1;
+            SetSwimmer(swimmers.GetArrayElementAtIndex(0), Frames("TortueDeMer", 2, ReefLifeArt.SeaTurtle), 3, 0.4f);
+            swimmers.GetArrayElementAtIndex(0).FindPropertyRelative("Order").intValue = -17; // sous l'eau
+            SerializedProperty walkers = so.FindProperty("_walkers");
+            walkers.arraySize = 1;
+            SetSwimmer(walkers.GetArrayElementAtIndex(0), Frames("BernardLErmite", 2, MahanaLifeArt.HermitCrab), 5, 0.25f);
+            SetSprites(so.FindProperty("_dragonfly"), Frames("Papillon", 2, MahanaLifeArt.Butterfly));
+            so.FindProperty("_dragonflies").intValue = 2;
+            SetSprites(so.FindProperty("_jumpingFish"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
+            SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
+            SetSprites(so.FindProperty("_passer"), Frames("Fregate", 2, MahanaLifeArt.Frigatebird));
+            so.FindProperty("_passerShadow").objectReferenceValue = PixelArt.Save($"{folder}/Fregate_Ombre.png", MahanaLifeArt.FrigatebirdShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_cloud").objectReferenceValue = PixelArt.Save($"{folder}/OmbreNuage.png", LakeLifeArt.CloudShadow(), TileArt.Size, Vector2.one * 0.5f);
+            so.FindProperty("_clouds").intValue = 4;
+            SetNightLife(so, Frames);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         /// <summary>
         /// Pose un ponton de 2 cases de large qui part de la terre (depuis <paramref name="from"/>, en allant vers
         /// <paramref name="direction"/>) et avance de <see cref="DockLength"/> cases dans l'eau, avec une barque amarrée.
@@ -3390,6 +3702,19 @@ namespace FishAndChill.Editor
             fjordGlassObject.transform.localPosition = new Vector3(fjordX, 0f, 0f);
             SetSprite(fjordGlassObject, fjordGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
 
+            // Salle de la baie d'Ha Long, au bout de la salle des fjords.
+            float haLongX = AquariumBuilding.HaLongRoomX - AquariumBuilding.PassageWidth;
+            Color[,] haLongRoomPixels = AquariumHaLongArt.HaLongRoom();
+            AquariumAmazonArt.CloseLeftPassage(haLongRoomPixels);
+            Sprite haLongRoom = PixelArt.Save($"{folder}/Aquarium_SalleHaLong.png", haLongRoomPixels, TileArt.Size, Vector2.zero);
+            Sprite haLongGlass = PixelArt.Save($"{folder}/Aquarium_SalleHaLong_Vitre.png", AquariumHaLongArt.TankGlass(), TileArt.Size, Vector2.zero);
+            GameObject haLongObject = EnsureObject("Salle de la baie d'Ha Long", room.transform);
+            haLongObject.transform.localPosition = new Vector3(haLongX, 0f, 0f);
+            SetSprite(haLongObject, haLongRoom, -6).spriteSortPoint = SpriteSortPoint.Center;
+            GameObject haLongGlassObject = EnsureObject("Vitre du bassin de la baie d'Ha Long", room.transform);
+            haLongGlassObject.transform.localPosition = new Vector3(haLongX, 0f, 0f);
+            SetSprite(haLongGlassObject, haLongGlass, -2).spriteSortPoint = SpriteSortPoint.Center;
+
             // L'ascenseur de chaque étage est dans le mur du bas, qu'on ne voit pas : un tapis contre ce mur indique sa
             // porte, comme le paillasson de sortie (la 2e colonne à méduses du hall a disparu).
             Transform oldColumn = room.transform.Find("Colonne à méduses 2");
@@ -3459,6 +3784,7 @@ namespace FishAndChill.Editor
             Furnish("Maldives", AquariumRoomLayout.Atoll, AquariumBuilding.AtollRoomX);
             Furnish("Squelettes", AquariumRoomLayout.Skeleton, AquariumBuilding.SkeletonRoomX);
             Furnish("Fjords", AquariumRoomLayout.Fjord, AquariumBuilding.FjordRoomX);
+            Furnish("HaLong", AquariumRoomLayout.HaLong, AquariumBuilding.HaLongRoomX);
             var furnitureSo = new SerializedObject(aquarium);
             SerializedProperty furnitureList = furnitureSo.FindProperty("_furniture");
             furnitureList.arraySize = furniture.Count;
@@ -3492,6 +3818,8 @@ namespace FishAndChill.Editor
             BuildTank(room.transform, "Poissons du bassin Côte des Squelettes", aquarium, skeletonZone, AquariumBuilding.SkeletonTank);
             var fjordZone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/FjordsNorvege.asset");
             BuildTank(room.transform, "Poissons du bassin des fjords", aquarium, fjordZone, AquariumBuilding.FjordTank);
+            var haLongZone = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/BaieHaLong.asset");
+            BuildTank(room.transform, "Poissons du bassin de la baie d'Ha Long", aquarium, haLongZone, AquariumBuilding.HaLongTank);
 
             BuildTankLife(room.transform, aquarium, folder);
             // Visiteurs mis de côté pour l'instant (AquariumVisitors et BuildVisitors restent prêts à resservir).
@@ -3610,6 +3938,13 @@ namespace FishAndChill.Editor
             Sprite[] coldCaustics = Frames("Reflets_Fjords", 3, f => AquariumLifeArt.Caustics(f, new Color(0.56f, 0.70f, 0.76f)), center);
             BuildLife(room, "Vie du bassin des fjords", aquarium, AquariumBuilding.FjordTank, 83, new[] { (kelpBrown, 7, false), (redWeed, 4, true) },
                 bubble, 3, ray, 2, herring, 4, 16, coldCaustics, new Sprite[0][], new Transform[0]);
+
+            // Baie d'Ha Long : herbiers verts, bancs d'anchois argentés, reflets émeraude.
+            Sprite[] bayGrass = Frames("HerbierHaLong", 3, f => AquariumLifeArt.Plant(f, 18, 22, 5, new Color(0.34f, 0.60f, 0.30f), new Color(0.20f, 0.42f, 0.20f), new Color(0.56f, 0.80f, 0.46f), false, 89), bottom);
+            Sprite[] anchovies = Frames("Anchois_HaLong", 2, f => AquariumLifeArt.TinyFish(f, new Color(0.70f, 0.78f, 0.76f), new Color(0.92f, 0.96f, 0.94f), new Color(0.30f, 0.46f, 0.44f)), center);
+            Sprite[] emeraldCaustics = Frames("Reflets_HaLong", 3, f => AquariumLifeArt.Caustics(f, new Color(0.56f, 0.92f, 0.78f)), center);
+            BuildLife(room, "Vie du bassin de la baie d'Ha Long", aquarium, AquariumBuilding.HaLongTank, 97, new[] { (bayGrass, 6, false), (redWeed, 3, true) },
+                bubble, 3, ray, 3, anchovies, 4, 14, emeraldCaustics, new Sprite[0][], new Transform[0]);
         }
 
         private static void BuildLife(Transform room, string name, AquariumBuilding aquarium, Rect area, int seed,
@@ -4000,7 +4335,7 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>Petite carte (coin) et grande carte (M) : couleurs par tuile, point du joueur.</summary>
-        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, TileSet atollTiles, TileSet skeletonTiles, TileSet fjordTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform house, Transform lighthouse, Transform lab, Transform petShop, Transform[] docks)
+        private static void BuildMinimap(WorldMap worldMap, Tilemap decorMap, Transform player, TileSet tiles, TileSet lakeTiles, TileSet amazonTiles, TileSet japanTiles, TileSet reefTiles, TileSet atollTiles, TileSet skeletonTiles, TileSet fjordTiles, TileSet haLongTiles, ShopBuilding shop, AquariumBuilding aquarium, Transform house, Transform lighthouse, Transform lab, Transform petShop, Transform[] docks)
         {
             Sprite shopIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeBoutique.png", ShopArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
             Sprite aquariumIcon = PixelArt.Save("Assets/_Project/Art/UI/IconeAquarium.png", AquariumArt.Icon(), TileArt.Size, Vector2.one * 0.5f);
@@ -4054,6 +4389,9 @@ namespace FishAndChill.Editor
             foreach (Tile t in fjordTiles.Deep) entries.Add((t, new Color(0.08f, 0.18f, 0.22f)));
             foreach (Tile t in fjordTiles.Sand) entries.Add((t, new Color(0.62f, 0.62f, 0.60f)));
             foreach (Tile t in fjordTiles.Grass) entries.Add((t, new Color(0.36f, 0.46f, 0.30f)));
+            foreach (Tile t in haLongTiles.Deep) entries.Add((t, new Color(0.10f, 0.38f, 0.34f)));
+            foreach (Tile t in haLongTiles.Sand) entries.Add((t, new Color(0.86f, 0.78f, 0.56f)));
+            foreach (Tile t in haLongTiles.Grass) entries.Add((t, new Color(0.26f, 0.48f, 0.20f)));
 
             // Arbres et décor des zones redessinées (tuiles créées pendant la construction des zones).
             void Named(string tileName, Color color)

@@ -32,6 +32,7 @@ namespace FishAndChill.Editor
                 case "scyliorhinus-canicula": fish = Catshark(); return true;
                 case "carcharhinus-leucas": fish = Bull(); return true;
                 case "heterodontus-japonicus": fish = Bullhead(); return true;
+                case "rhincodon-typus": fish = WhaleShark(); return true;
                 default: fish = null; return false;
             }
         }
@@ -598,6 +599,39 @@ namespace FishAndChill.Editor
                     if (f.InBody(x, ey + 2)) p[x, ey + 2] = Color.Lerp(p[x, ey + 2], C(0.92f, 0.84f, 0.64f), 0.6f);
                 }
             });
+            return Finish(s);
+        }
+
+        /// <summary>
+        /// Requin-baleine : énorme corps trapu bleu-gris, tête large et plate, bouche immense tout au bout du museau, petit
+        /// œil, damier de rayures et de taches blanches sur le dos, crêtes le long des flancs, grande queue en croissant.
+        /// </summary>
+        private static DetailedFish WhaleShark()
+        {
+            Spec s = Body(C(0.22f, 0.30f, 0.40f), C(0.30f, 0.38f, 0.48f), C(0.90f, 0.90f, 0.88f), C(0.22f, 0.30f, 0.40f), 1.45f, -3f, 431);
+            s.Fish.FlankStart = 0.52f;
+            s.Fish.BellyStart = 0.66f;
+            s.Fish.EyeX = 107;
+            s.Fish.EyeYOffset = 0.5f;
+            s.Fish.Iris = C(0.08f, 0.08f, 0.10f);
+            s.Fins.Add(Dorsal(s, 64f, 50f, 12f, 3f, 0.8f, -0.8f));
+            s.Fins.Add(Dorsal(s, 35f, 31f, 3f, 1.5f, 0.3f, -0.4f));
+            s.Fins.Add(Ventral(s, 46f, 40f, 3.5f, 2f));
+            s.Fins.Add(Ventral(s, 33f, 30f, 2f, 1.5f));
+            Tail(s, new Vector2(4f, 18f), new Vector2(6f, -13f), 14f);
+            s.Fins.Add(Pectoral(s, 90f, 18f, 9f, 7f));
+            Face(s, new[] { 84, 86, 88, 90, 92 }, 102, 111, 0.3f);
+            // Damier : fines rayures claires verticales et rangées de taches blanches entre elles, sur le dos et les flancs.
+            Color pale = C(0.90f, 0.92f, 0.88f);
+            s.Fish.BodyPatterns.Add((x, y, t, c) =>
+            {
+                if (t > 0.55f || x < 26) return c;
+                if (x < 98 && x % 8 == 0) return Color.Lerp(c, pale, 0.55f);
+                if (x % 8 == 4 && y % 4 == 0) return Color.Lerp(c, pale, 0.8f);
+                if (x >= 98 && (x * 7 + y * 13) % 11 == 0) return Color.Lerp(c, pale, 0.75f);   // la tête, semée de petits points
+                return c;
+            });
+            s.Fish.BodyPatterns.Add(Lines(new[] { 0.18f, 0.36f }, C(0.14f, 0.20f, 0.28f), 0.45f, 30, 96));   // crêtes des flancs
             return Finish(s);
         }
 

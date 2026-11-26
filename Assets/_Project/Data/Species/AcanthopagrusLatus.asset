@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: AcanthopagrusLatus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: acanthopagrus-latus
+  _commonName: Pagre jaune
+  _scientificName: Acanthopagrus latus
+  _rarity: 1
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 3
+  _sizeRangeCm: {x: 20, y: 45}
+  _basePrice: 18
+  _placeholderColor: {r: 0.72156864, g: 0.72156864, b: 0.65882355, a: 1}
+  _description: "Une dorade argent\xE9e aux nageoires jaune vif qui remonte dans les estuaires \xE0 mar\xE9e montante."
+  _activeTime: 0
+  _weather: 1
+  _sprite: {fileID: 21300000, guid: f047963813c62dd4d9730c3a1cd4f47e, type: 3}
+  _miniSprite: {fileID: 21300000, guid: cd910c661175bc04a875fe55d71516d9, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: cd910c661175bc04a875fe55d71516d9, type: 3}
+  - {fileID: 21300000, guid: f52986559315c824e80803d4f9f7decc, type: 3}
+  - {fileID: 21300000, guid: d975f85ef74dcee4f80ed03e424284d9, type: 3}
+  - {fileID: 21300000, guid: a9ddba3b65a182146860351230f31365, type: 3}
+  _lures: 0000000004000000i
+  _hooks: 0000000001000000i

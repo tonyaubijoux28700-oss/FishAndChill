@@ -140,6 +140,24 @@
   `AquariumFjordArt`, `FjordTank`, mobilier `AquariumRoomLayout.Fjord`) : cabane de pêcheur en rondins jointés de
   mousse, plancher de pin, bassin d'eau froide aux laminaires, rochers aux algues roses, oursins et étoiles de mer ;
   poêle à bois, tonneau au filet, lampes-tempête. Gardien : le Kraken (voir `legendes.md`). Pas encore d'aurores boréales.
+- **Baie d'Ha Long** (9e zone, région 8, Viêt Nam) : plan dessiné `World/HaLongPlan` (90×64 cases, testé : la baie
+  d'eau émeraude au sud-est, la terre au nord (`CoastAt`) et une presqu'île de forêt à l'ouest (`WestAt`) ; **10 pitons
+  calcaires** dans l'eau (3 formes : aiguille, double sommet, dôme ; encoche d'érosion au ras de l'eau, jungle sur les
+  corniches), posés loin de la rive et des passages ; **jonques** aux voiles rouges lattées et **bateaux-paniers** ;
+  **village flottant** : plate-forme de planches (`Platform`) et longue **passerelle** depuis la plage (`Walkway`), toutes
+  deux praticables et on y pêche (`MapSetup.HaLongWalkways`), deux maisons sur radeaux de bidons bleus, deux cages à
+  poissons ; au nord, rangée de **montagnes de calcaire** en dômes couverts de jungle (pans de 8 cases, solides,
+  `CliffFoot` = 56) dont l'une s'ouvre sur une **grotte** (`CaveIndex`, stalactites, lanternes rouges) ; **village de la
+  rive** : **temple** (đình) au double toit à coins relevés, dragons et perle sur le faîte, deux maisons crépies (jaune,
+  bleu pâle) aux toits de tuiles, chemin de terre du ponton au temple, aux maisons et à la passerelle ; banians, arbres de
+  la jungle, bambous, bananiers, rochers de calcaire, buissons, hibiscus). Ponton des voyages sous le village, vers le
+  sud. À `HaLongGap` = 20 cases à l'est des fjords, `MapSetup.BuildHaLong` (tuiles `HaLongArt` : eau émeraude, sable
+  doré, vert profond ; repères `HaLongLandmarkArt` ; banian `HaLongTerrainArt`, le reste repris des autres zones).
+  Climat : brumes et orages. Vie (`BuildHaLongLife`) : tortues de mer, bernard-l'ermite, papillons, frégate.
+  15 espèces faites par la table (`Zone` = `BaieHaLong` : stromatée argenté, mulet cabot, sigan doré, anchois de Commerson,
+  poisson-archer, platycéphale, cohana doré, pagre jaune, crabe nageur bleu, mérou à taches orange, courbine jaune,
+  cobia, squille, seiche pharaon, **requin-baleine** légendaire). Salle de la baie à l'aquarium (9e étage). Gardien
+  prévu : le dragon vietnamien (`HaLongDragonArt`, voir `legendes.md`), pas encore branché.
 - **Voyage** (`World/ZoneTravel`, `UI/TravelMenu`, objet « Partie ») : un **ponton** par zone (`MapSetup.BuildDock`,
   2 cases × 6, praticable au-dessus de l'eau via `WorldMap._staticWalkable`). **Le même ponton dans toutes les zones**
   (`Editor/DockArt`, style en volume, `Art/Tiles/Ponton.png` et `Ponton_VersLeHaut.png` retourné pour les pontons qui

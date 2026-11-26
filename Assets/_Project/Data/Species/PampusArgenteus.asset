@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PampusArgenteus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: pampus-argenteus
+  _commonName: "Stromat\xE9e argent\xE9"
+  _scientificName: Pampus argenteus
+  _rarity: 0
+  _kind: 0
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 1
+  _sizeRangeCm: {x: 15, y: 35}
+  _basePrice: 6
+  _placeholderColor: {r: 0.72156864, g: 0.7529412, b: 0.78431374, a: 1}
+  _description: "Un disque d'argent sans nageoires ventrales qui voyage en bancs serr\xE9s. Au march\xE9 de Ha Long, on le fait frire entier."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: c8534fec645fac34ca7ec67153af7341, type: 3}
+  _miniSprite: {fileID: 21300000, guid: ec365fd1d74cfc34ba40ca96fa843c1c, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: ec365fd1d74cfc34ba40ca96fa843c1c, type: 3}
+  - {fileID: 21300000, guid: ff2663f988c75dd4a8e620402b38e7b6, type: 3}
+  - {fileID: 21300000, guid: 3497c8f04e7e0b3499ce39f29f2bffbe, type: 3}
+  - {fileID: 21300000, guid: afa9300385980af46a1e74a5fbd2f8e6, type: 3}
+  _lures: 00000000i
+  _hooks: 00000000i
