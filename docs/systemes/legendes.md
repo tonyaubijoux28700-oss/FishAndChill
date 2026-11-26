@@ -189,10 +189,13 @@
 
 
 - Ce sont de **vrais monstres marins**, pas des poissons, dans le style très détaillé et sombre de `Editor/MorayArt`
-  et `Editor/LagoonDragonArt` (outils communs dans `Editor/CreatureShapes` : épine dorsale avec repère local pour
+  et `Editor/HaLongDragonArt` (outils communs dans `Editor/CreatureShapes` : épine dorsale avec repère local pour
   peindre écailles et motifs qui suivent la courbe, tubes qui s'affinent, courbes, polygones, bruit doux `Noise`,
   anneaux `Ring`, nageoires `FinAlong`). Une créature unique et
   cohérente avec sa zone, de plus en plus impressionnante au fil des zones.
-- `LagoonDragonArt` (dragon des mers : crête d'épines et membrane déchirée, cornes, gueule à crocs) est **réservé à une
-  zone plus avancée** ; il n'est encore utilisé nulle part.
-
+- `HaLongDragonArt` (320×176) : **dragon vietnamien** prévu pour la future légende de la **baie d'Ha Long** (9e zone,
+  pas encore créée). Corps de serpent mince en deux vagues, écailles de jade sombre, ventre en plaques de bronze, crête
+  continue de petites flammes, quatre pattes à trois griffes avec touffes de flammes aux coudes, queue en gerbe de
+  flammes ; museau en volute, petites cornes en bois de cerf, crinière, barbe, longues moustaches, œil d'ambre, langue
+  enroulée, et la perle lumineuse qu'il poursuit devant sa gueule. Il remplace l'ancien dragon des mers
+  (`LagoonDragonArt`, supprimé). Il n'est encore utilisé nulle part.

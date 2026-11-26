@@ -58,7 +58,7 @@ générale).
 - Nouvelle espèce = une ligne dans `Data/Especes.csv` puis relancer la génération. Nouvelle zone = une région dans
   `MapSetup`, une destination dans `PrototypeSetup`, et la zone dans les `_zones` de l'index et du `SaveManager`.
 - Style de dessin du jeu : « en volume » (`Editor/VolumeCanvas`, 32 px par case). Les boss sont de vrais monstres
-  marins, très détaillés et sombres (`Editor/MorayArt`, `LagoonDragonArt`). Dessins toujours originaux.
+  marins, très détaillés et sombres (`Editor/MorayArt`, `HaLongDragonArt`). Dessins toujours originaux.
 - Sons et ordre de déblocage des zones : reportés à plus tard, ne pas les proposer.
 
 ## Conventions de code
