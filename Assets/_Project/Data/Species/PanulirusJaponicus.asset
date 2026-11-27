@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PanulirusJaponicus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: panulirus-japonicus
+  _commonName: Langouste japonaise
+  _scientificName: Panulirus japonicus
+  _rarity: 2
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 20, y: 30}
+  _basePrice: 45
+  _placeholderColor: {r: 0.5411765, g: 0.1882353, b: 0.1254902, a: 1}
+  _description: "Rouge brun sombre, couverte d'\xE9pines, avec de longues antennes. On la f\xEAte au Japon sous le nom d'ise-ebi."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: ee59df6b3e4ac6b48ad3a460b405ee2d, type: 3}
+  _miniSprite: {fileID: 21300000, guid: e61090ec1efc7f34b8db4b42f9e58ee0, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: e61090ec1efc7f34b8db4b42f9e58ee0, type: 3}
+  - {fileID: 21300000, guid: 850785985e703ce48bc8799dcd492853, type: 3}
+  - {fileID: 21300000, guid: 2d8c615669fac6242a6b61d41358ae67, type: 3}
+  - {fileID: 21300000, guid: f10d38f941db3a9458c67b7d70c12174, type: 3}
+  _lures: 
+  _hooks: 

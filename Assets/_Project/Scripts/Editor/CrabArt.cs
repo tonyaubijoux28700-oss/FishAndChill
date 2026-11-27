@@ -83,6 +83,7 @@ namespace FishAndChill.Editor
         {
             "scylla-serrata", "portunus-pelagicus", "paralithodes-camtschaticus", "macrocheira-kaempferi", "chionoecetes-opilio",
             "austruca-mjoebergi", "zebrida-adamsii", "hoplophrys-oatesi", "sylviocarcinus-pictus", "dardanus-megistos",
+            "ocypode-ceratophthalmus", "birgus-latro", "mictyris-longicarpus",
         };
 
         // ---------- Le dessin ----------
@@ -218,6 +219,9 @@ namespace FishAndChill.Editor
                 case "hoplophrys-oatesi": return SoftCoralCrab();
                 case "sylviocarcinus-pictus": return PaintedCrab();
                 case "dardanus-megistos": return HermitCrab();
+                case "ocypode-ceratophthalmus": return GhostCrab();
+                case "birgus-latro": return CoconutCrab();
+                case "mictyris-longicarpus": return SoldierCrab();
                 default: return null;
             }
         }
@@ -521,6 +525,90 @@ namespace FishAndChill.Editor
                 }, 0.6f);
                 // L'ouverture, sombre et nacrée, d'où sort le crabe.
                 v.Piece(Ellipse(58f, 44f, 15f, 6f), C(90, 60, 50), 3f);
+            };
+            return k;
+        }
+
+        /// <summary>
+        /// Crabe fantôme : carapace presque carrée couleur de sable, longues pattes de coureur, yeux énormes au bout de
+        /// pédoncules, chacun surmonté d'une longue corne noire ; une pince un peu plus grosse.
+        /// </summary>
+        private static Crab GhostCrab()
+        {
+            Color sand = C(214, 200, 162);
+            Func<int, int, Color, Color> grains = (x, y, c) => Hash(x, y, 20) > 0.88f ? C(236, 226, 200) : Hash(x / 2, y / 2, 21) > 0.85f ? Darker(c, 0.9f) : c;
+            var k = new Crab
+            {
+                W = 120, H = 96, Cx = 60f, Cy = 54f,
+                Carapace = (x, y) => Mathf.Abs(x - 60f) <= 17f - Mathf.Max(0f, y - 62f) * 0.4f && y > 40f && y < 68f,
+                Shell = sand, ShellTex = grains, ShellBulge = 7f,
+                LegAttach = new[] { new Vector2(15f, -4f), new Vector2(16f, 2f), new Vector2(15f, 8f), new Vector2(12f, 12f) },
+                LegAngle = new[] { -6f, 18f, 42f, 66f },
+                L1 = 16f, L2 = 12f, L3 = 9f, LegR = 2.4f, Bend = 24f,
+                Leg = C(206, 190, 150), LegTex = grains, LegTip = C(150, 130, 100),
+                ClawAttach = new Vector2(13f, -12f), ArmLen = 8f, ArmR = 2.8f, ArmAngle = -40f, ForeLen = 6f, ForeR = 3f, ForeAngle = -100f,
+                PalmLenR = 13f, PalmWidR = 5f, PalmLenL = 10f, PalmWidL = 4f, PalmAngle = -150f, FingerLen = 6f,
+                Palm = C(226, 214, 182), Finger = C(240, 232, 214), FingerTip = C(120, 100, 80), ClawTex = grains,
+                EyeFrom = new Vector2(4f, -13f), EyeTo = new Vector2(12f, -18f), EyeR = 3f, Stalk = sand, Eye = C(30, 28, 26),
+                Outline = C(90, 76, 56),
+            };
+            k.Extras = (v, c) =>
+            {
+                // Les cornes noires au-dessus des yeux.
+                foreach (int s in new[] { -1, 1 }) v.Piece(Capsule(60f + s * 12f, 36f, 60f + s * 14f, 27f, 1f), C(30, 26, 24), 1f);
+            };
+            return k;
+        }
+
+        /// <summary>
+        /// Crabe des cocotiers : énorme, bleu violacé taché de clair ; l'avant cuirassé, l'abdomen rond replié dessous qui
+        /// dépasse à l'arrière, pattes épaisses, pince gauche bien plus grosse.
+        /// </summary>
+        private static Crab CoconutCrab()
+        {
+            Color blue = C(64, 84, 154), pale = C(150, 170, 220);
+            Func<int, int, Color, Color> mottled = (x, y, c) => Mathf.PerlinNoise(x * 0.15f, y * 0.15f) > 0.62f ? pale : Hash(x, y, 22) > 0.9f ? Darker(c, 0.85f) : c;
+            var k = new Crab
+            {
+                W = 150, H = 140, Cx = 75f, Cy = 56f,
+                Carapace = Union(Ellipse(75f, 54f, 20f, 18f), Ellipse(75f, 40f, 14f, 10f)),
+                Shell = blue, ShellTex = mottled, ShellBulge = 12f,
+                LegAttach = new[] { new Vector2(16f, -2f), new Vector2(18f, 6f), new Vector2(16f, 13f) },
+                LegAngle = new[] { -8f, 24f, 56f },
+                L1 = 22f, L2 = 16f, L3 = 12f, LegR = 5f, Bend = 30f,
+                Leg = C(80, 100, 170), LegTex = mottled, LegTip = C(40, 50, 90),
+                ClawAttach = new Vector2(14f, -14f), ArmLen = 12f, ArmR = 5f, ArmAngle = -40f, ForeLen = 9f, ForeR = 5.6f, ForeAngle = -105f,
+                PalmLenR = 18f, PalmWidR = 7.6f, PalmLenL = 24f, PalmWidL = 10f, PalmAngle = -150f, FingerLen = 9f,
+                Palm = C(70, 92, 164), Finger = C(200, 120, 110), FingerTip = C(40, 30, 30), ClawTex = mottled,
+                EyeFrom = new Vector2(4f, -24f), EyeTo = new Vector2(6f, -28f), EyeR = 2f, Stalk = blue,
+                Outline = C(22, 28, 60),
+            };
+            k.Under = (v, c) =>
+            {
+                // L'abdomen, rond et mou, replié sous le corps : il dépasse à l'arrière.
+                v.Piece(Ellipse(75f, 80f, 13f, 14f), C(130, 110, 140), 9f, (x, y, col) => (y % 6 < 1) ? Darker(col, 0.85f) : col);
+            };
+            return k;
+        }
+
+        /// <summary>Crabe-soldat bleu : petite boule bleu ciel, longues pattes violettes à jointures blanches, petites pinces pendantes.</summary>
+        private static Crab SoldierCrab()
+        {
+            Color sky = C(140, 184, 236);
+            var k = new Crab
+            {
+                W = 96, H = 88, Cx = 48f, Cy = 46f,
+                Carapace = Ellipse(48f, 46f, 15f, 15f),
+                Shell = sky, ShellTex = (x, y, c) => Hash(x, y, 23) > 0.9f ? C(190, 214, 246) : c, ShellBulge = 12f,
+                LegAttach = new[] { new Vector2(12f, -3f), new Vector2(14f, 3f), new Vector2(13f, 9f), new Vector2(10f, 13f) },
+                LegAngle = new[] { 0f, 26f, 52f, 78f },
+                L1 = 13f, L2 = 11f, L3 = 8f, LegR = 1.9f, Bend = 22f,
+                Leg = C(150, 90, 170), LegTex = (x, y, c) => (x + y) % 7 == 0 ? C(240, 236, 244) : c, LegTip = C(220, 200, 230),
+                ClawAttach = new Vector2(8f, -10f), ArmLen = 9f, ArmR = 2f, ArmAngle = -70f, ForeLen = 7f, ForeR = 2.2f, ForeAngle = -100f,
+                PalmLenR = 8f, PalmWidR = 2.8f, PalmLenL = 8f, PalmWidL = 2.8f, PalmAngle = -100f, FingerLen = 4f,
+                Palm = C(170, 110, 190), Finger = C(240, 236, 244), FingerTip = C(120, 70, 140),
+                EyeFrom = new Vector2(3f, -14f), EyeTo = new Vector2(4f, -16f), EyeR = 1.4f, Stalk = sky,
+                Outline = C(40, 50, 90),
             };
             return k;
         }

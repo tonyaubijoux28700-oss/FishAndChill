@@ -15,6 +15,8 @@ namespace FishAndChill.Collection
                 case CreatureKind.Cnidarian: return "Cnidaire";
                 case CreatureKind.Worm: return "Ver";
                 case CreatureKind.Chelicerate: return "Limule";
+                case CreatureKind.Insect: return "Insecte";
+                case CreatureKind.Tunicate: return "Tunicier";
                 default: return "Poisson";
             }
         }

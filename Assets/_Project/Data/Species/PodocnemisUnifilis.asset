@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PodocnemisUnifilis
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: podocnemis-unifilis
+  _commonName: "Tortue de l'Amazone \xE0 taches jaunes"
+  _scientificName: Podocnemis unifilis
+  _rarity: 3
+  _kind: 2
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 30, y: 68}
+  _basePrice: 100
+  _placeholderColor: {r: 0.24313726, g: 0.27450982, b: 0.19607843, a: 1}
+  _description: "Carapace sombre et lisse, la t\xEAte noire tach\xE9e de jaune vif. Elle se chauffe au soleil sur les troncs flottants."
+  _activeTime: 1
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 34fbcd330e5603d49be19856dbdf72e6, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 4a8187773a7716c4286d783f432c4b57, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 4a8187773a7716c4286d783f432c4b57, type: 3}
+  - {fileID: 21300000, guid: 44c6061a7541dd3428d37558acad9fbf, type: 3}
+  - {fileID: 21300000, guid: 9c8c4fda9e0988d4da45cf0caba0c043, type: 3}
+  - {fileID: 21300000, guid: 441737f66a605d64f99d850891cd2e14, type: 3}
+  _lures: 
+  _hooks: 

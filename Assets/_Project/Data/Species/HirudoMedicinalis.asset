@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: HirudoMedicinalis
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: hirudo-medicinalis
+  _commonName: "Sangsue m\xE9dicinale"
+  _scientificName: Hirudo medicinalis
+  _rarity: 2
+  _kind: 8
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 5, y: 15}
+  _basePrice: 45
+  _placeholderColor: {r: 0.2901961, g: 0.3529412, b: 0.22745098, a: 1}
+  _description: "Vert olive ray\xE9e de bandes rouille, elle ondule dans l'eau des mares. On l'utilisait autrefois en m\xE9decine."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 4d3c5a5c286865f44816b629d5b3b043, type: 3}
+  _miniSprite: {fileID: 21300000, guid: ae00d8eeeeff7ca419bf4b0db4578958, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: ae00d8eeeeff7ca419bf4b0db4578958, type: 3}
+  - {fileID: 21300000, guid: 8a3550488728e894a9c98523400a7ab6, type: 3}
+  - {fileID: 21300000, guid: 1e66cb923488a2c40ae65cb2ddfb3480, type: 3}
+  - {fileID: 21300000, guid: 3b5436f4fbcc2de45a45a6656d412822, type: 3}
+  _lures: 
+  _hooks: 

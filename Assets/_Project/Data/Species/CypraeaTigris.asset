@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: CypraeaTigris
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: cypraea-tigris
+  _commonName: Porcelaine tigre
+  _scientificName: Cypraea tigris
+  _rarity: 2
+  _kind: 5
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 8, y: 15}
+  _basePrice: 45
+  _placeholderColor: {r: 0.8235294, g: 0.78431374, b: 0.74509805, a: 1}
+  _description: "Une coquille lisse et brillante comme de la porcelaine, blanche sem\xE9e de taches noires. Le manteau la recouvre la nuit."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 02f31b7c1ad668b45878ed1431126bc1, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 1ce0d31b4e352fe4484ff8ec12cf4996, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 1ce0d31b4e352fe4484ff8ec12cf4996, type: 3}
+  - {fileID: 21300000, guid: 62e61302759debf4197432e2045ce398, type: 3}
+  - {fileID: 21300000, guid: 0627dd043cc1fa04eb33ae12e82f95f1, type: 3}
+  - {fileID: 21300000, guid: 0974e6c2fc863204693328aac93ed069, type: 3}
+  _lures: 
+  _hooks: 

@@ -55,6 +55,12 @@ MonoBehaviour:
     _weight: 7
   - _species: {fileID: 11400000, guid: 2595fa3e75d93fa428aa7a03c959412b, type: 2}
     _weight: 3
+  - _species: {fileID: 11400000, guid: ed0f69f55638c3640911a01b15ba965e, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: a1d165c5991a77747a708638a840d430, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: dd1bb50be7a786d4d95b3e7bd2a65c83, type: 2}
+    _weight: 7
   _mapPosition: {x: 0.77, y: 0.58}
   _region: "Quang Ninh, Vi\xEAt Nam"
   _climate:

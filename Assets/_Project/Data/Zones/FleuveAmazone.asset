@@ -61,6 +61,14 @@ MonoBehaviour:
     _weight: 13
   - _species: {fileID: 11400000, guid: 2f87b3ea63b94604696c3604fd5b32d2, type: 2}
     _weight: 7
+  - _species: {fileID: 11400000, guid: 39f61e7b41110d34db0bd71cd1350152, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 679e3644c575cd24da9747ada962466a, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 1205042a0c747b54bad1446c125a39ab, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: adb4903d292c781439d9a0daeedf33fd, type: 2}
+    _weight: 13
   _mapPosition: {x: 0.35, y: 0.44}
   _region: "Amazonas, Br\xE9sil"
   _climate:

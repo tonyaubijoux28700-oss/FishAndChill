@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: MictyrisLongicarpus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: mictyris-longicarpus
+  _commonName: Crabe-soldat bleu
+  _scientificName: Mictyris longicarpus
+  _rarity: 0
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 1, y: 3}
+  _basePrice: 6
+  _placeholderColor: {r: 0.54901963, g: 0.7058824, b: 0.9019608, a: 1}
+  _description: "Une petite boule bleu ciel sur des pattes violettes. \xC0 mar\xE9e basse, ils d\xE9filent par milliers sur le sable comme une arm\xE9e."
+  _activeTime: 1
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 2364e19c544d8b6458dde028f49dd388, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 3ad28ad7f51957e45bc316786f00e67d, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 3ad28ad7f51957e45bc316786f00e67d, type: 3}
+  - {fileID: 21300000, guid: cf5fa99d98e76fa41b4f51a5dbe2f6d4, type: 3}
+  - {fileID: 21300000, guid: 24c130424d2d65c45857fa49b47ed89d, type: 3}
+  - {fileID: 21300000, guid: bf58a50de530b3043b447c79dc17f8fd, type: 3}
+  _lures: 
+  _hooks: 

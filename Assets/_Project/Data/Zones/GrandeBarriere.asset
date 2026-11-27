@@ -69,6 +69,8 @@ MonoBehaviour:
     _weight: 3
   - _species: {fileID: 11400000, guid: f55f4ec20bc3bd1448e80a433ab6d6e2, type: 2}
     _weight: 2
+  - _species: {fileID: 11400000, guid: acd24f1666f698440a9337a85d0f09f7, type: 2}
+    _weight: 28
   _mapPosition: {x: 0.88, y: 0.34}
   _region: Queensland, Australie
   _climate:

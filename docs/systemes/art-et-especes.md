@@ -81,7 +81,10 @@
   droite), `MolluscArt` (coquillages de dessus, escargots de mer de profil, limaces de mer), `EchinoArt` (étoiles,
   oursins aux épines qui rayonnent, concombre de mer), `CephaloArt` (pieuvres aux bras qui tombent, calmars couchés,
   seiches, nautile de profil d'après photo), `OtherNetArt` (méduses de profil, vers, tortues, grenouille, limule,
-  lamproie). Les bénitiers sont en réserve (dessin pas encore réussi).
+  lamproie), `NewNetArt` (le deuxième arrivage de 15 bêtes : gammare, moule géante, patelle, ascidie, ormeau, sipuncle,
+  lièvre de mer, porcelaines, pipa, tortue de l'Amazone, larve de libellule, sangsue, triton alpestre, hippocampe à
+  queue tigrée ; les crabes, crevettes, langouste, oursin et concombre de cet arrivage sont dans leurs fichiers de
+  famille). Les bénitiers sont en réserve (dessin pas encore réussi).
 - **Dessin** : une fiche dessinée à la main dans le code (`MahanaFishArt`, `AnnecyFishArt`, `AmazonFishArt`, `JapanFishArt`,
   `ExtraFishArt`, `CreatureArt`…) reste prioritaire. Sinon, colonne Dessin = silhouette (`FishArchetypes` :
   fuseau, haut, allonge, serpent, rond, disque, poisson-chat) + couleurs `#RRVVBB` (Dos, Flancs, Ventre, Nageoires, Oeil),

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: HippocampusComes
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: hippocampus-comes
+  _commonName: "Hippocampe \xE0 queue tigr\xE9e"
+  _scientificName: Hippocampus comes
+  _rarity: 2
+  _kind: 0
+  _method: 1
+  _bodyShape: 0
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 10, y: 17}
+  _basePrice: 45
+  _placeholderColor: {r: 0.78431374, g: 0.627451, b: 0.2509804, a: 1}
+  _description: "Jaune et noir, la queue ray\xE9e comme celle d'un tigre. Un petit poisson \xE0 t\xEAte de cheval qui nage debout et s'accroche aux herbiers avec sa queue. C'est le m\xE2le qui porte les petits."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: b47d53741ba5b964a9cec79e6346337b, type: 3}
+  _miniSprite: {fileID: 21300000, guid: b4bf4e93c9882d049ba24ea525b041f7, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: b4bf4e93c9882d049ba24ea525b041f7, type: 3}
+  - {fileID: 21300000, guid: 8e91249f4e1f74d44bd835456cf9521c, type: 3}
+  - {fileID: 21300000, guid: 951b80c986aa04346be6411f9cef5c2c, type: 3}
+  - {fileID: 21300000, guid: eaf1a00d417233943940a7dea0435cfb, type: 3}
+  _lures: 
+  _hooks: 

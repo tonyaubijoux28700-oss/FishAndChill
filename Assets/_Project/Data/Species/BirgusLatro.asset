@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: BirgusLatro
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: birgus-latro
+  _commonName: Crabe des cocotiers
+  _scientificName: Birgus latro
+  _rarity: 3
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 25, y: 40}
+  _basePrice: 100
+  _placeholderColor: {r: 0.22745098, g: 0.3529412, b: 0.627451, a: 1}
+  _description: "Le plus grand crabe terrestre du monde, bleu ou orang\xE9. Ses pinces sont si puissantes qu'il ouvre les noix de coco."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 507573893342b0a4dae21c3ef431e420, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 3488f3b6aa873d04a9d1e9f4678fd1f0, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 3488f3b6aa873d04a9d1e9f4678fd1f0, type: 3}
+  - {fileID: 21300000, guid: 708891593af291f4bb54da03a9d41526, type: 3}
+  - {fileID: 21300000, guid: 586106c6fd673264aab0b9592f68f12f, type: 3}
+  - {fileID: 21300000, guid: edd20840197e99a499172e620160dde8, type: 3}
+  _lures: 
+  _hooks: 

@@ -60,6 +60,7 @@ namespace FishAndChill.Fishing
                 case CreatureKind.Mollusc:
                 case CreatureKind.Echinoderm:
                 case CreatureKind.Cnidarian:
+                case CreatureKind.Tunicate:
                     return CritterBehaviour.Burrow;
                 default:
                     return CritterBehaviour.Dart;

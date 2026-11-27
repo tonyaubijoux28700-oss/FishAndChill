@@ -59,6 +59,14 @@ MonoBehaviour:
     _weight: 13
   - _species: {fileID: 11400000, guid: 3b0a6bc6c6732674cb7d57c6cd0bab27, type: 2}
     _weight: 7
+  - _species: {fileID: 11400000, guid: be72cc8b68db4ed4190e8fcff9dc70f6, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: a16f78ea44d6193459dae50b4bc06a97, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: d532988790676c445b9da7fd53f2f57e, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 16650783fc1d075458b9b9c3b979a68a, type: 2}
+    _weight: 3
   _mapPosition: {x: 0.52, y: 0.74}
   _region: Haute-Savoie, France
   _climate:

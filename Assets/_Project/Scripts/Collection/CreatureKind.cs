@@ -19,5 +19,9 @@ namespace FishAndChill.Collection
         Worm,
         /// <summary>Limule.</summary>
         Chelicerate,
+        /// <summary>Larves d'insectes aquatiques (libellule).</summary>
+        Insect,
+        /// <summary>Ascidies.</summary>
+        Tunicate,
     }
 }

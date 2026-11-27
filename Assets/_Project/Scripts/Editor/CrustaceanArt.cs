@@ -39,7 +39,7 @@ namespace FishAndChill.Editor
         {
             "homarus-gammarus", "panulirus-versicolor", "jasus-lalandii", "scyllarides-squammosus", "pacifastacus-leniusculus",
             "macrobrachium-amazonicum", "oratosquilla-oratoria", "stenopus-hispidus", "phyllognathia-ceratophthalma",
-            "odontodactylus-scyllarus", "triops-cancriformis",
+            "odontodactylus-scyllarus", "triops-cancriformis", "macrobrachium-carcinus", "penaeus-monodon", "panulirus-japonicus",
         };
 
         private sealed class Body
@@ -261,6 +261,9 @@ namespace FishAndChill.Editor
                 case "phyllognathia-ceratophthalma": return TigerShrimp();
                 case "odontodactylus-scyllarus": return Peacock();
                 case "triops-cancriformis": return Triops();
+                case "macrobrachium-carcinus": return BigRiverShrimp();
+                case "penaeus-monodon": return TigerPrawn();
+                case "panulirus-japonicus": return JapaneseRock();
                 default: return null;
             }
         }
@@ -525,6 +528,60 @@ namespace FishAndChill.Editor
             };
             b.Eye = new Vector2(0f, -200f);   // les yeux sont posés sur le bouclier
             return b;
+        }
+
+        /// <summary>Crevette géante d'eau douce : brune rayée de jaune en long, deux longues pinces épaisses bleutées.</summary>
+        private static Body BigRiverShrimp()
+        {
+            Color brown = C(118, 88, 56);
+            Func<int, int, Color, Color> striped = (x, y, c) => Mathf.Abs(x - 60) == 3 || Mathf.Abs(x - 60) == 7 ? C(214, 186, 90) : Hash(x, y, 16) > 0.92f ? Darker(c, 0.8f) : c;
+            return new Body
+            {
+                W = 120, H = 200, Cx = 60f, Top = 76f, CarL = 34f, CarW = 10f, Rostrum = 12f, Shell = brown, ShellTex = striped,
+                Segments = 6, SegL = 10f, SegW0 = 9.5f, SegW1 = 6f, Abdomen = brown, SegTex = (x, y, i, c) => striped(x, y, c),
+                FanL = 16f, FanW = 14f, Fan = C(140, 110, 70),
+                AntBase = new Vector2(3f, 2f), AntLen = 70f, AntR0 = 1f, AntR1 = 0.5f, AntAngle = -96f, AntCurve = 1.6f, Antenna = C(150, 120, 80),
+                Legs = 4, LegLen = 13f, LegR = 1.2f, LegAngle = 16f, Leg = C(150, 116, 74),
+                Claws = true, ClawY = 8f, ArmLen = 22f, ArmR = 2.4f, ArmAngle = -66f, ForeLen = 18f, ForeR = 2.6f, ForeAngle = -92f,
+                PalmLenR = 20f, PalmWidR = 4f, PalmLenL = 18f, PalmWidL = 3.6f, PalmAngle = -98f, FingerLen = 9f,
+                Palm = C(80, 110, 150), Finger = C(90, 120, 160), FingerTip = C(230, 170, 90),
+                ClawTex = (x, y, c) => Hash(x, y, 17) > 0.88f ? C(140, 170, 200) : c,
+                Eye = new Vector2(4f, 1f), EyeR = 2f, Outline = C(44, 32, 20),
+            };
+        }
+
+        /// <summary>Crevette tigrée : grande crevette sans grosses pinces, abdomen rayé de bandes bleu-noir et jaune pâle, longues antennes.</summary>
+        private static Body TigerPrawn()
+        {
+            Color grey = C(96, 104, 120);
+            return new Body
+            {
+                W = 110, H = 190, Cx = 55f, Top = 66f, CarL = 34f, CarW = 10f, Rostrum = 14f, Shell = grey,
+                ShellTex = (x, y, c) => Hash(x / 2, y / 2, 18) > 0.8f ? C(70, 76, 96) : c,
+                Segments = 6, SegL = 11f, SegW0 = 10f, SegW1 = 6f, Abdomen = grey,
+                SegTex = (x, y, i, c) => { float local = (y - (66f + 34f + i * 11f)) / 11f; return local > 0.55f ? C(36, 40, 60) : local > 0.4f ? C(220, 206, 140) : c; },
+                FanL = 18f, FanW = 16f, Fan = C(200, 80, 60),
+                AntBase = new Vector2(3f, 2f), AntLen = 78f, AntR0 = 1f, AntR1 = 0.5f, AntAngle = -98f, AntCurve = 2f, Antenna = C(200, 80, 60),
+                Legs = 5, LegLen = 14f, LegR = 1.2f, LegAngle = 16f, Leg = C(200, 100, 80),
+                Eye = new Vector2(4f, 1f), EyeR = 2f, Outline = C(24, 26, 40),
+            };
+        }
+
+        /// <summary>Langouste japonaise : rouge brun sombre, carapace hérissée d'épines claires, très longues antennes épaisses.</summary>
+        private static Body JapaneseRock()
+        {
+            Color red = C(126, 46, 30);
+            Func<int, int, Color, Color> spiny = (x, y, c) => Hash(x, y, 19) > 0.86f ? C(236, 170, 120) : Hash(x / 3, y / 3, 20) > 0.75f ? Darker(c, 0.82f) : c;
+            return new Body
+            {
+                W = 150, H = 216, Cx = 75f, Top = 70f, CarL = 50f, CarW = 16f, Rostrum = 0f, Shell = red, ShellTex = spiny,
+                Segments = 6, SegL = 10f, SegW0 = 15f, SegW1 = 10f, Abdomen = red,
+                SegTex = (x, y, i, c) => { float local = (y - (70f + 50f + i * 10f)) / 10f; return local > 0.78f ? C(230, 190, 140) : spiny(x, y, c); },
+                FanL = 20f, FanW = 20f, Fan = C(150, 60, 40),
+                AntBase = new Vector2(7f, 2f), AntLen = 84f, AntR0 = 3.6f, AntR1 = 0.8f, AntAngle = -98f, AntCurve = 1.6f, Antenna = C(140, 56, 36), AntTex = spiny,
+                Legs = 5, LegLen = 17f, LegR = 1.8f, LegAngle = 10f, Leg = C(170, 80, 50), LegTex = (x, y, c) => (x + y) % 6 < 2 ? C(230, 190, 140) : c,
+                Eye = new Vector2(5f, 1f), EyeR = 2f, Outline = C(46, 16, 10),
+            };
         }
     }
 }

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: GammarusPulex
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: gammarus-pulex
+  _commonName: Gammare
+  _scientificName: Gammarus pulex
+  _rarity: 0
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 1, y: 2}
+  _basePrice: 6
+  _placeholderColor: {r: 0.627451, g: 0.54901963, b: 0.43137255, a: 1}
+  _description: "Une petite crevette d'eau douce couch\xE9e sur le flanc, qui grouille sous les cailloux et nettoie le fond du lac."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 112328d4659bcdc40a472bf141e97bbb, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 822fa23375b72d949871875567f7bb01, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 822fa23375b72d949871875567f7bb01, type: 3}
+  - {fileID: 21300000, guid: c72a6f52126041742a97b59ebf0fa4ff, type: 3}
+  - {fileID: 21300000, guid: c13e94f16d6752549aa81f9295ff41c9, type: 3}
+  - {fileID: 21300000, guid: d5ca62aa154639f428d63b7624735de9, type: 3}
+  _lures: 
+  _hooks: 

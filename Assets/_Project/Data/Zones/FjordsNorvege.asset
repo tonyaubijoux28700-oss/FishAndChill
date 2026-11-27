@@ -69,6 +69,8 @@ MonoBehaviour:
     _weight: 7
   - _species: {fileID: 11400000, guid: 494e297aff4342b43b25022f2751dc87, type: 2}
     _weight: 2
+  - _species: {fileID: 11400000, guid: 6b93f0bfd8f6bcf41b7206d29467100a, type: 2}
+    _weight: 28
   _mapPosition: {x: 0.53, y: 0.86}
   _region: "Norv\xE8ge"
   _climate:

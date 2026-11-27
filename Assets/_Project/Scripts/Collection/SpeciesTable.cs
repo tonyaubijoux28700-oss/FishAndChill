@@ -205,7 +205,8 @@ namespace FishAndChill.Collection
             ("mollusque", CreatureKind.Mollusc), ("mollusc", CreatureKind.Mollusc), ("echinoderme", CreatureKind.Echinoderm),
             ("echinoderm", CreatureKind.Echinoderm), ("cnidaire", CreatureKind.Cnidarian), ("meduse", CreatureKind.Cnidarian),
             ("cnidarian", CreatureKind.Cnidarian), ("ver", CreatureKind.Worm), ("worm", CreatureKind.Worm),
-            ("limule", CreatureKind.Chelicerate), ("chelicere", CreatureKind.Chelicerate));
+            ("limule", CreatureKind.Chelicerate), ("chelicere", CreatureKind.Chelicerate),
+            ("insecte", CreatureKind.Insect), ("insect", CreatureKind.Insect), ("tunicier", CreatureKind.Tunicate), ("ascidie", CreatureKind.Tunicate));
 
         private static CatchMethod ParseMethod(string v, CreatureKind kind, string id) => Pick(v, kind.DefaultMethod(), "Engin", id,
             ("canne", CatchMethod.Rod), ("rod", CatchMethod.Rod), ("epuisette", CatchMethod.Net), ("net", CatchMethod.Net));

@@ -24,7 +24,7 @@ namespace FishAndChill.Editor
         public static readonly string[] Ids =
         {
             "asterias-rubens", "linckia-laevigata", "protoreaster-linckii", "ophiolepis-superba",
-            "diadema-setosum", "heterocentrotus-mamillatus", "mesocentrotus-franciscanus", "parechinus-angulosus", "holothuria-atra",
+            "diadema-setosum", "heterocentrotus-mamillatus", "mesocentrotus-franciscanus", "parechinus-angulosus", "holothuria-atra", "strongylocentrotus-droebachiensis", "apostichopus-japonicus",
         };
 
         public static bool TryGet(string id, out Color[,] pixels)
@@ -46,6 +46,8 @@ namespace FishAndChill.Editor
                 case "mesocentrotus-franciscanus": return RedUrchin();
                 case "parechinus-angulosus": return CapeUrchin();
                 case "holothuria-atra": return SeaCucumber();
+                case "strongylocentrotus-droebachiensis": return GreenUrchin();
+                case "apostichopus-japonicus": return JapaneseCucumber();
                 default: return null;
             }
         }
@@ -380,6 +382,64 @@ namespace FishAndChill.Editor
             }
 
             return v.Finish(C(22, 20, 22), 0.5f);
+        }
+
+        /// <summary>Oursin vert : épines courtes, fines et serrées, vert pâle teinté d'olive, pointes plus claires.</summary>
+        private static Color[,] GreenUrchin()
+        {
+            var v = new VolumeCanvas(90, 90);
+            var c = new Vector2(45f, 45f);
+            Urchin(v, c, 22f, 180, 9f, 15f, 1.3f, 0.5f, C(100, 120, 70), null,
+                (x, y, col) => Vector2.Distance(new Vector2(x, y), c) > 30f ? C(190, 210, 150) : Hash(x, y, 24) > 0.85f ? Darker(col, 0.85f) : col,
+                C(130, 156, 86), 63);
+            return v.Finish(C(40, 50, 26), 0.45f);
+        }
+
+        /// <summary>
+        /// Concombre de mer japonais : corps brun vert marbré, hérissé de grosses papilles coniques en rangées le long du dos
+        /// et des flancs, couronne de tentacules à l'avant.
+        /// </summary>
+        private static Color[,] JapaneseCucumber()
+        {
+            var v = new VolumeCanvas(150, 64);
+            Func<float, float> mid = x => 32f + Mathf.Sin((x - 20f) * 0.035f) * 3f;
+            Func<float, float, bool> body = (x, y) =>
+            {
+                if (x < 20f || x > 136f) return false;
+                float t = (x - 20f) / 116f;
+                float r = 12f * Mathf.Sqrt(Mathf.Clamp01(Mathf.Min(t, 1f - t) * 6f));
+                return Mathf.Abs(y - mid(x)) <= r;
+            };
+
+            // La couronne de tentacules, à l'avant (à gauche).
+            for (int i = 0; i < 8; i++)
+            {
+                float a = (145f + i * 9f) * Mathf.Deg2Rad;
+                var root = new Vector2(24f, mid(24f));
+                var tip = root + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * 10f;
+                v.Piece(Capsule(root.x, root.y, tip.x, tip.y, 1.3f), C(110, 96, 70), 1.2f);
+            }
+
+            v.Piece(body, C(96, 96, 64), 11f, (x, y, col) =>
+                Mathf.PerlinNoise(x * 0.14f, y * 0.2f) > 0.6f ? C(70, 66, 46) : Hash(x, y, 25) > 0.92f ? C(140, 136, 96) : col);
+            // Les papilles coniques : trois rangées sur le dos, et une sur chaque flanc qui dépasse du contour.
+            for (int i = 0; i < 11; i++)
+            {
+                float x = 30f + i * 10f;
+                foreach (float off in new[] { -5f, 0f, 5f })
+                {
+                    float y = mid(x) + off + (i % 2) * 1.5f;
+                    if (body(x, y)) v.Piece(Ellipse(x, y, 2.6f, 2.6f), C(120, 116, 78), 2.5f, (px, py, col) => Hash(px, py, 26) > 0.6f ? Darker(col, 1.15f) : col);
+                }
+
+                foreach (int s in new[] { -1, 1 })
+                {
+                    float y = mid(x) + s * 11f;
+                    v.Piece(Taper(new Vector2(x, y), new Vector2(x + 1f, y + s * 5f), 2.6f, 0.8f), C(110, 104, 70), 2f);
+                }
+            }
+
+            return v.Finish(C(30, 30, 20), 0.5f);
         }
     }
 }

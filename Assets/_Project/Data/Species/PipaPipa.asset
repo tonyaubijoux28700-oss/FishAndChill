@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PipaPipa
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: pipa-pipa
+  _commonName: Crapaud pipa
+  _scientificName: Pipa pipa
+  _rarity: 3
+  _kind: 3
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 10, y: 20}
+  _basePrice: 100
+  _placeholderColor: {r: 0.5411765, g: 0.4627451, b: 0.3137255, a: 1}
+  _description: "Plat comme une feuille morte, il porte ses \u0153ufs enfonc\xE9s dans la peau du dos, d'o\xF9 sortent des petits crapauds tout form\xE9s."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 7cbd2e3ee656f5d449d13a42d6217aff, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 0269366d201b5ef44bd16b861dea40c4, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 0269366d201b5ef44bd16b861dea40c4, type: 3}
+  - {fileID: 21300000, guid: e64e8ed8e7c590947abf151ae22ed119, type: 3}
+  - {fileID: 21300000, guid: 8f0b4129d09fac1479f7162a9d420b5e, type: 3}
+  - {fileID: 21300000, guid: 90eedba833549bd43b1f253ade936ebd, type: 3}
+  _lures: 
+  _hooks: 
