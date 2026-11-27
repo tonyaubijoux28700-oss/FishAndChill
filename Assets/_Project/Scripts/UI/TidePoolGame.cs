@@ -19,7 +19,7 @@ namespace FishAndChill.UI
     /// </summary>
     public sealed class TidePoolGame : MonoBehaviour
     {
-        private const float Zoom = 3f;
+        private const float Zoom = 4f;
         private const float PoolWidth = 320f;
         private const float PoolHeight = 192f;
         private const float Reach = 4.8f;
@@ -534,8 +534,8 @@ namespace FishAndChill.UI
 
             Image window = UiFactory.Sliced(root, "Flaque", _skin != null ? _skin.Panel : null, _skin != null ? Color.white : new Color(0.08f, 0.12f, 0.19f));
             _window = window.gameObject;
-            UiFactory.Center(window.rectTransform, new Vector2(0f, 10f), new Vector2(PoolWidth * Zoom + 60f, PoolHeight * Zoom + 230f));
-            UiFactory.TitlePlaque(window.rectTransform, _skin, "Pêche à l'épuisette", 30, new Vector2(0f, PoolHeight * Zoom * 0.5f + 90f), new Vector2(460f, 64f), out _);
+            UiFactory.Center(window.rectTransform, new Vector2(0f, 0f), new Vector2(PoolWidth * Zoom + 60f, PoolHeight * Zoom + 230f));
+            UiFactory.TitlePlaque(window.rectTransform, _skin, "Pêche à l'épuisette", 34, new Vector2(0f, PoolHeight * Zoom * 0.5f + 90f), new Vector2(460f, 64f), out _);
 
             Image pool = UiFactory.Plain(window.rectTransform, "Eau", Color.white);
             pool.sprite = _pool;
@@ -553,15 +553,15 @@ namespace FishAndChill.UI
             _netRect.pivot = new Vector2(16f / 40f, 24f / 40f);
             _netRect.sizeDelta = Vector2.one * 40f * Zoom;
 
-            _tries = UiFactory.Label(window.rectTransform, "Coups", 26, TextAnchor.MiddleLeft, new Color(1f, 0.84f, 0.3f));
+            _tries = UiFactory.Label(window.rectTransform, "Coups", 30, TextAnchor.MiddleLeft, new Color(1f, 0.84f, 0.3f));
             UiFactory.Bold(_tries);
-            UiFactory.Place(_tries.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0.5f), new Vector2(34f, 78f), new Vector2(200f, 40f));
-            _message = UiFactory.Label(window.rectTransform, "Message", 24, TextAnchor.MiddleCenter, Color.white);
+            UiFactory.Place(_tries.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0f, 0.5f), new Vector2(34f, 92f), new Vector2(200f, 40f));
+            _message = UiFactory.Label(window.rectTransform, "Message", 28, TextAnchor.MiddleCenter, Color.white);
             _message.horizontalOverflow = HorizontalWrapMode.Wrap;
-            UiFactory.Place(_message.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0.5f), new Vector2(60f, 76f), new Vector2(-320f, 64f));
-            Text help = UiFactory.Label(window.rectTransform, "Aide", 20, TextAnchor.MiddleRight, new Color(0.66f, 0.72f, 0.78f));
+            UiFactory.Place(_message.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0.5f), new Vector2(60f, 90f), new Vector2(-320f, 64f));
+            Text help = UiFactory.Label(window.rectTransform, "Aide", 22, TextAnchor.MiddleRight, new Color(0.66f, 0.72f, 0.78f));
             help.text = "Souris ou ZQSD : bouger   •   Clic ou Espace : coup   •   Échap : revenir";
-            UiFactory.Place(help.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 20f), new Vector2(-60f, 28f));
+            UiFactory.Place(help.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 38f), new Vector2(-80f, 30f));
 
             _inkSprite = MakeInk();
         }

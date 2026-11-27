@@ -90,7 +90,7 @@
   **Mini-jeu** (`UI/TidePoolGame` sur « Partie », installé par `Editor/NetSetup` ; menu **Installer l'épuisette** pour la
   scène ouverte ; règles pures testées `Fishing/Core/NetRules`) : face à un coin à bulles à moins de 4,8 cases, invite
   « Espace : sortir l'épuisette » ; l'action ouvre la flaque au lieu de lancer (`FishingController.BeforeCast`).
-  Flaque 320×192 affichée ×3, 5 bestioles tirées dans `FishingZone.NetSpecies` (fréquences, heure), plus grandes et plus
+  Flaque 320×192 affichée ×4 (fenêtre de presque tout l'écran), 5 bestioles tirées dans `FishingZone.NetSpecies` (fréquences, heure), plus grandes et plus
   méfiantes quand elles sont rares (`NetRules.Scale` / `Sensitivity`). L'épuisette suit la souris, le stick ou ZQSD avec
   le retard de l'eau ; bougée vite près d'une bête, elle l'inquiète. 6 coups (clic, Espace, A) : l'éclaboussure fait fuir
   les bêtes déjà inquiètes, les calmes sous le cercle sont prises. Réactions (`CritterBehaviour`) : crustacés, limule,
