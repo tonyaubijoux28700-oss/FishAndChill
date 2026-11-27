@@ -158,6 +158,9 @@ namespace FishAndChill.UI
         private Text _barText;
         private RectTransform _stampRect;
         private Text _pageText;
+        private Image _prevArrow;
+        private Image _nextArrow;
+        private int _hoverArrow;   // -1 : flèche de gauche, 1 : flèche de droite, 0 : aucune
         private Image _detailFish;
         private ShineSweep _detailShine;
         private Text _detailNumber;
@@ -335,6 +338,7 @@ namespace FishAndChill.UI
         {
             _hoverZone = -1;
             _hoverCell = -1;
+            _hoverArrow = 0;
             Mouse mouse = Mouse.current;
             if (mouse == null)
             {
@@ -364,6 +368,9 @@ namespace FishAndChill.UI
                 }
             }
 
+            _hoverArrow = Over(_prevArrow != null && _prevArrow.enabled ? _prevArrow.rectTransform : null, screen) ? -1
+                : Over(_nextArrow != null && _nextArrow.enabled ? _nextArrow.rectTransform : null, screen) ? 1 : 0;
+
             float wheel = mouse.scroll.ReadValue().y;
             if (wheel != 0f)
             {
@@ -376,13 +383,7 @@ namespace FishAndChill.UI
                 }
                 else if (Over(_bookRect, screen) && Current.Count > PerPage)
                 {
-                    // Page d'espèces suivante / précédente, à la même place dans la grille.
-                    int page = SpeciesIndex.PageOf(_selected, PerPage) + step;
-                    int pages = (Current.Count + PerPage - 1) / PerPage;
-                    if (page >= 0 && page < pages)
-                    {
-                        Select(Mathf.Min(page * PerPage + _selected % PerPage, Current.Count - 1));
-                    }
+                    StepPage(step);
                 }
             }
 
@@ -398,6 +399,10 @@ namespace FishAndChill.UI
             else if (Over(_netTab != null ? _netTab.rectTransform : null, screen))
             {
                 SetNetMode(true);
+            }
+            else if (_hoverArrow != 0)
+            {
+                StepPage(_hoverArrow);
             }
             else if (_hoverZone >= 0)
             {
@@ -958,6 +963,12 @@ namespace FishAndChill.UI
                 _cells[i].Frame.rectTransform.localScale = Vector3.one * (selected ? 1.05f : hovered ? 1.03f : 1f);
             }
 
+            // Flèches des pages : cachées s'il n'y a qu'une page, pâles au bout, plus grosses au survol.
+            int page = first / PerPage;
+            int pages = Current.Count > 0 ? (Current.Count + PerPage - 1) / PerPage : 1;
+            ShowArrow(_prevArrow, pages > 1, page > 0, _hoverArrow == -1);
+            ShowArrow(_nextArrow, pages > 1, page < pages - 1, _hoverArrow == 1);
+
             _detailFish.rectTransform.anchoredPosition = new Vector2(Mathf.Sin(Time.unscaledTime * 1.3f) * 6f, Mathf.Sin(Time.unscaledTime * 2.6f) * 4f);
         }
 
@@ -966,6 +977,61 @@ namespace FishAndChill.UI
         private Sprite SkinSprite(System.Func<UiSkin, Sprite> pick) => _skin != null ? pick(_skin) : null;
 
         private Color SkinTint(Color fallback) => _skin != null ? Color.white : fallback;
+
+        /// <summary>Page d'espèces précédente (-1) ou suivante (1) de la même zone, à la même place dans la grille.</summary>
+        private void StepPage(int step)
+        {
+            int page = SpeciesIndex.PageOf(_selected, PerPage) + step;
+            int pages = (Current.Count + PerPage - 1) / PerPage;
+            if (page >= 0 && page < pages)
+            {
+                Select(Mathf.Min(page * PerPage + _selected % PerPage, Current.Count - 1));
+            }
+        }
+
+        /// <summary>Flèche cachée s'il n'y a qu'une page, pâle au bout du carnet, plus grosse et plus foncée au survol.</summary>
+        private static void ShowArrow(Image arrow, bool shown, bool usable, bool hovered)
+        {
+            if (arrow == null) return;
+            arrow.enabled = shown;
+            arrow.color = !usable ? new Color(1f, 1f, 1f, 0.25f) : hovered ? Color.white : new Color(1f, 1f, 1f, 0.8f);
+            float side = Mathf.Sign(arrow.rectTransform.localScale.x);
+            float grow = usable && hovered ? 1.2f : 1f;
+            arrow.rectTransform.localScale = new Vector3(side * grow, grow, 1f);
+        }
+
+        private static Image BuildArrow(RectTransform parent, string name, Sprite sprite, Vector2 position, float side)
+        {
+            Image arrow = UiFactory.Plain(parent, name, Color.white);
+            arrow.sprite = sprite;
+            UiFactory.Center(arrow.rectTransform, position, new Vector2(42f, 33f));
+            arrow.rectTransform.localScale = new Vector3(side, 1f, 1f);
+            arrow.enabled = false;
+            return arrow;
+        }
+
+        /// <summary>Petite flèche à l'encre brune tournée vers la droite (14×11 px), un peu tremblée comme tracée à la plume.</summary>
+        private static Sprite MakeArrow()
+        {
+            const int width = 14, height = 11;
+            var texture = new Texture2D(width, height) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            var clear = new Color(0f, 0f, 0f, 0f);
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    int dy = Mathf.Abs(y - 5);
+                    bool head = x >= 7 && dy <= 13 - x;
+                    bool shaft = x >= 1 && x < 9 && dy <= (x < 3 ? 0 : 1);
+                    Color c = clear;
+                    if (head || shaft) c = y > 5 && (head ? dy == 13 - x : dy == 1) ? InkSoft : Ink;
+                    texture.SetPixel(x, y, c);
+                }
+            }
+
+            texture.Apply();
+            return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 16f);
+        }
 
         private Text InkLabel(RectTransform parent, string name, int size, TextAnchor anchor, Color color)
         {
@@ -1162,8 +1228,12 @@ namespace FishAndChill.UI
                 _cells.Add(BuildCell(page, i, position));
             }
 
-            _pageText = InkLabel(page, "Page", 21, TextAnchor.MiddleRight, InkSoft);
-            UiFactory.Center(_pageText.rectTransform, new Vector2(230f, -362f), new Vector2(220f, 30f));
+            // « Page 1 / 2 » entre deux flèches à l'encre, cliquables.
+            _pageText = InkLabel(page, "Page", 21, TextAnchor.MiddleCenter, InkSoft);
+            UiFactory.Center(_pageText.rectTransform, new Vector2(215f, -362f), new Vector2(130f, 30f));
+            Sprite arrow = MakeArrow();
+            _prevArrow = BuildArrow(page, "Page précédente", arrow, new Vector2(130f, -362f), -1f);
+            _nextArrow = BuildArrow(page, "Page suivante", arrow, new Vector2(300f, -362f), 1f);
 
             // Tampon « Complet », posé de travers quand toute la zone est découverte.
             Image stamp = UiFactory.Plain(page, "Tampon", Color.white);

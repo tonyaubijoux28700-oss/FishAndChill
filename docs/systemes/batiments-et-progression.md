@@ -272,7 +272,9 @@
   première colonne de la grille revient à la liste (`FishIndex.FocusZoneList`) ; Q/E (A/E en AZERTY) et les gâchettes
   hautes changent de zone partout. **Souris** (`FishIndex.HandleMouse`, `Mouse.current`, sans EventSystem) : clic sur
   l'icône du livre pour ouvrir ; clic sur une zone (nom en or au survol) ou sur une case (éclaircie au survol) ; molette
-  sur la colonne = faire défiler la liste, sur le carnet = page d'espèces suivante / précédente ; clic à côté du carnet
+  sur la colonne = faire défiler la liste, sur le carnet = page d'espèces suivante / précédente, comme les deux flèches
+  à l'encre autour de « Page 1 / 2 » en bas de la page de gauche (`FishIndex.StepPage` : cliquables, plus grosses au
+  survol, pâles au bout, cachées s'il n'y a qu'une page) ; clic à côté du carnet
   = fermer. Page de gauche : nom et pays de la
   zone, barre de progression avec **paliers 25/50/100 %** (`CollectionRewards`, testé : 50/150/400 pièces, encaissés
   automatiquement dès qu'ils sont atteints, bandeau « Carnet — … +N pièces » même carnet fermé, clés « zone:palier »
