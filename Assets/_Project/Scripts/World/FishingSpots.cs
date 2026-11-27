@@ -20,6 +20,7 @@ namespace FishAndChill.World
 
         [SerializeField, Tooltip("Rond dans l'eau qui s'élargit (3 images).")] private Sprite[] _ring = new Sprite[0];
         [SerializeField] private Sprite _bubble;
+        [SerializeField, Tooltip("Grappe de bulles bien visible au-dessus du coin (3 images), à la place du rond.")] private Sprite[] _cluster = new Sprite[0];
 
         private sealed class Spot
         {
@@ -118,9 +119,9 @@ namespace FishAndChill.World
             marker.transform.SetParent(transform, false);
             spot.Marker = marker.AddComponent<SpriteRenderer>();
             spot.Marker.sortingOrder = -8;
-            spot.Marker.sprite = _ring.Length > 0 ? _ring[Mathf.Min(1, _ring.Length - 1)] : null;
+            spot.Marker.sprite = _cluster.Length > 0 ? _cluster[0] : _ring.Length > 0 ? _ring[Mathf.Min(1, _ring.Length - 1)] : null;
             spot.Marker.transform.position = spot.Center;
-            spot.Marker.transform.localScale = new Vector3(1.4f, 1.4f, 1f);
+            spot.Marker.transform.localScale = _cluster.Length > 0 ? Vector3.one : new Vector3(1.4f, 1.4f, 1f);
 
             for (int i = 0; i < 8; i++)
             {
@@ -221,7 +222,15 @@ namespace FishAndChill.World
 
                 // Apparition et disparition en douceur.
                 float fade = Mathf.Clamp01(Mathf.Min(spot.Age, spot.Life - spot.Age) / 1.5f);
-                spot.Marker.color = new Color(1f, 1f, 1f, fade * (0.35f + 0.2f * Mathf.Sin(spot.Age * 2.2f)));
+                if (_cluster.Length > 0)
+                {
+                    spot.Marker.sprite = _cluster[(int)(spot.Age * 4f) % _cluster.Length];
+                    spot.Marker.color = new Color(1f, 1f, 1f, fade);
+                }
+                else
+                {
+                    spot.Marker.color = new Color(1f, 1f, 1f, fade * (0.35f + 0.2f * Mathf.Sin(spot.Age * 2.2f)));
+                }
                 UpdateBubbles(spot, fade, dt);
             }
         }

@@ -86,7 +86,19 @@
   commune à légendaire (les bêtes du large). Elles n'iront pas à l'aquarium. La canne ne les attrape jamais
   (`FishingController.Cast`). Le calmar veiné (Kraken) et l'écrevisse signal (Bramafan) restent l'espèce de base de leur
   légende. Dessins validés (`Editor/TidePoolArt`) : l'épuisette, les bulles, la flaque de Mahana et une seule bestiole
-  sous l'eau pour toutes les espèces (`Critter`, sa taille suivra la rareté).
+  sous l'eau pour toutes les espèces (`Critter`).
+  **Mini-jeu** (`UI/TidePoolGame` sur « Partie », installé par `Editor/NetSetup` ; menu **Installer l'épuisette** pour la
+  scène ouverte ; règles pures testées `Fishing/Core/NetRules`) : face à un coin à bulles à moins de 4,8 cases, invite
+  « Espace : sortir l'épuisette » ; l'action ouvre la flaque au lieu de lancer (`FishingController.BeforeCast`).
+  Flaque 320×192 affichée ×3, 5 bestioles tirées dans `FishingZone.NetSpecies` (fréquences, heure), plus grandes et plus
+  méfiantes quand elles sont rares (`NetRules.Scale` / `Sensitivity`). L'épuisette suit la souris, le stick ou ZQSD avec
+  le retard de l'eau ; bougée vite près d'une bête, elle l'inquiète. 6 coups (clic, Espace, A) : l'éclaboussure fait fuir
+  les bêtes déjà inquiètes, les calmes sous le cercle sont prises. Réactions (`CritterBehaviour`) : crustacés, limule,
+  grenouille se cachent sous le rocher le plus proche ; céphalopodes presque invisibles, encre puis réapparition
+  ailleurs ; coquillages, oursins, étoiles, méduses s'enfouissent sur place ; les autres filent. Prises notées dans le
+  journal (`CatchLog`) puis relâchées ; le coin s'épuise (`FishingSpots.Consume`). Échap ou B pour revenir. Les coins
+  à bulles montrent la grappe de bulles (`FishingSpots._cluster`, `Art/Ambient/Bulles_*`). Pour l'instant la flaque de
+  Mahana sert partout et l'épuisette n'a pas besoin d'être achetée.
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).

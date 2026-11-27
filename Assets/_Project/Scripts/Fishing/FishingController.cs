@@ -172,6 +172,9 @@ namespace FishAndChill.Fishing
         public float HookedSizeCm { get; private set; }
         public QteChallenge Challenge { get; private set; }
         public CatchLog CatchLog { get; } = new CatchLog();
+
+        /// <summary>Appelé avant un lancer : s'il renvoie vrai, on ne lance pas (l'épuisette sort face à un coin à bulles).</summary>
+        public System.Func<bool> BeforeCast;
         public PlayerProgress Progress => _progress;
 
         /// <summary>Le poisson qui attend une décision quand le sac est plein.</summary>
@@ -317,6 +320,7 @@ namespace FishAndChill.Fishing
             switch (State)
             {
                 case FishingState.Idle:
+                    if (BeforeCast != null && BeforeCast()) break; // face aux bulles : l'épuisette sort à la place
                     Cast();
                     break;
 

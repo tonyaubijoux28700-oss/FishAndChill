@@ -766,6 +766,9 @@ namespace FishAndChill.Editor
             controllerCycleSo.FindProperty("_cycle").objectReferenceValue = cycle;
             controllerCycleSo.ApplyModifiedPropertiesWithoutUndo();
 
+            // Épuisette : face à un coin à bulles, l'action ouvre la flaque au lieu de lancer.
+            NetSetup.Install(partie, controller, movement, cycle, skin, Object.FindAnyObjectByType<WorldMap>());
+
             // Météo : temps tiré selon le climat de la zone, ciel teinté, pluie, brume et éclairs (objet « Météo »).
             WeatherSystem weather = BuildWeather(partie.transform, cycle, controller, movement.transform);
             cycleSo.Update();
