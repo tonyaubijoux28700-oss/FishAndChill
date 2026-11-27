@@ -5792,7 +5792,6 @@ GameObject:
   - component: {fileID: 332295282}
   - component: {fileID: 332295283}
   - component: {fileID: 332295284}
-  - component: {fileID: 332295285}
   - component: {fileID: 332295286}
   m_Layer: 0
   m_Name: Partie
@@ -6208,36 +6207,6 @@ MonoBehaviour:
   _player: {fileID: 1141459283}
   _progress: {fileID: 332295271}
   _shop: {fileID: 2129499070}
---- !u!114 &332295285
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 332295270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfc80ba0954a7ca4080e67a5795218d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: FishAndChill::FishAndChill.World.CrustaceanTraps
-  _progress: {fileID: 332295271}
-  _player: {fileID: 1141459283}
-  _fishing: {fileID: 1235020156}
-  _cycle: {fileID: 332295281}
-  _map: {fileID: 1254510490}
-  _zones:
-  - {fileID: 11400000, guid: 7ea8dcc9fb1ff8c4382048a784d597fd, type: 2}
-  - {fileID: 11400000, guid: e71143147af136242879c044a37974a4, type: 2}
-  - {fileID: 11400000, guid: 8a5236730c657e747b4596b02007df66, type: 2}
-  - {fileID: 11400000, guid: 1f23c7bcb94141241a3822bb70be8c18, type: 2}
-  - {fileID: 11400000, guid: b3bab3c8683334044805b234f309ae0b, type: 2}
-  - {fileID: 11400000, guid: 3b48e273813a1bc43ba7dfd094286920, type: 2}
-  - {fileID: 11400000, guid: 27bf4c31fbfd77b4fb3b24008c86517e, type: 2}
-  - {fileID: 11400000, guid: 8bcd8d84eef02ef4da0fef7bccc6df31, type: 2}
-  - {fileID: 11400000, guid: 9204d229f8dc6e74a812fd1f376b7476, type: 2}
-  _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
-  _liftRadius: 2.2
-  _spacing: 1.5
 --- !u!114 &332295286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23461,6 +23430,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d2a0e9dcf2236f2409a11712a4467485, type: 3}
   - {fileID: 21300000, guid: 324d67114a4bd9e4187a5ee3d53fb55e, type: 3}
   - {fileID: 21300000, guid: d0f3a8f4691ab1549bcf695933d30932, type: 3}
+  _idle: []
   _walkFramesPerSecond: 8
 --- !u!1 &1142402143
 GameObject:

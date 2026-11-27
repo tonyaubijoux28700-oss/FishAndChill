@@ -803,12 +803,8 @@ namespace FishAndChill.UI
             if (!known)
             {
                 _detailName.text = "???";
-                bool trapped = s.Kind.CaughtInTrap();
-                _detailScientific.text = trapped ? "Espèce pas encore attrapée" : "Espèce pas encore pêchée";
-                _description.text = trapped
-                    ? $"Indice : {s.Rarity.DisplayName().ToLowerInvariant()}, de {s.SizeRangeCm.x:0} à {s.SizeRangeCm.y:0} cm.{FavoriteBaitText(s)}\n" +
-                      "Pose un casier dans sa zone (il s'achète à la boutique) !"
-                    : $"Indice : {LowerFirst(_timeText.text)}, {s.Rarity.DisplayName().ToLowerInvariant()}, " +
+                _detailScientific.text = "Espèce pas encore pêchée";
+                _description.text = $"Indice : {LowerFirst(_timeText.text)}, {s.Rarity.DisplayName().ToLowerInvariant()}, " +
                       $"de {s.SizeRangeCm.x:0} à {s.SizeRangeCm.y:0} cm.{FavoriteBaitText(s)}\nPêche-la pour en savoir plus !";
                 _stats[0].text = "Prises\n—";
                 _stats[1].text = "Record\n—";
@@ -831,17 +827,10 @@ namespace FishAndChill.UI
 
         /// <summary>
         /// Ce qu'il faut pour la prendre, en couleur : ses types de leurres (exigés à partir de peu commune, sinon
-        /// simplement préférés) et ses hameçons (exigés à partir d'épique). Casier pour les crustacés.
+        /// simplement préférés) et ses hameçons (exigés à partir d'épique).
         /// </summary>
         private string FavoriteBaitText(FishSpecies species, bool newLine = false)
         {
-            if (species.Kind.CaughtInTrap())
-            {
-                // Les crustacés ne mordent pas à la canne : l'appât ne compte pas, seul le casier les attrape.
-                const string trap = "<color=#2E6B2A>S'attrape au casier (pas à la canne)</color>";
-                return newLine ? "\n" + trap : " " + trap + ".";
-            }
-
             if (species.Lures.Count == 0)
             {
                 return string.Empty;

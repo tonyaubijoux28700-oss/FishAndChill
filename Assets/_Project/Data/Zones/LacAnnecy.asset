@@ -38,10 +38,6 @@ MonoBehaviour:
     _weight: 9
   - _species: {fileID: 11400000, guid: 4dacdd7d548e8d94689ca284bab03318, type: 2}
     _weight: 4
-  - _species: {fileID: 11400000, guid: bc46845ef1e23874793514f9243b417e, type: 2}
-    _weight: 18
-  - _species: {fileID: 11400000, guid: ec726d8e4c5c2e34fbfdf47a5c8153a4, type: 2}
-    _weight: 10
   - _species: {fileID: 11400000, guid: c901bad8e26b0ec4bb6322d923feac85, type: 2}
     _weight: 30
   - _species: {fileID: 11400000, guid: 573564ec7e588ab488623a38e36600fb, type: 2}

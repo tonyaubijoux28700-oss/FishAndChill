@@ -242,7 +242,13 @@ namespace FishAndChill.Editor
             System.Collections.Generic.List<SpeciesRow> allRows, Vector2 mapPosition, string region)
         {
             string zoneName = System.IO.Path.GetFileNameWithoutExtension(path);
-            var rows = allRows.FindAll(r => r.Zone == zoneName);
+            // Toutes les fiches sont créées ; les espèces mises de côté pour la plongée (pas des poissons) restent hors de la zone.
+            foreach (SpeciesRow row in allRows.FindAll(r => r.Zone == zoneName && r.Kind.SetAside()))
+            {
+                CreateOrUpdateSpecies(row);
+            }
+
+            var rows = allRows.FindAll(r => r.Zone == zoneName && !r.Kind.SetAside());
             var species = new FishSpecies[rows.Count];
             for (int i = 0; i < rows.Count; i++)
             {
@@ -421,7 +427,6 @@ namespace FishAndChill.Editor
             progressSo.FindProperty("_gearCatalog").objectReferenceValue = GearSetup.CreateOrUpdate();
             progressSo.FindProperty("_baitCatalog").objectReferenceValue = BaitSetup.CreateOrUpdate();
             progressSo.FindProperty("_petCatalog").objectReferenceValue = PetSetup.CreateOrUpdate();
-            progressSo.FindProperty("_trap").objectReferenceValue = GearSetup.CreateTrap();
             progressSo.ApplyModifiedPropertiesWithoutUndo();
 
             so = new SerializedObject(controller);
@@ -765,29 +770,6 @@ namespace FishAndChill.Editor
             var controllerCycleSo = new SerializedObject(controller);
             controllerCycleSo.FindProperty("_cycle").objectReferenceValue = cycle;
             controllerCycleSo.ApplyModifiedPropertiesWithoutUndo();
-
-            // Casiers à crustacés : C face à l'eau pour en poser un, C près de la bouée pour le relever.
-            var traps = partie.GetComponent<CrustaceanTraps>();
-            if (traps == null)
-            {
-                traps = partie.AddComponent<CrustaceanTraps>();
-            }
-
-            var trapsSo = new SerializedObject(traps);
-            trapsSo.FindProperty("_progress").objectReferenceValue = progress;
-            trapsSo.FindProperty("_player").objectReferenceValue = movement;
-            trapsSo.FindProperty("_fishing").objectReferenceValue = controller;
-            trapsSo.FindProperty("_cycle").objectReferenceValue = cycle;
-            trapsSo.FindProperty("_map").objectReferenceValue = Object.FindAnyObjectByType<WorldMap>();
-            trapsSo.FindProperty("_skin").objectReferenceValue = skin;
-            SerializedProperty trapZones = trapsSo.FindProperty("_zones");
-            trapZones.arraySize = saveZones.arraySize;
-            for (int i = 0; i < saveZones.arraySize; i++)
-            {
-                trapZones.GetArrayElementAtIndex(i).objectReferenceValue = saveZones.GetArrayElementAtIndex(i).objectReferenceValue;
-            }
-
-            trapsSo.ApplyModifiedPropertiesWithoutUndo();
 
             // Météo : temps tiré selon le climat de la zone, ciel teinté, pluie, brume et éclairs (objet « Météo »).
             WeatherSystem weather = BuildWeather(partie.transform, cycle, controller, movement.transform);

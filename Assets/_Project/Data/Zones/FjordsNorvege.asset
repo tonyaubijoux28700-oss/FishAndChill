@@ -42,12 +42,8 @@ MonoBehaviour:
     _weight: 3
   - _species: {fileID: 11400000, guid: 4a5a8886ebc3b4b45a3959d1f92b9808, type: 2}
     _weight: 3
-  - _species: {fileID: 11400000, guid: 48a3e25491deb38409d05fc6d3e1f496, type: 2}
-    _weight: 3
   - _species: {fileID: 11400000, guid: eff5476a19b04ea4a954e821f7209d80, type: 2}
     _weight: 2
-  - _species: {fileID: 11400000, guid: b7d18dadd4cbfd241881f6e3972a96c9, type: 2}
-    _weight: 7
   - _species: {fileID: 11400000, guid: 5fb179ecdc3490b47a8c49f3cb3319c9, type: 2}
     _weight: 28
   - _species: {fileID: 11400000, guid: a17f524b741125c4197376c31d05fba3, type: 2}

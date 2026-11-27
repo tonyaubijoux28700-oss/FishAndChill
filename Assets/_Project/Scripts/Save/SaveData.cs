@@ -77,10 +77,6 @@ namespace FishAndChill.Save
         public List<string> Pets = new List<string>();
         public string EquippedPet;
 
-        /// <summary>Casiers à crustacés possédés (posés compris) et ceux qui sont dans l'eau.</summary>
-        public int Traps;
-        public List<Gear.PlacedTrap> PlacedTraps = new List<Gear.PlacedTrap>();
-
         /// <summary>Heures de jeu écoulées depuis le début de la partie (0 pour une ancienne sauvegarde).</summary>
         public double TotalHours;
 

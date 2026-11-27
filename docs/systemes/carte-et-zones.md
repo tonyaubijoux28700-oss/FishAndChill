@@ -23,7 +23,7 @@
 - Tuiles pixel art provisoires (16×16, 16 px/unité, filtre Point) dans `Assets/_Project/Art/Tiles/`,
   **redessinées à chaque génération** : pour garder un dessin fait main, le renommer.
 - Zone de départ : **Île Mahana** (fictive, tropicale) avec 16 vraies espèces indo-pacifiques : 13 poissons, 2 crustacés
-  (crabe de palétuvier, langouste porcelaine) et 1 reptile (tortue verte). Deuxième fournée (poisson-papillon cocher,
+  (crabe de palétuvier, langouste porcelaine) et 1 reptile (tortue verte) (crustacés, céphalopodes, reptiles et amphibiens de toutes les zones : fiches gardées mais mis de côté pour la plongée). Deuxième fournée (poisson-papillon cocher,
   rouget-barbet à bande jaune, vivaneau à raies bleues, baliste Picasso, poisson-lion radié ; et à Annecy ablette,
   chevesne, tanche, carpe commune, lotte) dessinée dans `ExtraFishArt`.
   Palmiers sur la Tilemap `Décor` (tronc bloquant).
@@ -119,7 +119,7 @@
   `SkeletonTank`, mobilier `AquariumRoomLayout.Skeleton`) : cale de cargo, tôles rivetées, bassin froid au kelp et à
   l'épave, barre à roue, scaphandre, lanternes de navire. **L'intérieur de l'aquarium est 40 cases sous l'île**
   (`bounds.yMin - 40`) : sa rangée de salles s'allonge à chaque zone sans déborder sur le lac (ne pas décaler `LakeGap` :
-  les casiers posés sont sauvegardés avec leur position dans le monde).
+  des positions dans le monde peuvent être sauvegardées).
 - **Fjords de Norvège** (8e zone, région 7) : plan dessiné `World/FjordPlan` (90×64 cases, testé : un long **fjord**
   d'eau sombre qui entre par le sud et se resserre vers le nord (`CenterAt` / `HalfWidthAt`) jusqu'à son fond arrondi, au
   pied d'une rangée de **falaises de granit enneigées** (pans de 8 cases, solides, `CliffFoot` = 54) d'où tombe une
@@ -135,7 +135,7 @@
   `FjordLandmarkArt`). Lumière froide et bleutée (`SetGloom`), climat changeant et pluvieux. Vie (`BuildFjordLife`,
   `FjordLifeArt`) : phoques sous l'eau, macareux sur les galets, pygargue à queue blanche qui plane. 16 espèces faites par
   la table (`Zone` = `FjordsNorvege` : hareng, maquereau, lieu noir, églefin, plie, lompe, lingue, morue, saumon
-  atlantique, sébaste du Nord, baudroie commune, calmar veiné, loup de mer, flétan, **crabe royal** au casier (dessin du crabe-araignée
+  atlantique, sébaste du Nord, baudroie commune, calmar veiné, loup de mer, flétan, **crabe royal** mis de côté pour la plongée (dessin du crabe-araignée
   recoloré, `CreatureArt.KingCrab`), **requin du Groenland** légendaire). **Salle des fjords** à l'aquarium (8e étage,
   `AquariumFjordArt`, `FjordTank`, mobilier `AquariumRoomLayout.Fjord`) : cabane de pêcheur en rondins jointés de
   mousse, plancher de pin, bassin d'eau froide aux laminaires, rochers aux algues roses, oursins et étoiles de mer ;

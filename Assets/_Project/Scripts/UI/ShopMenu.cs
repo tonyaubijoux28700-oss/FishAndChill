@@ -14,7 +14,7 @@ namespace FishAndChill.UI
     /// <summary>
     /// Le marchand de la boutique : devant le comptoir, E ouvre son menu, en cinq rayons (Tab / Maj + Tab ou gâchettes).
     /// « Vendre » : la liste du sac, 1, 2, 3… vend un poisson, V vend tous les doublons.
-    /// « Cannes », « Hameçons », « Appâts », « Sacs, casiers » : une vitrine (<see cref="ShopShowcase"/>) montre un
+    /// « Cannes », « Hameçons », « Appâts », « Sacs » : une vitrine (<see cref="ShopShowcase"/>) montre un
     /// objet à la fois, en grand sur son présentoir ; Q / D (ou les flèches, la croix, les flèches et vignettes à la
     /// souris) font défiler, Espace (ou bouton A, ou clic sur l'objet) l'achète ou le prend en main.
     /// Échap (ou E) referme. Le joueur est immobile pendant ce temps.
@@ -34,7 +34,7 @@ namespace FishAndChill.UI
         private const string Greeting = "« Bienvenue ! Je rachète tes doublons. Le plus gros de chaque nouvelle espèce, garde-le pour l'aquarium ! »";
         private const string GearGreeting = "« Chaque canne a son caractère : achète celle qui te plaît, tu pourras changer quand tu veux ! »";
         private const string HookGreeting = "« Un bon hameçon, c'est un poisson qui ne se décroche pas ! »";
-        private const string BagGreeting = "« Plus de place dans ton sac, moins d'allers-retours ! Et un casier pour les crustacés ? »";
+        private const string BagGreeting = "« Plus de place dans ton sac, moins d'allers-retours ! »";
         private const string BaitGreeting = "« Les poissons rares ne mordent qu'à leur leurre : le carnet te dit lequel ! »";
         private const float RowsAreaHeight = 560f;
 
@@ -448,26 +448,6 @@ namespace FishAndChill.UI
             return result;
         }
 
-        /// <summary>Achète un casier à crustacés.</summary>
-        public TrapPurchase BuyTrap()
-        {
-            TrapDefinition trap = _progress.Trap;
-            TrapPurchase result = _progress.BuyTrap();
-            switch (result)
-            {
-                case TrapPurchase.Bought:
-                    Say("« Un bon casier ! Pose-le près de la rive et reviens dans une demi-journée. »", Good);
-                    break;
-                case TrapPurchase.NotEnoughCoins:
-                    Say($"« Il te manque {trap.Price - _progress.Wallet.Coins} pièces pour un casier. »", TooExpensive);
-                    break;
-                case TrapPurchase.AtMax:
-                    Say($"« Tu as déjà {trap.MaxOwned} casiers, c'est bien assez ! »", Gold);
-                    break;
-            }
-
-            return result;
-        }
 
         /// <summary>Achète un paquet de l'appât numéro <paramref name="index"/> (il est accroché tout de suite).</summary>
         public bool BuyBait(int index)
@@ -527,7 +507,7 @@ namespace FishAndChill.UI
                 case Tab.Rods: AddItems(GearCategory.Rod); break;
                 case Tab.Hooks: AddItems(GearCategory.Hook); break;
                 case Tab.Baits: AddBaits(); break;
-                case Tab.Bag: AddBags(); AddTrap(); break;
+                case Tab.Bag: AddBags(); break;
             }
         }
 
@@ -672,35 +652,6 @@ namespace FishAndChill.UI
 
                 _entries.Add(entry);
             }
-        }
-
-        private void AddTrap()
-        {
-            TrapDefinition trap = _progress.Trap;
-            if (trap == null) return;
-            TrapSet traps = _progress.Traps;
-            string placed = traps.Placed.Count > 0 ? $" ({traps.Placed.Count} dans l'eau)" : string.Empty;
-            var entry = new ShowcaseEntry
-            {
-                Picture = trap.Icon,
-                Name = trap.DisplayName,
-                Detail = "Les crustacés ne s'attrapent qu'au casier. C face à l'eau pour le poser, reviens une demi-journée plus tard pour le relever.",
-                Status = $"Tu en as {traps.Owned} sur {trap.MaxOwned}{placed}",
-                StatusColor = traps.Owned > 0 ? Good : Muted,
-                Buy = () => BuyTrap(),
-            };
-
-            if (traps.Owned >= trap.MaxOwned)
-            {
-                entry.Price = "Complet";
-                entry.PriceColor = Gold;
-            }
-            else
-            {
-                Price(entry, trap.Price);
-            }
-
-            _entries.Add(entry);
         }
 
         private void Price(ShowcaseEntry entry, int price)
@@ -864,7 +815,7 @@ namespace FishAndChill.UI
             UiFactory.TitlePlaque(panel.rectTransform, _skin, "Boutique de Mahana", 42, new Vector2(0f, 462f), new Vector2(620f, 88f), out _);
 
             // Les rayons.
-            string[] titles = { "Vendre", "Cannes", "Hameçons", "Leurres", "Sacs, casiers" };
+            string[] titles = { "Vendre", "Cannes", "Hameçons", "Leurres", "Sacs" };
             _tabs = new Image[titles.Length];
             for (int i = 0; i < titles.Length; i++)
             {

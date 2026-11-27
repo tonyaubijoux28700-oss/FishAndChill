@@ -17,7 +17,10 @@ namespace FishAndChill.Collection
         /// <summary>Dans l'aquarium, poissons et céphalopodes nagent : les autres se tiennent au fond.</summary>
         public static bool LivesOnBottom(this CreatureKind kind) => kind != CreatureKind.Fish && kind != CreatureKind.Cephalopod;
 
-        /// <summary>Les crustacés ne s'attrapent qu'au casier, jamais à la canne.</summary>
-        public static bool CaughtInTrap(this CreatureKind kind) => kind == CreatureKind.Crustacean;
+        /// <summary>
+        /// Crustacés, céphalopodes, reptiles, amphibiens : mis de côté pour la plongée. Leur fiche reste (deux légendes
+        /// s'appuient dessus) mais ils ne sont ni dans les zones, ni dans le carnet, ni à la canne.
+        /// </summary>
+        public static bool SetAside(this CreatureKind kind) => kind != CreatureKind.Fish;
     }
 }

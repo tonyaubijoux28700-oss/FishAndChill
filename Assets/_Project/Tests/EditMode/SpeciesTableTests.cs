@@ -44,7 +44,8 @@ namespace FishAndChill.Tests
             Assert.That(result.Rows[1].Shape, Is.EqualTo(BodyShape.Squid));
             Assert.That(result.Rows[2].Shape, Is.EqualTo(BodyShape.Ray));
             Assert.That(CreatureKind.Cephalopod.LivesOnBottom(), Is.False, "les céphalopodes nagent dans l'aquarium");
-            Assert.That(CreatureKind.Cephalopod.CaughtInTrap(), Is.False);
+            Assert.That(CreatureKind.Cephalopod.SetAside(), Is.True, "mis de côté pour la plongée");
+            Assert.That(CreatureKind.Fish.SetAside(), Is.False);
         }
 
         [Test]

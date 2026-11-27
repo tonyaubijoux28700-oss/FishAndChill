@@ -6,7 +6,7 @@ namespace FishAndChill.Editor
     /// <summary>
     /// Les présentoirs du marchand, dans le style en volume (<see cref="VolumeCanvas"/>) : le fond de la vitrine (mur
     /// tapissé, lambris, plancher et un rond de lumière qui tombe d'en haut), le socle à coussin de velours (hameçons,
-    /// appâts, sacs, casier), le râtelier des cannes et la flèche qui fait passer à l'objet suivant.
+    /// appâts, sacs), le râtelier des cannes et la flèche qui fait passer à l'objet suivant.
     /// </summary>
     public static class ShopDisplayArt
     {

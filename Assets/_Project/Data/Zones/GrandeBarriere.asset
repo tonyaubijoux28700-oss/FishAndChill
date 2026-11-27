@@ -48,8 +48,6 @@ MonoBehaviour:
     _weight: 7
   - _species: {fileID: 11400000, guid: 62673f2af8f78be488f7b9c1777c563e, type: 2}
     _weight: 3
-  - _species: {fileID: 11400000, guid: cc1d36893b16b664d8894eb22743a778, type: 2}
-    _weight: 7
   - _species: {fileID: 11400000, guid: 61b500a6a7658e44cb9719fb7b526a32, type: 2}
     _weight: 13
   _mapPosition: {x: 0.88, y: 0.34}

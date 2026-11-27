@@ -438,16 +438,16 @@ namespace FishAndChill.Fishing
             Gear.LureType lure = bait != null ? bait.LureType : Gear.LureType.Natural;
             Gear.HookType hook = _progress != null ? (Gear.HookType)_progress.Gear.Level(Gear.GearCategory.Hook) : Gear.HookType.Aberdeen;
             bool Fits(FishSpecies s) => Gear.LureRules.Allows(s.Rarity, lure, hook, s.Lures, s.Hooks);
-            // Les crustacés ne mordent jamais à la canne : ils ne s'attrapent qu'au casier.
+            // Les espèces mises de côté pour la plongée (pas des poissons) ne mordent jamais à la canne.
             HookedSpecies = _zone.PickSpecies(_random, species =>
-                !species.Kind.CaughtInTrap() && Fits(species) && DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
+                !species.Kind.SetAside() && Fits(species) && DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
                     ? gear.RarityMultiplier(species.Rarity) * (inSpot ? FishingSpotRules.SpeciesMultiplier(spotKind, species) : 1f)
                         * (bait != null ? bait.Multiplier(species, night) : 1f)
                         * Pets.PetMath.RarityFactor(species.Rarity, petRare)
                     : 0f);
             if (HookedSpecies == null)
             {
-                HookedSpecies = _zone.PickSpecies(_random, species => species.Kind.CaughtInTrap() || !Fits(species) ? 0f : gear.RarityMultiplier(species.Rarity));
+                HookedSpecies = _zone.PickSpecies(_random, species => species.Kind.SetAside() || !Fits(species) ? 0f : gear.RarityMultiplier(species.Rarity));
             }
             if (HookedSpecies == null)
             {
@@ -826,7 +826,7 @@ namespace FishAndChill.Fishing
         }
 
         /// <summary>
-        /// Affiche un message dans le bandeau de la pêche (casiers…), seulement quand la ligne n'est pas à l'eau.
+        /// Affiche un message dans le bandeau de la pêche seulement quand la ligne n'est pas à l'eau.
         /// Faux si une pêche est en cours.
         /// </summary>
         public bool ShowNote(string message, float seconds)

@@ -32,18 +32,12 @@ MonoBehaviour:
     _weight: 13
   - _species: {fileID: 11400000, guid: 40a2b9415220f524d82f6ed6715cb306, type: 2}
     _weight: 13
-  - _species: {fileID: 11400000, guid: cc62d2c73b7faad478b6a85f15cd9156, type: 2}
-    _weight: 10
   - _species: {fileID: 11400000, guid: 38cd5c61b943f934ba51c03663b2973f, type: 2}
     _weight: 7
   - _species: {fileID: 11400000, guid: e9e9d80626a9c55439e460ddfa4aea9b, type: 2}
     _weight: 7
   - _species: {fileID: 11400000, guid: 2cf4865de28b8b641af1afd92e49680e, type: 2}
     _weight: 7
-  - _species: {fileID: 11400000, guid: 8e7f5e247f60e584fbc425a96200f2e2, type: 2}
-    _weight: 6
-  - _species: {fileID: 11400000, guid: 1c68b1a109d97a64c9188eac6c0fa4e3, type: 2}
-    _weight: 3
   - _species: {fileID: 11400000, guid: b9ed8467c86029e47938d7887bd74657, type: 2}
     _weight: 2
   _mapPosition: {x: 0.77, y: 0.58}

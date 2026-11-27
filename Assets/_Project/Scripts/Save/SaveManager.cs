@@ -260,8 +260,6 @@ namespace FishAndChill.Save
             data.VillagerRequests = Villagers.VillagerRequests.Capture();
             data.Pets = new List<string>(_progress.Pets.Owned);
             data.EquippedPet = _progress.Pets.Equipped;
-            data.Traps = _progress.Traps.Owned;
-            data.PlacedTraps = new List<Gear.PlacedTrap>(_progress.Traps.Placed);
             data.TotalHours = _cycle != null ? _cycle.TotalHours : 0.0;
             foreach (string id in _progress.Baits.Owned)
             {
@@ -385,7 +383,6 @@ namespace FishAndChill.Save
             Villagers.VillagerMemory.Load(data.MetVillagers);
             Villagers.VillagerRequests.Load(data.VillagerRequests);
             _progress.Pets.Load(data.Pets, data.EquippedPet);
-            _progress.Traps.Load(data.Traps, data.PlacedTraps);
             if (_weather != null && data.Weather >= 0 && System.Enum.IsDefined(typeof(Weather), data.Weather))
             {
                 _weather.SetWeather((Weather)data.Weather, data.WeatherHours);

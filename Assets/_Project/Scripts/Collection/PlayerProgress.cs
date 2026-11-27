@@ -20,9 +20,6 @@ namespace FishAndChill.Collection
         [SerializeField, Tooltip("Les animaux de compagnie vendus à l'animalerie.")]
         private PetCatalog _petCatalog;
 
-        [SerializeField, Tooltip("Le casier à crustacés vendu par le marchand.")]
-        private TrapDefinition _trap;
-
         public event Action Changed;
 
         public Inventory Bag { get; private set; }
@@ -37,17 +34,6 @@ namespace FishAndChill.Collection
         public PetCollection Pets { get; private set; }
 
         public PetCatalog PetCatalog => _petCatalog;
-
-        /// <summary>Casiers à crustacés : possédés et posés dans l'eau.</summary>
-        public TrapSet Traps { get; private set; }
-        public TrapDefinition Trap => _trap;
-
-        /// <summary>Achète un casier à crustacés (au plus <c>MaxOwned</c>).</summary>
-        public TrapPurchase BuyTrap()
-        {
-            EnsureCreated();
-            return _trap != null ? Traps.TryBuy(_trap.Price, _trap.MaxOwned, Wallet) : TrapPurchase.Invalid;
-        }
 
         /// <summary>L'animal qui accompagne le joueur (null : aucun).</summary>
         public PetDefinition EquippedPet
@@ -106,8 +92,6 @@ namespace FishAndChill.Collection
             Baits = new BaitBag();
             Pets = new PetCollection();
             Pets.Changed += RaiseChanged;
-            Traps = new TrapSet();
-            Traps.Changed += RaiseChanged;
             Legends = new LegendProgress();
             Legends.Changed += RaiseChanged;
             if (_baitCatalog != null && _baitCatalog.Default != null)

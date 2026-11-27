@@ -20,7 +20,7 @@
   `Fishing/Core/FishingSpotRules`, testées) : 3 coins à la fois, en eau libre, chacun face à une rive où l'on peut se tenir et qu'on rejoint à pied depuis le ponton (`FishingSpotRules.Reachable` via `World/ShoreReach`, jamais face à un îlot inaccessible)
   (2,2 à 4,2 cases) ; durée 70-140 s ou 2 prises (`Consume`), puis il réapparaît ailleurs avec une autre sorte.
   `School` (banc : ombres qui tournent sous l'eau, touche ×0,45 du temps, communes favorisées), `Bubbles` (bulles :
-  tortue, grenouille ×4 ; les crustacés ne mordent plus à la canne : voir les casiers dans `batiments-et-progression.md`), `Frenzy` (chasse : éclaboussures, petits poissons qui sautent, rares à légendaires
+  tortue, grenouille ×4 ; les non-poissons sont mis de côté pour la plongée : ce coin ne change plus rien, voir `batiments-et-progression.md`), `Frenzy` (chasse : éclaboussures, petits poissons qui sautent, rares à légendaires
   ×2,5 à 3,5). Remous permanent qui pulse sur chaque coin. **Visée** : face à un coin à portée (à moins de 32°), le
   lancer y va tout seul (`FishingSpotRules.Assist`, dans `FishingController.TryFindCastPoint`) ; message propre au coin
   quand le bouchon y tombe (`FishingController.InSpot`, `SpotKind`).
@@ -49,7 +49,7 @@
   toutes dans `FishShadowSprites`, chacune animée). Dans l'aquarium, poissons et céphalopodes nagent : les
   autres (`LivesOnBottom`) coulent au fond, marchent lentement sur le sable et font des pauses (`AquariumTank`).
   Dessins des non-poissons dans `CreatureArt` (crabe, langouste, tortue ; poulpes, seiche et calmars dans `CephalopodArt`),
-  même style que `DetailedFish`. Les céphalopodes se pêchent à la canne (pas au casier) et se balancent sur la carte de prise.
+  même style que `DetailedFish`. Crustacés, céphalopodes, reptiles et amphibiens sont mis de côté pour la plongée (`CreatureKind.SetAside`) : fiches gardées, hors des zones.
   Messages et index écrits pour toutes les espèces (« ta prise », « Index des espèces »).
   Il reste **entièrement dans l'eau** : `FishingController.IsWater` + `FitsInWater` (museau, queue, flancs) ; point
   sous le bouchon et point de départ choisis dans l'eau, et il s'arrête plutôt que d'avancer sur le sable.
