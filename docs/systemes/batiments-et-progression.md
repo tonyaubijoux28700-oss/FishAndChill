@@ -97,8 +97,12 @@
   grenouille se cachent sous le rocher le plus proche ; céphalopodes presque invisibles, encre puis réapparition
   ailleurs ; coquillages, oursins, étoiles, méduses s'enfouissent sur place ; les autres filent. Prises notées dans le
   journal (`CatchLog`) puis relâchées ; le coin s'épuise (`FishingSpots.Consume`). Échap ou B pour revenir. Les coins
-  à bulles montrent la grappe de bulles (`FishingSpots._cluster`, `Art/Ambient/Bulles_*`). Pour l'instant la flaque de
-  Mahana sert partout. **Achat** : l'épuisette se vend 120 pièces au rayon « Sacs » du marchand, après les sacs
+  à bulles montrent la grappe de bulles (`FishingSpots._cluster`, `Art/Ambient/Bulles_*`). **Une flaque par zone** (`TidePoolArt.Pool(zone)`, `Art/UI/Epuisette/Flaque_<zone>.png`), chacune avec sa disposition :
+  Mahana (lave, corail, herbiers), Annecy (galets, branche noyée, characées, nénuphars), Amazone (racines, feuilles mortes,
+  nénuphars géants), Izu (sable noir, colonnes de basalte, varech, pétales), Grande Barrière (coraux branchu, cerveau,
+  table, mou), Maldives (dalles du platier), Côte des Squelettes (côtes et vertèbre de baleine, moules, kelp), Fjords
+  (galets, granit à balanes, varech), Ha Long (racines de palétuvier, calcaire, huîtres). Ses cachettes
+  (`TidePoolArt.HideSpots`) sont rangées avec elle dans `TidePoolGame._looks` ; la flaque suit la zone de la pêche. **Achat** : l'épuisette se vend 120 pièces au rayon « Sacs » du marchand, après les sacs
   (`ShopMenu.AddNet` / `BuyNet`, `PlayerProgress.NetPrice` / `BuyNet` / `HasNet`, testé ; sauvegardée dans `SaveData.HasNet`).
   Sans elle, face aux bulles, l'invite dit qu'il faut en acheter une et l'action lance la ligne comme d'habitude.
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra

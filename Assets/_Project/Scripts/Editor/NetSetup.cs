@@ -19,7 +19,15 @@ namespace FishAndChill.Editor
         public static void Install(GameObject partie, FishingController controller, PlayerMovement movement, DayNightCycle cycle, UiSkin skin, WorldMap map)
         {
             PixelArt.EnsureFolder(Folder);
-            Sprite pool = PixelArt.Save($"{Folder}/Flaque_Mahana.png", TidePoolArt.MahanaPool(), 16, Vector2.zero);
+            Sprite pool = null;
+            var pools = new Sprite[TidePoolArt.PoolZones.Length];
+            for (int i = 0; i < pools.Length; i++)
+            {
+                string zone = TidePoolArt.PoolZones[i];
+                pools[i] = PixelArt.Save($"{Folder}/Flaque_{zone}.png", TidePoolArt.Pool(zone), 16, Vector2.zero);
+                if (zone == "IleMahana") pool = pools[i];
+            }
+
             var critter = new Sprite[3];
             for (int i = 0; i < critter.Length; i++)
             {
@@ -40,6 +48,19 @@ namespace FishAndChill.Editor
             so.FindProperty("_skin").objectReferenceValue = skin;
             so.FindProperty("_pool").objectReferenceValue = pool;
             so.FindProperty("_net").objectReferenceValue = net;
+            SerializedProperty looks = so.FindProperty("_looks");
+            looks.arraySize = pools.Length;
+            for (int i = 0; i < pools.Length; i++)
+            {
+                SerializedProperty look = looks.GetArrayElementAtIndex(i);
+                look.FindPropertyRelative("Zone").stringValue = TidePoolArt.PoolZones[i];
+                look.FindPropertyRelative("Pool").objectReferenceValue = pools[i];
+                Vector2[] rocks = TidePoolArt.HideSpots(TidePoolArt.PoolZones[i]);
+                SerializedProperty rockList = look.FindPropertyRelative("Rocks");
+                rockList.arraySize = rocks.Length;
+                for (int r = 0; r < rocks.Length; r++) rockList.GetArrayElementAtIndex(r).vector2Value = rocks[r];
+            }
+
             SerializedProperty frames = so.FindProperty("_critter");
             frames.arraySize = critter.Length;
             for (int i = 0; i < critter.Length; i++) frames.GetArrayElementAtIndex(i).objectReferenceValue = critter[i];

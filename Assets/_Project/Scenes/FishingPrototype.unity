@@ -6251,7 +6251,72 @@ MonoBehaviour:
   _cycle: {fileID: 332295281}
   _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
   _progress: {fileID: 332295271}
-  _pool: {fileID: 21300000, guid: 2b0c8d0f669cff24b97fb0a851684085, type: 3}
+  _pool: {fileID: 21300000, guid: 8df1692f7ade6b041a45818c55dbce93, type: 3}
+  _looks:
+  - Zone: IleMahana
+    Pool: {fileID: 21300000, guid: 8df1692f7ade6b041a45818c55dbce93, type: 3}
+    Rocks:
+    - {x: 70, y: 137}
+    - {x: 240, y: 52}
+    - {x: 258, y: 67}
+    - {x: 140, y: 152}
+    - {x: 110, y: 32}
+  - Zone: LacAnnecy
+    Pool: {fileID: 21300000, guid: 73009a63817b6554ba4e6963b4b75a4b, type: 3}
+    Rocks:
+    - {x: 62, y: 64}
+    - {x: 206, y: 140}
+    - {x: 222, y: 56}
+    - {x: 278, y: 156}
+  - Zone: FleuveAmazone
+    Pool: {fileID: 21300000, guid: 02c11fe54a2db4548973f492cddb8b31, type: 3}
+    Rocks:
+    - {x: 100, y: 130}
+    - {x: 160, y: 54}
+    - {x: 238, y: 80}
+    - {x: 62, y: 32}
+  - Zone: BaieJaponaise
+    Pool: {fileID: 21300000, guid: 9ac4ff672f448ee4fbf0e322e6304775, type: 3}
+    Rocks:
+    - {x: 80, y: 132}
+    - {x: 242, y: 54}
+    - {x: 44, y: 42}
+    - {x: 170, y: 100}
+  - Zone: GrandeBarriere
+    Pool: {fileID: 21300000, guid: c49de3f8327552d4db4d09943076b029, type: 3}
+    Rocks:
+    - {x: 70, y: 128}
+    - {x: 240, y: 64}
+    - {x: 156, y: 152}
+    - {x: 104, y: 36}
+  - Zone: Maldives
+    Pool: {fileID: 21300000, guid: 11837cabc76509349a0414edee5f65af, type: 3}
+    Rocks:
+    - {x: 96, y: 118}
+    - {x: 250, y: 44}
+    - {x: 168, y: 78}
+    - {x: 40, y: 32}
+  - Zone: CoteDesSquelettes
+    Pool: {fileID: 21300000, guid: 6a492620d8beb2149ab1282b2c6665a3, type: 3}
+    Rocks:
+    - {x: 252, y: 132}
+    - {x: 238, y: 42}
+    - {x: 60, y: 130}
+    - {x: 46, y: 24}
+  - Zone: FjordsNorvege
+    Pool: {fileID: 21300000, guid: 11f8e48b1501c3843af567796425107d, type: 3}
+    Rocks:
+    - {x: 80, y: 122}
+    - {x: 232, y: 60}
+    - {x: 170, y: 152}
+    - {x: 60, y: 32}
+  - Zone: BaieHaLong
+    Pool: {fileID: 21300000, guid: 66ee5384271287e4a8d2b7873b55b5da, type: 3}
+    Rocks:
+    - {x: 46, y: 146}
+    - {x: 206, y: 130}
+    - {x: 124, y: 42}
+    - {x: 276, y: 32}
   _critter:
   - {fileID: 21300000, guid: 436069b06fbdd1e41b93ab1ee63dbb24, type: 3}
   - {fileID: 21300000, guid: e4a5002d272d53c4496c211acee7f0ae, type: 3}

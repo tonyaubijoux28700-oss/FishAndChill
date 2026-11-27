@@ -33,6 +33,20 @@ namespace FishAndChill.UI
 
         [Header("Dessins")]
         [SerializeField, Tooltip("La flaque vue de dessus (320×192).")] private Sprite _pool;
+
+        [System.Serializable]
+        private sealed class PoolLook
+        {
+            [Tooltip("Zone (nom de l'asset : IleMahana, LacAnnecy…).")] public string Zone;
+            public Sprite Pool;
+            [Tooltip("Cachettes de cette flaque (pixels, y depuis le bas).")] public Vector2[] Rocks = new Vector2[0];
+        }
+
+        [SerializeField, Tooltip("La flaque de chaque zone, avec ses cachettes (sinon : la flaque par défaut).")]
+        private PoolLook[] _looks = new PoolLook[0];
+
+        private Image _poolImage;
+        private Vector2[] _defaultRocks;
         [SerializeField, Tooltip("La bestiole sous l'eau (3 images : posée, puis deux en marche).")] private Sprite[] _critter = new Sprite[0];
         [SerializeField, Tooltip("L'épuisette dans l'eau (40×40, cercle centré au pixel 16, 24 depuis le bas).")] private Sprite _net;
 
@@ -92,6 +106,7 @@ namespace FishAndChill.UI
         {
             _random = new System.Random();
             _spots = FindObjectsByType<FishingSpots>();
+            _defaultRocks = _rocks;
             BuildUi();
             _window.SetActive(false);
             if (_fishing != null) _fishing.BeforeCast = TryOpen;
@@ -139,6 +154,7 @@ namespace FishAndChill.UI
         private void Open()
         {
             _openedFrame = Time.frameCount;
+            UseLookOf(_fishing.Zone);
             _window.SetActive(true);
             _player.Locked = true;
             _triesLeft = NetRules.Tries;
@@ -153,6 +169,21 @@ namespace FishAndChill.UI
             SpawnCritters();
             Say("Approche doucement, puis donne un coup d'épuisette.");
             RefreshTries();
+        }
+
+        /// <summary>La flaque et les cachettes de la zone où l'on pêche.</summary>
+        private void UseLookOf(FishingZone zone)
+        {
+            foreach (PoolLook look in _looks)
+            {
+                if (look == null || zone == null || look.Zone != zone.Id || look.Pool == null) continue;
+                _poolImage.sprite = look.Pool;
+                if (look.Rocks.Length > 0) _rocks = look.Rocks;
+                return;
+            }
+
+            _poolImage.sprite = _pool;
+            _rocks = _defaultRocks;
         }
 
         private void Close()
@@ -508,6 +539,7 @@ namespace FishAndChill.UI
 
             Image pool = UiFactory.Plain(window.rectTransform, "Eau", Color.white);
             pool.sprite = _pool;
+            _poolImage = pool;
             _poolRect = pool.rectTransform;
             UiFactory.Center(_poolRect, new Vector2(0f, 40f), new Vector2(PoolWidth * Zoom, PoolHeight * Zoom));
             _poolRect.pivot = Vector2.zero;   // coordonnées des bêtes et de l'épuisette depuis le coin bas gauche
