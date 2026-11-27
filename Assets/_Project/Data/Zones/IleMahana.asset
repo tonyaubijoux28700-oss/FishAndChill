@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: IleMahana
   m_EditorClassIdentifier: FishAndChill::FishAndChill.World.FishingZone
   _displayName: "\xCEle Mahana"
-  _description: "\xCEle tropicale fictive : lagon turquoise, plages de sable blanc et cocotiers. Point de d\xE9part de l'aventure."
+  _description: "\xCEle tropicale artificielle : lagon turquoise, plages de sable blanc et cocotiers. Point de d\xE9part de l'aventure."
   _waterColor: {r: 0.2, g: 0.68, b: 0.75, a: 1}
   _species:
   - _species: {fileID: 11400000, guid: 63e5b0a759afdf84a959767155eda352, type: 2}
@@ -76,7 +76,7 @@ MonoBehaviour:
   - _species: {fileID: 11400000, guid: 388dba1e81c2b0e4fb58de973b19539a, type: 2}
     _weight: 3
   _mapPosition: {x: 0.12, y: 0.36}
-  _region: "Polyn\xE9sie (\xEEle fictive)"
+  _region: "Polyn\xE9sie (\xEEle artificielle)"
   _climate:
     _clear: 50
     _cloudy: 20

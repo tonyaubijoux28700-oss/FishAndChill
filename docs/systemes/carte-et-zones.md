@@ -22,7 +22,7 @@
   et doit tomber dans l'eau (`CastTargeting`). `CameraFollow` sur la caméra, bloquée aux limites de la carte.
 - Tuiles pixel art provisoires (16×16, 16 px/unité, filtre Point) dans `Assets/_Project/Art/Tiles/`,
   **redessinées à chaque génération** : pour garder un dessin fait main, le renommer.
-- Zone de départ : **Île Mahana** (fictive, tropicale) avec 16 vraies espèces indo-pacifiques : 13 poissons, 2 crustacés
+- Zone de départ : **Île Mahana** (artificielle, tropicale) avec 16 vraies espèces indo-pacifiques : 13 poissons, 2 crustacés
   (crabe de palétuvier, langouste porcelaine) et 1 reptile (tortue verte) (crustacés, céphalopodes, reptiles et amphibiens de toutes les zones : fiches gardées mais mis de côté pour la plongée). Deuxième fournée (poisson-papillon cocher,
   rouget-barbet à bande jaune, vivaneau à raies bleues, baliste Picasso, poisson-lion radié ; et à Annecy ablette,
   chevesne, tanche, carpe commune, lotte) dessinée dans `ExtraFishArt`.

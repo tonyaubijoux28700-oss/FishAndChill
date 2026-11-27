@@ -132,8 +132,8 @@ namespace FishAndChill.Editor
 
             string startPath = ZonesFolder + "/IleMahana.asset";
             CreateOrUpdateZone(startPath, "Île Mahana",
-                "Île tropicale fictive : lagon turquoise, plages de sable blanc et cocotiers. Point de départ de l'aventure.",
-                MahanaWater, rows, new Vector2(0.12f, 0.36f), "Polynésie (île fictive)");
+                "Île tropicale artificielle : lagon turquoise, plages de sable blanc et cocotiers. Point de départ de l'aventure.",
+                MahanaWater, rows, new Vector2(0.12f, 0.36f), "Polynésie (île artificielle)");
 
             // Climat de chaque zone, d'après le vrai : beau, nuageux, pluie, orage, brouillard.
             SetClimate(startPath, new WeatherClimate(50f, 20f, 18f, 12f, 0f));          // tropiques : averses et orages

@@ -68,7 +68,7 @@ Les données doivent être faciles à ajouter en masse, par exemple par import d
 
 ## Zones
 
-- **Zone de départ : l'Île Mahana**, une île tropicale **fictive** (ambiance Polynésie) : lagon turquoise,
+- **Zone de départ : l'Île Mahana**, une île tropicale **artificielle** (ambiance Polynésie) : lagon turquoise,
   plages de sable blanc, cocotiers. Le lieu est inventé, mais les poissons sont de **vraies espèces**
   de lagon et de récif de l'Indo-Pacifique :
 
