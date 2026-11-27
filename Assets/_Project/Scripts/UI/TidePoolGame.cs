@@ -353,7 +353,8 @@ namespace FishAndChill.UI
             }
 
             bool finished = _triesLeft <= 0 || _critters.TrueForAll(c => c.Caught);
-            string end = finished ? $"\n{_caught} prise(s), relâchée(s) après les avoir notées. Clic ou Espace : revenir." : string.Empty;
+            string tally = _caught > 1 ? $"{_caught} prises notées puis relâchées" : _caught == 1 ? "Une prise notée puis relâchée" : "Rien de pris cette fois";
+            string end = finished ? $"\n{tally}.   Clic ou Espace : revenir" : string.Empty;
             Say((names.Count > 0 ? "Dans l'épuisette : " + string.Join(", ", names) : "Raté… l'eau s'est troublée.") + end);
         }
 
@@ -560,7 +561,7 @@ namespace FishAndChill.UI
             _message.horizontalOverflow = HorizontalWrapMode.Wrap;
             UiFactory.Place(_message.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0.5f), new Vector2(60f, 90f), new Vector2(-320f, 64f));
             Text help = UiFactory.Label(window.rectTransform, "Aide", 22, TextAnchor.MiddleRight, new Color(0.66f, 0.72f, 0.78f));
-            help.text = "Souris ou ZQSD : bouger   •   Clic ou Espace : coup   •   Échap : revenir";
+            help.text = $"Souris ou {KeyNames.Move} : bouger   •   Clic ou Espace : coup   •   Échap : revenir";
             UiFactory.Place(help.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 38f), new Vector2(-80f, 30f));
 
             _inkSprite = MakeInk();

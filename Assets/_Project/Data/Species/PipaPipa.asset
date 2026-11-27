@@ -18,6 +18,7 @@ MonoBehaviour:
   _rarity: 3
   _kind: 3
   _method: 1
+  _feminine: 0
   _bodyShape: 1
   _difficulty:
     _cursorSpeed: 1.75
@@ -28,7 +29,7 @@ MonoBehaviour:
   _sizeRangeCm: {x: 10, y: 20}
   _basePrice: 100
   _placeholderColor: {r: 0.5411765, g: 0.4627451, b: 0.3137255, a: 1}
-  _description: "Plat comme une feuille morte, il porte ses \u0153ufs enfonc\xE9s dans la peau du dos, d'o\xF9 sortent des petits crapauds tout form\xE9s."
+  _description: "Plat comme une feuille morte, il porte ses oeufs enfonc\xE9s dans la peau du dos, d'o\xF9 sortent des petits crapauds tout form\xE9s."
   _activeTime: 2
   _weather: 0
   _sprite: {fileID: 21300000, guid: 7cbd2e3ee656f5d449d13a42d6217aff, type: 3}

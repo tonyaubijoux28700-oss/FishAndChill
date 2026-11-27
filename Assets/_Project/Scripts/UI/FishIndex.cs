@@ -764,19 +764,19 @@ namespace FishAndChill.UI
                 return;
             }
 
-            string page = $"      {SwitchKey()} : {(_netMode ? "poissons" : "épuisette")}";
+            string page = $"   •   {SwitchKey()} : {(_netMode ? "poissons" : "épuisette")}";
 
             if (_zoneListFocused)
             {
                 _help.text = _zoneSpecies.Count > 1
-                    ? "Haut / Bas : changer de zone      Droite : voir les espèces" + page + "      Tab : fermer"
-                    : "Droite : voir les espèces" + page + "      Tab : fermer";
+                    ? "Haut / Bas : changer de zone   •   Droite : voir les espèces" + page + "   •   Tab : fermer"
+                    : "Droite : voir les espèces" + page + "   •   Tab : fermer";
                 return;
             }
 
             _help.text = _zoneSpecies.Count > 1
-                ? $"Flèches : choisir      Gauche : liste des zones      {ZoneKeys()} : zone" + page + "      Tab : fermer"
-                : "Flèches : choisir" + page + "      Tab : fermer";
+                ? $"Flèches : choisir   •   Gauche : liste des zones   •   {ZoneKeys()} : zone" + page + "   •   Tab : fermer"
+                : "Flèches : choisir" + page + "   •   Tab : fermer";
         }
 
         /// <summary>Colonne des zones : la zone affichée en couleur, sortie vers le carnet, et toujours visible.</summary>

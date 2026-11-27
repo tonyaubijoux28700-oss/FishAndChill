@@ -720,7 +720,7 @@ namespace FishAndChill.UI
             UiFactory.Center(n.rectTransform, new Vector2(300f, 262f), new Vector2(40f, 30f));
 
             Text legend = UiFactory.Label(rect, "Légende", 20, TextAnchor.MiddleCenter, new Color(0.84f, 0.88f, 0.92f));
-            legend.text = "Flèche : toi  •  Ronds : coins de pêche  •  M ou Échap : fermer";
+            legend.text = "Flèche : toi   •   Ronds : bulles pour l'épuisette   •   M ou Échap : fermer";
             UiFactory.Center(legend.rectTransform, new Vector2(0f, -262f), new Vector2(600f, 30f));
             return view;
         }

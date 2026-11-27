@@ -241,7 +241,7 @@ namespace FishAndChill.UI
                 row.Name.color = selected ? Color.white : Ink;
             }
 
-            _help.text = "Haut / Bas : étage  —  E ou Espace : y aller  —  Échap : fermer";
+            _help.text = "Haut / Bas : étage   •   E ou Espace : y aller   •   Échap : fermer";
         }
 
         private void BuildUi()

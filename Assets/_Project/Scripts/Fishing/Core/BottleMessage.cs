@@ -69,7 +69,7 @@ namespace FishAndChill.Fishing
         /// <summary>Indice sur une espèce, sans la nommer : rareté, heure, taille et appât préféré.</summary>
         public static string Hint(FishSpecies species, Func<FishSpecies, string> favoriteBait)
         {
-            string what = species.Kind == CreatureKind.Fish ? "un poisson" : "une créature";
+            string what = species.Kind == CreatureKind.Fish ? "un poisson" : "une bête";
             string rarity = species.Rarity.DisplayName().ToLowerInvariant();
             string time = species.ActiveTime == ActiveTime.Night ? " qui ne sort que la nuit"
                 : species.ActiveTime == ActiveTime.Day ? " qui ne mord que le jour" : string.Empty;

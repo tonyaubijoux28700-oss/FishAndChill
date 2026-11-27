@@ -969,7 +969,7 @@ namespace FishAndChill.Fishing
                 zone += "      " + _controller.Forecast.DisplayName;
             }
 
-            _header.text = $"{zone}\nAquarium : {inAquarium} espèce{(inAquarium > 1 ? "s" : string.Empty)}     Captures : {log.TotalCatches}";
+            _header.text = $"{zone}\nAquarium : {inAquarium} espèce{(inAquarium > 1 ? "s" : string.Empty)}     Prises : {log.TotalCatches}";
         }
 
         // ---------- Événements ----------
@@ -1103,7 +1103,7 @@ namespace FishAndChill.Fishing
 
         private static Text CreateText(RectTransform parent, string objectName, Font font, int size, TextAnchor alignment)
         {
-            var go = new GameObject(objectName, typeof(RectTransform), typeof(Text), typeof(Outline));
+            var go = new GameObject(objectName, typeof(RectTransform), typeof(UI.FrenchText), typeof(Outline));
             go.transform.SetParent(parent, false);
             var text = go.GetComponent<Text>();
             text.font = font;

@@ -66,7 +66,7 @@ namespace FishAndChill.UI
         /// <summary>Texte avec une ombre portée (plus lisible et plus « fini » qu'un contour).</summary>
         public static Text Label(RectTransform parent, string name, int size, TextAnchor alignment, Color color, bool shadow = true)
         {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Text));
+            var go = new GameObject(name, typeof(RectTransform), typeof(FrenchText));
             go.transform.SetParent(parent, false);
             var text = go.GetComponent<Text>();
             text.font = Font;

@@ -18,6 +18,7 @@ MonoBehaviour:
   _rarity: 2
   _kind: 2
   _method: 1
+  _feminine: 0
   _bodyShape: 3
   _difficulty:
     _cursorSpeed: 1.3

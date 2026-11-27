@@ -448,7 +448,7 @@ namespace FishAndChill.UI
                     $"Temps de jeu : {SaveSlots.PlayTimeText(data.PlaySeconds)}";
                 if (_confirmDelete == i)
                 {
-                    _cardFooters[i].text = "Effacer ? Suppr encore";
+                    _cardFooters[i].text = "Suppr encore : effacer";
                     _cardFooters[i].color = Danger;
                 }
                 else
@@ -463,10 +463,10 @@ namespace FishAndChill.UI
             _quitFrame.rectTransform.localScale = quit ? new Vector3(1.05f, 1.05f, 1f) : Vector3.one;
             _quitLabel.color = quit ? Gold : Normal;
             _hint.text = quit
-                ? "Haut : revenir aux parties      Espace : quitter le jeu"
+                ? "Haut : revenir aux parties   •   Espace : quitter le jeu"
                 : _slots[_selected] != null
-                    ? "← → choisir      Espace : jouer      Suppr : effacer      Bas : quitter"
-                    : "← → choisir      Espace : jouer      Bas : quitter";
+                    ? "Gauche / Droite : choisir   •   Espace : jouer   •   Suppr : effacer   •   Bas : quitter"
+                    : "Gauche / Droite : choisir   •   Espace : jouer   •   Bas : quitter";
         }
 
         private void BuildUi()

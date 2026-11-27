@@ -249,8 +249,8 @@ namespace FishAndChill.UI
             }
 
             _hint.text = (Row)_selected == Row.Volume
-                ? "← → régler le volume      Échap reprendre"
-                : "Haut / Bas : choisir      Espace : valider      Échap : reprendre";
+                ? "Gauche / Droite : régler le volume   •   Échap : reprendre"
+                : "Haut / Bas : choisir   •   Espace : valider   •   Échap : reprendre";
         }
 
         private void BuildUi()

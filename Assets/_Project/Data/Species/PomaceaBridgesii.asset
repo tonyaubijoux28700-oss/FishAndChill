@@ -18,6 +18,7 @@ MonoBehaviour:
   _rarity: 0
   _kind: 5
   _method: 1
+  _feminine: 0
   _bodyShape: 1
   _difficulty:
     _cursorSpeed: 0.85
@@ -28,7 +29,7 @@ MonoBehaviour:
   _sizeRangeCm: {x: 4, y: 6}
   _basePrice: 6
   _placeholderColor: {r: 0.78431374, g: 0.627451, b: 0.27450982, a: 1}
-  _description: "Un gros escargot d'eau douce qui respire l'air par un tube et pond des grappes d'\u0153ufs roses hors de l'eau."
+  _description: Un gros escargot d'eau douce qui respire l'air par un tube et pond des grappes d'oeufs roses hors de l'eau.
   _activeTime: 0
   _weather: 0
   _sprite: {fileID: 21300000, guid: 5beef1aa5a40f614fbdf2e3c34a28bac, type: 3}

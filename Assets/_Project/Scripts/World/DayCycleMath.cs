@@ -85,11 +85,11 @@ namespace FishAndChill.World
             }
         }
 
-        /// <summary>Heure affichée : « 7h05 », « 21h30 ».</summary>
+        /// <summary>Heure affichée : « 7 h 05 », « 21 h 30 » (espaces insécables).</summary>
         public static string TimeText(float hour)
         {
             int minutes = Mathf.FloorToInt(Wrap(hour) * 60f);
-            return $"{minutes / 60}h{minutes % 60:00}";
+            return $"{minutes / 60} h {minutes % 60:00}";
         }
 
         /// <summary>Texte de la fiche de l'index : vide pour une espèce qui mord à toute heure.</summary>

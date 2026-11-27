@@ -24,6 +24,9 @@ namespace FishAndChill.Collection
         [SerializeField, Tooltip("Canne (poissons) ou épuisette (pêche à pied dans les coins à bulles).")]
         private CatchMethod _method = CatchMethod.Rod;
 
+        [SerializeField, Tooltip("Nom féminin : « la perche », « ta carpe », « vendue ».")]
+        private bool _feminine;
+
         [SerializeField, Tooltip("Silhouette sous l'eau pendant la pêche.")]
         private BodyShape _bodyShape = BodyShape.Fish;
 
@@ -72,6 +75,7 @@ namespace FishAndChill.Collection
         public Rarity Rarity => _rarity;
         public CreatureKind Kind => _kind;
         public CatchMethod Method => _method;
+        public bool Feminine => _feminine;
         public BodyShape BodyShape => _bodyShape;
         public QteDifficulty Difficulty => _difficulty;
         public FightStyle FightStyle => _fightStyle;

@@ -121,6 +121,7 @@ namespace FishAndChill.Collection
             row.Rarity = ParseRarity(Cell("Rarete"), row.Id);
             row.Kind = ParseKind(Cell("Nature"), row.Id);
             row.Method = ParseMethod(Cell("Engin"), row.Kind, row.Id);
+            row.Feminine = Normalize(Cell("Genre")).StartsWith("f");
             row.Shape = ParseShape(Cell("Forme"), row.Kind, row.Id);
             row.Fight = ParseFight(Cell("Combat"), row.Id);
             row.Time = ParseTime(Cell("Heure"), row.Id);

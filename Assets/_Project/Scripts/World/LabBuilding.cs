@@ -474,8 +474,8 @@ namespace FishAndChill.World
 
             if (missing > 0)
             {
-                lines.Add($"Il t'en manque encore {missing} à pêcher, du côté de « {ZoneName(started)} », "
-                          + "et plus souvent là où les poissons se rassemblent.");
+                lines.Add($"Il t'en manque encore {missing} à pêcher, du côté de « {ZoneName(started)} ». "
+                          + "N'importe quelle prise de là-bas peut en remonter un : ouvre l'oeil !");
             }
 
             return lines.ToArray();
@@ -532,7 +532,7 @@ namespace FishAndChill.World
         private void ShowLine()
         {
             _line.text = _lines[_index];
-            _hint.text = _index < _lines.Length - 1 ? "E / Espace : suite   —   Échap : fermer" : "E / Espace : au revoir";
+            _hint.text = _index < _lines.Length - 1 ? "E / Espace : suite   •   Échap : fermer" : "E / Espace : au revoir";
         }
 
         private void BuildUi()

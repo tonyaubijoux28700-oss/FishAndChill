@@ -21,6 +21,9 @@ namespace FishAndChill.Collection
 
         /// <summary>Canne ou épuisette (colonne Engin ; vide : canne pour les poissons, épuisette pour le reste).</summary>
         public CatchMethod Method;
+
+        /// <summary>Nom féminin (colonne Genre, « f ») : accorde les messages (« ta perche », « la carpe », « vendue »).</summary>
+        public bool Feminine;
         public BodyShape Shape;
         public Vector2 SizeCm;
         public int Price;

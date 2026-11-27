@@ -52,8 +52,11 @@ générale).
 
 ## Règles à respecter
 
-- **Police** Jersey 10 : ni œ, ni ā, ni flèches ↑ ↓ ▼ (écrire « Haut / Bas ») ; les tailles passent par
-  `UiFactory.Size`, le gras par `UiFactory.Bold`.
+- **Police** Jersey 10 : ni œ (écrire « oe », aussi dans `Especes.csv`), ni ā, ni flèches ← → ↑ ↓ ▼ (écrire
+  « Gauche / Droite », « Haut / Bas ») ; les tailles passent par `UiFactory.Size`, le gras par `UiFactory.Bold`.
+- **Textes** : créés par `UiFactory.Label` (`FrenchText` pose les espaces insécables tout seul). Aides au format
+  « Touche : action   •   Touche : action », touches de lettres par `KeyNames` (jamais « ZQSD » en dur). Nom d'espèce
+  dans une phrase : `SpeciesGrammar` (« la perche », « ton anguille », « vendue »), jamais « le {nom} ».
 - Interface : construire avec la charte (`UiSkin`, `UiFactory.Sliced` / `Label` / `TitlePlaque`), pas de rectangles plats.
 - Nouvelle espèce = une ligne dans `Data/Especes.csv` puis relancer la génération. Nouvelle zone = une région dans
   `MapSetup`, une destination dans `PrototypeSetup`, et la zone dans les `_zones` de l'index et du `SaveManager`.

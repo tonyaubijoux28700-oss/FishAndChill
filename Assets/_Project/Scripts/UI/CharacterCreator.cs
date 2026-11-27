@@ -321,7 +321,7 @@ namespace FishAndChill.UI
 
                 CharacterPart part = CharacterOptions.Parts[i - 1];
                 string text = CharacterOptions.ValueName(_look, part);
-                _values[i].text = selected ? $"←  {text}  →" : text;
+                _values[i].text = selected ? $"<  {text}  >" : text;
                 _values[i].color = selected ? Gold : Normal;
                 if (_swatches[i] != null)
                 {
@@ -330,8 +330,8 @@ namespace FishAndChill.UI
             }
 
             _hint.text = _row == NameRow
-                ? "Tape ton prénom      Haut / Bas : choisir      Entrée : valider      Échap : retour"
-                : "Haut / Bas : choisir      ← → : changer      Entrée : valider      Échap : retour";
+                ? "Tape ton prénom   •   Haut / Bas : choisir   •   Entrée : valider   •   Échap : retour"
+                : "Haut / Bas : choisir   •   Gauche / Droite : changer   •   Entrée : valider   •   Échap : retour";
         }
 
         private Color SwatchColor(CharacterPart part)

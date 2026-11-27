@@ -242,7 +242,7 @@ namespace FishAndChill.UI
             if (!shown)
             {
                 foreach (Image corner in _corners) corner.gameObject.SetActive(false);
-                _hint.text = "Gauche / Droite : longer la vitre    Souris ou Espace : choisir un poisson    Échap : revenir";
+                _hint.text = "Gauche / Droite : longer la vitre   •   Souris ou Espace : choisir un poisson   •   Échap : revenir";
                 return;
             }
 
@@ -252,7 +252,7 @@ namespace FishAndChill.UI
             _latin.text = $"{species.ScientificName}  •  {species.Kind.DisplayName()}";
             _details.text = $"{species.Rarity.DisplayName()}   •   {_selected.SizeCm:0} cm (de {species.SizeRangeCm.x:0} à {species.SizeRangeCm.y:0} cm)";
             _description.text = species.Description;
-            _hint.text = "Gauche / Droite : longer la vitre    Espace : poisson suivant    Échap : revenir";
+            _hint.text = "Gauche / Droite : longer la vitre   •   Espace : poisson suivant   •   Échap : revenir";
 
             // Les coins dorés autour du poisson choisi.
             _tank.BoundsOf(_selected, out Bounds b);

@@ -169,7 +169,7 @@ namespace FishAndChill.UI
         {
             if (index == _travel.Current)
             {
-                _description.text = "Tu es déjà ici ! Choisis une autre destination avec ← →.";
+                _description.text = "Tu es déjà ici ! Choisis une autre destination avec Gauche / Droite.";
                 return;
             }
 
@@ -710,7 +710,7 @@ namespace FishAndChill.UI
 
             Text hint = UiFactory.Label(panel, "Aide", 22, TextAnchor.MiddleCenter, Muted);
             UiFactory.Center(hint.rectTransform, new Vector2(0f, -395f), new Vector2(1100f, 32f));
-            hint.text = "← → choisir la destination      Espace partir      Échap fermer";
+            hint.text = "Gauche / Droite : choisir la destination   •   Espace : partir   •   Échap : fermer";
 
             // Fondu au noir du voyage, puis grand bandeau avec le nom de la zone.
             _fade = UiFactory.Plain(root, "Fondu", new Color(0f, 0f, 0f, 0f));

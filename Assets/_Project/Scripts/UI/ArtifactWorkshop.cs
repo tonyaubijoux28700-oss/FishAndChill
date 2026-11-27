@@ -554,9 +554,9 @@ namespace FishAndChill.UI
                 }
             }
 
-            _help.text = (_legends.Count > 1 ? "Haut / Bas : artefact   —   " : string.Empty)
-                + (inHand > 0 && !complete ? "Espace : poser   —   " : string.Empty)
-                + (state == LegendState.Complete ? "Espace : réveiller le gardien   —   " : string.Empty) + "E ou Échap : fermer";
+            _help.text = (_legends.Count > 1 ? "Haut / Bas : artefact   •   " : string.Empty)
+                + (inHand > 0 && !complete ? "Espace : poser   •   " : string.Empty)
+                + (state == LegendState.Complete ? "Espace : réveiller le gardien   •   " : string.Empty) + "E ou Échap : fermer";
         }
 
         private void BuildUi()

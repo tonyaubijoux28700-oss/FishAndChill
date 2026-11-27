@@ -700,7 +700,9 @@ namespace FishAndChill.UI
 
                 if (result.LeftInBag > 0)
                 {
-                    text.Append($"{result.LeftInBag} poisson(s) restent dans le sac pour le marchand\n");
+                    text.Append(result.LeftInBag > 1
+                        ? $"{result.LeftInBag} poissons restent dans le sac pour le marchand\n"
+                        : "1 poisson reste dans le sac pour le marchand\n");
                 }
             }
 

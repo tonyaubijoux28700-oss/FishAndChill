@@ -113,7 +113,7 @@ namespace FishAndChill.UI
         private void ShowLine()
         {
             _line.text = _lines[_index];
-            _hint.text = _index < _lines.Length - 1 ? "E / Espace : suite   —   Échap : fermer" : "E / Espace : au revoir";
+            _hint.text = _index < _lines.Length - 1 ? "E / Espace : suite   •   Échap : fermer" : "E / Espace : au revoir";
         }
 
         private void BuildUi()

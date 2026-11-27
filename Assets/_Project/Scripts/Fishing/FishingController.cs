@@ -30,7 +30,7 @@ namespace FishAndChill.Fishing
     /// </summary>
     public sealed class FishingController : MonoBehaviour
     {
-        private const string IdleMessage = "ZQSD pour te déplacer — Espace pour lancer, face à l'eau";
+        private static string IdleMessage => $"{UI.KeyNames.Move} : te déplacer   •   Espace : lancer, face à l'eau";
 
         [SerializeField] private FishingZone _zone;
 
@@ -179,13 +179,15 @@ namespace FishAndChill.Fishing
 
         /// <summary>Le poisson qui attend une décision quand le sac est plein.</summary>
         public CaughtFish PendingFish { get; private set; }
-        public string Message { get; private set; } = IdleMessage;
+        /// <summary>Message du moment ; celui du départ est posé dans Awake (il lit le clavier, interdit avant).</summary>
+        public string Message { get; private set; } = string.Empty;
 
         /// <summary>Avancement de la phase en cours, de 0 à 1 (attente, fenêtre de touche, résultat).</summary>
         public float PhaseProgress => _phaseDuration > 0f ? Mathf.Clamp01(1f - _timer / _phaseDuration) : 0f;
 
         private void Awake()
         {
+            Message = IdleMessage;
             _random = new System.Random();
             _legendSpots = FindObjectsByType<LegendSpot>();
             if (_progress != null)
@@ -228,9 +230,9 @@ namespace FishAndChill.Fishing
             }
 
             CaughtFish released = _progress.Bag.Replace(slot, PendingFish);
-            string kept = PendingFish.Species.CommonName;
+            string kept = PendingFish.Species.Definite();
             PendingFish = null;
-            Finish($"Tu relâches ton {released.Species.CommonName} ({released.SizeCm:0} cm) et gardes le {kept}.");
+            Finish($"Tu relâches {released.Species.Your()} ({released.SizeCm:0} cm) et gardes {kept}.");
         }
 
         /// <summary>Sac plein : relâche le poisson qui vient d'être attrapé.</summary>
@@ -241,9 +243,9 @@ namespace FishAndChill.Fishing
                 return;
             }
 
-            string name = PendingFish.Species.CommonName;
+            string name = PendingFish.Species.Definite();
             PendingFish = null;
-            Finish($"Tu relâches le {name}. Bon vent !");
+            Finish($"Tu relâches {name}. Bon vent !");
         }
 
         /// <summary>Fait avancer le temps. Public pour pouvoir piloter le prototype hors clavier.</summary>
@@ -284,7 +286,7 @@ namespace FishAndChill.Fishing
                     {
                         Finish(HookedLegend != null
                             ? $"Trop lent… {HookedLegend.Title} a lâché l'appât et replonge dans le remous."
-                            : $"Trop lent… {HookedSpecies.CommonName.ToLowerInvariant()} a lâché l'appât.");
+                            : $"Trop lent… {HookedSpecies.Definite()} a lâché l'appât.");
                     }
 
                     break;
@@ -405,7 +407,7 @@ namespace FishAndChill.Fishing
 
             if (!TryFindCastPoint(out Vector2 castPoint))
             {
-                StartPhase(FishingState.Idle, 0f, "Pas d'eau devant toi : tourne-toi vers le rivage (ZQSD) puis relance.");
+                StartPhase(FishingState.Idle, 0f, $"Pas d'eau devant toi : tourne-toi vers l'eau ({UI.KeyNames.Move}) puis relance.");
                 return;
             }
 
@@ -712,7 +714,7 @@ namespace FishAndChill.Fishing
             {
                 // Sac plein : on attend que le joueur choisisse quoi relâcher (pas de délai).
                 PendingFish = fish;
-                StartPhase(FishingState.BagFull, 0f, $"{header}\nSac plein ! 1 à {_progress.Bag.Capacity} : relâcher cette prise du sac — Espace : relâcher le nouveau.");
+                StartPhase(FishingState.BagFull, 0f, $"{header}\nSac plein ! 1 à {_progress.Bag.Capacity} : relâcher cette prise du sac   •   Espace : relâcher le nouveau");
                 FishCaught?.Invoke(fish, isNew, true);
                 return;
             }

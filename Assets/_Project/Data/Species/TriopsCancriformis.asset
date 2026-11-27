@@ -18,6 +18,7 @@ MonoBehaviour:
   _rarity: 2
   _kind: 1
   _method: 1
+  _feminine: 0
   _bodyShape: 1
   _difficulty:
     _cursorSpeed: 1.5
@@ -28,7 +29,7 @@ MonoBehaviour:
   _sizeRangeCm: {x: 2, y: 10}
   _basePrice: 45
   _placeholderColor: {r: 0.627451, g: 0.54901963, b: 0.3529412, a: 1}
-  _description: "Il n'a presque pas chang\xE9 depuis 200 millions d'ann\xE9es. Ses \u0153ufs attendent des ann\xE9es dans la vase s\xE8che qu'une mare revienne."
+  _description: "Il n'a presque pas chang\xE9 depuis 200 millions d'ann\xE9es. Ses oeufs attendent des ann\xE9es dans la vase s\xE8che qu'une mare revienne."
   _activeTime: 1
   _weather: 0
   _sprite: {fileID: 21300000, guid: 80bd13643cf9c914cbdc63ae3c133afc, type: 3}

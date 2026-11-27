@@ -282,6 +282,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_rarity").enumValueIndex = (int)data.Rarity;
             so.FindProperty("_kind").enumValueIndex = (int)data.Kind;
             so.FindProperty("_method").enumValueIndex = (int)data.Method;
+            so.FindProperty("_feminine").boolValue = data.Feminine;
             so.FindProperty("_bodyShape").enumValueIndex = (int)data.Shape;
             so.FindProperty("_difficulty._cursorSpeed").floatValue = data.Speed;
             so.FindProperty("_difficulty._zoneWidth").floatValue = data.ZoneWidth;

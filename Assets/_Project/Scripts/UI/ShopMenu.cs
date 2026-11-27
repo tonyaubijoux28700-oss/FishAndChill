@@ -312,7 +312,7 @@ namespace FishAndChill.UI
             ApplyHover();
 
             const string end = "   •   Tab ou clic : rayon   •   Échap : sortir";
-            const string browse = "Q / D ou molette : objet précédent / suivant   •   Espace ou clic : acheter";
+            string browse = $"{KeyNames.Of(Key.A, "Q")} / {KeyNames.Of(Key.D, "D")} ou molette : objet précédent / suivant   •   Espace ou clic : acheter";
             switch (tab)
             {
                 case Tab.Sell: _help.text = "Clic ou 1, 2, 3… : vendre ce poisson   •   V : tout vendre" + end; Say(Greeting, Muted); break;
@@ -366,11 +366,11 @@ namespace FishAndChill.UI
             int earned = FishShop.Sell(bag, slot, _progress.Wallet, _progress.Aquarium, _progress.SellFactor);
             if (earned > 0)
             {
-                Say($"« Marché conclu ! » {fish.Species.CommonName} vendu : +{earned} pièces", Good);
+                Say($"« Marché conclu ! » {fish.Species.CommonName} {SpeciesGrammar.Agree("vendu", fish.Species.Feminine)} : +{earned} pièces", Good);
             }
             else
             {
-                Say($"« Ton {fish.Species.CommonName}, garde-le pour l'aquarium ! »", Gold);
+                Say($"« {UpperFirst(fish.Species.Your())}, garde-{SpeciesGrammar.Pronoun(fish.Species.Feminine)} pour l'aquarium ! »", Gold);
             }
 
             return earned;
@@ -463,13 +463,13 @@ namespace FishAndChill.UI
             if (bait.Unlimited && _progress.Baits.Owns(bait.Id))
             {
                 _progress.Baits.Equip(bait.Id);
-                Say($"« Ton {bait.DisplayName.ToLowerInvariant()} est déjà à toi : je te l'accroche ! »", Gold);
+                Say($"« Tu l'as déjà, je te l'accroche ! » À ta ligne : {bait.DisplayName}", Gold);
                 return false;
             }
 
             if (_progress.BuyBait(bait))
             {
-                Say($"« Bonne pêche ! » {bait.DisplayName} accroché à ta ligne.", Good);
+                Say($"« Bonne pêche ! » À ta ligne : {bait.DisplayName}", Good);
                 return true;
             }
 

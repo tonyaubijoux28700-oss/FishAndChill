@@ -47,8 +47,8 @@ namespace FishAndChill.Tests
         [Test]
         public void TimeText_ShowsHoursAndMinutes()
         {
-            Assert.That(DayCycleMath.TimeText(7.0834f), Is.EqualTo("7h05"));
-            Assert.That(DayCycleMath.TimeText(21.5f), Is.EqualTo("21h30"));
+            Assert.That(DayCycleMath.TimeText(7.0834f), Is.EqualTo("7 h 05"));
+            Assert.That(DayCycleMath.TimeText(21.5f), Is.EqualTo("21 h 30"));
         }
     }
 }
