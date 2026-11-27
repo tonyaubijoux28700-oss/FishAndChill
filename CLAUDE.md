@@ -6,7 +6,7 @@ Conception : [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md).
 
 ## Où trouver le détail (à lire seulement pour le domaine concerné)
 
-- [docs/systemes/peche.md](docs/systemes/peche.md) : déroulé de la pêche, QTE et styles de combat, coins de pêche,
+- [docs/systemes/peche.md](docs/systemes/peche.md) : déroulé de la pêche, QTE et styles de combat, coins à bulles,
   touche rare, silhouettes sous l'eau.
 - [docs/systemes/carte-et-zones.md](docs/systemes/carte-et-zones.md) : île et générateurs, les 9 zones (régions),
   voyage et ponton, carte du monde, aménagement (`TownLayout`).

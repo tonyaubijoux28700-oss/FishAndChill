@@ -94,19 +94,19 @@ namespace FishAndChill.Tests
         }
 
         [Test]
-        public void Drop_IsRare_DoubledInSpots_AndStopsWhenAllAreFound()
+        public void Drop_IsRare_AndStopsWhenAllAreFound()
         {
-            Assert.That(FragmentRules.ChanceFor(0.03f, inSpot: true), Is.EqualTo(0.06f).Within(1e-6f));
+            Assert.That(FragmentRules.ChanceFor(-1f), Is.EqualTo(0f));
 
             var random = new System.Random(3);
             int drops = 0;
             for (int i = 0; i < 10000; i++)
             {
-                if (FragmentRules.ShouldDrop(random, 0.03f, false, true)) drops++;
+                if (FragmentRules.ShouldDrop(random, 0.03f, true)) drops++;
             }
 
             Assert.That(drops, Is.InRange(220, 380));
-            Assert.That(FragmentRules.ShouldDrop(new System.Random(1), 1f, false, false), Is.False);
+            Assert.That(FragmentRules.ShouldDrop(new System.Random(1), 1f, false), Is.False);
         }
     }
 }

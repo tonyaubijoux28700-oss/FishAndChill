@@ -40,13 +40,10 @@ namespace FishAndChill.Fishing
         [SerializeField, Tooltip("Météo : certaines espèces ne mordent que sous la pluie, l'orage ou le brouillard ; la touche vient plus vite quand le temps se gâte.")]
         private WeatherSystem _weather;
 
-        [SerializeField, Tooltip("Coins de pêche de chaque zone (bancs, bulles, chasses).")]
+        [SerializeField, Tooltip("Coins à bulles de chaque zone : la canne n'y gagne rien (ils serviront à l'épuisette).")]
         private FishingSpots[] _spots = new FishingSpots[0];
 
-        /// <summary>Le bouchon est-il dans un coin de pêche, et lequel ?</summary>
-        public bool InSpot { get; private set; }
         private string _baitNotice;
-        public SpotKind SpotKind { get; private set; }
 
         [SerializeField, Tooltip("Sac, aquarium et pièces du joueur. Sans lui, les prises ne sont pas conservées.")]
         private PlayerProgress _progress;
@@ -257,7 +254,7 @@ namespace FishAndChill.Fishing
                         // Le bouchon touche l'eau : l'attente commence, avec ses titillements.
                         _waited = 0f;
                         NibbleCount = 0;
-                        StartPhase(FishingState.Waiting, _biteTime, (InSpot ? FishingSpotRules.Message(SpotKind) : "Patience… attends que ça morde vraiment.")
+                        StartPhase(FishingState.Waiting, _biteTime, "Patience… attends que ça morde vraiment."
                             + (_baitNotice != null ? "\n" + _baitNotice : string.Empty));
                     }
 
@@ -417,16 +414,9 @@ namespace FishAndChill.Fishing
                 return;
             }
 
-            FishingSpots spots = CurrentSpots;
-            SpotKind kind = Fishing.SpotKind.School;
-            InSpot = spots != null && spots.TryGetSpot(castPoint, out kind);
-            SpotKind = kind;
-
-            // L'appât attire plus souvent les espèces rares et fait mordre plus vite ; un coin de pêche aussi.
+            // L'appât attire plus souvent les espèces rares et fait mordre plus vite.
             GearEffects gear = GearEffects;
             float hour = _cycle != null ? _cycle.Hour : 12f;
-            bool inSpot = InSpot;
-            SpotKind spotKind = SpotKind;
             // L'appât accroché attire ses espèces favorites (et selon lui les rares, ou celles de nuit).
             Bait bait = _progress != null ? _progress.EquippedBait : null;
             bool night = hour >= 20f || hour < 6f;
@@ -441,7 +431,7 @@ namespace FishAndChill.Fishing
             // Les espèces mises de côté pour la plongée (pas des poissons) ne mordent jamais à la canne.
             HookedSpecies = _zone.PickSpecies(_random, species =>
                 !species.Kind.SetAside() && Fits(species) && DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
-                    ? gear.RarityMultiplier(species.Rarity) * (inSpot ? FishingSpotRules.SpeciesMultiplier(spotKind, species) : 1f)
+                    ? gear.RarityMultiplier(species.Rarity)
                         * (bait != null ? bait.Multiplier(species, night) : 1f)
                         * Pets.PetMath.RarityFactor(species.Rarity, petRare)
                     : 0f);
@@ -459,7 +449,7 @@ namespace FishAndChill.Fishing
             // Le crocodile fait pencher la taille vers les gros poissons.
             HookedSizeCm = Mathf.Lerp(range.x, range.y, Pets.PetMath.SizeRoll((float)_random.NextDouble(), pet != null ? pet.SizeBias : 1f));
             float wait = Mathf.Lerp(_minWaitSeconds, Mathf.Max(_minWaitSeconds, _maxWaitSeconds), (float)_random.NextDouble())
-                * gear.BiteWaitFactor * (InSpot ? FishingSpotRules.WaitFactor(SpotKind) : 1f) * (bait != null ? bait.BiteWaitFactor : 1f)
+                * gear.BiteWaitFactor * (bait != null ? bait.BiteWaitFactor : 1f)
                 * WeatherMath.BiteWaitFactor(weather) * (pet != null ? pet.BiteWaitFactor : 1f);
 
             // Une utilisation de l'appât part à chaque lancer ; le dernier parti, on revient à l'appât de départ.
@@ -489,7 +479,6 @@ namespace FishAndChill.Fishing
             HookedLegend = legend;
             HookedSpecies = legend.Species;
             HookedSizeCm = legend.SizeCm;
-            InSpot = false;
             _baitNotice = $"Le remous bouillonne… {legend.Title} tourne sous ton bouchon.";
             _biteTime = Mathf.Lerp(5f, 8f, (float)_random.NextDouble());
             _nibbles = NibblePlanner.Plan(_random, _biteTime);
@@ -498,7 +487,7 @@ namespace FishAndChill.Fishing
             StartPhase(FishingState.Casting, flight, "Lancer dans le remous légendaire !");
         }
 
-        /// <summary>Les coins de pêche de la zone où l'on est.</summary>
+        /// <summary>Les coins à bulles de la zone où l'on est (pour l'épuisette, à venir).</summary>
         private FishingSpots CurrentSpots
         {
             get
@@ -528,24 +517,6 @@ namespace FishAndChill.Fishing
                     Vector2 jitter = new Vector2((float)_random.NextDouble() - 0.5f, (float)_random.NextDouble() - 0.5f) * 0.6f;
                     castPoint = legendSpot.Center + jitter;
                     return true;
-                }
-            }
-
-            // Face à un coin de pêche à portée : le lancer y va tout seul (un peu au hasard dans le coin).
-            FishingSpots spots = CurrentSpots;
-            if (spots != null)
-            {
-                IList<Vector2> centers = spots.Centers;
-                int target = FishingSpotRules.Assist(origin, facing, centers, 1.5f, _castMaxDistance + GearEffects.CastBonus);
-                if (target >= 0)
-                {
-                    Vector2 jitter = new Vector2((float)_random.NextDouble() - 0.5f, (float)_random.NextDouble() - 0.5f) * 0.8f;
-                    Vector2 inSpot = centers[target] + jitter;
-                    if (IsWater(inSpot))
-                    {
-                        castPoint = inSpot;
-                        return true;
-                    }
                 }
             }
 
@@ -711,21 +682,16 @@ namespace FishAndChill.Fishing
 
         private void Catch()
         {
-            if (InSpot)
-            {
-                CurrentSpots?.Consume(CastPoint); // le coin s'épuise peu à peu
-            }
-
             if (_progress != null && _random.NextDouble() < _bottleChance)
             {
                 FindBottle();
                 return;
             }
 
-            // Dans la zone d'une légende, parfois un fragment de son artefact (plus souvent dans un coin de pêche).
+            // Dans la zone d'une légende, parfois un fragment de son artefact.
             LegendFish legend = LegendOfZone;
             if (_progress != null && legend != null
-                && FragmentRules.ShouldDrop(_random, legend.FragmentChance, InSpot, _progress.Legends.CanFindMore(legend.Id, legend.FragmentCount)))
+                && FragmentRules.ShouldDrop(_random, legend.FragmentChance, _progress.Legends.CanFindMore(legend.Id, legend.FragmentCount)))
             {
                 FindFragment(legend);
                 return;

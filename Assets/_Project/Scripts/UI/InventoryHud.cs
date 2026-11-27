@@ -1011,7 +1011,7 @@ namespace FishAndChill.UI
                 default:
                     view.Status.color = Color.white;
                     view.Status.text = known ? $"{found} / {total} trouvés   •   {placed} posé{(placed > 1 ? "s" : string.Empty)}" : "Aucun fragment trouvé";
-                    view.Hint.text = !known ? "Ses fragments se pêchent ici, plus souvent dans les coins de pêche."
+                    view.Hint.text = !known ? "Ses fragments se pêchent dans cette zone."
                         : found > placed ? "Pose tes fragments sur le socle du laboratoire."
                         : "Continue de pêcher : il en manque encore.";
                     break;

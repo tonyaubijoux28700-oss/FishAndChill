@@ -622,8 +622,7 @@ namespace FishAndChill.UI
                     Image marker = view.Spots[used++];
                     marker.gameObject.SetActive(true);
                     marker.rectTransform.anchoredPosition = onMap(MinimapMath.WorldToNormalized(center, _worldBounds));
-                    source.TryGetSpot(center, out SpotKind kind);
-                    Color color = kind == SpotKind.Frenzy ? new Color(1f, 0.62f, 0.26f) : kind == SpotKind.Bubbles ? new Color(0.92f, 0.98f, 1f) : new Color(0.46f, 0.92f, 1f);
+                    var color = new Color(0.92f, 0.98f, 1f); // bulles : blanc bleuté
                     float beat = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 4f + used);
                     color.a = Mathf.Lerp(0.55f, 1f, beat);
                     marker.color = color;

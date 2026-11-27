@@ -16,14 +16,12 @@
   arme puis fouette au lancer, le fil pend plus ou moins, ronds dans l'eau (plouf, titillements, touche,
   éclaboussures du combat). Jauge du QTE avec la charte (cadre, bandeau « Ferre-le ! », barre d'eau, zone verte,
   aiguille, pastilles réussites/ratés, flash et secousse), placée du côté opposé au bouchon.
-- **Coins de pêche** (`World/FishingSpots`, un par zone : « Coins de pêche de l'île / du lac », règles dans
-  `Fishing/Core/FishingSpotRules`, testées) : 3 coins à la fois, en eau libre, chacun face à une rive où l'on peut se tenir et qu'on rejoint à pied depuis le ponton (`FishingSpotRules.Reachable` via `World/ShoreReach`, jamais face à un îlot inaccessible)
-  (2,2 à 4,2 cases) ; durée 70-140 s ou 2 prises (`Consume`), puis il réapparaît ailleurs avec une autre sorte.
-  `School` (banc : ombres qui tournent sous l'eau, touche ×0,45 du temps, communes favorisées), `Bubbles` (bulles :
-  tortue, grenouille ×4 ; les non-poissons sont mis de côté pour la plongée : ce coin ne change plus rien, voir `batiments-et-progression.md`), `Frenzy` (chasse : éclaboussures, petits poissons qui sautent, rares à légendaires
-  ×2,5 à 3,5). Remous permanent qui pulse sur chaque coin. **Visée** : face à un coin à portée (à moins de 32°), le
-  lancer y va tout seul (`FishingSpotRules.Assist`, dans `FishingController.TryFindCastPoint`) ; message propre au coin
-  quand le bouchon y tombe (`FishingController.InSpot`, `SpotKind`).
+- **Coins à bulles** (`World/FishingSpots`, un par zone, règles dans `Fishing/Core/FishingSpotRules`, testées) : une seule
+  sorte de coin, des bulles qui remontent du fond, réservées à la future **épuisette** (pêche à pied des invertébrés).
+  **La canne n'y gagne rien** : plus de bancs ni de chasses, plus de bonus d'espèces ou de touche, plus de visée
+  automatique vers les coins (elle reste pour le remous des légendes, `FishingSpotRules.Assist`). 3 coins à la fois,
+  chacun face à une rive qu'on rejoint à pied depuis le ponton (`FishingSpotRules.Reachable` via `World/ShoreReach`),
+  durée 70-140 s, puis il réapparaît ailleurs. Remous permanent qui pulse ; repère blanc bleuté sur la minimap.
 - **Combats par espèce** (`FishSpecies.FightStyle`, `Fishing/Core/FightStyle`, logique dans `QteChallenge`, testée) :
   `Calm` (jauge simple), `Nervous` (curseur entre 0,5 et 1,5× sa vitesse, `TimingGauge.SpeedMultiplier`), `Drifting`
   (la zone glisse, `DriftSpeed`), `Rusher` (la zone saute loin toutes les 1,6-3 s, annoncée 0,45 s avant : zone qui

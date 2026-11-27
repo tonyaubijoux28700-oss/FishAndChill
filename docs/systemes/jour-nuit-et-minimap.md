@@ -63,8 +63,8 @@
   maisons, fromager, sanctuaire, torii, onsen…), montagnes en triangle enneigé (Fuji, montagnes du lac).
 - **Lagons** : les cases d'eau couvertes par la couche `Rendu - Lagon` (`_lagoon`, double grille) sont claires et teintées
   de turquoise (`_lagoonTint`), même loin des côtes (lagon de l'atoll, récif).
-- **Carte vivante** : 3 images de vaguelettes qui s'enchaînent, ombres de nuages, coins de pêche qui pulsent (couleur
-  selon la sorte, lus dans les `FishingSpots` de la région), flèche rouge dans le sens du regard (`MinimapMath.FacingAngle`)
+- **Carte vivante** : 3 images de vaguelettes qui s'enchaînent, ombres de nuages, coins à bulles qui pulsent (blanc
+  bleuté, lus dans les `FishingSpots` de la région), flèche rouge dans le sens du regard (`MinimapMath.FacingAngle`)
   avec une onde (`MinimapMath.Pulse`), teinte de l'heure (`DayCycleMath.SkyColor`). Cadres dorés de la charte, nom de la
   zone sur les deux cartes, rose des vents et légende sur la grande. Le jeu continue carte ouverte.
 - Le canvas du jeu (`FishingPrototypeView`, ordre 10) passe au-dessus de la minimap (ordre 5).

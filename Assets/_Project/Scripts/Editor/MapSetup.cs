@@ -401,7 +401,7 @@ namespace FishAndChill.Editor
             BuildLakeLife(mapObject.transform, worldMap, player.transform, lakeDock.Area);
             BuildIslandLife(mapObject.transform, worldMap, player.transform, islandDock.Area);
 
-            // Coins de pêche (bancs, bulles, chasses) de chaque zone, que le lancer vise tout seul.
+            // Coins à bulles de chaque zone (pour l'épuisette, à venir).
             FishingSpots islandSpots = BuildSpots(mapObject.transform, "Coins de pêche de l'île", worldMap, 0, islandDock.Area);
             FishingSpots lakeSpots = BuildSpots(mapObject.transform, "Coins de pêche du lac", worldMap, 1, lakeDock.Area);
             var spotsSo = new SerializedObject(controller);
@@ -713,9 +713,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_region").intValue = region;
             so.FindProperty("_avoid").rectValue = new Rect(dock.xMin - 3f, dock.yMin - 3f, dock.width + 6f, dock.height + 6f);
             SetSprites(so.FindProperty("_ring"), Frames("Rond", 3, LakeLifeArt.Ring));
-            so.FindProperty("_shadow").objectReferenceValue = PixelArt.Save($"{folder}/OmbreBanc.png", LakeLifeArt.FishShadow(), TileArt.Size, Vector2.one * 0.5f);
             so.FindProperty("_bubble").objectReferenceValue = PixelArt.Save($"{folder}/BulleSurface.png", AquariumLifeArt.Bubble(), TileArt.Size, Vector2.one * 0.5f);
-            SetSprites(so.FindProperty("_jumper"), Frames("PoissonSaute", 3, LakeLifeArt.JumpingFish));
             so.ApplyModifiedPropertiesWithoutUndo();
             return spots;
         }

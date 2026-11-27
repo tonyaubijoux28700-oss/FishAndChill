@@ -42,7 +42,7 @@
   (`LegendFish.Art`, `KindName`), artefact
   **Idole de corail** en 4 fragments (`LegendArt` : idole en volume, fragments aux cassures dentelées dans le même cadre,
   silhouette ; `Art/Legendes/`). **Fragments** (`FragmentRules`, testé) : dans la zone de la légende, une prise réussie
-  sur ≈ 33 (3 %, ×2 dans un coin de pêche, ≈ 130 prises pour l'artefact) est un fragment, jamais en double, plus aucun
+  sur ≈ 33 (3 %, ≈ 130 prises pour l'artefact) est un fragment, jamais en double, plus aucun
   une fois tous trouvés. Un fragment pêché va **en poche** ; l'artefact n'est complet qu'une fois tous ses fragments
   **posés** au labo, dans l'ordre. Avancée dans `PlayerProgress.Legends` (`LegendProgress`, testé : `Fragments`,
   `Placed`, `InHand`, `PlaceFragment` ; `Collecting` → `Complete` → `Summoned` → `Beaten`), sauvegardée
