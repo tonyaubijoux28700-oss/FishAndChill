@@ -238,9 +238,13 @@
   6 cases affichées). Une icône 32×32 par objet (`GearArt`, `Art/UI/Materiel/`, posée par `GearSetup` via
   `GearLevel.WithIcon`). Devant le comptoir, E parle au marchand à la place. Sac plein après une prise : la carte de
   prise passe à gauche (×0,82) et la fenêtre s'ouvre réduite (×0,6) à droite, places qui clignotent. Pièces en haut à droite.
-  **Souris** (`InventoryHud.HandleMouse`, sans EventSystem) : clic sur l'icône pour ouvrir, sur un onglet, sur la canne,
-  l'hameçon ou l'appât (dessin ou étiquette, qui grossit au survol) pour passer au suivant, à côté de la fenêtre pour
-  fermer ; sac plein, clic sur une case = relâcher ce poisson. `FishingInput.PointerOnInterface` empêche ces clics de
+  **Souris** (`InventoryHud.HandleMouse`, sans EventSystem) : clic sur l'icône pour ouvrir, sur un onglet, à côté de la
+  fenêtre pour fermer ; clic sur la canne, l'hameçon ou l'appât (dessin ou étiquette, qui grossit au survol) ouvre le
+  **sélecteur** (`UI/GearPicker`, par-dessus la grille des poissons) : une carte par canne ou hameçon (ceux pas encore
+  achetés voilés, prix dans le bandeau) ou par appât possédé, celle en main bordée d'or « En main », atouts des cannes en
+  pierres (`Gear/GearStats` : zone, solidité, portée, touches), bandeau du bas = effet de l'objet survolé, 8 cartes par
+  page (molette, plaques Précédent / Suivant) ; clic sur un objet à soi = le prendre en main, Échap ou E = retour. R, F, Q
+  font toujours défiler ; sac plein, clic sur une case = relâcher ce poisson. `FishingInput.PointerOnInterface` empêche ces clics de
   lancer la ligne.
   Icônes de la boutique et de l'aquarium sur la minimap (`Minimap._landmarks`).
 - **Index des espèces = carnet du pêcheur** (`UI/FishIndex`, objet « Partie », canvas ordre 12) : icône de livre à

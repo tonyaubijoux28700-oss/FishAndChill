@@ -51,6 +51,7 @@ namespace FishAndChill.UI
         private int _hoverSlot = -1;
         private bool _hoverIcon;
         private int _closedByClickFrame = -1;
+        private GearPicker _picker;
 
         private Image _rodImage;
         private Image _hookImage;
@@ -197,7 +198,11 @@ namespace FishAndChill.UI
                     _progress.CycleGear(GearCategory.Hook);
                 }
 
-                if (IsOpen && (closeKey || InteractInput.PressedThisFrame()))
+                if (IsOpen && _picker.IsOpen && (closeKey || InteractInput.PressedThisFrame()))
+                {
+                    _picker.Close(); // Échap ou E : retour à l'inventaire
+                }
+                else if (IsOpen && (closeKey || InteractInput.PressedThisFrame()))
                 {
                     Close();
                 }
@@ -281,25 +286,90 @@ namespace FishAndChill.UI
             bool rod = onBag && (Over(_rodLabel.Rect, p) || Over(_rodImage.rectTransform, p));
             bool hook = onBag && !rod && (Over(_hookLabel.Rect, p) || Over(_hookImage.rectTransform, p));
             bool bait = onBag && !rod && !hook && (Over(_baitLabel.Rect, p) || Over(_baitImage.rectTransform, p));
-            Grow(_rodLabel.Rect, rod && _progress.OwnedCount(GearCategory.Rod) > 1);
-            Grow(_hookLabel.Rect, hook && _progress.OwnedCount(GearCategory.Hook) > 1);
-            Grow(_baitLabel.Rect, bait && _progress.Baits.Owned.Count > 1);
+            Grow(_rodLabel.Rect, rod);
+            Grow(_hookLabel.Rect, hook);
+            Grow(_baitLabel.Rect, bait);
             Grow(_bagTab.rectTransform, Over(_bagTab.rectTransform, p));
             Grow(_relicTab.rectTransform, Over(_relicTab.rectTransform, p));
             Grow(_questTab.rectTransform, Over(_questTab.rectTransform, p));
+
+            bool onPicker = _picker.Contains(p);
+            if (onPicker && _picker.HandleMouse(p, click, mouse.scroll.ReadValue().y))
+            {
+                _picker.Close(); // objet pris en main
+                return;
+            }
+
             if (!click) return;
 
             if (Over(_bagTab.rectTransform, p)) ShowPage(InventoryPage.Bag);
             else if (Over(_relicTab.rectTransform, p)) ShowPage(InventoryPage.Relics);
             else if (Over(_questTab.rectTransform, p)) ShowPage(InventoryPage.Quests);
-            else if (rod) _progress.CycleGear(GearCategory.Rod);
-            else if (hook) _progress.CycleGear(GearCategory.Hook);
-            else if (bait) _progress.Baits.Cycle(1);
+            else if (rod) OpenPicker(GearCategory.Rod);
+            else if (hook) OpenPicker(GearCategory.Hook);
+            else if (bait) OpenPicker(GearCategory.Bait);
+            else if (onPicker) { }
+            else if (_picker.IsOpen && Over(_windowRect, p)) _picker.Close();
             else if (!Over(_windowRect, p))
             {
                 _closedByClickFrame = Time.frameCount;
                 Close();
             }
+        }
+
+        /// <summary>Ouvre le sélecteur : toutes les cannes ou tous les hameçons (ceux pas encore achetés voilés), ou les appâts qu'on a.</summary>
+        private void OpenPicker(GearCategory category)
+        {
+            var entries = new List<GearPicker.Entry>();
+            string title;
+            if (category == GearCategory.Bait)
+            {
+                title = "Mes appâts";
+                BaitCatalog catalog = _progress.BaitCatalog;
+                foreach (string id in _progress.Baits.Owned)
+                {
+                    Bait bait = catalog != null ? catalog.Find(id) : null;
+                    if (bait == null) continue;
+                    int left = _progress.Baits.Count(id);
+                    entries.Add(new GearPicker.Entry
+                    {
+                        Icon = bait.Icon,
+                        Name = bait.DisplayName,
+                        Line = left == BaitBag.Unlimited ? "Sans limite" : $"Reste {left}",
+                        Detail = bait.Description,
+                        Owned = true,
+                        Equipped = id == _progress.Baits.Equipped,
+                        Pick = () => _progress.Baits.Equip(id),
+                    });
+                }
+            }
+            else
+            {
+                title = category == GearCategory.Rod ? "Choisir une canne" : "Choisir un hameçon";
+                GearLine line = _progress.GearCatalog != null ? _progress.GearCatalog.Line(category) : null;
+                for (int i = 0; line != null && i < line.Levels.Count; i++)
+                {
+                    GearLevel item = line.Levels[i];
+                    int index = i;
+                    bool owned = _progress.Gear.Owns(category, i);
+                    int misses = Mathf.RoundToInt(item.Value);
+                    entries.Add(new GearPicker.Entry
+                    {
+                        Icon = item.Icon,
+                        Name = item.Name,
+                        Line = !owned ? $"Chez le marchand : {item.Price} pièces"
+                            : misses > 0 ? $"+{misses} raté{(misses > 1 ? "s" : string.Empty)} toléré{(misses > 1 ? "s" : string.Empty)}" : "Aucun raté en plus",
+                        Detail = ShopMenu.EffectText(category, item),
+                        StatNames = category == GearCategory.Rod ? GearStats.RodNames : null,
+                        Stats = category == GearCategory.Rod ? GearStats.Rod(item) : null,
+                        Owned = owned,
+                        Equipped = _progress.Gear.Level(category) == i,
+                        Pick = () => _progress.Gear.Equip(category, index),
+                    });
+                }
+            }
+
+            _picker.Open(category, title, entries);
         }
 
         private static void Grow(RectTransform rect, bool hovered) => rect.localScale = Vector3.one * (hovered ? 1.05f : 1f);
@@ -334,6 +404,7 @@ namespace FishAndChill.UI
 
         public void Close()
         {
+            _picker?.Close();
             _window.SetActive(false);
             if (_player != null && !_openedForChoice)
             {
@@ -422,7 +493,8 @@ namespace FishAndChill.UI
             _windowRect.localScale = Vector3.one * (Choosing ? 0.55f : 1.08f);
             _windowHelp.text = Choosing
                 ? $"1 à {_progress.Bag.Capacity} : relâcher   •   Espace : relâcher le nouveau"
-                : (_page == InventoryPage.Bag ? ChangeHelp() : string.Empty) + "Tab : onglet   •   E ou Échap : fermer";
+                : _picker.IsOpen ? "Clic : prendre en main   •   Molette : page   •   Échap : retour"
+                : (_page == InventoryPage.Bag ? "Clic sur le matériel : choisir   •   " + ChangeHelp() : string.Empty) + "Tab : onglet   •   E ou Échap : fermer";
             _windowHelp.color = Choosing ? Gold : Muted;
         }
 
@@ -531,6 +603,10 @@ namespace FishAndChill.UI
             }
 
             _coins.text = $"{_progress.Wallet.Coins} pièces";
+            if (_picker != null && _picker.IsOpen && _picker.Subject is GearCategory open)
+            {
+                OpenPicker(open); // changé au clavier (R, F, Q) : le sélecteur suit
+            }
         }
 
         /// <summary>
@@ -696,6 +772,7 @@ namespace FishAndChill.UI
             _fishTitle = UiFactory.Label(_bagPage, "Titre poissons", 32, TextAnchor.MiddleLeft, Gold);
             UiFactory.Bold(_fishTitle);
             UiFactory.Center(_fishTitle.rectTransform, new Vector2(330f, 300f), new Vector2(860f, 40f));
+            _picker = new GearPicker(_bagPage, _skin, _roundCard, new Vector2(330f, 0f), new Vector2(900f, 670f));
 
             // Pièces : en haut à droite, sur une plaque.
             _coins = UiFactory.TitlePlaque(root, _skin, "0 pièces", 26, Vector2.zero, new Vector2(220f, 52f), out RectTransform coinsPlaque);
@@ -751,6 +828,7 @@ namespace FishAndChill.UI
         /// <summary>Affiche une page de l'inventaire (le sac pendant le choix « sac plein »).</summary>
         private void ShowPage(InventoryPage page)
         {
+            if (_picker != null && (page != _page || Choosing)) _picker.Close();
             _page = Choosing ? InventoryPage.Bag : page;
             _bagPage.gameObject.SetActive(_page == InventoryPage.Bag);
             _relicPage.gameObject.SetActive(_page == InventoryPage.Relics);
