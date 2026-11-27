@@ -285,8 +285,8 @@
   Logique dans `SpeciesIndex` et `CollectionRewards` (testées). La police n'a ni œ ni ā : les éviter dans les textes.
   **Page Épuisette** : deux onglets au-dessus de la page de gauche, « Poissons » et « Épuisette » (clic, touche physique R
   ou X / Carré, `FishIndex.SetNetMode`). Même carnet, mêmes zones, mais les listes viennent de `FishingZone.NetSpecies`
-  (compteurs de la colonne compris) ; chaque espèce y est dessinée par la bestiole (`_netCritter`, posée par `NetSetup`),
-  plus grande quand elle est rare, en attendant ses vrais dessins. Pas de paliers de pièces sur cette page (les
+  (compteurs de la colonne compris) ; chaque espèce y a son vrai dessin, à l'échelle de sa taille (la bestiole `_netCritter` ne sert
+  qu'à défaut). Pas de paliers de pièces sur cette page (les
   récompenses restent celles des poissons) ; indice « Ramasse-la à l'épuisette dans les bulles ! », « Sort la nuit » au
   lieu de « Mord la nuit », et « notée puis relâchée » au lieu de l'aquarium. Le compteur de l'icône reste celui des poissons.
 - Le bouton Play lance toujours `FishingPrototype` (`PlayModeStartScene`), même si une autre scène est ouverte.

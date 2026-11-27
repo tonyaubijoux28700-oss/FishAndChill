@@ -447,8 +447,8 @@ namespace FishAndChill.UI
             RefreshOrWait();
         }
 
-        /// <summary>Le dessin d'une espèce : le sien pour un poisson, la bestiole sur la page Épuisette (vrais dessins à venir).</summary>
-        private Sprite SpeciesSprite(FishSpecies s) => _netMode && _netCritter != null ? _netCritter : s.Sprite;
+        /// <summary>Le dessin d'une espèce ; la bestiole seulement si une bête de l'épuisette n'en a pas.</summary>
+        private Sprite SpeciesSprite(FishSpecies s) => s.Sprite != null ? s.Sprite : _netCritter;
 
         private static int ZoneStepThisFrame()
         {
@@ -746,9 +746,7 @@ namespace FishAndChill.UI
                 cell.Number.text = $"{number + 1}";
                 cell.Fish.sprite = SpeciesSprite(s);
                 // À l'échelle de la taille adulte maximale de l'espèce : une ablette paraît petite, une carangue remplit la case.
-                // Page Épuisette : la bestiole, plus grande quand l'espèce est rare.
-                cell.Fish.rectTransform.sizeDelta = _netMode ? Vector2.one * 46f * NetRules.Scale(s.Rarity)
-                    : FishDisplayScale.Fit(new Vector2(CellWidth - 30f, 66f), SpritePixels(s), s.SizeRangeCm.y);
+                cell.Fish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(CellWidth - 30f, 66f), SpritePixels(s), s.SizeRangeCm.y);
                 cell.Fish.color = known ? (s.Sprite != null ? Color.white : s.PlaceholderColor) : Silhouette;
                 cell.Shine.SetRarity(s.Rarity, known && s.Sprite != null);
                 cell.Name.text = known ? s.CommonName : "???";
@@ -864,8 +862,7 @@ namespace FishAndChill.UI
             FishSpecies s = species[Mathf.Clamp(_selected, 0, species.Count - 1)];
             bool known = log != null && log.IsDiscovered(s.Id);
             _detailFish.sprite = SpeciesSprite(s);
-            _detailFish.rectTransform.sizeDelta = _netMode ? Vector2.one * 120f * NetRules.Scale(s.Rarity)
-                : FishDisplayScale.Fit(new Vector2(560f, 200f), SpritePixels(s), s.SizeRangeCm.y);
+            _detailFish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(560f, 200f), SpritePixels(s), s.SizeRangeCm.y);
             _detailFish.color = known ? Color.white : Silhouette;
             _detailShine.SetRarity(s.Rarity, known && s.Sprite != null);
             _detailNumber.text = $"N° {_selected + 1}";
@@ -895,7 +892,7 @@ namespace FishAndChill.UI
             Vector2 range = s.SizeRangeCm;
             _detailName.text = s.CommonName;
             _detailScientific.text = $"{s.ScientificName}  •  {s.Kind.DisplayName()}";
-            _description.text = (string.IsNullOrEmpty(s.Description) ? "—" : s.Description) + FavoriteBaitText(s, true);
+            _description.text = (string.IsNullOrEmpty(s.Description) ? "—" : s.Description) + (_netMode ? string.Empty : FavoriteBaitText(s, true));   // pas d'appât à l'épuisette
             _stats[0].text = $"Prises\n{log.CountOf(s.Id)}";
             _stats[1].text = $"Record\n{log.BestSizeOf(s.Id):0} cm";
             _stats[2].text = $"Taille\n{range.x:0} à {range.y:0} cm";

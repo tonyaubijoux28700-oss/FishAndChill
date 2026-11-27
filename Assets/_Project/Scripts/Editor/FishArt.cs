@@ -246,10 +246,39 @@ namespace FishAndChill.Editor
             return PixelArt.Save($"{Folder}/Mini/{speciesId}.png", framed, 16, new Vector2(0.5f, 0.5f));
         }
 
+        /// <summary>Couche un dessin fait tête en haut : la tête passe à droite (rotation d'un quart de tour).</summary>
+        private static Color[,] HeadRight(Color[,] p)
+        {
+            int w = p.GetLength(0), h = p.GetLength(1);
+            var r = new Color[h, w];
+            for (int x = 0; x < w; x++)
+            for (int y = 0; y < h; y++)
+            {
+                r[y, w - 1 - x] = p[x, y];
+            }
+
+            return r;
+        }
+
         /// <summary>Dessine le poisson et renvoie son sprite. Espèce inconnue : forme générique à sa couleur provisoire.</summary>
         public static Sprite Generate(string speciesId, Color fallbackColor, FishAndChill.Collection.SpeciesRow row = null)
         {
-            // Crustacés, reptiles… : leurs propres dessins.
+            // Les bêtes de l'épuisette (crabes, crustacés, mollusques, échinodermes, céphalopodes, méduses…), dessinées
+            // d'après les vraies espèces. Les crustacés allongés et les calmars, dessinés tête en haut, sont couchés tête à
+            // droite pour remplir les cases du carnet comme les poissons.
+            if (CrabArt.TryGet(speciesId, out Color[,] net) || MolluscArt.TryGet(speciesId, out net) || EchinoArt.TryGet(speciesId, out net)
+                || CephaloArt.TryGet(speciesId, out net) || OtherNetArt.TryGet(speciesId, out net))
+            {
+                if (speciesId == "loligo-forbesii" || speciesId == "watasenia-scintillans" || speciesId == "architeuthis-dux") net = HeadRight(net);
+                return PixelArt.Save($"{Folder}/{speciesId}.png", net, 16, new Vector2(0.5f, 0.5f));
+            }
+
+            if (CrustaceanArt.TryGet(speciesId, out net))
+            {
+                return PixelArt.Save($"{Folder}/{speciesId}.png", HeadRight(net), 16, new Vector2(0.5f, 0.5f));
+            }
+
+            // Crustacés, reptiles… : leurs anciens dessins.
             if (CreatureArt.TryGet(speciesId, out Color[,] creature))
             {
                 return PixelArt.Save($"{Folder}/{speciesId}.png", creature, 16, new Vector2(0.5f, 0.5f));

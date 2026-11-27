@@ -75,6 +75,13 @@
   Combat (calme, nerveux, fuyant, rush, lourd), Heure (toujours, jour, nuit), Meteo (vide = par tous les temps, pluie, orage, brouillard, beau ; « pluie » mord aussi
   pendant l'orage). Nombres avec virgule ou point.
   Vitesse, LargeurZone, Reussites, Rates, Prix, Frequence vides = valeurs par défaut de la rareté (`SpeciesTable.Default…`).
+- **Bêtes de l'épuisette** (passent avant tout le reste dans `FishArt.Generate`), dessinées en volume d'après les vraies
+  espèces, des formes organiques plutôt que géométriques : `CrabArt` (crabes vus de dessus, pinces articulées repliées
+  devant), `CrustaceanArt` (homard, langoustes, crevettes, squilles, triops, dessinés tête en haut puis couchés tête à
+  droite), `MolluscArt` (coquillages de dessus, escargots de mer de profil, limaces de mer), `EchinoArt` (étoiles,
+  oursins aux épines qui rayonnent, concombre de mer), `CephaloArt` (pieuvres aux bras qui tombent, calmars couchés,
+  seiches, nautile de profil d'après photo), `OtherNetArt` (méduses de profil, vers, tortues, grenouille, limule,
+  lamproie). Les bénitiers sont en réserve (dessin pas encore réussi).
 - **Dessin** : une fiche dessinée à la main dans le code (`MahanaFishArt`, `AnnecyFishArt`, `AmazonFishArt`, `JapanFishArt`,
   `ExtraFishArt`, `CreatureArt`…) reste prioritaire. Sinon, colonne Dessin = silhouette (`FishArchetypes` :
   fuseau, haut, allonge, serpent, rond, disque, poisson-chat) + couleurs `#RRVVBB` (Dos, Flancs, Ventre, Nageoires, Oeil),
