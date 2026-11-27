@@ -44,6 +44,14 @@ namespace FishAndChill.Editor
             for (int i = 0; i < critter.Length; i++) frames.GetArrayElementAtIndex(i).objectReferenceValue = critter[i];
             so.ApplyModifiedPropertiesWithoutUndo();
 
+            // Le carnet montre la bestiole sur sa page Épuisette, en attendant les vrais dessins.
+            foreach (FishIndex index in Object.FindObjectsByType<FishIndex>(FindObjectsInactive.Include))
+            {
+                var indexSo = new SerializedObject(index);
+                indexSo.FindProperty("_netCritter").objectReferenceValue = critter[0];
+                indexSo.ApplyModifiedPropertiesWithoutUndo();
+            }
+
             // La grappe de bulles au-dessus de chaque coin, bien visible.
             var cluster = new Sprite[3];
             for (int i = 0; i < cluster.Length; i++)

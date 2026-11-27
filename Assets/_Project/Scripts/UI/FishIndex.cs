@@ -113,6 +113,9 @@ namespace FishAndChill.UI
         [SerializeField] private Sprite _moon;
         [SerializeField] private Sprite _coin;
 
+        [SerializeField, Tooltip("La bestiole de l'épuisette : dessin des espèces de la page Épuisette en attendant leurs vrais dessins.")]
+        private Sprite _netCritter;
+
         private sealed class CellView
         {
             public Image Frame;
@@ -142,6 +145,10 @@ namespace FishAndChill.UI
         private readonly List<ZoneEntryView> _zoneEntries = new List<ZoneEntryView>();
         private readonly List<MilestoneView> _milestones = new List<MilestoneView>();
         private readonly List<List<FishSpecies>> _zoneSpecies = new List<List<FishSpecies>>();
+        private readonly List<List<FishSpecies>> _netZoneSpecies = new List<List<FishSpecies>>();
+        private bool _netMode;
+        private Image _fishTab;
+        private Image _netTab;
         private SpeciesIndex _index;
         private Text _badge;
         private GameObject _window;
@@ -186,7 +193,13 @@ namespace FishAndChill.UI
 
         private CatchLog Log => _fishing != null ? _fishing.CatchLog : null;
 
-        private List<FishSpecies> Current => _zoneSpecies.Count > 0 ? _zoneSpecies[_zone] : new List<FishSpecies>();
+        /// <summary>Les listes par zone de la page affichée : poissons de la canne, ou bêtes de l'épuisette.</summary>
+        private List<List<FishSpecies>> Lists => _netMode ? _netZoneSpecies : _zoneSpecies;
+
+        private List<FishSpecies> Current => Lists.Count > _zone ? Lists[_zone] : new List<FishSpecies>();
+
+        /// <summary>La page Épuisette est-elle affichée ?</summary>
+        public bool NetMode => _netMode;
 
         private void Start()
         {
@@ -208,6 +221,16 @@ namespace FishAndChill.UI
                 }
 
                 _zoneSpecies.Add(list);
+                var net = new List<FishSpecies>();
+                if (zone != null)
+                {
+                    foreach (FishingZone.SpeciesEntry entry in zone.NetSpecies)
+                    {
+                        if (entry.Species != null && seen.Add(entry.Species.Id)) net.Add(entry.Species);
+                    }
+                }
+
+                _netZoneSpecies.Add(net);
             }
 
             _index = new SpeciesIndex(all);
@@ -245,6 +268,11 @@ namespace FishAndChill.UI
                 {
                     Close();
                     return;
+                }
+
+                if (SwitchPressedThisFrame())
+                {
+                    SetNetMode(!_netMode);
                 }
 
                 int zoneStep = ZoneStepThisFrame();
@@ -363,7 +391,15 @@ namespace FishAndChill.UI
                 return true;
             }
 
-            if (_hoverZone >= 0)
+            if (Over(_fishTab != null ? _fishTab.rectTransform : null, screen))
+            {
+                SetNetMode(false);
+            }
+            else if (Over(_netTab != null ? _netTab.rectTransform : null, screen))
+            {
+                SetNetMode(true);
+            }
+            else if (_hoverZone >= 0)
             {
                 if (_hoverZone != _zone)
                 {
@@ -390,6 +426,29 @@ namespace FishAndChill.UI
 
             return true;
         }
+
+        /// <summary>Touche physique R (la même en AZERTY) ou X / Carré : passe des poissons à l'épuisette et retour.</summary>
+        private static bool SwitchPressedThisFrame()
+            => (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+               || (Gamepad.current != null && Gamepad.current.buttonWest.wasPressedThisFrame);
+
+        /// <summary>Affiche la page des poissons (faux) ou celle de l'épuisette (vrai), sur la même zone.</summary>
+        public void SetNetMode(bool net)
+        {
+            if (net == _netMode)
+            {
+                return;
+            }
+
+            _netMode = net;
+            _selected = 0;
+            _zoneListFocused = true;
+            TurnPage(net ? 1 : -1);
+            RefreshOrWait();
+        }
+
+        /// <summary>Le dessin d'une espèce : le sien pour un poisson, la bestiole sur la page Épuisette (vrais dessins à venir).</summary>
+        private Sprite SpeciesSprite(FishSpecies s) => _netMode && _netCritter != null ? _netCritter : s.Sprite;
 
         private static int ZoneStepThisFrame()
         {
@@ -654,6 +713,18 @@ namespace FishAndChill.UI
             }
 
             _stampRect.gameObject.SetActive(species.Count > 0 && discovered == species.Count);
+            foreach (MilestoneView milestone in _milestones)
+            {
+                milestone.Coin.gameObject.SetActive(!_netMode);   // les récompenses du carnet sont celles des poissons
+                milestone.Label.gameObject.SetActive(!_netMode);
+            }
+
+            if (_fishTab != null)
+            {
+                _fishTab.color = _netMode ? new Color(0.62f, 0.58f, 0.52f) : Color.white;
+                _netTab.color = _netMode ? Color.white : new Color(0.62f, 0.58f, 0.52f);
+            }
+
 
             int page = SpeciesIndex.PageOf(_selected, PerPage);
             int pages = species.Count > 0 ? (species.Count + PerPage - 1) / PerPage : 1;
@@ -673,9 +744,11 @@ namespace FishAndChill.UI
                 FishSpecies s = species[number];
                 bool known = log != null && log.IsDiscovered(s.Id);
                 cell.Number.text = $"{number + 1}";
-                cell.Fish.sprite = s.Sprite;
+                cell.Fish.sprite = SpeciesSprite(s);
                 // À l'échelle de la taille adulte maximale de l'espèce : une ablette paraît petite, une carangue remplit la case.
-                cell.Fish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(CellWidth - 30f, 66f), SpritePixels(s), s.SizeRangeCm.y);
+                // Page Épuisette : la bestiole, plus grande quand l'espèce est rare.
+                cell.Fish.rectTransform.sizeDelta = _netMode ? Vector2.one * 46f * NetRules.Scale(s.Rarity)
+                    : FishDisplayScale.Fit(new Vector2(CellWidth - 30f, 66f), SpritePixels(s), s.SizeRangeCm.y);
                 cell.Fish.color = known ? (s.Sprite != null ? Color.white : s.PlaceholderColor) : Silhouette;
                 cell.Shine.SetRarity(s.Rarity, known && s.Sprite != null);
                 cell.Name.text = known ? s.CommonName : "???";
@@ -693,17 +766,19 @@ namespace FishAndChill.UI
                 return;
             }
 
+            string page = $"      {SwitchKey()} : {(_netMode ? "poissons" : "épuisette")}";
+
             if (_zoneListFocused)
             {
                 _help.text = _zoneSpecies.Count > 1
-                    ? "Haut / Bas : changer de zone      Droite : voir les espèces      Tab : fermer"
-                    : "Droite : voir les espèces      Tab : fermer";
+                    ? "Haut / Bas : changer de zone      Droite : voir les espèces" + page + "      Tab : fermer"
+                    : "Droite : voir les espèces" + page + "      Tab : fermer";
                 return;
             }
 
             _help.text = _zoneSpecies.Count > 1
-                ? $"Flèches : choisir      Gauche : liste des zones      {ZoneKeys()} : zone      Tab : fermer"
-                : "Flèches : choisir      Tab : fermer";
+                ? $"Flèches : choisir      Gauche : liste des zones      {ZoneKeys()} : zone" + page + "      Tab : fermer"
+                : "Flèches : choisir" + page + "      Tab : fermer";
         }
 
         /// <summary>Colonne des zones : la zone affichée en couleur, sortie vers le carnet, et toujours visible.</summary>
@@ -726,7 +801,7 @@ namespace FishAndChill.UI
                 entry.Halo.gameObject.SetActive(active);
                 entry.Name.color = active ? Color.white : new Color(0.86f, 0.84f, 0.8f);
 
-                List<FishSpecies> species = i < _zoneSpecies.Count ? _zoneSpecies[i] : new List<FishSpecies>();
+                List<FishSpecies> species = i < Lists.Count ? Lists[i] : new List<FishSpecies>();
                 int discovered = CollectionRewards.Discovered(species, log);
                 bool complete = species.Count > 0 && discovered == species.Count;
                 entry.Count.text = complete ? $"Complet  {discovered} / {species.Count}" : $"{discovered} / {species.Count}";
@@ -765,6 +840,8 @@ namespace FishAndChill.UI
             }
         }
 
+        private static string SwitchKey() => Keyboard.current != null ? Keyboard.current.rKey.displayName.ToUpperInvariant() : "R";
+
         private static string ZoneKeys()
         {
             var keyboard = Keyboard.current;
@@ -786,8 +863,9 @@ namespace FishAndChill.UI
 
             FishSpecies s = species[Mathf.Clamp(_selected, 0, species.Count - 1)];
             bool known = log != null && log.IsDiscovered(s.Id);
-            _detailFish.sprite = s.Sprite;
-            _detailFish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(560f, 200f), SpritePixels(s), s.SizeRangeCm.y);
+            _detailFish.sprite = SpeciesSprite(s);
+            _detailFish.rectTransform.sizeDelta = _netMode ? Vector2.one * 120f * NetRules.Scale(s.Rarity)
+                : FishDisplayScale.Fit(new Vector2(560f, 200f), SpritePixels(s), s.SizeRangeCm.y);
             _detailFish.color = known ? Color.white : Silhouette;
             _detailShine.SetRarity(s.Rarity, known && s.Sprite != null);
             _detailNumber.text = $"N° {_selected + 1}";
@@ -797,15 +875,16 @@ namespace FishAndChill.UI
             _rarityText.text = s.Rarity.DisplayName();
             _timeIcon.sprite = s.ActiveTime == ActiveTime.Night ? _moon : _sun;
             _timeIcon.color = Color.white;
-            _timeText.text = TimeAndWeatherText(s);
+            _timeText.text = _netMode ? TimeAndWeatherText(s).Replace("Mord", "Sort") : TimeAndWeatherText(s);   // une bête de l'épuisette ne « mord » pas
             _zoneText.text = zone != null ? zone.DisplayName : string.Empty;
 
             if (!known)
             {
                 _detailName.text = "???";
-                _detailScientific.text = "Espèce pas encore pêchée";
+                _detailScientific.text = _netMode ? "Pas encore attrapée" : "Espèce pas encore pêchée";
                 _description.text = $"Indice : {LowerFirst(_timeText.text)}, {s.Rarity.DisplayName().ToLowerInvariant()}, " +
-                      $"de {s.SizeRangeCm.x:0} à {s.SizeRangeCm.y:0} cm.{FavoriteBaitText(s)}\nPêche-la pour en savoir plus !";
+                      $"de {s.SizeRangeCm.x:0} à {s.SizeRangeCm.y:0} cm."
+                      + (_netMode ? "\nRamasse-la à l'épuisette dans les bulles !" : $"{FavoriteBaitText(s)}\nPêche-la pour en savoir plus !");
                 _stats[0].text = "Prises\n—";
                 _stats[1].text = "Record\n—";
                 _stats[2].text = "Taille\n?";
@@ -821,7 +900,8 @@ namespace FishAndChill.UI
             _stats[1].text = $"Record\n{log.BestSizeOf(s.Id):0} cm";
             _stats[2].text = $"Taille\n{range.x:0} à {range.y:0} cm";
             CaughtFish specimen = _progress != null && _progress.Aquarium != null ? _progress.Aquarium.SpecimenOf(s.Id) : null;
-            _aquarium.text = specimen != null ? $"Exposé dans l'aquarium ({specimen.SizeCm:0} cm)" : "Pas encore dans l'aquarium";
+            _aquarium.text = _netMode ? "Ramassée à l'épuisette, notée puis relâchée"
+                : specimen != null ? $"Exposé dans l'aquarium ({specimen.SizeCm:0} cm)" : "Pas encore dans l'aquarium";
             _aquarium.color = specimen != null ? new Color(0.22f, 0.50f, 0.18f) : InkSoft;
         }
 
@@ -936,6 +1016,12 @@ namespace FishAndChill.UI
             UiFactory.Center(spine.rectTransform, Vector2.zero, new Vector2(70f, PageHeight));
 
             UiFactory.TitlePlaque(book, _skin, "Carnet du pêcheur", 32, new Vector2(382f, 440f), new Vector2(440f, 70f), out _);
+
+            // Deux onglets au-dessus de la page de gauche : les poissons de la canne, les bêtes de l'épuisette.
+            UiFactory.TitlePlaque(book, _skin, "Poissons", 28, new Vector2(-560f, 440f), new Vector2(250f, 60f), out RectTransform fishTab);
+            UiFactory.TitlePlaque(book, _skin, "Épuisette", 28, new Vector2(-290f, 440f), new Vector2(250f, 60f), out RectTransform netTab);
+            _fishTab = fishTab.GetComponent<Image>();
+            _netTab = netTab.GetComponent<Image>();
 
             BuildLeftPage(left);
             BuildRightPage(right);

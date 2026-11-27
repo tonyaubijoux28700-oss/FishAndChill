@@ -277,6 +277,12 @@
   **Page qui tourne** (`FishIndex.TurnPage`) quand on change de zone ou de page d'espèces : une feuille de papier pivote
   autour du pli (0,45 s), s'assombrit par la tranche et projette une ombre ; comme dans un vrai livre, la page que la feuille découvre se met à jour tout de suite, celle sur laquelle elle se rabat seulement à la fin (`RefreshOrWait`, `Refresh(left, right)`).
   Logique dans `SpeciesIndex` et `CollectionRewards` (testées). La police n'a ni œ ni ā : les éviter dans les textes.
+  **Page Épuisette** : deux onglets au-dessus de la page de gauche, « Poissons » et « Épuisette » (clic, touche physique R
+  ou X / Carré, `FishIndex.SetNetMode`). Même carnet, mêmes zones, mais les listes viennent de `FishingZone.NetSpecies`
+  (compteurs de la colonne compris) ; chaque espèce y est dessinée par la bestiole (`_netCritter`, posée par `NetSetup`),
+  plus grande quand elle est rare, en attendant ses vrais dessins. Pas de paliers de pièces sur cette page (les
+  récompenses restent celles des poissons) ; indice « Ramasse-la à l'épuisette dans les bulles ! », « Sort la nuit » au
+  lieu de « Mord la nuit », et « notée puis relâchée » au lieu de l'aquarium. Le compteur de l'icône reste celui des poissons.
 - Le bouton Play lance toujours `FishingPrototype` (`PlayModeStartScene`), même si une autre scène est ouverte.
 - **Ne pas lancer les tests pendant que l'éditeur entre ou sort du Play mode** : le lanceur de tests plante et
   laisse une scène vide ouverte.

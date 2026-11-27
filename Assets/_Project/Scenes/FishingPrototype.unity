@@ -5919,6 +5919,7 @@ MonoBehaviour:
   _sun: {fileID: 21300000, guid: 26d9bf97fbda56a49b7e30e618e826b4, type: 3}
   _moon: {fileID: 21300000, guid: 7f0222e4a667f984c99e8010e1d93d30, type: 3}
   _coin: {fileID: 21300000, guid: 99252246b2867bd49b837606341f3c3f, type: 3}
+  _netCritter: {fileID: 21300000, guid: 436069b06fbdd1e41b93ab1ee63dbb24, type: 3}
 --- !u!114 &332295276
 MonoBehaviour:
   m_ObjectHideFlags: 0
