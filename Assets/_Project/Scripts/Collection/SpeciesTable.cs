@@ -25,6 +25,7 @@ namespace FishAndChill.Collection
             "Id", "Nom", "Scientifique", "Zone", "Rarete", "Nature", "Forme", "TailleMin", "TailleMax", "Prix", "Frequence",
             "Vitesse", "LargeurZone", "Reussites", "Rates", "Combat", "Heure", "Meteo", "Appats", "Description", "Couleur",
             "Dessin", "Dos", "Flancs", "Ventre", "Nageoires", "Motif", "CouleurMotif", "Queue", "Oeil", "Extras", "Hamecons",
+            "Engin",
         };
 
         /// <summary>Le résultat de la lecture : les espèces valides et les erreurs (numéro de ligne et explication).</summary>
@@ -119,6 +120,7 @@ namespace FishAndChill.Collection
 
             row.Rarity = ParseRarity(Cell("Rarete"), row.Id);
             row.Kind = ParseKind(Cell("Nature"), row.Id);
+            row.Method = ParseMethod(Cell("Engin"), row.Kind, row.Id);
             row.Shape = ParseShape(Cell("Forme"), row.Kind, row.Id);
             row.Fight = ParseFight(Cell("Combat"), row.Id);
             row.Time = ParseTime(Cell("Heure"), row.Id);
@@ -199,7 +201,14 @@ namespace FishAndChill.Collection
         private static CreatureKind ParseKind(string v, string id) => Pick(v, CreatureKind.Fish, "Nature", id,
             ("poisson", CreatureKind.Fish), ("fish", CreatureKind.Fish), ("crustace", CreatureKind.Crustacean),
             ("crustacean", CreatureKind.Crustacean), ("reptile", CreatureKind.Reptile), ("amphibien", CreatureKind.Amphibian),
-            ("amphibian", CreatureKind.Amphibian), ("cephalopode", CreatureKind.Cephalopod), ("cephalopod", CreatureKind.Cephalopod));
+            ("amphibian", CreatureKind.Amphibian), ("cephalopode", CreatureKind.Cephalopod), ("cephalopod", CreatureKind.Cephalopod),
+            ("mollusque", CreatureKind.Mollusc), ("mollusc", CreatureKind.Mollusc), ("echinoderme", CreatureKind.Echinoderm),
+            ("echinoderm", CreatureKind.Echinoderm), ("cnidaire", CreatureKind.Cnidarian), ("meduse", CreatureKind.Cnidarian),
+            ("cnidarian", CreatureKind.Cnidarian), ("ver", CreatureKind.Worm), ("worm", CreatureKind.Worm),
+            ("limule", CreatureKind.Chelicerate), ("chelicere", CreatureKind.Chelicerate));
+
+        private static CatchMethod ParseMethod(string v, CreatureKind kind, string id) => Pick(v, kind.DefaultMethod(), "Engin", id,
+            ("canne", CatchMethod.Rod), ("rod", CatchMethod.Rod), ("epuisette", CatchMethod.Net), ("net", CatchMethod.Net));
 
         private static BodyShape ParseShape(string v, CreatureKind kind, string id) => Pick(v, kind == CreatureKind.Fish ? BodyShape.Fish : kind == CreatureKind.Cephalopod ? BodyShape.Octopus : BodyShape.Crab, "Forme", id,
             ("poisson", BodyShape.Fish), ("fish", BodyShape.Fish), ("crabe", BodyShape.Crab), ("crab", BodyShape.Crab),

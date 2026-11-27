@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: VampyroteuthisInfernalis
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: vampyroteuthis-infernalis
+  _commonName: Vampire des abysses
+  _scientificName: Vampyroteuthis infernalis
+  _rarity: 4
+  _kind: 4
+  _method: 1
+  _bodyShape: 14
+  _difficulty:
+    _cursorSpeed: 2.2
+    _zoneWidth: 0.11
+    _requiredHits: 5
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 15, y: 30}
+  _basePrice: 250
+  _placeholderColor: {r: 0.43137255, g: 0.11764706, b: 0.15686275, a: 1}
+  _description: Ni pieuvre ni calmar, il vit dans le noir des abysses et s'enroule dans sa cape rouge quand il a peur.
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 2c190a1ff43b88843ae1772aa56ae44b, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 655e776f4aa398e49a8a76e5d0628a64, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 655e776f4aa398e49a8a76e5d0628a64, type: 3}
+  - {fileID: 21300000, guid: bbe54661164316a489162fe8010fa2dd, type: 3}
+  - {fileID: 21300000, guid: 9f48a811486952244b2736986e75d9f3, type: 3}
+  - {fileID: 21300000, guid: d58cd0b90f1310a4b9bc36a9c7c659f2, type: 3}
+  _lures: 
+  _hooks: 

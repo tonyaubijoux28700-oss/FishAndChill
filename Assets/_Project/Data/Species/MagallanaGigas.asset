@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: MagallanaGigas
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: magallana-gigas
+  _commonName: "Hu\xEEtre creuse"
+  _scientificName: Magallana gigas
+  _rarity: 0
+  _kind: 5
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 8, y: 30}
+  _basePrice: 6
+  _placeholderColor: {r: 0.627451, g: 0.6039216, b: 0.54901963, a: 1}
+  _description: "Sa coquille rugueuse et feuillet\xE9e colle aux rochers. Elle filtre des centaines de litres d'eau par jour."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 605c44d96cbcef440a2bf9a969671e36, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 8217762fdd623b74ebf5e2436b0b08db, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 8217762fdd623b74ebf5e2436b0b08db, type: 3}
+  - {fileID: 21300000, guid: 593ddb9c0e027ab4bbc819db859e4312, type: 3}
+  - {fileID: 21300000, guid: ec1da27e306c14f43b189f5a18628237, type: 3}
+  - {fileID: 21300000, guid: 7d18da81cfb0fdc4ba34eef9dfdc3b14, type: 3}
+  _lures: 
+  _hooks: 

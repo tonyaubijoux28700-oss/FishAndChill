@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ChromodorisAnnae
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: chromodoris-annae
+  _commonName: Nudibranche d'Anne
+  _scientificName: Chromodoris annae
+  _rarity: 2
+  _kind: 5
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 2, y: 5}
+  _basePrice: 45
+  _placeholderColor: {r: 0.22745098, g: 0.43137255, b: 0.8235294, a: 1}
+  _description: "Une limace de mer bleue bord\xE9e de blanc, avec un panache orange sur le dos. Ses couleurs crient : je suis toxique."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 563ea94362ab25c4dbf0b2d29b072cb4, type: 3}
+  _miniSprite: {fileID: 21300000, guid: c1acc3f8a57c9dc4ebfe43b999ca0ece, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: c1acc3f8a57c9dc4ebfe43b999ca0ece, type: 3}
+  - {fileID: 21300000, guid: 4a988b9a49551c2418fa7736fdeda553, type: 3}
+  - {fileID: 21300000, guid: 7fb269231ce27dd47b3dfb05be10c334, type: 3}
+  - {fileID: 21300000, guid: 94d10ed7ded885b45b18043c9673302a, type: 3}
+  _lures: 
+  _hooks: 

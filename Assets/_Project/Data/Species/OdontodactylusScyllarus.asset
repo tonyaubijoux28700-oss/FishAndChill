@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: OdontodactylusScyllarus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: odontodactylus-scyllarus
+  _commonName: Crevette-mante paon
+  _scientificName: Odontodactylus scyllarus
+  _rarity: 3
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 10, y: 18}
+  _basePrice: 100
+  _placeholderColor: {r: 0.23529412, g: 0.65882355, b: 0.43137255, a: 1}
+  _description: Ses bras en marteau frappent si fort qu'ils brisent les coquillages et parfois la vitre des aquariums.
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 0604f09fdd5c4c0408c0edbd5a04cf07, type: 3}
+  _miniSprite: {fileID: 21300000, guid: cba56d4a7709a214ba8020e874f6aa9c, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: cba56d4a7709a214ba8020e874f6aa9c, type: 3}
+  - {fileID: 21300000, guid: 26b7bfaefae7b634db969fc406a8b02f, type: 3}
+  - {fileID: 21300000, guid: 3ae954107bb618b41915e414a81af992, type: 3}
+  - {fileID: 21300000, guid: 63f2ff1e8adfe45469aed0c4e4ef2a51, type: 3}
+  _lures: 
+  _hooks: 

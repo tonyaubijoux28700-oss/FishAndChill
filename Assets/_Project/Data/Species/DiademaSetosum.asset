@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: DiademaSetosum
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: diadema-setosum
+  _commonName: "Oursin diad\xE8me"
+  _scientificName: Diadema setosum
+  _rarity: 0
+  _kind: 6
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 10, y: 30}
+  _basePrice: 6
+  _placeholderColor: {r: 0.11764706, g: 0.10980392, b: 0.14117648, a: 1}
+  _description: "Ses longues \xE9pines noires et fines piquent au moindre fr\xF4lement. Un petit anneau orange brille au milieu."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: e43bcf70f8c1d044fac51b4d34fa95a4, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 91fff10eda79eec41bf1fa0626ac0de7, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 91fff10eda79eec41bf1fa0626ac0de7, type: 3}
+  - {fileID: 21300000, guid: e9808da0c6810d64e93fe562a6792bb8, type: 3}
+  - {fileID: 21300000, guid: a2aef772a31111744a9eab4af117414c, type: 3}
+  - {fileID: 21300000, guid: 02f3e9f57f38d7e499d077a9695180ff, type: 3}
+  _lures: 
+  _hooks: 

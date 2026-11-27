@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: SylviocarcinusPictus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: sylviocarcinus-pictus
+  _commonName: Crabe d'eau douce peint
+  _scientificName: Sylviocarcinus pictus
+  _rarity: 1
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 4, y: 8}
+  _basePrice: 18
+  _placeholderColor: {r: 0.54901963, g: 0.3529412, b: 0.22745098, a: 1}
+  _description: "Un crabe des rives inond\xE9es, carapace brune tachet\xE9e, qui sort la nuit chercher des fruits tomb\xE9s."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 678dbf7faa1cfa44bbb0c763780c5ff2, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 7919c4d2fa4805b4ebd13fadad7e0df7, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 7919c4d2fa4805b4ebd13fadad7e0df7, type: 3}
+  - {fileID: 21300000, guid: c549f704cc50a3645b786a95b21045f4, type: 3}
+  - {fileID: 21300000, guid: 0d0f20ec71d1e2a428409e8db58ba08f, type: 3}
+  - {fileID: 21300000, guid: 56fa467a580888e43927bd5ddb00457e, type: 3}
+  _lures: 
+  _hooks: 

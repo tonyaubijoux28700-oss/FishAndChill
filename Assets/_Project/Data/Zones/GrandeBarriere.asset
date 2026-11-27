@@ -50,6 +50,27 @@ MonoBehaviour:
     _weight: 3
   - _species: {fileID: 11400000, guid: 61b500a6a7658e44cb9719fb7b526a32, type: 2}
     _weight: 13
+  _netSpecies:
+  - _species: {fileID: 11400000, guid: cc1d36893b16b664d8894eb22743a778, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: a418447aa6c0bd947aff6df0572ca89c, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 8e5c21465d4e21a46b1e0a8762e607df, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 8d6effc175d356a47acaccdf2b3e1739, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: fdf6e56ab0ab33e4da4c10555b3c4be2, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 51defec9a157c8e41a0c6d3c07d42c6d, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: c8001bcecd640734cb0ca69253005368, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: a6097e40a75df9446b87935faf3f768b, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: d3cdfd0fa6312124bab8598719c04588, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: f55f4ec20bc3bd1448e80a433ab6d6e2, type: 2}
+    _weight: 2
   _mapPosition: {x: 0.88, y: 0.34}
   _region: Queensland, Australie
   _climate:

@@ -48,6 +48,27 @@ MonoBehaviour:
     _weight: 28
   - _species: {fileID: 11400000, guid: a17f524b741125c4197376c31d05fba3, type: 2}
     _weight: 13
+  _netSpecies:
+  - _species: {fileID: 11400000, guid: 48a3e25491deb38409d05fc6d3e1f496, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: b7d18dadd4cbfd241881f6e3972a96c9, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 63952ea453bac334e8ba732469133d94, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: abb7751ef66d7c545af4086eb3a20716, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 90e1ab8e393c83a4bbafd302b5736ead, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: ba7cffc19fed33b4494330770e9e5809, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 0159f0efbf08f7542b892678ee5c9a67, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 5c6c97529cdfcbb41b90c08970f2b8b7, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: c03d17d3f3d56c04caf8568cd6f6b589, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 494e297aff4342b43b25022f2751dc87, type: 2}
+    _weight: 2
   _mapPosition: {x: 0.53, y: 0.86}
   _region: "Norv\xE8ge"
   _climate:

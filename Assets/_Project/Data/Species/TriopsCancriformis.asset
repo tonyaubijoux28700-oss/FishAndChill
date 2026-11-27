@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: TriopsCancriformis
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: triops-cancriformis
+  _commonName: Triops
+  _scientificName: Triops cancriformis
+  _rarity: 2
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 2, y: 10}
+  _basePrice: 45
+  _placeholderColor: {r: 0.627451, g: 0.54901963, b: 0.3529412, a: 1}
+  _description: "Il n'a presque pas chang\xE9 depuis 200 millions d'ann\xE9es. Ses \u0153ufs attendent des ann\xE9es dans la vase s\xE8che qu'une mare revienne."
+  _activeTime: 1
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 80bd13643cf9c914cbdc63ae3c133afc, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 4b3c9d3dd576c4e4ba5621ce761e8445, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 4b3c9d3dd576c4e4ba5621ce761e8445, type: 3}
+  - {fileID: 21300000, guid: bbca7f1e169f7a847bf7444672446966, type: 3}
+  - {fileID: 21300000, guid: b2c5f4825d2cb1f42b451f15046deb06, type: 3}
+  - {fileID: 21300000, guid: 22c4a6770cc770841b8037912200e664, type: 3}
+  _lures: 
+  _hooks: 

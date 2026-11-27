@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Octopus vulgaris
   _rarity: 1
   _kind: 4
+  _method: 1
   _bodyShape: 14
   _difficulty:
     _cursorSpeed: 1.15

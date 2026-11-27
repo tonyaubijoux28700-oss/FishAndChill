@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ChrysaoraPacifica
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: chrysaora-pacifica
+  _commonName: "M\xE9duse ortie japonaise"
+  _scientificName: Chrysaora pacifica
+  _rarity: 1
+  _kind: 7
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 15, y: 30}
+  _basePrice: 18
+  _placeholderColor: {r: 0.8784314, g: 0.5411765, b: 0.22745098, a: 1}
+  _description: "Une ombrelle ray\xE9e d'orange et de longs filaments qui piquent comme des orties."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: d3a5a3012dc5297489dff515ecf65980, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 0e0e09ade554049458af4545863b84b1, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 0e0e09ade554049458af4545863b84b1, type: 3}
+  - {fileID: 21300000, guid: 6e9266540bfd97e4783eae554d526093, type: 3}
+  - {fileID: 21300000, guid: 4b715d6985e0ea24583b0234e2b92183, type: 3}
+  - {fileID: 21300000, guid: 8b6e08294aeb90f47806f2b38bb1c427, type: 3}
+  _lures: 
+  _hooks: 

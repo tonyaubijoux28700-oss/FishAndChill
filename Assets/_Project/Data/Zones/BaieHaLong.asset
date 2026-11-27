@@ -40,6 +40,21 @@ MonoBehaviour:
     _weight: 7
   - _species: {fileID: 11400000, guid: b9ed8467c86029e47938d7887bd74657, type: 2}
     _weight: 2
+  _netSpecies:
+  - _species: {fileID: 11400000, guid: cc62d2c73b7faad478b6a85f15cd9156, type: 2}
+    _weight: 10
+  - _species: {fileID: 11400000, guid: 8e7f5e247f60e584fbc425a96200f2e2, type: 2}
+    _weight: 6
+  - _species: {fileID: 11400000, guid: 1c68b1a109d97a64c9188eac6c0fa4e3, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 19ebff1ba8381f34db0c365e499371d7, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 018970fde4f6d3f4898501c09ebc12ee, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 98f7ba1baf1ea084d924c276d42227b7, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 2595fa3e75d93fa428aa7a03c959412b, type: 2}
+    _weight: 3
   _mapPosition: {x: 0.77, y: 0.58}
   _region: "Quang Ninh, Vi\xEAt Nam"
   _climate:

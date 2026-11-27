@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Chelus fimbriata
   _rarity: 2
   _kind: 2
+  _method: 1
   _bodyShape: 3
   _difficulty:
     _cursorSpeed: 1.3

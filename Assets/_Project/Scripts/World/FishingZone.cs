@@ -27,6 +27,9 @@ namespace FishAndChill.World
         [SerializeField] private Color _waterColor = new Color(0.16f, 0.42f, 0.55f);
         [SerializeField] private List<SpeciesEntry> _species = new List<SpeciesEntry>();
 
+        [SerializeField, Tooltip("Ce qu'on ramasse à l'épuisette dans les coins à bulles (crustacés, coquillages, étoiles…).")]
+        private List<SpeciesEntry> _netSpecies = new List<SpeciesEntry>();
+
         [SerializeField, Tooltip("Position sur la carte du monde (0..1, 0 = bas gauche).")]
         private Vector2 _mapPosition = new Vector2(0.5f, 0.5f);
 
@@ -63,6 +66,9 @@ namespace FishAndChill.World
         public string Description => _description;
         public Color WaterColor => _waterColor;
         public IReadOnlyList<SpeciesEntry> Species => _species;
+
+        /// <summary>Les espèces de l'épuisette, avec leurs fréquences (à part des poissons de la canne).</summary>
+        public IReadOnlyList<SpeciesEntry> NetSpecies => _netSpecies;
 
         /// <summary>Tire au sort l'espèce qui va mordre, selon les fréquences. Null si la zone est vide.</summary>
         public FishSpecies PickSpecies(System.Random random) => PickSpecies(random, null);

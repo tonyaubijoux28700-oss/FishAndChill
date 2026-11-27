@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: DreissenaPolymorpha
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: dreissena-polymorpha
+  _commonName: "Moule z\xE9br\xE9e"
+  _scientificName: Dreissena polymorpha
+  _rarity: 0
+  _kind: 5
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 2, y: 4}
+  _basePrice: 6
+  _placeholderColor: {r: 0.627451, g: 0.5647059, b: 0.43137255, a: 1}
+  _description: "Toute petite, ray\xE9e en zigzag, elle colle par milliers aux pierres et aux coques des bateaux."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 14df82e7ea98ebb4ab9d50cbfefab283, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 89e79b35115ea084eafc3ab40d3848e5, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 89e79b35115ea084eafc3ab40d3848e5, type: 3}
+  - {fileID: 21300000, guid: 0ecdd6dea001193468d62649002d7611, type: 3}
+  - {fileID: 21300000, guid: 178b475e1cc169f4bbe8e9f63519892d, type: 3}
+  - {fileID: 21300000, guid: 11042ca30a553c741b2c062a5c1bc116, type: 3}
+  _lures: 
+  _hooks: 

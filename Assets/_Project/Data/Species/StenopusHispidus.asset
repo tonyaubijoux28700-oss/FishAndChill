@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: StenopusHispidus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: stenopus-hispidus
+  _commonName: "Crevette \xE0 bandes rouges et blanches"
+  _scientificName: Stenopus hispidus
+  _rarity: 1
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 4, y: 7}
+  _basePrice: 18
+  _placeholderColor: {r: 0.8235294, g: 0.23529412, b: 0.23529412, a: 1}
+  _description: "La crevette nettoyeuse du r\xE9cif : elle d\xE9barrasse les poissons de leurs parasites, toujours en couple."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 0c5e3b15f4bf39149b3e6b9b046a1025, type: 3}
+  _miniSprite: {fileID: 21300000, guid: fbed289a2c1d2644591efe434952bc2f, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: fbed289a2c1d2644591efe434952bc2f, type: 3}
+  - {fileID: 21300000, guid: 878efc548066b0543951f60891e623b1, type: 3}
+  - {fileID: 21300000, guid: 85e2393f09febf34fb43a8075ed98599, type: 3}
+  - {fileID: 21300000, guid: db7e484945fc1c646bf2ff7b05103555, type: 3}
+  _lures: 
+  _hooks: 

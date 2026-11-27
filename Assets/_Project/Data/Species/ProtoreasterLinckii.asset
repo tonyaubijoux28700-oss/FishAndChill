@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ProtoreasterLinckii
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: protoreaster-linckii
+  _commonName: "\xC9toile de mer \xE0 bosses rouges"
+  _scientificName: Protoreaster linckii
+  _rarity: 1
+  _kind: 6
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 15, y: 30}
+  _basePrice: 18
+  _placeholderColor: {r: 0.78431374, g: 0.22745098, b: 0.18039216, a: 1}
+  _description: "Grise, h\xE9riss\xE9e de bosses rouge vif sur le dos et les bras. Elle broute ce qui pousse sur le sable des lagons."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: f5409dc0255344f4ea73ea7476760757, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 2816e3a688a75f245a525b55e6656e35, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 2816e3a688a75f245a525b55e6656e35, type: 3}
+  - {fileID: 21300000, guid: 960effbe299259f4189791885e1cef69, type: 3}
+  - {fileID: 21300000, guid: a21ea1799a4571346b5b8536f5fe33d4, type: 3}
+  - {fileID: 21300000, guid: c6d7da5663809974aa99d362b0397dfb, type: 3}
+  _lures: 
+  _hooks: 

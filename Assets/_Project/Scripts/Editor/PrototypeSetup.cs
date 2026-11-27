@@ -242,19 +242,6 @@ namespace FishAndChill.Editor
             System.Collections.Generic.List<SpeciesRow> allRows, Vector2 mapPosition, string region)
         {
             string zoneName = System.IO.Path.GetFileNameWithoutExtension(path);
-            // Toutes les fiches sont créées ; les espèces mises de côté pour la plongée (pas des poissons) restent hors de la zone.
-            foreach (SpeciesRow row in allRows.FindAll(r => r.Zone == zoneName && r.Kind.SetAside()))
-            {
-                CreateOrUpdateSpecies(row);
-            }
-
-            var rows = allRows.FindAll(r => r.Zone == zoneName && !r.Kind.SetAside());
-            var species = new FishSpecies[rows.Count];
-            for (int i = 0; i < rows.Count; i++)
-            {
-                species[i] = CreateOrUpdateSpecies(rows[i]);
-            }
-
             var zone = LoadOrCreate<FishingZone>(path);
             var so = new SerializedObject(zone);
             so.FindProperty("_displayName").stringValue = displayName;
@@ -263,15 +250,22 @@ namespace FishAndChill.Editor
             so.FindProperty("_mapPosition").vector2Value = mapPosition;
             so.FindProperty("_region").stringValue = region;
 
-            SerializedProperty entries = so.FindProperty("_species");
-            entries.arraySize = species.Length;
-            for (int i = 0; i < species.Length; i++)
+            // Les poissons de la canne d'un côté, ce qu'on ramasse à l'épuisette de l'autre (colonne Engin).
+            void Fill(string property, CatchMethod method)
             {
-                SerializedProperty entry = entries.GetArrayElementAtIndex(i);
-                entry.FindPropertyRelative("_species").objectReferenceValue = species[i];
-                entry.FindPropertyRelative("_weight").floatValue = rows[i].Weight;
+                var rows = allRows.FindAll(r => r.Zone == zoneName && r.Method == method);
+                SerializedProperty entries = so.FindProperty(property);
+                entries.arraySize = rows.Count;
+                for (int i = 0; i < rows.Count; i++)
+                {
+                    SerializedProperty entry = entries.GetArrayElementAtIndex(i);
+                    entry.FindPropertyRelative("_species").objectReferenceValue = CreateOrUpdateSpecies(rows[i]);
+                    entry.FindPropertyRelative("_weight").floatValue = rows[i].Weight;
+                }
             }
 
+            Fill("_species", CatchMethod.Rod);
+            Fill("_netSpecies", CatchMethod.Net);
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(zone);
         }
@@ -287,6 +281,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_scientificName").stringValue = data.ScientificName;
             so.FindProperty("_rarity").enumValueIndex = (int)data.Rarity;
             so.FindProperty("_kind").enumValueIndex = (int)data.Kind;
+            so.FindProperty("_method").enumValueIndex = (int)data.Method;
             so.FindProperty("_bodyShape").enumValueIndex = (int)data.Shape;
             so.FindProperty("_difficulty._cursorSpeed").floatValue = data.Speed;
             so.FindProperty("_difficulty._zoneWidth").floatValue = data.ZoneWidth;

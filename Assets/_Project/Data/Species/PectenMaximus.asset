@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PectenMaximus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: pecten-maximus
+  _commonName: Coquille Saint-Jacques
+  _scientificName: Pecten maximus
+  _rarity: 1
+  _kind: 5
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.15
+    _zoneWidth: 0.22
+    _requiredHits: 3
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 10, y: 15}
+  _basePrice: 18
+  _placeholderColor: {r: 0.8235294, g: 0.54901963, b: 0.3529412, a: 1}
+  _description: Elle nage en claquant ses deux valves et voit avec des dizaines de petits yeux bleus au bord de sa coquille.
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 5998a14668e36ba4bb5b23dc10bca26f, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 35a9dd7713430a747a1a42e031c1d12e, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 35a9dd7713430a747a1a42e031c1d12e, type: 3}
+  - {fileID: 21300000, guid: 1d4c4181035c9a94f862907bf82d1d25, type: 3}
+  - {fileID: 21300000, guid: 86b7e2b929711e04fb1d9faa3eee14ff, type: 3}
+  - {fileID: 21300000, guid: a927ae95bad084945bab9793cd3d5512, type: 3}
+  _lures: 
+  _hooks: 

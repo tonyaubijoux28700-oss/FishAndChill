@@ -18,6 +18,9 @@ namespace FishAndChill.Collection
 
         public Rarity Rarity;
         public CreatureKind Kind;
+
+        /// <summary>Canne ou épuisette (colonne Engin ; vide : canne pour les poissons, épuisette pour le reste).</summary>
+        public CatchMethod Method;
         public BodyShape Shape;
         public Vector2 SizeCm;
         public int Price;

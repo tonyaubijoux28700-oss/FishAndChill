@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Oratosquilla oratoria
   _rarity: 2
   _kind: 1
+  _method: 1
   _bodyShape: 2
   _difficulty:
     _cursorSpeed: 1.4

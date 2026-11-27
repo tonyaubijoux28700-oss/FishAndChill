@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Octopus cyanea
   _rarity: 2
   _kind: 4
+  _method: 1
   _bodyShape: 14
   _difficulty:
     _cursorSpeed: 1.5

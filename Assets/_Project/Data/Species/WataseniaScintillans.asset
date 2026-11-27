@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Watasenia scintillans
   _rarity: 1
   _kind: 4
+  _method: 1
   _bodyShape: 15
   _difficulty:
     _cursorSpeed: 1.15

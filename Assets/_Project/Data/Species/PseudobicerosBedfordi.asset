@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PseudobicerosBedfordi
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: pseudobiceros-bedfordi
+  _commonName: Ver plat tapis persan
+  _scientificName: Pseudobiceros bedfordi
+  _rarity: 2
+  _kind: 8
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 5, y: 10}
+  _basePrice: 45
+  _placeholderColor: {r: 0.43137255, g: 0.22745098, b: 0.16470589, a: 1}
+  _description: Un ver plat comme une feuille, motif de tapis brun, rose et jaune. Il nage en ondulant ses bords comme une cape.
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: f67d871f2e1716e4e96c3fb9c0657edc, type: 3}
+  _miniSprite: {fileID: 21300000, guid: c3b986d94578eff4695dc6c99d5b5e66, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: c3b986d94578eff4695dc6c99d5b5e66, type: 3}
+  - {fileID: 21300000, guid: 8c750ba1f1ed16545aee3226ec1685eb, type: 3}
+  - {fileID: 21300000, guid: 1e1c7e3b68671964db0938eccff45a14, type: 3}
+  - {fileID: 21300000, guid: 818433952e5a0b349a70f3f45ed3acf9, type: 3}
+  _lures: 
+  _hooks: 

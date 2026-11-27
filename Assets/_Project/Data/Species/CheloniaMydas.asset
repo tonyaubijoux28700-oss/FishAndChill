@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Chelonia mydas
   _rarity: 3
   _kind: 2
+  _method: 1
   _bodyShape: 3
   _difficulty:
     _cursorSpeed: 1.6

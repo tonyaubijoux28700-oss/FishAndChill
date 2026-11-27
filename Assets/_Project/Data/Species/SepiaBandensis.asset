@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: SepiaBandensis
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: sepia-bandensis
+  _commonName: Seiche trapue
+  _scientificName: Sepia bandensis
+  _rarity: 2
+  _kind: 4
+  _method: 1
+  _bodyShape: 14
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 5, y: 7}
+  _basePrice: 45
+  _placeholderColor: {r: 0.54901963, g: 0.43137255, b: 0.27450982, a: 1}
+  _description: "Une seiche naine aux bras courts qui marche sur les d\xE9bris et change de couleur en un clin d'\u0153il."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 3729b389521802e4ca8fb222e65c3fcc, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 032f65ab6de5f484084938e6769a004c, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 032f65ab6de5f484084938e6769a004c, type: 3}
+  - {fileID: 21300000, guid: 2e8717d7a449c294f8bef2c3d67698dc, type: 3}
+  - {fileID: 21300000, guid: da14eab98560196499fa3704dd1c653f, type: 3}
+  - {fileID: 21300000, guid: 263994d2411d3f8469ed1beca7a7dca0, type: 3}
+  _lures: 
+  _hooks: 

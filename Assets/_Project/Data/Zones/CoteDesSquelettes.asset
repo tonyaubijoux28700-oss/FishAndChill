@@ -52,6 +52,19 @@ MonoBehaviour:
     _weight: 7
   - _species: {fileID: 11400000, guid: 16f9e21b72bd48943b623b37acb64e50, type: 2}
     _weight: 3
+  _netSpecies:
+  - _species: {fileID: 11400000, guid: 39d7fc5ccd60ab54da4d67882092fbdb, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 395c356179abbac43aa2f3572d5c326c, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: b9babf9dd00fd8345acf3ccab7d22184, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: fd258893c5f97ae4ebef51a91b7f388e, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 802dd83fb4e730740b346739c96f1287, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: b7d51b658e355f7428afcc511aa0de9d, type: 2}
+    _weight: 2
   _mapPosition: {x: 0.54, y: 0.32}
   _region: Namibie
   _climate:

@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Macrobrachium amazonicum
   _rarity: 0
   _kind: 1
+  _method: 1
   _bodyShape: 2
   _difficulty:
     _cursorSpeed: 0.9

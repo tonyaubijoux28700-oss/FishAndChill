@@ -50,6 +50,23 @@ MonoBehaviour:
     _weight: 28
   - _species: {fileID: 11400000, guid: d3e374db71a073d4696556b776a2cd98, type: 2}
     _weight: 7
+  _netSpecies:
+  - _species: {fileID: 11400000, guid: c5e09989912d91e4e9e43cfb8b64ea95, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: da90bbd3968705743856a664a4c9e694, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: 77c471a4b0892784db9848ce0934eadd, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: b0c609019aef66548afc9ad02deddcec, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 0d5c7fcc6ed38d54aa68548971526361, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 408c4912f69993e43b4fbfc9bc91f8aa, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 6187ac2874fa224439e1c4db97b0f8bc, type: 2}
+    _weight: 3
+  - _species: {fileID: 11400000, guid: fb17c63effa5ee14db1c968329ca21a5, type: 2}
+    _weight: 2
   _mapPosition: {x: 0.85, y: 0.67}
   _region: Shizuoka, Japon
   _climate:

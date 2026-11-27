@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: PernaPerna
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: perna-perna
+  _commonName: Moule brune
+  _scientificName: Perna perna
+  _rarity: 0
+  _kind: 5
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 5, y: 12}
+  _basePrice: 6
+  _placeholderColor: {r: 0.43137255, g: 0.2901961, b: 0.18039216, a: 1}
+  _description: Brune et luisante, elle tapisse les rochers battus par les vagues froides de l'Atlantique.
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: debc457ed8e54e5419caa3443baefe9a, type: 3}
+  _miniSprite: {fileID: 21300000, guid: d9ee02fd6f4225d48b59130a383e238c, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: d9ee02fd6f4225d48b59130a383e238c, type: 3}
+  - {fileID: 21300000, guid: 1a9eb8ffd901b494eb697db676cf6a6e, type: 3}
+  - {fileID: 21300000, guid: e76215e189ffac544b0f3f31af5f8d39, type: 3}
+  - {fileID: 21300000, guid: 074df9003fa84a848b19b4a419fff247, type: 3}
+  _lures: 
+  _hooks: 

@@ -44,8 +44,32 @@ namespace FishAndChill.Tests
             Assert.That(result.Rows[1].Shape, Is.EqualTo(BodyShape.Squid));
             Assert.That(result.Rows[2].Shape, Is.EqualTo(BodyShape.Ray));
             Assert.That(CreatureKind.Cephalopod.LivesOnBottom(), Is.False, "les céphalopodes nagent dans l'aquarium");
-            Assert.That(CreatureKind.Cephalopod.SetAside(), Is.True, "mis de côté pour la plongée");
-            Assert.That(CreatureKind.Fish.SetAside(), Is.False);
+            Assert.That(result.Rows[0].Method, Is.EqualTo(CatchMethod.Net), "un céphalopode se ramasse à l'épuisette");
+            Assert.That(result.Rows[2].Method, Is.EqualTo(CatchMethod.Rod));
+        }
+
+        [Test]
+        public void Engin_PutsAFishInTheNet_AndNewNaturesAreRead()
+        {
+            string csv = "Id;Nom;Nature;Engin\n"
+                + "l-p;Lamproie;Poisson;Épuisette\n"
+                + "b-u;Bulot;Mollusque;\n"
+                + "a-r;Étoile;échinoderme;\n"
+                + "c-c;Physalie;Cnidaire;\n"
+                + "s-g;Sangsue;ver;\n"
+                + "t-t;Limule;limule;\n"
+                + "c-r;Crabe;Crustacé;canne\n";
+            SpeciesTable.Result result = SpeciesTable.Parse(csv);
+
+            Assert.That(result.Errors, Is.Empty);
+            Assert.That(result.Rows[0].Method, Is.EqualTo(CatchMethod.Net), "la lamproie est un poisson, mais à l'épuisette");
+            Assert.That(result.Rows[1].Kind, Is.EqualTo(CreatureKind.Mollusc));
+            Assert.That(result.Rows[2].Kind, Is.EqualTo(CreatureKind.Echinoderm));
+            Assert.That(result.Rows[3].Kind, Is.EqualTo(CreatureKind.Cnidarian));
+            Assert.That(result.Rows[4].Kind, Is.EqualTo(CreatureKind.Worm));
+            Assert.That(result.Rows[5].Kind, Is.EqualTo(CreatureKind.Chelicerate));
+            Assert.That(result.Rows[1].Method, Is.EqualTo(CatchMethod.Net));
+            Assert.That(result.Rows[6].Method, Is.EqualTo(CatchMethod.Rod), "la colonne Engin passe avant la nature");
         }
 
         [Test]

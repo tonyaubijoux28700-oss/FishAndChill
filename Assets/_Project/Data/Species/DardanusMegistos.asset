@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: DardanusMegistos
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: dardanus-megistos
+  _commonName: "Bernard-l'ermite \xE0 pois"
+  _scientificName: Dardanus megistos
+  _rarity: 0
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 8, y: 25}
+  _basePrice: 6
+  _placeholderColor: {r: 0.78431374, g: 0.27450982, b: 0.22745098, a: 1}
+  _description: "Il tra\xEEne une coquille trop grande pour lui et en change d\xE8s qu'il en trouve une meilleure. Ses pattes rouges sont sem\xE9es de pois blancs."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 46653554145dca54083f8b147861ada0, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 493dc3ebc03158044b198e1d9f522e49, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 493dc3ebc03158044b198e1d9f522e49, type: 3}
+  - {fileID: 21300000, guid: db7e5d971528ba04685b6bafc25e0b73, type: 3}
+  - {fileID: 21300000, guid: 4c0fa0af02bec814bacd98ac8f349418, type: 3}
+  - {fileID: 21300000, guid: e54c4e77384fa654ca39571105d093c2, type: 3}
+  _lures: 
+  _hooks: 

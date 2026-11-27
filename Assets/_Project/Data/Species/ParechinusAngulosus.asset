@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ParechinusAngulosus
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: parechinus-angulosus
+  _commonName: Oursin du Cap
+  _scientificName: Parechinus angulosus
+  _rarity: 0
+  _kind: 6
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 0.85
+    _zoneWidth: 0.28
+    _requiredHits: 2
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 4, y: 7}
+  _basePrice: 6
+  _placeholderColor: {r: 0.3529412, g: 0.43137255, b: 0.2901961, a: 1}
+  _description: Petit oursin vert ou violet qui se couvre de coquillages et de cailloux pour se cacher.
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 6f9397ce45e5fc549a9487876211c350, type: 3}
+  _miniSprite: {fileID: 21300000, guid: e994ac77a18f27b45b51c73549991c37, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: e994ac77a18f27b45b51c73549991c37, type: 3}
+  - {fileID: 21300000, guid: ae7c1997654d44e4882adf5cee7383e0, type: 3}
+  - {fileID: 21300000, guid: 791e4f5ec3f7b42409821f8cd41f153d, type: 3}
+  - {fileID: 21300000, guid: e008b8f080f610949ab363219204bba2, type: 3}
+  _lures: 
+  _hooks: 

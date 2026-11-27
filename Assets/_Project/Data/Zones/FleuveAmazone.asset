@@ -50,6 +50,17 @@ MonoBehaviour:
     _weight: 3
   - _species: {fileID: 11400000, guid: c030c06afc2ba1c4282a20ca044102cc, type: 2}
     _weight: 7
+  _netSpecies:
+  - _species: {fileID: 11400000, guid: 925f53e9934866b429e6a45c89bbe28e, type: 2}
+    _weight: 6
+  - _species: {fileID: 11400000, guid: da652abd81a6098449c7f52e0821e4e0, type: 2}
+    _weight: 20
+  - _species: {fileID: 11400000, guid: aa929ac26b835c5409bf97937f5e4d8b, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 50dc01eb7ac171648a7d08a61c0b107c, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 2f87b3ea63b94604696c3604fd5b32d2, type: 2}
+    _weight: 7
   _mapPosition: {x: 0.35, y: 0.44}
   _region: "Amazonas, Br\xE9sil"
   _climate:

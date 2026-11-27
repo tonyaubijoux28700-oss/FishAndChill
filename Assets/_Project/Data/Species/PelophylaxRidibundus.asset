@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Pelophylax ridibundus
   _rarity: 1
   _kind: 3
+  _method: 1
   _bodyShape: 4
   _difficulty:
     _cursorSpeed: 1.1

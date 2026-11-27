@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ArchiteuthisDux
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: architeuthis-dux
+  _commonName: "Encornet g\xE9ant"
+  _scientificName: Architeuthis dux
+  _rarity: 4
+  _kind: 4
+  _method: 1
+  _bodyShape: 14
+  _difficulty:
+    _cursorSpeed: 2.2
+    _zoneWidth: 0.11
+    _requiredHits: 5
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 300, y: 900}
+  _basePrice: 250
+  _placeholderColor: {r: 0.7058824, g: 0.27450982, b: 0.23529412, a: 1}
+  _description: "Le vrai calmar g\xE9ant des abysses, aux yeux grands comme des assiettes. On n'en trouve que rejet\xE9s apr\xE8s les temp\xEAtes."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: cdce3d289403c614e862e60f22397af5, type: 3}
+  _miniSprite: {fileID: 21300000, guid: c0447a4dfc061f34499b2fb214a8d369, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: c0447a4dfc061f34499b2fb214a8d369, type: 3}
+  - {fileID: 21300000, guid: b4e5f3bae827fcb4e88e4154c72569f7, type: 3}
+  - {fileID: 21300000, guid: 8fcee3be0bc31f441afd696ec3839806, type: 3}
+  - {fileID: 21300000, guid: b87eae3c1de01674d9facf32651de7d5, type: 3}
+  _lures: 
+  _hooks: 

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: OpisthoteuthisDepressa
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: opisthoteuthis-depressa
+  _commonName: Pieuvre parapluie
+  _scientificName: Opisthoteuthis depressa
+  _rarity: 4
+  _kind: 4
+  _method: 1
+  _bodyShape: 14
+  _difficulty:
+    _cursorSpeed: 2.2
+    _zoneWidth: 0.11
+    _requiredHits: 5
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 10, y: 20}
+  _basePrice: 250
+  _placeholderColor: {r: 0.8784314, g: 0.47843137, b: 0.43137255, a: 1}
+  _description: "Une pieuvre des profondeurs, toute molle, aux bras reli\xE9s par une toile comme un parapluie. On la voit tr\xE8s rarement."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 338a7529f6017e34a94bb30bc4e00224, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 8bca9f09cab9c204dbb6d7b1de3625cf, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 8bca9f09cab9c204dbb6d7b1de3625cf, type: 3}
+  - {fileID: 21300000, guid: a00a297afa39e4241aaf41bf71cf4f9d, type: 3}
+  - {fileID: 21300000, guid: c51bda11ef754c544945ce5be71dba7a, type: 3}
+  - {fileID: 21300000, guid: d0e052c5a111b8141959cd2ec08d55ab, type: 3}
+  _lures: 
+  _hooks: 

@@ -78,10 +78,15 @@
   revient au ver de terreau. Marchand : onglet **« Leurres »** (type, modèle, effet). Inventaire : touche physique Q
   (A en AZERTY) ou X manette pour changer. Carnet : « Ne mord qu'aux … , hameçon … obligatoire » (ou « Mord à tout,
   surtout aux … » pour les communes), indice même pour les « ??? » ; la bouteille à la mer donne aussi le type.
-- **Espèces mises de côté pour la plongée** : les casiers à crustacés ont été retirés (un autre système viendra). Crustacés,
-  céphalopodes, reptiles et amphibiens (`CreatureKind.SetAside`) gardent leur fiche (`Data/Species/`, ligne du CSV) mais
-  `PrototypeSetup.CreateOrUpdateZone` ne les met plus dans les zones : ni carnet, ni canne, ni aquarium, ni demandes des
-  habitants. Le calmar veiné (Kraken) et l'écrevisse signal (Bramafan) restent l'espèce de base de leur légende.
+- **Épuisette (pêche à pied, en cours)** : les casiers à crustacés ont été retirés. Chaque espèce a un **engin**
+  (`Collection/CatchMethod` : canne ou épuisette, colonne Engin de la table, `FishSpecies.Method`).
+  `PrototypeSetup.CreateOrUpdateZone` range les espèces de la canne dans `FishingZone.Species` (carnet, aquarium,
+  demandes des habitants, tirage de la canne) et celles de l'épuisette à part dans `FishingZone.NetSpecies` : 69 espèces
+  (crustacés, coquillages, oursins, étoiles, méduses, vers, tortues, grenouille, limule, lamproie), 5 à 10 par zone, de
+  commune à légendaire (les bêtes du large). Elles n'iront pas à l'aquarium. La canne ne les attrape jamais
+  (`FishingController.Cast`). Le calmar veiné (Kraken) et l'écrevisse signal (Bramafan) restent l'espèce de base de leur
+  légende. Dessins validés (`Editor/TidePoolArt`) : l'épuisette, les bulles, la flaque de Mahana et une seule bestiole
+  sous l'eau pour toutes les espèces (`Critter`, sa taille suivra la rareté).
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).

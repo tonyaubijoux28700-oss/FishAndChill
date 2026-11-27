@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: JasusLalandii
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: jasus-lalandii
+  _commonName: Langouste du Cap
+  _scientificName: Jasus lalandii
+  _rarity: 2
+  _kind: 1
+  _method: 1
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.5
+    _zoneWidth: 0.17
+    _requiredHits: 4
+    _maxMisses: 2
+  _fightStyle: 0
+  _sizeRangeCm: {x: 20, y: 45}
+  _basePrice: 45
+  _placeholderColor: {r: 0.627451, g: 0.19607843, b: 0.16470589, a: 1}
+  _description: "Rouge sombre, elle fourmille dans les for\xEAts de kelp et se nourrit de moules."
+  _activeTime: 2
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 21aae1ce4201e6d42b53392fc00c05bc, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 935637082e5c55840b339ff904875d42, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 935637082e5c55840b339ff904875d42, type: 3}
+  - {fileID: 21300000, guid: 1d39024366f2c2c428f11588840c274a, type: 3}
+  - {fileID: 21300000, guid: f3790cee9a5b08145baed1a3df62ea2d, type: 3}
+  - {fileID: 21300000, guid: 788a1b102237ec948a7ba47398753970, type: 3}
+  _lures: 
+  _hooks: 

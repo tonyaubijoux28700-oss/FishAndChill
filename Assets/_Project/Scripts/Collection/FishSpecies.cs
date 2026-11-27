@@ -21,6 +21,9 @@ namespace FishAndChill.Collection
         [SerializeField, Tooltip("Poisson, crustacé, reptile ou amphibien : seuls les poissons nagent dans l'aquarium.")]
         private CreatureKind _kind = CreatureKind.Fish;
 
+        [SerializeField, Tooltip("Canne (poissons) ou épuisette (pêche à pied dans les coins à bulles).")]
+        private CatchMethod _method = CatchMethod.Rod;
+
         [SerializeField, Tooltip("Silhouette sous l'eau pendant la pêche.")]
         private BodyShape _bodyShape = BodyShape.Fish;
 
@@ -68,6 +71,7 @@ namespace FishAndChill.Collection
         public string ScientificName => _scientificName;
         public Rarity Rarity => _rarity;
         public CreatureKind Kind => _kind;
+        public CatchMethod Method => _method;
         public BodyShape BodyShape => _bodyShape;
         public QteDifficulty Difficulty => _difficulty;
         public FightStyle FightStyle => _fightStyle;

@@ -428,16 +428,16 @@ namespace FishAndChill.Fishing
             Gear.LureType lure = bait != null ? bait.LureType : Gear.LureType.Natural;
             Gear.HookType hook = _progress != null ? (Gear.HookType)_progress.Gear.Level(Gear.GearCategory.Hook) : Gear.HookType.Aberdeen;
             bool Fits(FishSpecies s) => Gear.LureRules.Allows(s.Rarity, lure, hook, s.Lures, s.Hooks);
-            // Les espèces mises de côté pour la plongée (pas des poissons) ne mordent jamais à la canne.
+            // Ce qui se ramasse à l'épuisette ne mord jamais à la canne.
             HookedSpecies = _zone.PickSpecies(_random, species =>
-                !species.Kind.SetAside() && Fits(species) && DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
+                species.Method == CatchMethod.Rod && Fits(species) && DayCycleMath.IsActive(species.ActiveTime, hour) && WeatherMath.Allows(species.Weather, weather)
                     ? gear.RarityMultiplier(species.Rarity)
                         * (bait != null ? bait.Multiplier(species, night) : 1f)
                         * Pets.PetMath.RarityFactor(species.Rarity, petRare)
                     : 0f);
             if (HookedSpecies == null)
             {
-                HookedSpecies = _zone.PickSpecies(_random, species => species.Kind.SetAside() || !Fits(species) ? 0f : gear.RarityMultiplier(species.Rarity));
+                HookedSpecies = _zone.PickSpecies(_random, species => species.Method != CatchMethod.Rod || !Fits(species) ? 0f : gear.RarityMultiplier(species.Rarity));
             }
             if (HookedSpecies == null)
             {

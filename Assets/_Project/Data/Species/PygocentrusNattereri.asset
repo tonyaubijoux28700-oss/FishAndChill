@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Pygocentrus nattereri
   _rarity: 0
   _kind: 0
+  _method: 0
   _bodyShape: 0
   _difficulty:
     _cursorSpeed: 0.9

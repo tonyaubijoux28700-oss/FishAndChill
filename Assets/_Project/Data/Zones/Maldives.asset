@@ -54,6 +54,21 @@ MonoBehaviour:
     _weight: 7
   - _species: {fileID: 11400000, guid: b80417dc4c848cb4cb2ac66d43c85277, type: 2}
     _weight: 13
+  _netSpecies:
+  - _species: {fileID: 11400000, guid: f19b2f82428ebbd4aae6ef65f4910f45, type: 2}
+    _weight: 28
+  - _species: {fileID: 11400000, guid: 289948b310029f442a62df0a1ba2069a, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: 888125469cb770645a037da2edadfd80, type: 2}
+    _weight: 13
+  - _species: {fileID: 11400000, guid: b7c1076e6f9c0954898b4071939f1467, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 027a10daef54ca047afa23d37206a6d0, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: bd3231d9565db7944b49e4b0a6086847, type: 2}
+    _weight: 7
+  - _species: {fileID: 11400000, guid: 668f1843539888a469eceb07169efa6c, type: 2}
+    _weight: 3
   _mapPosition: {x: 0.69, y: 0.47}
   _region: "Oc\xE9an Indien, Maldives"
   _climate:

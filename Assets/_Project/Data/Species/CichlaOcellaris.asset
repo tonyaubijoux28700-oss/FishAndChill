@@ -17,6 +17,7 @@ MonoBehaviour:
   _scientificName: Cichla ocellaris
   _rarity: 1
   _kind: 0
+  _method: 0
   _bodyShape: 0
   _difficulty:
     _cursorSpeed: 1.3
