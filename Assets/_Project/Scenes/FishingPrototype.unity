@@ -5883,6 +5883,7 @@ MonoBehaviour:
   _pedestal: {fileID: 21300000, guid: 813baad0697cf6547baa2fedf29e6434, type: 3}
   _rodStand: {fileID: 21300000, guid: 8f2bfddb53df8bd44a90820e03654bf7, type: 3}
   _arrow: {fileID: 21300000, guid: 94b87cc3e981ab14b8ddbe3b034441ee, type: 3}
+  _netIcon: {fileID: 21300000, guid: aa923a8e4a13bcb45aaf12c628588fef, type: 3}
 --- !u!114 &332295275
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6249,6 +6250,7 @@ MonoBehaviour:
   _map: {fileID: 1254510490}
   _cycle: {fileID: 332295281}
   _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
+  _progress: {fileID: 332295271}
   _pool: {fileID: 21300000, guid: 2b0c8d0f669cff24b97fb0a851684085, type: 3}
   _critter:
   - {fileID: 21300000, guid: 436069b06fbdd1e41b93ab1ee63dbb24, type: 3}

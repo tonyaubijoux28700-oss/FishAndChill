@@ -34,7 +34,7 @@ namespace FishAndChill.UI
         private const string Greeting = "« Bienvenue ! Je rachète tes doublons. Le plus gros de chaque nouvelle espèce, garde-le pour l'aquarium ! »";
         private const string GearGreeting = "« Chaque canne a son caractère : achète celle qui te plaît, tu pourras changer quand tu veux ! »";
         private const string HookGreeting = "« Un bon hameçon, c'est un poisson qui ne se décroche pas ! »";
-        private const string BagGreeting = "« Plus de place dans ton sac, moins d'allers-retours ! »";
+        private const string BagGreeting = "« Plus de place dans ton sac, moins d'allers-retours ! Et une épuisette pour fouiller les bulles ? »";
         private const string BaitGreeting = "« Les poissons rares ne mordent qu'à leur leurre : le carnet te dit lequel ! »";
         private const float RowsAreaHeight = 560f;
 
@@ -53,6 +53,7 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Socle à coussin de velours.")] private Sprite _pedestal;
         [SerializeField, Tooltip("Râtelier où les cannes se tiennent debout.")] private Sprite _rodStand;
         [SerializeField, Tooltip("Flèche pointée à droite (retournée pour la gauche).")] private Sprite _arrow;
+        [SerializeField, Tooltip("Icône de l'épuisette (vendue au rayon des sacs).")] private Sprite _netIcon;
 
         private sealed class RowView
         {
@@ -507,7 +508,7 @@ namespace FishAndChill.UI
                 case Tab.Rods: AddItems(GearCategory.Rod); break;
                 case Tab.Hooks: AddItems(GearCategory.Hook); break;
                 case Tab.Baits: AddBaits(); break;
-                case Tab.Bag: AddBags(); break;
+                case Tab.Bag: AddBags(); AddNet(); break;
             }
         }
 
@@ -652,6 +653,49 @@ namespace FishAndChill.UI
 
                 _entries.Add(entry);
             }
+        }
+
+        /// <summary>L'épuisette, à la suite des sacs : achetée une fois pour toutes.</summary>
+        private void AddNet()
+        {
+            var entry = new ShowcaseEntry
+            {
+                Picture = _netIcon,
+                Name = "Épuisette",
+                Detail = "Pour la pêche à pied : face aux bulles, ramasse crabes, coquillages, oursins et autres bêtes du fond.",
+            };
+
+            if (_progress.HasNet)
+            {
+                entry.Status = "Ton épuisette";
+                entry.StatusColor = Gold;
+            }
+            else
+            {
+                Price(entry, PlayerProgress.NetPrice);
+                entry.Buy = () => BuyNet();
+            }
+
+            _entries.Add(entry);
+        }
+
+        /// <summary>Achète l'épuisette.</summary>
+        public bool BuyNet()
+        {
+            if (_progress.HasNet)
+            {
+                Say("« Tu en as déjà une, elle est solide ! »", Gold);
+                return false;
+            }
+
+            if (!_progress.BuyNet())
+            {
+                Say($"« Il te manque {PlayerProgress.NetPrice - _progress.Wallet.Coins} pièces pour l'épuisette. »", TooExpensive);
+                return false;
+            }
+
+            Say("« Bonne pêche à pied ! Cherche les bulles près de la rive, il y a toujours quelque chose qui fouille le fond. »", Good);
+            return true;
         }
 
         private void Price(ShowcaseEntry entry, int price)

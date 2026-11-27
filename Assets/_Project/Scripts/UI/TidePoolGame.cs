@@ -29,6 +29,7 @@ namespace FishAndChill.UI
         [SerializeField] private WorldMap _map;
         [SerializeField] private DayNightCycle _cycle;
         [SerializeField] private UiSkin _skin;
+        [SerializeField, Tooltip("La progression : il faut avoir acheté l'épuisette.")] private PlayerProgress _progress;
 
         [Header("Dessins")]
         [SerializeField, Tooltip("La flaque vue de dessus (320×192).")] private Sprite _pool;
@@ -119,6 +120,8 @@ namespace FishAndChill.UI
             return false;
         }
 
+        private bool HasNet => _progress == null || _progress.HasNet;
+
         private bool CanStart => !IsOpen && _fishing != null && _fishing.State == FishingState.Idle && _player != null && !_player.Locked
             && _fishing.Zone != null && _fishing.Zone.NetSpecies.Count > 0;
 
@@ -126,7 +129,7 @@ namespace FishAndChill.UI
         public bool TryOpen()
         {
             if (Time.frameCount == _closedFrame) return true;   // l'appui qui a refermé la flaque ne lance pas la ligne
-            if (!CanStart || !TryFindSpot(out FishingSpots source, out Vector2 center)) return false;
+            if (!CanStart || !HasNet || !TryFindSpot(out FishingSpots source, out Vector2 center)) return false;
             _spotSource = source;
             _spotCenter = center;
             Open();
@@ -211,6 +214,7 @@ namespace FishAndChill.UI
             {
                 bool aimed = CanStart && TryFindSpot(out _, out _);
                 _prompt.gameObject.SetActive(aimed);
+                if (aimed) _prompt.text = HasNet ? "Espace : sortir l'épuisette" : "Des bulles… avec une épuisette du marchand, tu pourrais y fouiller";
                 return;
             }
 

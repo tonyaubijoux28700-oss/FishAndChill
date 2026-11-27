@@ -27,7 +27,7 @@ namespace FishAndChill.Editor
             }
 
             Sprite net = PixelArt.Save($"{Folder}/EpuisetteDansLeau.png", TidePoolArt.NetInWater(), 16, new Vector2(16f / 40f, 24f / 40f));
-            PixelArt.Save($"{Folder}/Epuisette.png", TidePoolArt.Net(), 16, new Vector2(0.5f, 0.5f));   // icône (marchand, inventaire)
+            Sprite icon = PixelArt.Save($"{Folder}/Epuisette.png", TidePoolArt.Net(), 16, new Vector2(0.5f, 0.5f));   // icône (marchand, inventaire)
 
             var game = partie.GetComponent<TidePoolGame>();
             if (game == null) game = partie.AddComponent<TidePoolGame>();
@@ -36,6 +36,7 @@ namespace FishAndChill.Editor
             so.FindProperty("_player").objectReferenceValue = movement;
             so.FindProperty("_map").objectReferenceValue = map;
             so.FindProperty("_cycle").objectReferenceValue = cycle;
+            so.FindProperty("_progress").objectReferenceValue = partie.GetComponent<FishAndChill.Collection.PlayerProgress>();
             so.FindProperty("_skin").objectReferenceValue = skin;
             so.FindProperty("_pool").objectReferenceValue = pool;
             so.FindProperty("_net").objectReferenceValue = net;
@@ -43,6 +44,14 @@ namespace FishAndChill.Editor
             frames.arraySize = critter.Length;
             for (int i = 0; i < critter.Length; i++) frames.GetArrayElementAtIndex(i).objectReferenceValue = critter[i];
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            // Le marchand vend l'épuisette au rayon des sacs.
+            foreach (ShopMenu shop in Object.FindObjectsByType<ShopMenu>(FindObjectsInactive.Include))
+            {
+                var shopSo = new SerializedObject(shop);
+                shopSo.FindProperty("_netIcon").objectReferenceValue = icon;
+                shopSo.ApplyModifiedPropertiesWithoutUndo();
+            }
 
             // Le carnet montre la bestiole sur sa page Épuisette, en attendant les vrais dessins.
             foreach (FishIndex index in Object.FindObjectsByType<FishIndex>(FindObjectsInactive.Include))

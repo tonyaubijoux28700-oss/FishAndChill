@@ -98,7 +98,9 @@
   ailleurs ; coquillages, oursins, étoiles, méduses s'enfouissent sur place ; les autres filent. Prises notées dans le
   journal (`CatchLog`) puis relâchées ; le coin s'épuise (`FishingSpots.Consume`). Échap ou B pour revenir. Les coins
   à bulles montrent la grappe de bulles (`FishingSpots._cluster`, `Art/Ambient/Bulles_*`). Pour l'instant la flaque de
-  Mahana sert partout et l'épuisette n'a pas besoin d'être achetée.
+  Mahana sert partout. **Achat** : l'épuisette se vend 120 pièces au rayon « Sacs » du marchand, après les sacs
+  (`ShopMenu.AddNet` / `BuyNet`, `PlayerProgress.NetPrice` / `BuyNet` / `HasNet`, testé ; sauvegardée dans `SaveData.HasNet`).
+  Sans elle, face aux bulles, l'invite dit qu'il faut en acheter une et l'action lance la ligne comme d'habitude.
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).

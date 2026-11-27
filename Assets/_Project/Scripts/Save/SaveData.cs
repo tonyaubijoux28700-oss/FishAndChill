@@ -77,6 +77,9 @@ namespace FishAndChill.Save
         public List<string> Pets = new List<string>();
         public string EquippedPet;
 
+        /// <summary>L'épuisette a-t-elle été achetée ?</summary>
+        public bool HasNet;
+
         /// <summary>Heures de jeu écoulées depuis le début de la partie (0 pour une ancienne sauvegarde).</summary>
         public double TotalHours;
 

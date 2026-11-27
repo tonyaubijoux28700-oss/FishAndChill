@@ -35,6 +35,29 @@ namespace FishAndChill.Collection
 
         public PetCatalog PetCatalog => _petCatalog;
 
+        /// <summary>Prix de l'épuisette chez le marchand.</summary>
+        public const int NetPrice = 120;
+
+        /// <summary>A-t-on une épuisette (pour la pêche à pied dans les coins à bulles) ?</summary>
+        public bool HasNet { get; private set; }
+
+        /// <summary>Achète l'épuisette (une seule, pour toujours) ; faux si déjà à soi ou pas assez de pièces.</summary>
+        public bool BuyNet()
+        {
+            EnsureCreated();
+            if (HasNet || !Wallet.TrySpend(NetPrice)) return false;
+            HasNet = true;
+            RaiseChanged();
+            return true;
+        }
+
+        /// <summary>Chargement d'une partie : l'épuisette achetée ou non.</summary>
+        public void RestoreNet(bool owned)
+        {
+            HasNet = owned;
+            RaiseChanged();
+        }
+
         /// <summary>L'animal qui accompagne le joueur (null : aucun).</summary>
         public PetDefinition EquippedPet
         {
