@@ -94,6 +94,7 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Étiquette en papier à coins arrondis.")] private Sprite _roundTag;
         [SerializeField, Tooltip("Case sombre à coins arrondis (poissons, vitrine).")] private Sprite _roundCard;
         [SerializeField, Tooltip("Liseré doré à coins arrondis, posé sur la vitrine.")] private Sprite _roundRim;
+        [SerializeField, Tooltip("Coffre ouvert de l'onglet Reliques (fond de velours).")] private Sprite _relicChest;
 
         [SerializeField, Min(1f)] private float _toastSeconds = 5f;
 
@@ -218,6 +219,10 @@ namespace FishAndChill.UI
                     if (tab != 0)
                     {
                         ShowPage((InventoryPage)(((int)_page + tab + 3) % 3));
+                    }
+                    else if (_page == InventoryPage.Relics)
+                    {
+                        _relics?.HandleInput();
                     }
                 }
             }
@@ -494,7 +499,7 @@ namespace FishAndChill.UI
             _windowHelp.text = Choosing
                 ? $"1 à {_progress.Bag.Capacity} : relâcher   •   Espace : relâcher le nouveau"
                 : _picker.IsOpen ? "Clic : prendre en main   •   Molette : page   •   Échap : retour"
-                : (_page == InventoryPage.Bag ? "Clic sur le matériel : choisir   •   " + ChangeHelp() : string.Empty) + "Tab : onglet   •   E ou Échap : fermer";
+                : (_page == InventoryPage.Bag ? "Clic sur le matériel : choisir   •   " + ChangeHelp() : _page == InventoryPage.Relics && _relics != null ? _relics.Help : string.Empty) + "Tab : onglet   •   E ou Échap : fermer";
             _windowHelp.color = Choosing ? Gold : Muted;
         }
 
@@ -571,7 +576,7 @@ namespace FishAndChill.UI
             _badge.text = $"{bag.Count}/{bag.Capacity}";
             _fishTitle.text = $"Mes poissons   {bag.Count} / {bag.Capacity}";
             RefreshGear();
-            RefreshRelics();
+            _relics?.Refresh();
 
             for (int i = 0; i < _slots.Count; i++)
             {
@@ -757,16 +762,16 @@ namespace FishAndChill.UI
             _questPage = Page("Page des quêtes");
             Image Tab(string title, float x)
             {
-                UiFactory.TitlePlaque(_windowRect, _skin, title, 24, new Vector2(x, 345f), new Vector2(230f, 48f), out RectTransform tab);
+                UiFactory.TitlePlaque(_windowRect, _skin, title, 24, new Vector2(x, 345f), new Vector2(196f, 48f), out RectTransform tab);
                 return tab.GetComponent<Image>();
             }
 
-            _bagTab = Tab("Sac et matériel", -640f);
-            _relicTab = Tab("Reliques", -395f);
-            _questTab = Tab("Quêtes", -150f);
+            _bagTab = Tab("Sac et matériel", -736f);
+            _relicTab = Tab("Reliques", -534f);
+            _questTab = Tab("Quêtes", -332f);
 
             BuildGearPanel();
-            BuildRelicPage();
+            _relics = new RelicChestPage(_relicPage, _skin, _relicChest, _roundTag, _progress, _fishing);
             _quests = new QuestPage(_questPage, _skin, _roundCard);
 
             _fishTitle = UiFactory.Label(_bagPage, "Titre poissons", 32, TextAnchor.MiddleLeft, Gold);
@@ -805,6 +810,7 @@ namespace FishAndChill.UI
         private RectTransform _questPage;
         private Image _questTab;
         private QuestPage _quests;
+        private RelicChestPage _relics;
 
         private RectTransform Page(string name)
         {
@@ -847,174 +853,7 @@ namespace FishAndChill.UI
 
             if (_page == InventoryPage.Relics)
             {
-                RefreshRelics();
-            }
-        }
-
-        // ---------- Page des reliques (artefacts des poissons de légende) ----------
-
-        private const int RelicColumns = 3;
-        private const float RelicWidth = 520f;
-        private const float RelicHeight = 290f;
-
-        private Text _relicHeader;
-        private Text _relicEmpty;
-        private readonly List<RelicView> _relics = new List<RelicView>();
-
-        private sealed class RelicView
-        {
-            public Image Frame;
-            public Image Silhouette;
-            public readonly List<Image> Pieces = new List<Image>();
-            public readonly List<Image> Pips = new List<Image>();
-            public RectTransform PipRow;
-            public Text Name;
-            public Text Zone;
-            public Text Status;
-            public Text Hint;
-        }
-
-        /// <summary>
-        /// Page « Reliques » : une carte par poisson de légende (3 par rangée) avec son artefact (fragments posés en
-        /// couleur, en poche à demi transparents, manquants en silhouette), des pierres par fragment, l'étape et la suite.
-        /// Les fragments ne prennent pas de place dans le sac.
-        /// </summary>
-        private void BuildRelicPage()
-        {
-            _relicHeader = UiFactory.Label(_relicPage, "Titre reliques", 32, TextAnchor.MiddleLeft, Gold);
-            UiFactory.Bold(_relicHeader);
-            UiFactory.Center(_relicHeader.rectTransform, new Vector2(-10f, 278f), new Vector2(1600f, 40f));
-
-            _relicEmpty = UiFactory.Label(_relicPage, "Aucune légende", 26, TextAnchor.MiddleCenter, Muted);
-            _relicEmpty.text = "Aucune légende connue pour l'instant.";
-            UiFactory.Center(_relicEmpty.rectTransform, Vector2.zero, new Vector2(1200f, 40f));
-        }
-
-        private RelicView CreateRelicCard(int index)
-        {
-            int column = index % RelicColumns;
-            int row = index / RelicColumns;
-            var position = new Vector2((column - 1) * (RelicWidth + 24f), 110f - row * (RelicHeight + 24f));
-            var view = new RelicView();
-            view.Frame = UiFactory.Sliced(_relicPage, $"Relique {index + 1}", _roundCard != null ? _roundCard : SkinSprite(s => s.Slot), _skin != null ? Color.white : new Color(0.12f, 0.2f, 0.27f));
-            RectTransform card = view.Frame.rectTransform;
-            UiFactory.Center(card, position, new Vector2(RelicWidth, RelicHeight));
-
-            Image backdrop = UiFactory.Sliced(card, "Fond", SkinSprite(s => s.WaterBackdrop), _skin != null ? new Color(1f, 1f, 1f, 0.55f) : new Color(0.2f, 0.4f, 0.5f));
-            UiFactory.Center(backdrop.rectTransform, new Vector2(-165f, 0f), new Vector2(170f, 250f));
-            view.Silhouette = UiFactory.Plain(card, "Artefact", Color.white);
-            view.Silhouette.preserveAspect = true;
-            UiFactory.Center(view.Silhouette.rectTransform, new Vector2(-165f, 0f), new Vector2(165f, 220f));
-
-            view.Name = UiFactory.Label(card, "Nom", 30, TextAnchor.MiddleLeft, Gold);
-            UiFactory.Bold(view.Name);
-            UiFactory.Center(view.Name.rectTransform, new Vector2(95f, 102f), new Vector2(330f, 40f));
-            view.Zone = UiFactory.Label(card, "Zone", 20, TextAnchor.MiddleLeft, Muted);
-            UiFactory.Center(view.Zone.rectTransform, new Vector2(95f, 70f), new Vector2(330f, 28f));
-
-            var pipRow = new GameObject("Fragments", typeof(RectTransform));
-            view.PipRow = pipRow.GetComponent<RectTransform>();
-            view.PipRow.SetParent(card, false);
-            UiFactory.Center(view.PipRow, new Vector2(95f, 30f), new Vector2(330f, 34f));
-
-            view.Status = UiFactory.Label(card, "Étape", 23, TextAnchor.UpperLeft, Color.white);
-            view.Status.horizontalOverflow = HorizontalWrapMode.Wrap;
-            UiFactory.Center(view.Status.rectTransform, new Vector2(95f, -22f), new Vector2(330f, 60f));
-            view.Hint = UiFactory.Label(card, "Suite", 19, TextAnchor.UpperLeft, Muted);
-            view.Hint.horizontalOverflow = HorizontalWrapMode.Wrap;
-            UiFactory.Center(view.Hint.rectTransform, new Vector2(95f, -92f), new Vector2(330f, 70f));
-            return view;
-        }
-
-        private void RefreshRelics()
-        {
-            if (_relicPage == null || _fishing == null)
-            {
-                return;
-            }
-
-            IReadOnlyList<LegendFish> legends = _fishing.Legends;
-            int beaten = 0;
-            for (int i = 0; i < legends.Count; i++)
-            {
-                LegendFish legend = legends[i];
-                if (legend == null) continue;
-                while (_relics.Count <= i) _relics.Add(CreateRelicCard(_relics.Count));
-                if (_progress.Legends.State(legend.Id) == LegendState.Beaten) beaten++;
-                FillRelic(_relics[i], legend);
-            }
-
-            _relicEmpty.gameObject.SetActive(legends.Count == 0);
-            _relicHeader.text = $"Reliques des légendes   {beaten} / {legends.Count} vaincue{(beaten > 1 ? "s" : string.Empty)}";
-        }
-
-        private void FillRelic(RelicView view, LegendFish legend)
-        {
-            LegendProgress progress = _progress.Legends;
-            LegendState state = progress.State(legend.Id);
-            int total = legend.FragmentCount;
-            int found = state == LegendState.Collecting ? progress.Fragments(legend.Id) : total;
-            int placed = state == LegendState.Collecting ? progress.Placed(legend.Id) : total;
-            bool known = found > 0;
-            string zone = legend.Zone != null ? legend.Zone.DisplayName : "?";
-
-            view.Silhouette.sprite = legend.Silhouette;
-            view.Silhouette.color = known ? Color.white : new Color(1f, 1f, 1f, 0.45f);
-            while (view.Pieces.Count < total)
-            {
-                Image piece = UiFactory.Plain(view.Silhouette.rectTransform, "Fragment", Color.white);
-                piece.preserveAspect = true;
-                UiFactory.Stretch(piece.rectTransform);
-                view.Pieces.Add(piece);
-            }
-
-            for (int i = 0; i < view.Pieces.Count; i++)
-            {
-                // Posé : en couleur ; en poche : à demi transparent, pas encore à sa place ; manquant : silhouette seule.
-                view.Pieces[i].sprite = legend.Fragment(i);
-                view.Pieces[i].gameObject.SetActive(i < total && i < found && legend.Fragment(i) != null);
-                view.Pieces[i].color = i < placed ? Color.white : new Color(1f, 1f, 1f, 0.5f);
-            }
-
-            while (view.Pips.Count < total)
-            {
-                Image pip = UiFactory.Plain(view.PipRow, "Pierre", Color.white);
-                pip.sprite = SkinSprite(s => s.Gem);
-                UiFactory.Place(pip.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(view.Pips.Count * 40f, 0f), new Vector2(30f, 30f));
-                view.Pips.Add(pip);
-            }
-
-            for (int i = 0; i < view.Pips.Count; i++)
-            {
-                view.Pips[i].color = i < placed ? Gold : i < found ? new Color(0.45f, 0.95f, 0.92f) : new Color(0.3f, 0.34f, 0.4f);
-            }
-
-            view.Name.text = known ? legend.ArtifactName : "???";
-            view.Zone.text = $"Du côté de « {zone} »";
-            switch (state)
-            {
-                case LegendState.Beaten:
-                    view.Status.text = $"{legend.Title} vaincu — {legend.SizeCm:0} cm";
-                    view.Status.color = Gold;
-                    view.Hint.text = "Une légende de plus à ton palmarès !";
-                    break;
-                case LegendState.Summoned:
-                    view.Status.text = $"{legend.Title} est réveillé !";
-                    view.Status.color = new Color(1f, 0.55f, 0.35f);
-                    view.Hint.text = "Il t'attend au remous légendaire : le point doré sur ta carte.";
-                    break;
-                case LegendState.Complete:
-                    view.Status.text = "Artefact complet";
-                    view.Status.color = Gold;
-                    view.Hint.text = "Réveille le gardien depuis le socle du laboratoire.";
-                    break;
-                default:
-                    view.Status.color = Color.white;
-                    view.Status.text = known ? $"{found} / {total} trouvés   •   {placed} posé{(placed > 1 ? "s" : string.Empty)}" : "Aucun fragment trouvé";
-                    view.Hint.text = !known ? "Ses fragments se pêchent dans cette zone."
-                        : found > placed ? "Pose tes fragments sur le socle du laboratoire."
-                        : "Continue de pêcher : il en manque encore.";
-                    break;
+                _relics?.Refresh();
             }
         }
 

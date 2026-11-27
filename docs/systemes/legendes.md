@@ -49,9 +49,13 @@
   (`SaveData.Legends`, avec `Placed`). Carte `Fishing/FragmentCard` (fragment qui flotte et tourne dans un halo,
   artefact en silhouette, phrase du fragment). Onglet **« Reliques »** de l'inventaire (`InventoryHud`, Tab ou
   ←/→ entre « Sac et matériel » et « Reliques », pas d'onglets pendant le choix « sac plein » ; `OpenRelics()` par
-  script) : une carte par légende (3 par rangée) avec l'artefact (posés en couleur, en poche à demi transparents),
-  une pierre par fragment (or = posé, turquoise = en poche), l'étape et la suite. Les fragments ne prennent pas de
-  place dans le sac.
+  script) : un **coffre ouvert** (`UI/RelicChestPage`, dessin `Editor/RelicChestArt` → `Art/UI/Reliques/Coffre.png`,
+  champ `_relicChest` du HUD) : couvercle relevé avec le titre sur une plaque de laiton, fond de velours bordeaux
+  creusé d'un emplacement lisse en forme de chaque artefact (sa silhouette teintée, bord clair en bas à droite).
+  Les fragments posés y sont en couleur, ceux en poche à demi transparents ; un emplacement vide attend son
+  artefact. Une rangée jusqu'à 5 légendes, deux jusqu'à 12, trois au-delà. Souris ou Haut / Bas choisit une relique
+  (halo doré) ; l'étiquette en papier à droite donne son nom, sa zone, une pierre par fragment (or = posé, turquoise =
+  en poche), l'étape et la suite. Les fragments ne prennent pas de place dans le sac.
   **Atelier des artefacts** (`UI/ArtifactWorkshop`, créé par `LabBuilding`, canvas ordre 15) : **E devant le socle**
   (`LabBuilding.PedestalFront`, `PlayerAtPedestal`). Liste des légendes à gauche (« ??? » tant que rien n'est trouvé),
   artefact **grisé** au centre rempli morceau par morceau, fragments en poche sur le plateau en bas ; **Espace** pose le
