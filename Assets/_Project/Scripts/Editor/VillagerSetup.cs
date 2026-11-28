@@ -25,6 +25,7 @@ namespace FishAndChill.Editor
                 case "Vieux pêcheur": return "tavita";
                 case "Maman": return "hinano";
                 case "Enfant": return "manu";
+                case "Ama": return "chiyo";
                 default: return "rose";
             }
         }
@@ -160,6 +161,45 @@ namespace FishAndChill.Editor
                         Aquarium = new[]
                         {
                             "{0} espèces dans ton aquarium ! De mon temps, on les mangeait, maintenant on les admire.",
+                        },
+                    }),
+                // Chiyo, la vieille ama de la baie d'Izu : toujours chez elle (sortie et retour à la même heure).
+                Save("chiyo", "Chiyo", Look(1, 5, 5, 1, 8, 1),
+                    new NpcExtras { Pants = new Color(0.24f, 0.30f, 0.48f), Headscarf = new Color(0.97f, 0.97f, 0.95f) },
+                    0f, 0f, 1f, 1f, 2f, 4f,
+                    new VillagerLines
+                    {
+                        Intro = new[]
+                        {
+                            "Hm. Encore un touriste qui tient sa canne comme un parapluie.",
+                            "Je m'appelle Chiyo. Ici, on dit Chiyo-obaasan. J'ai plongé dans cette baie pendant soixante ans.",
+                        },
+                        NetGift = new[]
+                        {
+                            "Tiens. Mon épuisette. Mes vieux bras n'en ont plus besoin.",
+                            "Tu vois les petites bulles près des rives ? Quelque chose fouille le sable là-dessous. Plonge l'épuisette dedans.",
+                            "Quand la bête est prise, remonte-la doucement : appuie quand l'anneau la touche. Trop tôt, trop tard, et elle file.",
+                            "Et prends mon carnet. Je ne l'ai jamais fini. Une page par bête... Remplis-le pour moi, veux-tu ?",
+                        },
+                        Daily = new[]
+                        {
+                            "La mer ne donne rien à ceux qui se pressent.",
+                            "Une flaque, une bête. Le reste, tu le laisses pour demain.",
+                            "Mes perles ? Hm. Une autre fois.",
+                            "Le thé est chaud. Assieds-toi si tu veux, mais ne parle pas trop.",
+                            "Les crabes, il faut les prendre par-derrière. Comme les gens pressés.",
+                        },
+                        Rain = new[]
+                        {
+                            "La pluie, c'est de la mer qui revient du ciel. Elle ne me fait pas peur.",
+                        },
+                        Night = new[]
+                        {
+                            "La nuit, les flaques changent de locataires. Les timides sortent.",
+                        },
+                        Aquarium = new[]
+                        {
+                            "{0} espèces derrière une vitre... Moi, je préfère les voir dans leur flaque.",
                         },
                     }),
             };
@@ -316,7 +356,7 @@ namespace FishAndChill.Editor
         private static VillagerHouseBuilding HomeOf(string id, out SpriteRenderer indoor)
         {
             indoor = null;
-            for (int house = 1; house <= 8; house++)
+            for (int house = 1; house <= 9; house++)
             {
                 GameObject room = GameObject.Find($"Maison d'habitant {house} - Intérieur");
                 Transform resident = room != null ? room.transform.Find($"Habitant {id}") : null;

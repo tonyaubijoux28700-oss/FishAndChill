@@ -29,6 +29,7 @@ MonoBehaviour:
     Skirt: {r: 0, g: 0, b: 0, a: 0}
     Pants: {r: 0.24, g: 0.3, b: 0.46, a: 1}
     HairFlower: {r: 0, g: 0, b: 0, a: 0}
+    Headscarf: {r: 0, g: 0, b: 0, a: 0}
     Glasses: 0
     Child: 0
   _leaveHour: 7
@@ -69,3 +70,4 @@ MonoBehaviour:
     - Ah, {0} ! Tu as l'oeil, petit. Tiens, c'est pour toi.
     KeepIt:
     - C'est ton seul exemplaire ({0}) ? Mets-le d'abord dans ton aquarium, je peux attendre.
+    NetGift: []

@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab56bbc658e2934ba802a381e643029, type: 3}
+  m_Name: Chiyo
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Villagers.VillagerProfile
+  _id: chiyo
+  _displayName: Chiyo
+  _look:
+    Name: 
+    Skin: 1
+    HairStyle: 5
+    HairColor: 5
+    Hat: 0
+    Top: 1
+    TopColor: 8
+    Bottom: 1
+  _extras:
+    Beard: {r: 0, g: 0, b: 0, a: 0}
+    Beanie: {r: 0, g: 0, b: 0, a: 0}
+    Skirt: {r: 0, g: 0, b: 0, a: 0}
+    Pants: {r: 0.24, g: 0.3, b: 0.48, a: 1}
+    HairFlower: {r: 0, g: 0, b: 0, a: 0}
+    Headscarf: {r: 0.97, g: 0.97, b: 0.95, a: 1}
+    Glasses: 0
+    Child: 0
+  _leaveHour: 0
+  _homeHour: 0
+  _wanderRadius: 1
+  _speed: 1
+  _minPause: 2
+  _maxPause: 4
+  _zones: []
+  _lines:
+    Intro:
+    - Hm. Encore un touriste qui tient sa canne comme un parapluie.
+    - "Je m'appelle Chiyo. Ici, on dit Chiyo-obaasan. J'ai plong\xE9 dans cette baie pendant soixante ans."
+    Daily:
+    - "La mer ne donne rien \xE0 ceux qui se pressent."
+    - "Une flaque, une b\xEAte. Le reste, tu le laisses pour demain."
+    - Mes perles ? Hm. Une autre fois.
+    - "Le th\xE9 est chaud. Assieds-toi si tu veux, mais ne parle pas trop."
+    - "Les crabes, il faut les prendre par-derri\xE8re. Comme les gens press\xE9s."
+    Rain:
+    - La pluie, c'est de la mer qui revient du ciel. Elle ne me fait pas peur.
+    Night:
+    - La nuit, les flaques changent de locataires. Les timides sortent.
+    Aquarium:
+    - "{0} esp\xE8ces derri\xE8re une vitre... Moi, je pr\xE9f\xE8re les voir dans leur flaque."
+    Ask: []
+    Waiting: []
+    Thanks: []
+    KeepIt: []
+    NetGift:
+    - "Tiens. Mon \xE9puisette. Mes vieux bras n'en ont plus besoin."
+    - "Tu vois les petites bulles pr\xE8s des rives ? Quelque chose fouille le sable l\xE0-dessous. Plonge l'\xE9puisette dedans."
+    - "Quand la b\xEAte est prise, remonte-la doucement : appuie quand l'anneau la touche. Trop t\xF4t, trop tard, et elle file."
+    - "Et prends mon carnet. Je ne l'ai jamais fini. Une page par b\xEAte... Remplis-le pour moi, veux-tu ?"

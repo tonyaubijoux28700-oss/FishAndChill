@@ -268,7 +268,7 @@ namespace FishAndChill.UI
             {
                 bool aimed = CanStart && TryFindSpot(out _, out _);
                 _prompt.gameObject.SetActive(aimed);
-                if (aimed) _prompt.text = HasNet ? "Espace : sortir l'épuisette" : "Des bulles… avec une épuisette du marchand, tu pourrais y fouiller";
+                if (aimed) _prompt.text = HasNet ? "Espace : sortir l'épuisette" : "Des bulles… Chiyo, la vieille ama d'Izu, saurait quoi en faire";
                 return;
             }
 

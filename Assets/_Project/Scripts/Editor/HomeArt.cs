@@ -17,6 +17,9 @@ namespace FishAndChill.Editor
         public const int Height = 224;
         private const int WallBottom = 80;   // limite mur / sol (4,5 cases au-dessus du bas)
 
+        /// <summary>Cabane de Chiyo, la vieille ama de la baie d'Izu.</summary>
+        public const int AmaHut = 4;
+
         private static Color C(float r, float g, float b, float a = 1f) => new Color(r, g, b, a);
 
         private static readonly Color Wood = C(0.62f, 0.42f, 0.24f);
@@ -36,6 +39,7 @@ namespace FishAndChill.Editor
             {
                 case 0: return new[] { new Rect(0.3f, 3.4f, 1.6f, 1.2f), new Rect(7.1f, 3.3f, 1.6f, 1.3f), new Rect(6.0f, 1.1f, 2.6f, 1.0f) };
                 case 1: return new[] { new Rect(0.8f, 3.6f, 3.0f, 1.0f), new Rect(6.8f, 3.6f, 1.9f, 1.0f), new Rect(4.6f, 1.8f, 1.4f, 0.6f) };
+                case AmaHut: return new[] { new Rect(6.7f, 3.3f, 2.0f, 1.3f), new Rect(6.2f, 1.5f, 1.8f, 0.85f), new Rect(0.7f, 1.2f, 1.4f, 0.95f), new Rect(0.3f, 3.3f, 0.9f, 1.1f) };
                 default: return new[] { new Rect(3.4f, 3.6f, 2.2f, 1.0f), new Rect(6.8f, 3.0f, 1.9f, 1.6f), new Rect(0.9f, 2.6f, 1.4f, 0.9f) };
             }
         }
@@ -46,6 +50,7 @@ namespace FishAndChill.Editor
             switch (variant)
             {
                 case 0: return new[] { ("Vieux pêcheur", new Vector2(3.2f, 3.0f)) };
+                case AmaHut: return new[] { ("Ama", new Vector2(3.4f, 3.0f)) };
                 case 1: return new[] { ("Maman", new Vector2(2.6f, 2.8f)), ("Enfant", new Vector2(6.4f, 1.6f)) };
                 default: return new[] { ("Grand-mère", new Vector2(2.6f, 2.0f)) };
             }
@@ -58,6 +63,7 @@ namespace FishAndChill.Editor
             {
                 case 0: FisherCabin(cv); break;
                 case 1: PastelHouse(cv); break;
+                case AmaHut: AmaCabin(cv); break;
                 default: StoneCottage(cv); break;
             }
 
@@ -286,6 +292,123 @@ namespace FishAndChill.Editor
             cv.Piece(Ellipse(139f, 145f, 6f, 5f), C(0.16f, 0.14f, 0.16f), 3f, (x, y, c) => y > 146 ? Cream : c);
             cv.Piece(Union((x, y) => y > 136 && y < 142 && Mathf.Abs(x - 136f) < (y - 136f) * 0.6f, (x, y) => y > 136 && y < 142 && Mathf.Abs(x - 142f) < (y - 136f) * 0.6f), C(0.16f, 0.14f, 0.16f), 2f);
             cv.Piece(Capsule(160f, 150f, 146f, 153f, 1.5f), C(0.16f, 0.14f, 0.16f), 1.5f);
+        }
+
+        // ---------- 4. Cabane de l'ama ----------
+
+        /// <summary>Petite étoile à cinq branches aux pointes arrondies (signe porte-bonheur des ama).</summary>
+        private static System.Func<float, float, bool> Star(float cx, float cy, float r) => (x, y) =>
+        {
+            float dx = x - cx, dy = cy - y;
+            float a = Mathf.Atan2(dx, dy);
+            return Mathf.Sqrt(dx * dx + dy * dy) < r * (0.62f + 0.38f * Mathf.Cos(5f * a));
+        };
+
+        /// <summary>
+        /// Cabane de Chiyo : enduit crème entre poteaux sombres, fenêtre sur la mer entre deux shoji ouverts, tenue blanche
+        /// d'ama suspendue à une perche (étoile et grille brodées), filet qui sèche et panier ; tatamis ; lanterne de
+        /// papier, baquet et paniers de coquillages au fond à droite, table basse et théière, baquet de la récolte.
+        /// </summary>
+        private static void AmaCabin(VolumeCanvas cv)
+        {
+            Color plaster = C(0.90f, 0.84f, 0.70f);
+            Color post = C(0.30f, 0.20f, 0.14f);
+            Color paper = C(0.97f, 0.95f, 0.86f);
+            Color navy = C(0.16f, 0.20f, 0.42f);
+            Color straw = C(0.80f, 0.74f, 0.48f);
+            cv.Piece(Box(-1, -1, Width + 1, WallBottom), plaster, 1.5f,
+                (x, y, c) => (x * 5 + y * 3) % 41 == 0 ? Darker(c, 0.92f) : c);
+            foreach (int px in new[] { 6, 100, 188, 282 })
+            {
+                cv.Piece(Box(px - 4, -1, px + 4, WallBottom), post, 2f, (x, y, c) => y % 11 == 0 ? Darker(c, 0.85f) : c);
+            }
+
+            cv.Piece(Box(-1, 4, Width + 1, 11), post, 2f);                       // poutre haute
+            cv.Piece(Box(-1, WallBottom - 5, Width + 1, WallBottom + 1), post, 1.5f);
+
+            // Fenêtre sur la mer, shoji ouverts de chaque côté.
+            Window(cv, 124, 18, 164, 52, post, C(0.98f, 0.84f, 0.70f), C(0.30f, 0.56f, 0.74f));
+            foreach (int sx in new[] { 106, 168 })
+            {
+                cv.Piece(Box(sx, 14, sx + 14, 60), paper, 1.5f, (x, y, c) => (x - sx) % 7 == 0 || (y - 14) % 9 == 0 ? post : c);
+            }
+
+            // Tenue d'ama suspendue à une perche de bambou : veste blanche aux larges manches, corde bleue, signes brodés.
+            cv.Piece(Capsule(16f, 16f, 92f, 16f, 2f), C(0.70f, 0.66f, 0.36f), 2f, (x, y, c) => (int)x % 13 == 0 ? Darker(c, 0.7f) : c);
+            cv.Piece(Capsule(20f, 10f, 20f, 16f, 1f), C(0.50f, 0.40f, 0.30f), 1f);
+            cv.Piece(Capsule(88f, 10f, 88f, 16f, 1f), C(0.50f, 0.40f, 0.30f), 1f);
+            System.Func<float, float, bool> jacket = Union(
+                (x, y) => y > 17 && y < 34 && x > 20f + (y - 17f) * 0.35f && x < 88f - (y - 17f) * 0.35f,
+                (x, y) => y > 17 && y < 70 && Mathf.Abs(x - 54f) < 17f + Mathf.Sin(y * 0.4f) * 0.6f);
+            cv.Piece(jacket, C(0.95f, 0.95f, 0.92f), 3f,
+                (x, y, c) =>
+                {
+                    if (y < 34 && Mathf.Abs(x - 54f) < 8f - (y - 17f) * 0.45f) return Darker(c, 0.82f);    // col en V
+                    if (Mathf.Abs(x - 54f) < 1f && y > 26) return Darker(c, 0.88f);                         // croisé
+                    return (x * 3 + y * 7) % 29 == 0 ? Darker(c, 0.93f) : c;
+                });
+            cv.Piece(Box(37, 44, 71, 48), navy, 1.5f);                                                   // corde nouée
+            cv.Piece(Capsule(66f, 48f, 69f, 58f, 1.2f), navy, 1f);
+            cv.Piece(Star(46f, 58f, 6f), navy, 0.6f);
+            cv.Piece((x, y) => x > 54 && x < 65 && y > 52 && y < 63 && ((int)(x - 54) % 4 == 0 || (int)(y - 52) % 4 == 0), navy, 0.5f);
+
+            // Filet qui sèche avec ses flotteurs, panier tressé accroché.
+            cv.Piece((x, y) => x > 200 && x < 266 && y > 12 && y < 52 + Mathf.Sin(x * 0.12f) * 3f && (((int)x + (int)y) % 6 == 0 || ((int)x - (int)y + 300) % 6 == 0), C(0.86f, 0.82f, 0.62f), 0.6f);
+            foreach (int fx in new[] { 206, 228, 250 })
+            {
+                cv.Piece(Ellipse(fx, 14f, 3.5f, 3f), C(0.94f, 0.40f, 0.24f), 2f);
+            }
+
+            cv.Piece(Ellipse(272f, 38f, 9f, 11f), C(0.72f, 0.56f, 0.32f), 3f, (x, y, c) => ((int)x + (int)y * 2) % 5 == 0 ? Darker(c, 0.75f) : (int)y % 4 == 0 ? Darker(c, 0.88f) : c);
+
+            // Tatamis : nattes de paille aux bords de tissu sombre, posées tantôt en long, tantôt en large.
+            Color hem = C(0.22f, 0.28f, 0.20f);
+            cv.Piece(Box(-1, WallBottom, Width + 1, Height + 1), straw, 1.2f,
+                (x, y, c) =>
+                {
+                    int fy = y - WallBottom;
+                    int row = fy / 48;
+                    bool along = (row + x / 96) % 2 == 0;
+                    int u = along ? x % 96 : (x + 48) % 48;
+                    int v = along ? fy % 48 : fy % 48;
+                    if (u < 3 || v < 3) return hem;
+                    bool weave = along ? x % 2 == 0 : y % 2 == 0;
+                    return weave ? Darker(c, 0.94f) : (x * 7 + y * 3) % 53 == 0 ? Darker(c, 0.86f) : c;
+                }, 0.9f, 0.8f);
+
+            // Lanterne de papier dans le coin gauche, au fond.
+            cv.Piece(Box(14, 116, 36, 122), post, 2f);
+            cv.Piece(Box(16, 86, 34, 116), paper, 3f, (x, y, c) => (y - 86) % 10 == 0 || x == 25 ? Darker(post, 1.2f) : Color.Lerp(c, C(1f, 0.86f, 0.52f), 0.35f));
+            cv.Piece(Box(14, 82, 36, 87), post, 1.5f);
+
+            // Au fond à droite : grand baquet de bois cerclé et paniers de coquillages.
+            cv.Piece((x, y) => Ellipse(236f, 100f, 22f, 18f)(x, y) && y > 86, C(0.66f, 0.48f, 0.28f), 4f,
+                (x, y, c) => (int)y == 98 || (int)y == 108 ? C(0.36f, 0.34f, 0.32f) : (int)x % 6 == 0 ? Darker(c, 0.85f) : c);
+            cv.Piece(Ellipse(236f, 88f, 22f, 7f), C(0.30f, 0.46f, 0.56f), 1.5f, (x, y, c) => (x + y) % 7 == 0 ? Color.Lerp(c, Color.white, 0.35f) : c);
+            cv.Piece(Ellipse(268f, 104f, 12f, 10f), C(0.76f, 0.60f, 0.34f), 3f, (x, y, c) => ((int)x + (int)y) % 4 == 0 ? Darker(c, 0.76f) : c);
+            foreach ((float sx, float sy, Color sc) in new[] { (263f, 96f, C(0.96f, 0.86f, 0.76f)), (270f, 94f, C(0.90f, 0.70f, 0.62f)), (274f, 98f, C(0.98f, 0.94f, 0.88f)) })
+            {
+                cv.Piece(Ellipse(sx, sy, 3.5f, 2.8f), sc, 2f);
+            }
+
+            // Table basse ronde, théière de fonte et deux tasses, coussin violet.
+            cv.Piece(Box(210, 166, 216, 178), post, 1.5f);
+            cv.Piece(Box(240, 166, 246, 178), post, 1.5f);
+            cv.Piece(Ellipse(228f, 160f, 28f, 10f), C(0.46f, 0.28f, 0.16f), 4f, (x, y, c) => (x * 3 + y) % 23 == 0 ? Darker(c, 0.85f) : c);
+            cv.Piece(Ellipse(226f, 152f, 7f, 6f), C(0.20f, 0.20f, 0.22f), 4f, (x, y, c) => (x + y) % 3 == 0 ? Darker(c, 0.8f) : c);
+            cv.Piece(Capsule(220f, 146f, 232f, 146f, 1f), C(0.30f, 0.30f, 0.32f), 1.5f);
+            cv.Piece(Capsule(232f, 152f, 237f, 149f, 1.2f), C(0.20f, 0.20f, 0.22f), 1.5f);
+            cv.Piece(Ellipse(244f, 158f, 3.5f, 3f), C(0.90f, 0.88f, 0.80f), 2f);
+            cv.Piece(Ellipse(212f, 160f, 3.5f, 3f), C(0.90f, 0.88f, 0.80f), 2f);
+            cv.Piece(Ellipse(186f, 182f, 14f, 9f), C(0.50f, 0.32f, 0.56f), 3f, (x, y, c) => Mathf.Abs(x - 186f) < 1.5f && Mathf.Abs(y - 182f) < 1.5f ? Darker(c, 0.7f) : c);
+
+            // Baquet de la récolte, en bas à gauche : eau, ormeaux et oursins.
+            cv.Piece((x, y) => Ellipse(44f, 172f, 23f, 15f)(x, y) && y > 164, C(0.62f, 0.44f, 0.26f), 4f,
+                (x, y, c) => (int)y == 176 ? C(0.36f, 0.34f, 0.32f) : (int)x % 6 == 0 ? Darker(c, 0.85f) : c);
+            cv.Piece(Ellipse(44f, 164f, 23f, 8f), C(0.28f, 0.50f, 0.60f), 1.5f, (x, y, c) => (x - y) % 9 == 0 ? Color.Lerp(c, Color.white, 0.35f) : c);
+            cv.Piece(Ellipse(36f, 163f, 6f, 4f), C(0.62f, 0.56f, 0.46f), 2.5f, (x, y, c) => ((int)(x + y)) % 3 == 0 ? C(0.56f, 0.72f, 0.70f) : c);
+            cv.Piece(Ellipse(52f, 165f, 5f, 3.5f), C(0.64f, 0.58f, 0.48f), 2.5f, (x, y, c) => ((int)(x - y)) % 3 == 0 ? C(0.70f, 0.60f, 0.76f) : c);
+            cv.Piece((x, y) => { float dx = x - 46f, dy = y - 159f; float a = Mathf.Atan2(dy, dx); return Mathf.Sqrt(dx * dx + dy * dy) < 3.5f + 1.5f * Mathf.Abs(Mathf.Sin(a * 6f)); }, C(0.22f, 0.12f, 0.24f), 2f);
         }
     }
 }

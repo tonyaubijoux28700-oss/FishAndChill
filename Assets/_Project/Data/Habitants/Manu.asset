@@ -29,6 +29,7 @@ MonoBehaviour:
     Skirt: {r: 0, g: 0, b: 0, a: 0}
     Pants: {r: 0, g: 0, b: 0, a: 0}
     HairFlower: {r: 0, g: 0, b: 0, a: 0}
+    Headscarf: {r: 0, g: 0, b: 0, a: 0}
     Glasses: 0
     Child: 1
   _leaveHour: 9
@@ -66,3 +67,4 @@ MonoBehaviour:
     - Waouh, un vrai de vrai ! T'es le meilleur ! Tiens, c'est toute ma tirelire !
     KeepIt:
     - Non, non, ton seul exemplaire ({0}), il doit aller dans le grand aquarium d'abord !
+    NetGift: []

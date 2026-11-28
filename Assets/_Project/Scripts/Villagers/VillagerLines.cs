@@ -21,5 +21,8 @@ namespace FishAndChill.Villagers
         public string[] Waiting = new string[0];
         public string[] Thanks = new string[0];
         public string[] KeepIt = new string[0];
+
+        /// <summary>Ce qu'elle dit en te donnant l'épuisette (seulement Chiyo, tant qu'on n'en a pas).</summary>
+        public string[] NetGift = new string[0];
     }
 }

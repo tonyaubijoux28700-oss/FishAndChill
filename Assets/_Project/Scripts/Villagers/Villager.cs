@@ -65,6 +65,9 @@ namespace FishAndChill.Villagers
 
         public bool IsHome => _state == State.Home;
 
+        /// <summary>Passe-t-il des commandes de poissons (a-t-il des zones préférées) ?</summary>
+        public bool TakesOrders => _profile != null && _profile.Zones.Count > 0;
+
         private Vector2 DoorStep => _home != null ? (Vector2)_home.transform.position + Vector2.down * 0.7f : _anchor;
 
         private float Hour => _clock != null ? _clock.Hour : 12f;
@@ -331,6 +334,10 @@ namespace FishAndChill.Villagers
                 if (!context.FirstMeeting) pages.Clear();   // la commande remplace la réplique du jour
                 pages.Add(requestLine);
             }
+
+            // Chiyo donne son épuisette à qui n'en a pas encore.
+            string[] gift = _profile != null ? _profile.Lines.NetGift : null;
+            if (gift != null && gift.Length > 0 && _progress != null && _progress.ReceiveNet()) pages.AddRange(gift);
 
             return pages.ToArray();
         }

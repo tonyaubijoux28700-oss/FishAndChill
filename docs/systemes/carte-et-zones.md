@@ -62,7 +62,7 @@
   franchi par un **pont rouge** praticable (`JapanBridgeArea`), **sanctuaire** shinto dans l'axe d'une allée de dalles avec
   torii et lanternes, le **mont Fuji** dressé juste derrière lui (13 cases sur 5, collines de pins à son pied, solide),
   **torii dans l'eau** dans le même axe, hameau de deux
-  maisons de pêcheurs et une barque, **onsen** fumant, bambouseraie, érables autour du sanctuaire, cerisiers, pins noirs,
+  maisons de pêcheurs (la première est la cabane de Chiyo, où l'on entre) et une barque, **onsen** fumant, bambouseraie, érables autour du sanctuaire, cerisiers, pins noirs,
   rochers mariés dans la mer), à `JapanGap` = 20 cases à l'est du fleuve, `MapSetup.BuildJapan` (tuiles `JapanArt` : mer,
   sable volcanique, mousse et pétales ; arbres, lanternes `Lampadaire_ToroPierre` allumées la nuit, rochers, fleurs, dalles
   et terre dans `JapanTerrainArt` ; repères dans `JapanLandmarkArt`). Ponton au

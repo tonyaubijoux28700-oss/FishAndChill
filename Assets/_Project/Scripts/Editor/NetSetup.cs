@@ -35,7 +35,7 @@ namespace FishAndChill.Editor
             }
 
             Sprite net = PixelArt.Save($"{Folder}/EpuisetteDansLeau.png", TidePoolArt.NetInWater(), 16, new Vector2(18f / 60f, 42f / 60f));
-            Sprite icon = PixelArt.Save($"{Folder}/Epuisette.png", TidePoolArt.Net(), 16, new Vector2(0.5f, 0.5f));   // icône (marchand, inventaire)
+            PixelArt.Save($"{Folder}/Epuisette.png", TidePoolArt.Net(), 16, new Vector2(0.5f, 0.5f));   // icône (inventaire)
 
             var game = partie.GetComponent<TidePoolGame>();
             if (game == null) game = partie.AddComponent<TidePoolGame>();
@@ -65,14 +65,6 @@ namespace FishAndChill.Editor
             frames.arraySize = critter.Length;
             for (int i = 0; i < critter.Length; i++) frames.GetArrayElementAtIndex(i).objectReferenceValue = critter[i];
             so.ApplyModifiedPropertiesWithoutUndo();
-
-            // Le marchand vend l'épuisette au rayon des sacs.
-            foreach (ShopMenu shop in Object.FindObjectsByType<ShopMenu>(FindObjectsInactive.Include))
-            {
-                var shopSo = new SerializedObject(shop);
-                shopSo.FindProperty("_netIcon").objectReferenceValue = icon;
-                shopSo.ApplyModifiedPropertiesWithoutUndo();
-            }
 
             // Le carnet montre la bestiole sur sa page Épuisette, en attendant les vrais dessins.
             foreach (FishIndex index in Object.FindObjectsByType<FishIndex>(FindObjectsInactive.Include))

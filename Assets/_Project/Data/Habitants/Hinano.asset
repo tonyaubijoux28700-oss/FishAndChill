@@ -29,6 +29,7 @@ MonoBehaviour:
     Skirt: {r: 0.8, g: 0.24, b: 0.26, a: 1}
     Pants: {r: 0, g: 0, b: 0, a: 0}
     HairFlower: {r: 1, g: 0.46, b: 0.56, a: 1}
+    Headscarf: {r: 0, g: 0, b: 0, a: 0}
     Glasses: 0
     Child: 0
   _leaveHour: 9
@@ -62,3 +63,4 @@ MonoBehaviour:
     - "Merci mille fois ! Avec \xE7a, ce soir ce sera la f\xEAte."
     KeepIt:
     - "Oh, c'est ton premier exemplaire ({0}) ? Garde-le pour l'aquarium, Manu serait d\xE9\xE7u sinon !"
+    NetGift: []

@@ -384,6 +384,55 @@ namespace FishAndChill.Player
                 }
             }
 
+            if (e.HasHeadscarf)
+            {
+                // Foulard d'ama (tenugui) serré sur le crâne et noué derrière ; mèches grises sur les tempes, chignon bas
+                // sur la nuque ; devant, les deux signes porte-bonheur (l'étoile et la grille) en petits points bleu nuit.
+                Color fold = Color.Lerp(e.Headscarf, Color.black, 0.18f);
+                Color sign = new Color(0.16f, 0.20f, 0.42f);
+                if (side)
+                {
+                    c.Set(5, 9, p.Hair, Part.Hair, 0.9f);
+                    c.Set(5, 10, p.Hair, Part.Hair, 0.85f);
+                    c.Ellipse(4.6f, 10.6f, 1.5f, 1.3f, p.Hair, Part.Hair);
+                }
+                else if (back)
+                {
+                    c.Ellipse(8f, 10.4f, 2.2f, 1.6f, p.Hair, Part.Hair);
+                }
+                else
+                {
+                    foreach (int x in new[] { 3, 12 })
+                    {
+                        c.Set(x, 9, p.Hair, Part.Hair, x < 8 ? 1.05f : 0.8f);
+                        c.Set(x, 10, p.Hair, Part.Hair, x < 8 ? 0.95f : 0.75f);
+                    }
+                }
+
+                c.Ellipse(side ? 8.1f : 8f, 7.2f, side ? 3.9f : 4.2f, 2.6f, e.Headscarf, Part.Hat, 7);
+                for (int x = side ? 5 : 4; x <= 11; x++) c.Set(x, 8, fold, Part.Hat, 0.9f);
+                if (side)
+                {
+                    c.Set(4, 8, e.Headscarf, Part.Hat, 0.85f);   // nœud et pans à l'arrière
+                    c.Set(3, 9, e.Headscarf, Part.Hat, 0.8f);
+                    c.Set(3, 10, fold, Part.Hat, 0.7f);
+                    c.Paint(9, 6, sign, Part.Hat);
+                }
+                else if (back)
+                {
+                    c.Set(7, 8, e.Headscarf, Part.Hat, 0.9f);
+                    c.Set(8, 8, e.Headscarf, Part.Hat, 0.8f);
+                    c.Set(7, 9, fold, Part.Hat, 0.8f);
+                    c.Set(8, 10, fold, Part.Hat, 0.7f);
+                }
+                else
+                {
+                    c.Paint(6, 6, sign, Part.Hat);
+                    c.Paint(9, 6, sign, Part.Hat);
+                    c.Paint(10, 6, sign, Part.Hat);
+                }
+            }
+
             if (e.Glasses && !back)
             {
                 Color frame = new Color(0.62f, 0.46f, 0.30f);

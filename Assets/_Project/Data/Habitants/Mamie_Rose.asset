@@ -29,6 +29,7 @@ MonoBehaviour:
     Skirt: {r: 0.52, g: 0.52, b: 0.56, a: 1}
     Pants: {r: 0, g: 0, b: 0, a: 0}
     HairFlower: {r: 0, g: 0, b: 0, a: 0}
+    Headscarf: {r: 0, g: 0, b: 0, a: 0}
     Glasses: 1
     Child: 0
   _leaveHour: 10
@@ -62,3 +63,4 @@ MonoBehaviour:
     - "Tout frais ! Tu es un amour. Prends \xE7a, et reviens go\xFBter la soupe."
     KeepIt:
     - "Ton seul exemplaire ({0}) ? Montre-le d'abord \xE0 tout le monde dans l'aquarium, voyons."
+    NetGift: []

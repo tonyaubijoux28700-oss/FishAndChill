@@ -16,7 +16,7 @@
   arme puis fouette au lancer, le fil pend plus ou moins, ronds dans l'eau (plouf, titillements, touche,
   éclaboussures du combat). Jauge du QTE avec la charte (cadre, bandeau « Ferre-le ! », barre d'eau, zone verte,
   aiguille, pastilles réussites/ratés, flash et secousse), placée du côté opposé au bouchon.
-- **Coins à bulles** (`World/FishingSpots`, un par zone, règles dans `Fishing/Core/FishingSpotRules`, testées) : une seule
+- **Coins à bulles** (`World/FishingSpots`, un par zone, règles dans `Fishing/Core/FishingSpotRules`, testées) : visibles seulement une fois l'épuisette reçue de Chiyo (Izu) ; une seule
   sorte de coin, des bulles qui remontent du fond, réservées à la future **épuisette** (pêche à pied des invertébrés).
   **La canne n'y gagne rien** : plus de bancs ni de chasses, plus de bonus d'espèces ou de touche, plus de visée
   automatique vers les coins (elle reste pour le remous des légendes, `FishingSpotRules.Assist`). 3 coins à la fois,

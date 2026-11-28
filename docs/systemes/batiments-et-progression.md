@@ -110,16 +110,18 @@
   nénuphars géants), Izu (sable noir, colonnes de basalte, varech, pétales), Grande Barrière (coraux branchu, cerveau,
   table, mou), Maldives (dalles du platier), Côte des Squelettes (côtes et vertèbre de baleine, moules, kelp), Fjords
   (galets, granit à balanes, varech), Ha Long (racines de palétuvier, calcaire, huîtres). Ses cachettes
-  (`TidePoolArt.HideSpots`) sont rangées avec elle dans `TidePoolGame._looks` ; la flaque suit la zone de la pêche. **Achat** : l'épuisette se vend 120 pièces au rayon « Sacs » du marchand, après les sacs
-  (`ShopMenu.AddNet` / `BuyNet`, `PlayerProgress.NetPrice` / `BuyNet` / `HasNet`, testé ; sauvegardée dans `SaveData.HasNet`).
-  Sans elle, face aux bulles, l'invite dit qu'il faut en acheter une et l'action lance la ligne comme d'habitude.
+  (`TidePoolArt.HideSpots`) sont rangées avec elle dans `TidePoolGame._looks` ; la flaque suit la zone de la pêche. **Obtention** : plus vendue ; **Chiyo**, la vieille ama d'Izu, la donne en lui parlant (répliques `VillagerLines.NetGift`,
+  `PlayerProgress.ReceiveNet` / `HasNet`, testé ; sauvegardée dans `SaveData.HasNet`, une épuisette achetée avant reste). Sans elle, **les coins à
+  bulles n'apparaissent dans aucune zone** (`FishingSpots.Revealed`).
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).
 - **Habitants** (`Scripts/Villagers`, profils `VillagerProfile` dans `Data/Habitants/`, générés et posés par
   `Editor/VillagerSetup`, objets sous « Habitants ») : **Tavita** le vieux pêcheur (cabane du pêcheur, 7 h - 17 h 30, du
   côté du ponton), **Hinano** la maman et **Manu** son fils (maison pastel, 9 h - 18 h, parvis de l'aquarium ; Manu suit
-  sa maman, `_leader`), **Mamie Rose** (chaumière, 10 h - 17 h, devant chez elle). Dessinés par le même peintre que le
+  sa maman, `_leader`), **Mamie Rose** (chaumière, 10 h - 17 h, devant chez elle), **Chiyo** la vieille ama (baie d'Izu, toujours chez elle : 9e maison
+  d'habitant, façade de la première maison de pêcheurs, cabane aux tatamis `HomeArt.AmaHut`, foulard `NpcExtras.Headscarf` ; donne l'épuisette,
+  pas de commandes, absente de l'onglet Quêtes). Dessinés par le même peintre que le
   pêcheur, dans les 4 directions avec le même pas (`CharacterPainter` + `NpcExtras` : barbe, bonnet à pompon, jupe,
   pantalon et bottes, lunettes, fleur dans les cheveux, taille d'enfant ; images faites au lancement par
   `CharacterSprites.Build(look, extras)`). **Leur journée** (`Villager`) : la nuit debout chez eux (« Habitant id » dans

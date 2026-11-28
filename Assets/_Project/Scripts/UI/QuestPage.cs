@@ -57,6 +57,7 @@ namespace FishAndChill.UI
         public void Refresh()
         {
             var villagers = new List<Villager>(Villager.Everyone);
+            villagers.RemoveAll(v => !v.TakesOrders);   // Chiyo ne passe pas de commandes
             villagers.Sort((a, b) => string.CompareOrdinal(a.DisplayName, b.DisplayName));
             int open = 0;
             for (int i = 0; i < villagers.Count; i++)

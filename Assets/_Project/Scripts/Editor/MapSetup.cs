@@ -495,6 +495,12 @@ namespace FishAndChill.Editor
                 BuildVillagerHouse(i, foot, new Vector2(bounds.xMax + 20f, bounds.yMin + 44f + i * 14f), worldMap, player.GetComponent<PlayerMovement>(), follow);
             }
 
+            // Cabane de Chiyo, à Izu : 9e maison d'habitant, intérieur au-dessus des autres.
+            BuildVillagerHouse(8, ChiyoDoor, new Vector2(bounds.xMax + 20f, bounds.yMin + 44f + 8 * 14f), worldMap, player.GetComponent<PlayerMovement>(), follow,
+                HomeArt.AmaHut, PixelArt.Save("Assets/_Project/Art/Buildings/Baie_Maison_Chiyo.png", JapanLandmarkArt.House(0), VolumeCanvas.PixelsPerUnit,
+                    new Vector2(0.5f + ChiyoDoorShift * VolumeCanvas.PixelsPerUnit / JapanLandmarkArt.HouseWidth, JapanLandmarkArt.HousePivot.y)),
+                new Vector2(3.5f, 1.9f), -ChiyoDoorShift);
+
             for (int i = villagerCells.Count; i < 8; i++)
             {
                 foreach (string name in new[] { $"Maison d'habitant {i + 1}", $"Maison d'habitant {i + 1} - Intérieur" })
@@ -1383,6 +1389,16 @@ namespace FishAndChill.Editor
             for (int i = 0; i < plan.Houses.Count; i++)
             {
                 Vector2Int house = plan.Houses[i];
+                if (i == 0)
+                {
+                    // La première est la cabane de Chiyo, la vieille ama : on y entre (posée avec les maisons d'habitants,
+                    // une fois le joueur créé). Porte coulissante à 24 px à droite du milieu de la façade.
+                    Transform old = mapRoot.Find("Maison de pêcheur 1");
+                    if (old != null) Object.DestroyImmediate(old.gameObject);
+                    ChiyoDoor = World(house.x + 0.5f + ChiyoDoorShift, house.y);
+                    continue;
+                }
+
                 Landmark($"Maison de pêcheur {i + 1}", $"{buildings}/Baie_Maison_{i % 2}.png", JapanLandmarkArt.House(i % 2), JapanLandmarkArt.HousePivot, house.x + 0.5f, house.y);
                 Solid(house.x + 0.5f, house.y - 0.1f, 3.5f, 1.9f);
             }
@@ -3444,6 +3460,12 @@ namespace FishAndChill.Editor
             return petShop;
         }
 
+        /// <summary>Porte de la cabane de Chiyo à Izu (posée par <c>BuildJapan</c>, utilisée avec les maisons d'habitants).</summary>
+        private static Vector3 ChiyoDoor;
+
+        /// <summary>La porte coulissante de la maison d'Izu est à 24 px (0,75 case) à droite du milieu de la façade.</summary>
+        private const float ChiyoDoorShift = 0.75f;
+
         /// <summary>Modèle de façade de chaque maison d'habitant (cabane du pêcheur, maison pastel, chaumière).</summary>
         private static readonly int[] VillagerLooks = { 0, 1, 3 };
 
@@ -3451,13 +3473,14 @@ namespace FishAndChill.Editor
         /// Une maison d'habitant : façade sur l'île (<see cref="VillageArt"/>), pièce hors de l'île (<see cref="HomeArt"/>)
         /// avec ses habitants debout ; meubles et habitants infranchissables.
         /// </summary>
-        private static void BuildVillagerHouse(int index, Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow)
+        private static void BuildVillagerHouse(int index, Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow,
+            int lookOverride = -1, Sprite facadeOverride = null, Vector2? footprint = null, float footprintShift = 0f)
         {
             const string folder = "Assets/_Project/Art/Buildings/Hameau";
             PixelArt.EnsureFolder(folder);
             int ppu = VolumeCanvas.PixelsPerUnit;
-            int look = VillagerLooks[index % VillagerLooks.Length];
-            Sprite facade = PixelArt.Save($"{folder}/Maison_{look}_0.png", VillageArt.House(look), ppu, VillageArt.Pivot);
+            int look = lookOverride >= 0 ? lookOverride : VillagerLooks[index % VillagerLooks.Length];
+            Sprite facade = facadeOverride != null ? facadeOverride : PixelArt.Save($"{folder}/Maison_{look}_0.png", VillageArt.House(look), ppu, VillageArt.Pivot);
             Sprite interior = PixelArt.Save($"{folder}/Maison_{look}_Interieur.png", HomeArt.Interior(look), ppu, Vector2.zero);
 
             GameObject go = EnsureObject($"Maison d'habitant {index + 1}", null);
@@ -3474,7 +3497,8 @@ namespace FishAndChill.Editor
             so.FindProperty("_map").objectReferenceValue = map;
             so.FindProperty("_camera").objectReferenceValue = follow;
             so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
-            so.FindProperty("_footprint").vector2Value = new Vector2(3.8f, 2.4f);
+            so.FindProperty("_footprint").vector2Value = footprint ?? new Vector2(3.8f, 2.4f);
+            so.FindProperty("_footprintShift").floatValue = footprintShift;
             Rect[] furniture = HomeArt.Obstacles(look);
             SerializedProperty furnitureList = so.FindProperty("_furniture");
             furnitureList.arraySize = furniture.Length;

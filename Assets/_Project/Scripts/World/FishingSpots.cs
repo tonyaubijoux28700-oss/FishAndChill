@@ -6,7 +6,7 @@ namespace FishAndChill.World
 {
     /// <summary>
     /// Les coins à bulles d'une zone : quelques endroits d'eau, près d'une rive qu'on rejoint à pied, où de petites bulles
-    /// remontent du fond (quelque chose y fouille le sable). La canne n'y gagne rien : ils serviront à l'épuisette. Chaque
+    /// remontent du fond (quelque chose y fouille le sable). La canne n'y gagne rien : ils servent à l'épuisette, et n'apparaissent qu'une fois celle-ci reçue. Chaque
     /// coin dure un moment puis réapparaît ailleurs. Ne tourne que dans sa région, hors des bâtiments.
     /// </summary>
     public sealed class FishingSpots : MonoBehaviour
@@ -38,6 +38,10 @@ namespace FishAndChill.World
         private readonly List<Vector2> _centers = new List<Vector2>();
         private System.Random _random;
         private bool _active = true;
+        private Collection.PlayerProgress _progress;
+
+        /// <summary>Les bulles ne se montrent qu'une fois l'épuisette reçue (Chiyo, à Izu).</summary>
+        private bool Revealed => _progress == null || _progress.HasNet;
 
         public int Region => _region;
 
@@ -51,6 +55,7 @@ namespace FishAndChill.World
             get
             {
                 _centers.Clear();
+                if (!Revealed) return _centers;
                 foreach (Spot spot in _spots)
                 {
                     if (spot.Age > 0.5f) _centers.Add(spot.Center);
@@ -63,6 +68,7 @@ namespace FishAndChill.World
         /// <summary>Ce point est-il dans un coin à bulles ?</summary>
         public bool Contains(Vector2 point)
         {
+            if (!Revealed) return false;
             foreach (Spot spot in _spots)
             {
                 if (spot.Age > 0.5f && Vector2.Distance(point, spot.Center) <= FishingSpotRules.Radius)
@@ -74,7 +80,6 @@ namespace FishAndChill.World
             return false;
         }
 
-        /// <summary>Une prise a été faite dans le coin : il s'épuise et finit par partir ailleurs.</summary>
         /// <summary>Une bête a été prise ici : le coin se disperse tout de suite (une seule prise par flaque).</summary>
         public void Deplete(Vector2 point)
         {
@@ -89,6 +94,7 @@ namespace FishAndChill.World
             }
         }
 
+        /// <summary>Une prise a été faite dans le coin : il s'épuise et finit par partir ailleurs.</summary>
         public void Consume(Vector2 point)
         {
             foreach (Spot spot in _spots)
@@ -114,6 +120,7 @@ namespace FishAndChill.World
                 return;
             }
 
+            _progress = FindFirstObjectByType<Collection.PlayerProgress>();
             _random = new System.Random(_region * 977 + 31);
             ComputeReachable();
             for (int i = 0; i < _count; i++)
@@ -204,7 +211,7 @@ namespace FishAndChill.World
 
         private void Update()
         {
-            bool here = _map.CurrentRegion == _region && InteriorBuilding.Occupied == null;
+            bool here = _map.CurrentRegion == _region && InteriorBuilding.Occupied == null && Revealed;
             if (here != _active)
             {
                 _active = here;
