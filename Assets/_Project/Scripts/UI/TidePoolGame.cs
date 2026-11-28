@@ -445,8 +445,9 @@ namespace FishAndChill.UI
                 Vector2 range = c.Species.SizeRangeCm;
                 _fishing.CatchLog.Register(c.Species.Id, Mathf.Lerp(range.x, range.y, (float)_random.NextDouble()));
                 string color = ColorUtility.ToHtmlStringRGB(c.Species.Rarity.DisplayColor());
+                string pearl = FindPearl();
                 Say($"Dans l'épuisette : <color=#{color}>{c.Species.CommonName}</color>{(first ? " (nouvelle espèce !)" : string.Empty)}, "
-                    + "notée puis relâchée.\nLes bulles se dispersent.");
+                    + (pearl != null ? $"notée puis relâchée.\nQuelque chose brille au fond du filet : {pearl} ! Rapporte-la à Chiyo." : "notée puis relâchée.\nLes bulles se dispersent."));
                 return;
             }
 
@@ -459,6 +460,24 @@ namespace FishAndChill.UI
             }
 
             Say("Elle s'est échappée du filet !" + (Finished ? EndLine : $"   Encore {_triesLeft} coup{(_triesLeft > 1 ? "s" : string.Empty)}."));
+        }
+
+        /// <summary>
+        /// Toutes les bestioles de la zone sont au carnet : la perle de la zone brille au fond de l'épuisette (une seule fois).
+        /// Renvoie son nom, ou null.
+        /// </summary>
+        private string FindPearl()
+        {
+            FishingZone zone = _fishing.Zone;
+            if (zone == null || _progress == null) return null;
+            var ids = new List<string>();
+            foreach (FishingZone.SpeciesEntry entry in zone.NetSpecies)
+            {
+                if (entry.Species != null) ids.Add(entry.Species.Id);
+            }
+
+            if (!PearlNecklace.ZoneComplete(ids, _fishing.CatchLog.IsDiscovered) || !_progress.Pearls.Find(zone.Id)) return null;
+            return PearlLore.NameOf(zone.Id);
         }
 
         /// <summary>L'anneau qui se resserre et le contour de la bête : doré quand il la touche, vert ou rouge au verdict.</summary>

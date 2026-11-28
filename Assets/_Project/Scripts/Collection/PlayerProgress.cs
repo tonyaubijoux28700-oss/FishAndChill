@@ -47,6 +47,9 @@ namespace FishAndChill.Collection
             return true;
         }
 
+        /// <summary>Le collier de Chiyo : une perle par zone dont toutes les bestioles sont au carnet.</summary>
+        public PearlNecklace Pearls { get; } = new PearlNecklace();
+
         /// <summary>Chargement d'une partie : l'épuisette reçue ou non.</summary>
         public void RestoreNet(bool owned)
         {

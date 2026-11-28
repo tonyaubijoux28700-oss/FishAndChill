@@ -156,6 +156,8 @@ namespace FishAndChill.UI
         private Text _zoneRegion;
         private Image _barFill;
         private Text _barText;
+        private Image _pearl;
+        private Text _pearlLabel;
         private RectTransform _stampRect;
         private Text _pageText;
         private Image _prevArrow;
@@ -717,6 +719,14 @@ namespace FishAndChill.UI
                 _milestones[m].Label.color = claimed ? new Color(0.22f, 0.50f, 0.18f) : InkSoft;
             }
 
+            // Page Épuisette : la perle de la zone au bout de la barre (silhouette tant qu'elle n'est pas trouvée).
+            PearlState pearl = zone != null && _progress != null ? _progress.Pearls.StateOf(zone.Id) : PearlState.Missing;
+            _pearl.gameObject.SetActive(_netMode);
+            _pearlLabel.gameObject.SetActive(_netMode);
+            _pearl.color = pearl == PearlState.Missing ? new Color(0.30f, 0.24f, 0.18f, 0.32f) : PearlLore.ColorOf(zone.Id);
+            _pearlLabel.text = pearl == PearlState.Found ? "À rapporter à Chiyo" : pearl == PearlState.Threaded ? "Sur son collier" : string.Empty;
+            UiFactory.Center(_barText.rectTransform, new Vector2(_netMode ? 330f : 270f, 270f), new Vector2(150f, 34f));
+
             _stampRect.gameObject.SetActive(species.Count > 0 && discovered == species.Count);
             foreach (MilestoneView milestone in _milestones)
             {
@@ -1010,6 +1020,40 @@ namespace FishAndChill.UI
             return arrow;
         }
 
+        /// <summary>
+        /// Perle ronde (12×12 px) : blanche nacrée, ombrée vers le bas à droite, reflet en haut à gauche et contour à
+        /// l'encre ; teintée à la couleur de la perle de la zone, ou à l'encre pâle pour la silhouette.
+        /// </summary>
+        private static Sprite MakePearl()
+        {
+            const int size = 12;
+            var texture = new Texture2D(size, size) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            for (int x = 0; x < size; x++)
+            {
+                for (int y = 0; y < size; y++)
+                {
+                    float dx = x + 0.5f - 6f, dy = y + 0.5f - 6f;
+                    float d = Mathf.Sqrt(dx * dx + dy * dy);
+                    Color c = new Color(0f, 0f, 0f, 0f);
+                    if (d <= 5.6f)
+                    {
+                        if (d > 4.7f) c = new Color(0.34f, 0.28f, 0.26f);
+                        else
+                        {
+                            float light = 0.97f - 0.07f * (dx - dy) - 0.04f * d;   // lumière d'en haut à gauche
+                            c = new Color(light, light, light * 1.01f);
+                            if (Mathf.Abs(dx + 2f) < 1f && Mathf.Abs(dy - 2f) < 1f) c = Color.white;
+                        }
+                    }
+
+                    texture.SetPixel(x, y, c);
+                }
+            }
+
+            texture.Apply();
+            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 16f);
+        }
+
         /// <summary>Petite flèche à l'encre brune tournée vers la droite (14×11 px), un peu tremblée comme tracée à la plume.</summary>
         private static Sprite MakeArrow()
         {
@@ -1217,6 +1261,13 @@ namespace FishAndChill.UI
                 UiFactory.Center(label.rectTransform, new Vector2(Mathf.Min(x, -70f + BarWidth * 0.5f - 6f), 240f), new Vector2(90f, 24f));
                 _milestones.Add(new MilestoneView { Coin = coin, Label = label });
             }
+
+            // La perle de la zone, au bout de la barre (page Épuisette seulement).
+            _pearl = UiFactory.Plain(page, "Perle", Color.white);
+            _pearl.sprite = MakePearl();
+            UiFactory.Center(_pearl.rectTransform, new Vector2(214f, 270f), new Vector2(48f, 48f));
+            _pearlLabel = InkLabel(page, "État de la perle", 18, TextAnchor.MiddleCenter, InkSoft);
+            UiFactory.Center(_pearlLabel.rectTransform, new Vector2(214f, 236f), new Vector2(220f, 24f));
 
             // Grille des espèces de la zone.
             float gridWidth = Columns * CellWidth + (Columns - 1) * CellGap;

@@ -80,6 +80,10 @@ namespace FishAndChill.Save
         /// <summary>L'épuisette a-t-elle été achetée ?</summary>
         public bool HasNet;
 
+        /// <summary>Perles du collier de Chiyo : trouvées (pas encore rapportées) et enfilées, par identifiant de zone.</summary>
+        public List<string> PearlsFound = new List<string>();
+        public List<string> PearlsThreaded = new List<string>();
+
         /// <summary>Heures de jeu écoulées depuis le début de la partie (0 pour une ancienne sauvegarde).</summary>
         public double TotalHours;
 

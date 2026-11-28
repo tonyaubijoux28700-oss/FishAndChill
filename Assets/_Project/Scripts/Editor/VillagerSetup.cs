@@ -185,7 +185,7 @@ namespace FishAndChill.Editor
                         {
                             "La mer ne donne rien à ceux qui se pressent.",
                             "Une flaque, une bête. Le reste, tu le laisses pour demain.",
-                            "Mes perles ? Hm. Une autre fois.",
+                            "Mes perles sont parties dans les flaques du monde. Remplis mon carnet, zone après zone : elles reviendront.",
                             "Le thé est chaud. Assieds-toi si tu veux, mais ne parle pas trop.",
                             "Les crabes, il faut les prendre par-derrière. Comme les gens pressés.",
                         },

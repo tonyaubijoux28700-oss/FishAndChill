@@ -113,6 +113,12 @@
   (`TidePoolArt.HideSpots`) sont rangées avec elle dans `TidePoolGame._looks` ; la flaque suit la zone de la pêche. **Obtention** : plus vendue ; **Chiyo**, la vieille ama d'Izu, la donne en lui parlant (répliques `VillagerLines.NetGift`,
   `PlayerProgress.ReceiveNet` / `HasNet`, testé ; sauvegardée dans `SaveData.HasNet`, une épuisette achetée avant reste). Sans elle, **les coins à
   bulles n'apparaissent dans aucune zone** (`FishingSpots.Revealed`).
+  **Perles du collier de Chiyo** (`Collection/PearlNecklace`, testé ; noms, couleurs et souvenirs dans `PearlLore`, une par
+  zone) : quand une prise à l'épuisette complète toutes les bestioles d'une zone au carnet, la perle de la zone brille au fond
+  du filet (`TidePoolGame.FindPearl`, une seule fois). En parlant à Chiyo, elle enfile les perles rapportées et raconte un
+  souvenir pour chacune, puis dit combien il en manque (`Villager.PearlLines`). Carnet, page Épuisette : la perle au bout de
+  la barre de progression (silhouette à l'encre pâle, puis à sa couleur ; « À rapporter à Chiyo » / « Sur son collier »,
+  dessinée en jeu par `FishIndex.MakePearl`). Sauvegarde : `SaveData.PearlsFound` / `PearlsThreaded`.
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).

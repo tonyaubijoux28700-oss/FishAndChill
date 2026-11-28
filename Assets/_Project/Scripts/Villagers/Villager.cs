@@ -338,11 +338,31 @@ namespace FishAndChill.Villagers
             // Chiyo donne son épuisette à qui n'en a pas encore.
             string[] gift = _profile != null ? _profile.Lines.NetGift : null;
             if (gift != null && gift.Length > 0 && _progress != null && _progress.ReceiveNet()) pages.AddRange(gift);
+            else if (gift != null && gift.Length > 0 && _progress != null) PearlLines(pages, context.FirstMeeting);
 
             return pages.ToArray();
         }
 
         public void EndTalk() => _talking = false;
+
+        /// <summary>Chiyo enfile les perles rapportées : pour chacune, elle la reconnaît et raconte un souvenir.</summary>
+        private void PearlLines(List<string> pages, bool firstMeeting)
+        {
+            List<string> threaded = _progress.Pearls.ThreadAll();
+            if (threaded.Count == 0) return;
+            if (!firstMeeting) pages.Clear();   // les perles remplacent la réplique du jour
+            foreach (string zone in threaded)
+            {
+                string name = PearlLore.NameOf(zone);
+                pages.Add($"Oh... {char.ToUpper(name[0])}{name.Substring(1)}. Tu l'as retrouvée. Donne, que je l'enfile.");
+                pages.Add(PearlLore.MemoryOf(zone));
+            }
+
+            int left = PearlLore.Count - _progress.Pearls.ThreadedCount;
+            pages.Add(left > 0
+                ? $"Plus que {left} perle{(left > 1 ? "s" : string.Empty)} et mon collier sera complet."
+                : "Mon collier... complet. Merci. Laisse-moi un peu de temps, j'ai quelque chose à te montrer.");
+        }
 
         // ---------- Commandes ----------
 
