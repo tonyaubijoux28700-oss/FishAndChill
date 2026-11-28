@@ -610,8 +610,8 @@ namespace FishAndChill.Editor
             var skeletonZone = AssetDatabase.LoadAssetAtPath<FishingZone>(SkeletonZonePath);
             var fjordZone = AssetDatabase.LoadAssetAtPath<FishingZone>(FjordZonePath);
             var haLongZone = AssetDatabase.LoadAssetAtPath<FishingZone>(HaLongZonePath);
-            zones.arraySize = 10;
-            zones.GetArrayElementAtIndex(9).objectReferenceValue = AssetDatabase.LoadAssetAtPath<FishingZone>(CaveZonePath);
+            zones.arraySize = 9;
+            indexSo.FindProperty("_cave").objectReferenceValue = AssetDatabase.LoadAssetAtPath<FishingZone>(CaveZonePath);   // en page 2 d'Ha Long
             zones.GetArrayElementAtIndex(8).objectReferenceValue = haLongZone;
             zones.GetArrayElementAtIndex(7).objectReferenceValue = fjordZone;
             zones.GetArrayElementAtIndex(6).objectReferenceValue = skeletonZone;

@@ -128,7 +128,7 @@
   une phrase en poussant l'entrée) ; collier complet : Chiyo y envoie le joueur, lanternes allumées, on entre. Salle de
   13×9 cases (`Editor/CaveArt` : stalactites, stalagmites, grande flaque lumineuse), intérieur au-dessus de la cabane de
   Chiyo. Au bord de la flaque, Espace sort l'épuisette (`TidePoolGame.UpdateCave`) ; zone **GrotteHaLong** (« Grotte de
-  Chiyo », 10e zone du carnet, cachée dans la colonne tant que le collier est incomplet : `FishIndex.ZoneCount` ; sans voyage ni perle) : 8 bêtes étranges (`Editor/CaveNetArt`, table des espèces) qui se
+  Chiyo », pas une zone du carnet : ses bêtes sont en page 2 de la page Épuisette de la baie d'Ha Long, en « ??? » sans dessin tant que le collier est incomplet, hors de la barre de progression : `FishIndex._cave` / `Secret` ; sans voyage ni perle) : 8 bêtes étranges (`Editor/CaveNetArt`, table des espèces) qui se
   montrent l'une après l'autre (celles déjà au carnet + la suivante, `Collection/CaveRules`, testé), méduse immortelle en
   dernier ; **une prise par jour** (`PlayerProgress.CaveDay`, `SaveData.CaveDay`). **Fin** : à la première méduse immortelle, Chiyo apparaît dans la grotte
   (`CaveBuilding.ChiyoHere`, son portrait près de la flaque) et dit ses adieux (`Villagers/ChiyoEnding.Reveal`, scène écrite

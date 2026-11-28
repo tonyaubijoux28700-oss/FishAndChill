@@ -90,6 +90,9 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Zones dont les espèces figurent dans l'index, dans l'ordre de la colonne des zones.")]
         private FishingZone[] _zones = new FishingZone[0];
 
+        [SerializeField, Tooltip("La grotte de Chiyo : ses bêtes vont en page 2 de la page Épuisette de la baie d'Ha Long, en « ??? » tant que le collier n'est pas complet.")]
+        private FishingZone _cave;
+
         [SerializeField] private FishingController _fishing;
 
         [SerializeField, Tooltip("Aquarium (espèces exposées) et porte-monnaie (récompenses).")]
@@ -232,6 +235,20 @@ namespace FishAndChill.UI
                     foreach (FishingZone.SpeciesEntry entry in zone.NetSpecies)
                     {
                         if (entry.Species != null && seen.Add(entry.Species.Id)) net.Add(entry.Species);
+                    }
+
+                    // Baie d'Ha Long : les bêtes de la grotte de Chiyo commencent en haut de la page suivante.
+                    if (zone.Id == "BaieHaLong" && _cave != null && _cave.NetSpecies.Count > 0)
+                    {
+                        while (net.Count % PerPage != 0) net.Add(null);
+                        foreach (FishingZone.SpeciesEntry entry in _cave.NetSpecies)
+                        {
+                            if (entry.Species != null && seen.Add(entry.Species.Id))
+                            {
+                                net.Add(entry.Species);
+                                _caveIds.Add(entry.Species.Id);
+                            }
+                        }
                     }
                 }
 
@@ -419,7 +436,7 @@ namespace FishAndChill.UI
             else if (_hoverCell >= 0)
             {
                 int number = SpeciesIndex.PageOf(_selected, PerPage) * PerPage + _hoverCell;
-                if (number < Current.Count)
+                if (number < Current.Count && Current[number] != null)
                 {
                     if (_zoneListFocused) FocusZoneList(false);
                     Select(number);
@@ -510,20 +527,8 @@ namespace FishAndChill.UI
             }
         }
 
-        /// <summary>
-        /// Zones montrées dans la colonne : toutes, sauf la grotte de Chiyo (rangée en dernier) tant que son collier n'a pas
-        /// ses 9 perles.
-        /// </summary>
-        private int ZoneCount
-        {
-            get
-            {
-                int count = _zoneSpecies.Count;
-                bool caveLast = count > 0 && _zones.Length >= count && _zones[count - 1] != null && _zones[count - 1].Id == CaveRules.ZoneId;
-                bool locked = _progress == null || _progress.Pearls.ThreadedCount < PearlLore.Count;
-                return caveLast && locked ? count - 1 : count;
-            }
-        }
+        /// <summary>Nombre de zones de la colonne.</summary>
+        private int ZoneCount => _zoneSpecies.Count;
 
         /// <summary>Affiche une zone (comme si on la choisissait dans la colonne).</summary>
         public void ShowZone(int zone)
@@ -533,11 +538,42 @@ namespace FishAndChill.UI
             RefreshOrWait();
         }
 
+        /// <summary>Les bêtes de la grotte de Chiyo (rangées en page 2 de la baie d'Ha Long).</summary>
+        private readonly HashSet<string> _caveIds = new HashSet<string>();
+
+        /// <summary>La grotte est-elle encore secrète (collier incomplet) ?</summary>
+        private bool CaveLocked => _progress == null || _progress.Pearls.ThreadedCount < PearlLore.Count;
+
+        /// <summary>Une bête de la grotte tant qu'elle est secrète : ni dessin ni indice, juste « ??? ».</summary>
+        private bool Secret(FishSpecies species) => species != null && _caveIds.Contains(species.Id) && CaveLocked;
+
+        /// <summary>Ce qui compte pour la barre et les compteurs : sans les cases vides ni les bêtes de la grotte.</summary>
+        private List<FishSpecies> Counted(List<FishSpecies> list) => list.Where(s => s != null && !_caveIds.Contains(s.Id)).ToList();
+
+        /// <summary>Saute les cases vides (fin de la page 1 d'Ha Long) dans le sens du déplacement.</summary>
+        private int SkipBlank(int index, int direction)
+        {
+            List<FishSpecies> list = Current;
+            for (int i = index; i >= 0 && i < list.Count; i += direction)
+            {
+                if (list[i] != null) return i;
+            }
+
+            for (int i = index; i >= 0 && i < list.Count; i -= direction)
+            {
+                if (list[i] != null) return i;
+            }
+
+            return index;
+        }
+
         /// <summary>Sélectionne une espèce de la zone affichée (et tourne la page si besoin).</summary>
         public void Select(int index)
         {
             int before = SpeciesIndex.PageOf(_selected, PerPage);
+            int direction = index >= _selected ? 1 : -1;
             _selected = Mathf.Clamp(index, 0, Mathf.Max(0, Current.Count - 1));
+            _selected = SkipBlank(_selected, direction);
             int after = SpeciesIndex.PageOf(_selected, PerPage);
             if (after != before)
             {
@@ -717,7 +753,7 @@ namespace FishAndChill.UI
 
             _badge.text = $"{_index.DiscoveredCount(log)}/{_index.Count}";
 
-            List<FishSpecies> species = Current;
+            List<FishSpecies> species = Counted(Current);   // la barre et le tampon : sans les bêtes de la grotte
             FishingZone zone = _zones.Length > _zone ? _zones[_zone] : null;
             int discovered = CollectionRewards.Discovered(species, log);
             _zoneName.text = zone != null ? zone.DisplayName : "Index";
@@ -756,6 +792,7 @@ namespace FishAndChill.UI
             }
 
 
+            species = Current;   // les cases : avec les cases vides et les bêtes de la grotte en page 2 d'Ha Long
             int page = SpeciesIndex.PageOf(_selected, PerPage);
             int pages = species.Count > 0 ? (species.Count + PerPage - 1) / PerPage : 1;
             _pageText.text = pages > 1 ? $"Page {page + 1} / {pages}" : string.Empty;
@@ -764,7 +801,7 @@ namespace FishAndChill.UI
             {
                 CellView cell = _cells[i];
                 int number = page * PerPage + i;
-                bool exists = number < species.Count;
+                bool exists = number < species.Count && species[number] != null;   // null : case vide en fin de page
                 cell.Frame.gameObject.SetActive(exists);
                 if (!exists)
                 {
@@ -772,6 +809,18 @@ namespace FishAndChill.UI
                 }
 
                 FishSpecies s = species[number];
+                if (Secret(s))
+                {
+                    // Bête de la grotte, collier incomplet : rien à voir, pas même la silhouette.
+                    cell.Number.text = $"{number + 1}";
+                    cell.Fish.color = Color.clear;
+                    cell.Shine.SetRarity(s.Rarity, false);
+                    cell.Name.text = "???";
+                    cell.Name.color = InkSoft;
+                    cell.Gem.color = new Color(0.55f, 0.50f, 0.42f);
+                    continue;
+                }
+
                 bool known = log != null && log.IsDiscovered(s.Id);
                 cell.Number.text = $"{number + 1}";
                 cell.Fish.sprite = SpeciesSprite(s);
@@ -830,7 +879,7 @@ namespace FishAndChill.UI
                 entry.Halo.gameObject.SetActive(active);
                 entry.Name.color = active ? Color.white : new Color(0.86f, 0.84f, 0.8f);
 
-                List<FishSpecies> species = i < Lists.Count ? Lists[i] : new List<FishSpecies>();
+                List<FishSpecies> species = i < Lists.Count ? Counted(Lists[i]) : new List<FishSpecies>();
                 int discovered = CollectionRewards.Discovered(species, log);
                 bool complete = species.Count > 0 && discovered == species.Count;
                 entry.Count.text = complete ? $"Complet  {discovered} / {species.Count}" : $"{discovered} / {species.Count}";
@@ -891,6 +940,27 @@ namespace FishAndChill.UI
             }
 
             FishSpecies s = species[Mathf.Clamp(_selected, 0, species.Count - 1)];
+            if (s == null) return;
+            if (Secret(s))
+            {
+                _detailFish.color = Color.clear;
+                _detailShine.SetRarity(s.Rarity, false);
+                _detailNumber.text = $"N° {_selected + 1}";
+                _rarityGem.color = new Color(0.55f, 0.50f, 0.42f);
+                _rarityText.text = "???";
+                _timeIcon.color = Color.clear;
+                _timeText.text = "???";
+                _zoneText.text = zone != null ? zone.DisplayName : string.Empty;
+                _detailName.text = "???";
+                _detailScientific.text = "Un mystère de la baie";
+                _description.text = "On dit que des bêtes que personne n'a jamais vues vivent quelque part sous les montagnes de la baie. Chiyo en sait sûrement plus.";
+                _stats[0].text = "Prises\n—";
+                _stats[1].text = "Record\n—";
+                _stats[2].text = "Taille\n?";
+                _aquarium.text = string.Empty;
+                return;
+            }
+
             bool known = log != null && log.IsDiscovered(s.Id);
             _detailFish.sprite = SpeciesSprite(s);
             _detailFish.rectTransform.sizeDelta = FishDisplayScale.Fit(new Vector2(560f, 200f), SpritePixels(s), s.SizeRangeCm.y);
