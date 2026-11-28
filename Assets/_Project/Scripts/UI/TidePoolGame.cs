@@ -101,6 +101,7 @@ namespace FishAndChill.UI
 
         // La flaque de la grotte de Chiyo (Ha Long) : sa zone tant qu'on y pêche.
         private FishingZone _caveZone;
+        private bool _chiyoAppears;
 
         private FishingZone CurrentZone => _caveZone != null ? _caveZone : _fishing.Zone;
 
@@ -268,6 +269,11 @@ namespace FishAndChill.UI
             // Une bête prise : le coin se disperse (une seule prise par flaque). Sinon il s'épuise et finira par partir.
             if (_caveZone != null && _won && _progress != null) _progress.CaveDay = Today;   // une prise par jour dans la grotte
             _caveZone = null;
+            if (_chiyoAppears)
+            {
+                _chiyoAppears = false;
+                FindAnyObjectByType<DialogueBox>()?.OpenScript("Chiyo", Villagers.ChiyoEnding.Reveal);
+            }
             if (_won) _spotSource?.Deplete(_spotCenter);
             else _spotSource?.Consume(_spotCenter);
         }
@@ -501,6 +507,7 @@ namespace FishAndChill.UI
                 _caught++;
                 _won = true;
                 bool first = !_fishing.CatchLog.IsDiscovered(c.Species.Id);
+                if (first && _caveZone != null && c.Species.Id == CaveRules.LastId) _chiyoAppears = true;   // la méduse immortelle : Chiyo arrive
                 Vector2 range = c.Species.SizeRangeCm;
                 _fishing.CatchLog.Register(c.Species.Id, Mathf.Lerp(range.x, range.y, (float)_random.NextDouble()));
                 string color = ColorUtility.ToHtmlStringRGB(c.Species.Rarity.DisplayColor());

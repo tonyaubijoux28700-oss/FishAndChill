@@ -12,6 +12,9 @@ namespace FishAndChill.Collection
         /// <summary>Identifiant de la zone de la grotte (nom de son asset).</summary>
         public const string ZoneId = "GrotteHaLong";
 
+        /// <summary>La dernière bête de la grotte : la méduse immortelle. L'attraper fait apparaître Chiyo.</summary>
+        public const string LastId = "turritopsis-dohrnii";
+
         /// <summary>Les bêtes présentes : toutes celles déjà découvertes, plus la première pas encore découverte.</summary>
         public static List<string> Available(IList<string> ordered, Func<string, bool> discovered)
         {

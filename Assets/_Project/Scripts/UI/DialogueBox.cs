@@ -1,5 +1,6 @@
 using FishAndChill.Player;
 using FishAndChill.Villagers;
+using FishAndChill.World;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -55,8 +56,18 @@ namespace FishAndChill.UI
             }
 
             _nearest = FindNearest();
-            Busy = _nearest != null;
-            _prompt.gameObject.SetActive(_nearest != null);
+            // Chiyo dans la grotte d'Ha Long (après la méduse immortelle) : elle n'est pas un habitant qui se promène.
+            CaveBuilding cave = CaveBuilding.Current;
+            bool chiyo = _nearest == null && _player != null && !_player.Locked && cave != null && cave.NearChiyo(_player.transform.position);
+            Busy = _nearest != null || chiyo;
+            _prompt.gameObject.SetActive(Busy);
+            if (chiyo)
+            {
+                _prompt.text = "E : parler à Chiyo";
+                if (InteractInput.PressedThisFrame()) OpenScript("Chiyo", new[] { ChiyoEnding.Later[Random.Range(0, ChiyoEnding.Later.Length)] });
+                return;
+            }
+
             if (_nearest == null) return;
             _prompt.text = $"E : parler à {_nearest.DisplayName}";
             if (InteractInput.PressedThisFrame()) Open(_nearest);
@@ -89,6 +100,21 @@ namespace FishAndChill.UI
             _index = 0;
             _openedFrame = Time.frameCount;
             _name.text = villager.DisplayName;
+            _box.SetActive(true);
+            if (_player != null) _player.Locked = true;
+            Busy = true;
+            ShowLine();
+        }
+
+        /// <summary>Une scène écrite (pas un habitant qui se promène) : Chiyo dans la grotte, par exemple.</summary>
+        public void OpenScript(string speaker, string[] lines)
+        {
+            if (lines == null || lines.Length == 0) return;
+            _speaker = null;
+            _lines = lines;
+            _index = 0;
+            _openedFrame = Time.frameCount;
+            _name.text = speaker;
             _box.SetActive(true);
             if (_player != null) _player.Locked = true;
             Busy = true;

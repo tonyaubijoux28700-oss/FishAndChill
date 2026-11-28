@@ -22,9 +22,46 @@ namespace FishAndChill.World
         [SerializeField, Tooltip("Centre de la flaque, en cases depuis le coin bas-gauche de la salle.")] private Vector2 _poolCenter = new Vector2(6.5f, 3.75f);
         [SerializeField, Tooltip("Demi-axes de la flaque, en cases.")] private Vector2 _poolRadii = new Vector2(3.4f, 1.8f);
 
+        [SerializeField, Tooltip("Où se tient Chiyo, une fois la méduse immortelle attrapée (pieds, en cases dans la salle).")]
+        private Vector2 _chiyoSpot = new Vector2(10.2f, 2.3f);
+
         private SpriteRenderer _renderer;
         private PlayerProgress _progress;
+        private Fishing.FishingController _fishing;
+        private SpriteRenderer _chiyo;
         private float _hintTimer;
+
+        /// <summary>La méduse immortelle est au carnet : Chiyo attend dans la grotte.</summary>
+        public bool ChiyoHere => _fishing != null && _fishing.CatchLog != null && _fishing.CatchLog.IsDiscovered(CaveRules.LastId);
+
+        /// <summary>Le joueur est dans la grotte, tout près de Chiyo (pour lui parler).</summary>
+        public bool NearChiyo(Vector2 feet) => ChiyoHere && IsPlayerInside && Vector2.Distance(feet, InteriorOrigin + _chiyoSpot) < 1.3f;
+
+        /// <summary>Chiyo debout près de la flaque, face au joueur (son portrait d'habitante).</summary>
+        private void UpdateChiyo()
+        {
+            bool here = ChiyoHere;
+            if (_chiyo == null)
+            {
+                if (!here) return;
+                Sprite portrait = null;
+                foreach (Villagers.Villager villager in Villagers.Villager.Everyone)
+                {
+                    if (villager.DisplayName == "Chiyo") portrait = villager.Portrait;
+                }
+
+                if (portrait == null) return;
+                var go = new GameObject("Chiyo dans la grotte");
+                go.transform.SetParent(transform, false);
+                go.transform.position = InteriorOrigin + _chiyoSpot;
+                _chiyo = go.AddComponent<SpriteRenderer>();
+                _chiyo.sprite = portrait;
+                _chiyo.sortingOrder = 10;
+                _chiyo.spriteSortPoint = SpriteSortPoint.Pivot;
+            }
+
+            _chiyo.enabled = here;
+        }
 
         /// <summary>La grotte de la scène (il n'y en a qu'une).</summary>
         public static CaveBuilding Current { get; private set; }
@@ -65,6 +102,7 @@ namespace FishAndChill.World
             base.Start();
             _renderer = GetComponent<SpriteRenderer>();
             _progress = FindFirstObjectByType<PlayerProgress>();
+            _fishing = FindFirstObjectByType<Fishing.FishingController>();
         }
 
         protected override void SetupInterior(WorldMap map)
@@ -85,6 +123,7 @@ namespace FishAndChill.World
             }
 
             if (_hintTimer > 0f) _hintTimer -= Time.deltaTime;
+            UpdateChiyo();
             if (open || IsPlayerInside)
             {
                 base.Update();
