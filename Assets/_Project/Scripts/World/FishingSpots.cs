@@ -75,6 +75,20 @@ namespace FishAndChill.World
         }
 
         /// <summary>Une prise a été faite dans le coin : il s'épuise et finit par partir ailleurs.</summary>
+        /// <summary>Une bête a été prise ici : le coin se disperse tout de suite (une seule prise par flaque).</summary>
+        public void Deplete(Vector2 point)
+        {
+            foreach (Spot spot in _spots)
+            {
+                if (Vector2.Distance(point, spot.Center) <= FishingSpotRules.Radius)
+                {
+                    spot.UsesLeft = 0;
+                    spot.Life = Mathf.Min(spot.Life, spot.Age + 1.5f);
+                    return;
+                }
+            }
+        }
+
         public void Consume(Vector2 point)
         {
             foreach (Spot spot in _spots)

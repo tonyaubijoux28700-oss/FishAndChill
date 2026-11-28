@@ -23,8 +23,8 @@ namespace FishAndChill.Fishing
     /// </summary>
     public static class NetRules
     {
-        /// <summary>Coups d'épuisette par sortie.</summary>
-        public const int Tries = 6;
+        /// <summary>Coups d'épuisette par flaque (une seule prise : chaque raté compte).</summary>
+        public const int Tries = 3;
 
         /// <summary>Bestioles dans la flaque à l'ouverture.</summary>
         public const int Critters = 5;

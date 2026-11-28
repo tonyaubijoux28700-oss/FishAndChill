@@ -92,11 +92,19 @@
   « Espace : sortir l'épuisette » ; l'action ouvre la flaque au lieu de lancer (`FishingController.BeforeCast`).
   Flaque 320×192 affichée ×4 (fenêtre de presque tout l'écran), 5 bestioles tirées dans `FishingZone.NetSpecies` (fréquences, heure), plus grandes et plus
   méfiantes quand elles sont rares (`NetRules.Scale` / `Sensitivity`). L'épuisette suit la souris, le stick ou ZQSD avec
-  le retard de l'eau ; bougée vite près d'une bête, elle l'inquiète. 6 coups (clic, Espace, A) : l'éclaboussure fait fuir
-  les bêtes déjà inquiètes, les calmes sous le cercle sont prises. Réactions (`CritterBehaviour`) : crustacés, limule,
+  le retard de l'eau ; bougée vite près d'une bête, elle l'inquiète. **Une seule prise par flaque**, 3 coups (clic, Espace,
+  A) : l'éclaboussure fait fuir les bêtes déjà inquiètes ; la bête calme la plus proche sous le cercle est dans le filet
+  et la **remontée** commence (`Fishing/Core/RingQte`, testé) : des anneaux se resserrent un par un sur elle, il faut
+  appuyer quand l'anneau touche son contour (doré à ce moment). Commune 2 anneaux, peu commune et rare 3, épique 4,
+  légendaire 5 ; plus rare = anneaux plus rapides et marge plus fine ; un raté permis pour commune et peu commune,
+  aucun au-delà ; un anneau qui passe la bête compte raté. Rythme par famille : crabes et crustacés serrent par à-coups,
+  crevettes, poissons et vers changent de vitesse à chaque anneau, l'encre des céphalopodes cache l'anneau au milieu de
+  sa course, coquillages et oursins lents mais marge étroite. Pendant la remontée l'épuisette devient transparente.
+  Réussie : la bête est notée, le coin à bulles se disperse (`FishingSpots.Deplete`) ; ratée : elle s'échappe et la
+  flaque s'inquiète, on peut retenter tant qu'il reste des coups. Réactions (`CritterBehaviour`) : crustacés, limule,
   grenouille se cachent sous le rocher le plus proche ; céphalopodes presque invisibles, encre puis réapparition
   ailleurs ; coquillages, oursins, étoiles, méduses s'enfouissent sur place ; les autres filent. Prises notées dans le
-  journal (`CatchLog`) puis relâchées ; le coin s'épuise (`FishingSpots.Consume`). Échap ou B pour revenir. Les coins
+  journal (`CatchLog`) puis relâchées ; sans prise, le coin s'épuise (`FishingSpots.Consume`). Échap ou B pour revenir. Les coins
   à bulles montrent la grappe de bulles (`FishingSpots._cluster`, `Art/Ambient/Bulles_*`). **Une flaque par zone** (`TidePoolArt.Pool(zone)`, `Art/UI/Epuisette/Flaque_<zone>.png`), chacune avec sa disposition :
   Mahana (lave, corail, herbiers), Annecy (galets, branche noyée, characées, nénuphars), Amazone (racines, feuilles mortes,
   nénuphars géants), Izu (sable noir, colonnes de basalte, varech, pétales), Grande Barrière (coraux branchu, cerveau,

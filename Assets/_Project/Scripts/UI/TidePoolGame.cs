@@ -13,7 +13,7 @@ namespace FishAndChill.UI
     /// Pêche à pied à l'épuisette. Face à un coin à bulles à portée, l'action (Espace, clic, A) sort l'épuisette au lieu de
     /// lancer : la flaque s'ouvre en grand, vue de dessus, avec quelques bestioles de la zone (une seule forme, plus grande
     /// quand elle est rare). L'épuisette suit la souris (ou le stick, ZQSD) avec le retard de l'eau ; bougée vite, elle
-    /// inquiète les bêtes proches. Un coup (clic, Espace, A) rafle ce qui est calme sous le cercle (<see cref="NetRules"/>).
+    /// inquiète les bêtes proches. Un coup (clic, Espace, A) attrape la bête calme la plus proche sous le cercle (<see cref="NetRules"/>), puis vient la remontée : des anneaux se resserrent sur elle (<see cref="RingQte"/>). Une seule prise par flaque.
     /// Chaque bête réagit selon sa nature : se cacher sous un rocher, filer, s'enfouir, ou lâcher de l'encre. Les prises
     /// sont notées dans le journal (<see cref="CatchLog"/>) puis relâchées. Échap ou B pour revenir.
     /// </summary>
@@ -99,6 +99,18 @@ namespace FishAndChill.UI
         private int _openedFrame = -1;
         private int _closedFrame = -1;
 
+        // Remontée de l'épuisette : une bête dans le filet, des anneaux qui se resserrent sur elle (RingQte).
+        private RingQte _qte;
+        private Critter _hooked;
+        private bool _won;
+        private float _flash;
+        private Image _ring;
+        private Image _ringTarget;
+        private Sprite _ringSprite;
+
+        /// <summary>Rayon de la bête pour les anneaux (pixels de la flaque, à l'échelle 1).</summary>
+        private const float CritterRadius = 11f;
+
         /// <summary>La flaque est-elle ouverte ?</summary>
         public bool IsOpen => _window != null && _window.activeSelf;
 
@@ -160,6 +172,10 @@ namespace FishAndChill.UI
             _triesLeft = NetRules.Tries;
             _caught = 0;
             _scoop = -1f;
+            _qte = null;
+            _hooked = null;
+            _won = false;
+            _ring.enabled = _ringTarget.enabled = false;
             _netPos = _netTarget = _lastNet = new Vector2(PoolWidth * 0.5f, PoolHeight * 0.5f);
             _lastMouse = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
             foreach (Critter c in _critters) Destroy(c.Image.gameObject);
@@ -191,7 +207,9 @@ namespace FishAndChill.UI
             _closedFrame = Time.frameCount;
             _window.SetActive(false);
             if (_player != null) _player.Locked = false;
-            _spotSource?.Consume(_spotCenter); // le coin s'épuise et finira par partir ailleurs
+            // Une bête prise : le coin se disperse (une seule prise par flaque). Sinon il s'épuise et finira par partir.
+            if (_won) _spotSource?.Deplete(_spotCenter);
+            else _spotSource?.Consume(_spotCenter);
         }
 
         private void SpawnCritters()
@@ -265,17 +283,31 @@ namespace FishAndChill.UI
             _netSpeed = Mathf.Lerp(_netSpeed, speed, 0.2f);
             _lastNet = _netPos;
 
-            bool finished = _triesLeft <= 0 || _critters.TrueForAll(c => c.Caught);
             bool justOpened = Time.frameCount == _openedFrame;   // l'appui qui a ouvert la flaque ne compte pas
             bool scoopPressed = !justOpened && ((Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
                 || (k != null && k.spaceKey.wasPressedThisFrame) || (g != null && g.buttonSouth.wasPressedThisFrame));
+            if (_qte != null)
+            {
+                // Remontée : l'épuisette reste sur la bête, les anneaux se resserrent.
+                foreach (Critter c in _critters)
+                {
+                    if (c != _hooked) UpdateCritter(c, dt);
+                }
+
+                UpdateInks(dt);
+                DrawNet();
+                UpdateQte(dt, scoopPressed);   // après l'épuisette : les anneaux passent devant
+                return;
+            }
+
+            bool finished = Finished;
             if (scoopPressed && finished && _scoop < 0f)
             {
                 Close();
                 return;
             }
 
-            if (scoopPressed && _scoop < 0f && _triesLeft > 0)
+            if (scoopPressed && _scoop < 0f && !finished)
             {
                 StartScoop();
             }
@@ -335,27 +367,112 @@ namespace FishAndChill.UI
             RefreshTries();
         }
 
+        /// <summary>La flaque est finie : une bête prise, ou plus de coups.</summary>
+        private bool Finished => _won || _triesLeft <= 0;
+
+        private string EndLine => _won ? string.Empty : "\nPlus de coups : la bête a gagné cette fois.   Clic ou Espace : revenir";
+
+        /// <summary>Le cercle se referme : une seule bête au plus, la plus proche ; sa remontée commence.</summary>
         private void FinishScoop()
         {
             _scoop = -1f;
-            var names = new List<string>();
+            Critter best = null;
+            float bestDistance = float.MaxValue;
             foreach (Critter c in _critters)
             {
-                if (c.Caught || c.Hidden > 0f || !NetRules.Caught(Vector2.Distance(c.Position, _netPos), c.Alarm, c.Scale)) continue;
+                float d = Vector2.Distance(c.Position, _netPos);
+                if (c.Caught || c.Hidden > 0f || !NetRules.Caught(d, c.Alarm, c.Scale) || d >= bestDistance) continue;
+                best = c;
+                bestDistance = d;
+            }
+
+            if (best == null)
+            {
+                Say("Raté… l'eau s'est troublée." + (Finished ? EndLine : string.Empty));
+                return;
+            }
+
+            _hooked = best;
+            _netPos = _netTarget = best.Position;
+            _qte = new RingQte(best.Species.Rarity, best.Behaviour, _random);
+            _flash = 0f;
+            Say(QteLine());
+        }
+
+        private string QteLine() =>
+            $"Elle se débat ! Clic ou Espace quand l'anneau touche la bête.   Anneau {_qte.Ring} / {_qte.Rings}";
+
+        /// <summary>Remontée de l'épuisette : un appui par anneau ; toutes réussies, la bête est prise et la flaque finie.</summary>
+        private void UpdateQte(float dt, bool pressed)
+        {
+            if (pressed)
+            {
+                RingResult result = _qte.Press();
+                if (result != RingResult.None) _flash = 0.3f;
+            }
+
+            int missesBefore = _qte.Misses;
+            _qte.Tick(dt);
+            if (_qte.Misses > missesBefore) _flash = 0.3f;   // anneau passé sans appui
+            _flash = Mathf.Max(0f, _flash - dt);
+            DrawRings();
+
+            if (!_qte.Done)
+            {
+                if (_flash <= 0f) Say(QteLine());
+                else Say(_qte.LastResult == RingResult.Hit ? "Bien !   Anneau suivant…" : "Raté ! Elle gigote de plus belle…");
+                return;
+            }
+
+            Critter c = _hooked;
+            bool success = _qte.Success;
+            _qte = null;
+            _hooked = null;
+            _ring.enabled = _ringTarget.enabled = false;
+            if (success)
+            {
                 c.Caught = true;
                 c.Image.gameObject.SetActive(false);
                 _caught++;
+                _won = true;
                 bool first = !_fishing.CatchLog.IsDiscovered(c.Species.Id);
                 Vector2 range = c.Species.SizeRangeCm;
                 _fishing.CatchLog.Register(c.Species.Id, Mathf.Lerp(range.x, range.y, (float)_random.NextDouble()));
                 string color = ColorUtility.ToHtmlStringRGB(c.Species.Rarity.DisplayColor());
-                names.Add($"<color=#{color}>{c.Species.CommonName}</color>{(first ? " (nouvelle espèce !)" : string.Empty)}");
+                Say($"Dans l'épuisette : <color=#{color}>{c.Species.CommonName}</color>{(first ? " (nouvelle espèce !)" : string.Empty)}, "
+                    + "notée puis relâchée.\nLes bulles se dispersent.   Clic ou Espace : revenir");
+                return;
             }
 
-            bool finished = _triesLeft <= 0 || _critters.TrueForAll(c => c.Caught);
-            string tally = _caught > 1 ? $"{_caught} prises notées puis relâchées" : _caught == 1 ? "Une prise notée puis relâchée" : "Rien de pris cette fois";
-            string end = finished ? $"\n{tally}.   Clic ou Espace : revenir" : string.Empty;
-            Say((names.Count > 0 ? "Dans l'épuisette : " + string.Join(", ", names) : "Raté… l'eau s'est troublée.") + end);
+            // Ratée : elle s'échappe en panique et toute la flaque s'inquiète.
+            c.Alarm = 1.2f;
+            React(c);
+            foreach (Critter other in _critters)
+            {
+                if (other != c && !other.Caught) other.Alarm = Mathf.Min(1.2f, other.Alarm + 0.5f);
+            }
+
+            Say("Elle s'est échappée du filet !" + (Finished ? EndLine : $"   Encore {_triesLeft} coup{(_triesLeft > 1 ? "s" : string.Empty)}."));
+        }
+
+        /// <summary>L'anneau qui se resserre et le contour de la bête : doré quand il la touche, vert ou rouge au verdict.</summary>
+        private void DrawRings()
+        {
+            float radius = CritterRadius * _hooked.Scale * Zoom;
+            Vector2 at = _hooked.Position * Zoom;
+            _ringTarget.enabled = true;
+            _ringTarget.rectTransform.anchoredPosition = at;
+            _ringTarget.rectTransform.sizeDelta = Vector2.one * radius * 2f;
+            _ringTarget.color = new Color(1f, 1f, 1f, 0.45f);
+
+            Color flash = _qte.LastResult == RingResult.Hit ? new Color(0.45f, 1f, 0.45f) : new Color(1f, 0.35f, 0.3f);
+            _ring.enabled = _qte.Visible || _flash > 0f;
+            _ring.rectTransform.anchoredPosition = at;
+            _ring.rectTransform.sizeDelta = Vector2.one * radius * 2f * (_flash > 0f && _qte.Waiting ? 1f : _qte.Radius);
+            _ring.color = _flash > 0f && _qte.Waiting ? flash : _qte.OnTarget ? new Color(1f, 0.86f, 0.3f) : Color.white;
+            _hooked.Image.transform.SetAsLastSibling();   // la bête devant l'épuisette, les anneaux devant elle
+            _ringTarget.transform.SetAsLastSibling();
+            _ring.transform.SetAsLastSibling();
         }
 
         private void UpdateCritter(Critter c, float dt)
@@ -504,6 +621,7 @@ namespace FishAndChill.UI
             float squeeze = _scoop >= 0f ? 1f - _scoop / NetRules.ScoopSeconds * 0.4f : 1f;
             _netRect.anchoredPosition = _netPos * Zoom;
             _netRect.localScale = Vector3.one * squeeze;
+            _netImage.color = new Color(1f, 1f, 1f, _qte != null ? 0.3f : 1f);   // pendant la remontée, on voit la bête à travers
             _netRect.SetAsLastSibling();
         }
 
@@ -565,6 +683,41 @@ namespace FishAndChill.UI
             UiFactory.Place(help.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 38f), new Vector2(-80f, 30f));
 
             _inkSprite = MakeInk();
+
+            // Les anneaux de la remontée : le contour de la bête, et celui qui se resserre.
+            _ringSprite = MakeRing();
+            _ringTarget = RingImage("Contour de la bête");
+            _ring = RingImage("Anneau qui se resserre");
+        }
+
+        private Image RingImage(string name)
+        {
+            Image ring = UiFactory.Plain(_poolRect, name, Color.white);
+            ring.sprite = _ringSprite;
+            ring.raycastTarget = false;
+            ring.rectTransform.anchorMin = ring.rectTransform.anchorMax = Vector2.zero;
+            ring.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            ring.enabled = false;
+            return ring;
+        }
+
+        /// <summary>Anneau pixel art (64×64, trait de 3 px, bord sombre à l'extérieur pour se voir sur l'eau claire).</summary>
+        private static Sprite MakeRing()
+        {
+            const int size = 64;
+            var tex = new Texture2D(size, size) { filterMode = FilterMode.Point };
+            for (int x = 0; x < size; x++)
+            for (int y = 0; y < size; y++)
+            {
+                float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(32f, 32f));
+                Color c = new Color(0f, 0f, 0f, 0f);
+                if (d >= 28f && d < 31f) c = Color.white;
+                else if (d >= 31f && d < 32f) c = new Color(0.1f, 0.12f, 0.18f, 0.8f);
+                tex.SetPixel(x, y, c);
+            }
+
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 16f);
         }
 
         /// <summary>Nuage d'encre : rond sombre aux bords doux (fait au démarrage).</summary>
