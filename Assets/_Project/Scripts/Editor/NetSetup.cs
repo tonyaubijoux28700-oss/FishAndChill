@@ -34,7 +34,7 @@ namespace FishAndChill.Editor
                 critter[i] = PixelArt.Save($"{Folder}/Bestiole_{i}.png", TidePoolArt.Critter(i), 16, new Vector2(0.5f, 0.5f));
             }
 
-            Sprite net = PixelArt.Save($"{Folder}/EpuisetteDansLeau.png", TidePoolArt.NetInWater(), 16, new Vector2(16f / 40f, 24f / 40f));
+            Sprite net = PixelArt.Save($"{Folder}/EpuisetteDansLeau.png", TidePoolArt.NetInWater(), 16, new Vector2(18f / 60f, 42f / 60f));
             Sprite icon = PixelArt.Save($"{Folder}/Epuisette.png", TidePoolArt.Net(), 16, new Vector2(0.5f, 0.5f));   // icône (marchand, inventaire)
 
             var game = partie.GetComponent<TidePoolGame>();

@@ -99,7 +99,7 @@
   légendaire 5 ; plus rare = anneaux plus rapides et marge plus fine ; un raté permis pour commune et peu commune,
   aucun au-delà ; un anneau qui passe la bête compte raté. Rythme par famille : crabes et crustacés serrent par à-coups,
   crevettes, poissons et vers changent de vitesse à chaque anneau, l'encre des céphalopodes cache l'anneau au milieu de
-  sa course, coquillages et oursins lents mais marge étroite. Pendant la remontée l'épuisette devient transparente.
+  sa course, coquillages et oursins lents mais marge étroite. Pendant la remontée l'épuisette devient transparente. La flaque se ferme toute seule 2,5 s après la fin (un clic la ferme tout de suite). Dessin du filet (`TidePoolArt.Landing`, 60×60 dans l'eau, 32×32 en icône) : cerceau en D au bord droit devant comme un haveneau, poche à mailles en losange qui se resserrent vers le fond, fourche, long manche en bambou.
   Réussie : la bête est notée, le coin à bulles se disperse (`FishingSpots.Deplete`) ; ratée : elle s'échappe et la
   flaque s'inquiète, on peut retenter tant qu'il reste des coups. Réactions (`CritterBehaviour`) : crustacés, limule,
   grenouille se cachent sous le rocher le plus proche ; céphalopodes presque invisibles, encre puis réapparition

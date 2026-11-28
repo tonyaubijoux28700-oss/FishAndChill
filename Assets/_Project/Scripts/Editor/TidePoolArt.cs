@@ -21,32 +21,82 @@ namespace FishAndChill.Editor
         // ---------- L'épuisette ----------
 
         /// <summary>Icône 32×32 : manche en bois en diagonale, cercle en laiton, filet vert à mailles.</summary>
-        public static Color[,] Net()
-        {
-            var v = new VolumeCanvas(32, 32);
-            v.Piece(Capsule(27f, 29f, 15f, 17f, 1.7f), C(150, 102, 58), 1.5f,
-                (x, y, c) => (x + y) % 5 == 0 ? Darker(c, 0.85f) : c);
-            v.Piece(Capsule(26f, 28f, 23.5f, 25.5f, 2.1f), C(70, 52, 40), 1.6f);   // poignée gainée
-            DrawNetHead(v, 11f, 11f, 9.5f);
-            return v.Finish(C(40, 30, 26));
-        }
+        public static Color[,] Net() => Landing(32, 12f, 12f, 10f, 1.4f);
 
-        /// <summary>Tête d'épuisette : la poche en filet (mailles) puis le cercle en laiton par-dessus.</summary>
-        private static void DrawNetHead(VolumeCanvas v, float cx, float cy, float r)
-        {
-            v.Piece(Ellipse(cx, cy, r - 0.6f, r - 0.6f), C(70, 140, 110), 2.5f,
-                (x, y, c) => ((x + y) % 3 == 0 || (x - y + 99) % 3 == 0) ? C(196, 226, 200) : new Color(0f, 0f, 0f, 0f), 0.9f);
-            v.Piece((x, y) => { float d = Mathf.Sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)); return d <= r && d >= r - 1.8f; },
-                C(214, 170, 74), 1f);
-        }
+        /// <summary>
+        /// L'épuisette vue de dessus dans la flaque (60×60) : cerceau de 14 px centré au pixel (18, 18) depuis le haut, la
+        /// fourche, puis le long manche en bambou qui part vers la rive (coin bas droit).
+        /// </summary>
+        public static Color[,] NetInWater() => Landing(60, 18f, 18f, 14f, 1.3f);
 
-        /// <summary>L'épuisette vue de dessus dans la flaque (40×40) : le cercle dans l'eau, le manche qui part vers la rive.</summary>
-        public static Color[,] NetInWater()
+        /// <summary>
+        /// Une vraie épuisette (et pas une loupe) : cerceau fin en métal sombre, filet à mailles en losange où l'on voit l'eau
+        /// (la poche s'assombrit vers le fond), fourche en Y qui tient le cerceau, long manche en bambou à nœuds.
+        /// Coordonnées depuis le haut à gauche ; le manche file vers le coin bas droit.
+        /// </summary>
+        private static Color[,] Landing(int size, float cx, float cy, float r, float pole)
         {
-            var v = new VolumeCanvas(40, 40);
-            v.Piece(Capsule(24f, 24f, 39f, 39f, 1.6f), C(150, 102, 58), 1.4f);
-            DrawNetHead(v, 16f, 16f, 13f);
-            return v.Finish(C(40, 30, 26));
+            var v = new VolumeCanvas(size, size);
+            Color bamboo = C(196, 160, 96);
+            Color metal = C(70, 84, 78);
+
+            // La fourche : deux bras qui partent du cerceau et se rejoignent sur le manche.
+            float neck = r + r * 0.35f;
+            var joint = new Vector2(cx + neck * 0.7071f, cy + neck * 0.7071f);
+            foreach (float a in new[] { 10f, 80f })
+            {
+                float rad = a * Mathf.Deg2Rad;
+                v.Piece(Capsule(cx + Mathf.Cos(rad) * r, cy + Mathf.Sin(rad) * r, joint.x, joint.y, pole * 0.7f), metal, 1f);
+            }
+
+            // Le manche en bambou, nœuds réguliers, une virole sombre au départ.
+            v.Piece(Capsule(joint.x, joint.y, size - 1f, size - 1f, pole), bamboo, 1.4f,
+                (x, y, c) => ((int)(x + y) % 9 == 0) ? Darker(c, 0.72f) : c);
+            v.Piece(Capsule(joint.x - 0.5f, joint.y - 0.5f, joint.x + 2f, joint.y + 2f, pole + 0.4f), metal, 1.2f);
+
+            // Le cerceau en D, fin : un arc côté manche, un bord droit devant (il racle le sable, comme un haveneau).
+            float flat = r * 0.62f;
+            float Edge(float x, float y)
+            {
+                float dx = x - cx, dy = y - cy;
+                float d = Mathf.Sqrt(dx * dx + dy * dy);
+                float front = -(dx + dy) * 0.7071f;   // vers le haut gauche, à l'opposé du manche
+                return Mathf.Max(d - r, front - flat);   // < 0 dedans
+            }
+
+            v.Piece((x, y) => { float e = Edge(x, y); return e <= 0f && e >= -1.4f; }, metal, 1f);
+            Color[,] p = v.Finish(C(30, 36, 34), 0.5f);
+
+            // Le filet par-dessus, sans contour : mailles en losange, nœuds plus clairs, eau visible entre les fils ;
+            // la poche pend dans l'eau : ses mailles se resserrent et s'assombrissent vers le fond.
+            var pocket = new Vector2(cx + r * 0.12f, cy + r * 0.12f);
+            for (int x = 0; x < size; x++)
+            {
+                for (int yTop = 0; yTop < size; yTop++)
+                {
+                    float px = x + 0.5f, py = yTop + 0.5f;
+                    float e = Edge(px, py);
+                    if (e >= -1.4f) continue;
+                    int yb = size - 1 - yTop;
+                    float depth = Mathf.Clamp01(-e / (r * 0.8f));   // 0 au cerceau, 1 au fond de la poche
+                    var q = (new Vector2(px, py) - pocket) * (1f + 0.9f * depth);   // mailles plus serrées au fond
+                    int u = Mathf.FloorToInt(q.x + q.y + 400f), w = Mathf.FloorToInt(q.x - q.y + 400f);
+                    bool a = u % 5 == 0, b = w % 5 == 0;
+                    if (a || b)
+                    {
+                        Color thread = Color.Lerp(C(232, 228, 206), C(150, 160, 150), depth * 0.8f);
+                        thread.a = Mathf.Lerp(0.9f, 0.45f, depth);
+                        if (a && b) thread = new Color(1f, 1f, 0.94f, thread.a + 0.1f);   // les nœuds
+                        p[x, yb] = thread;
+                    }
+                    else
+                    {
+                        p[x, yb] = new Color(0.05f, 0.12f, 0.12f, 0.08f + depth * 0.22f);   // l'ombre de la poche dans l'eau
+                    }
+                }
+            }
+
+            return p;
         }
 
         // ---------- Le coin à bulles ----------

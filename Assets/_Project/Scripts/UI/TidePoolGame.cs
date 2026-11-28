@@ -48,7 +48,7 @@ namespace FishAndChill.UI
         private Image _poolImage;
         private Vector2[] _defaultRocks;
         [SerializeField, Tooltip("La bestiole sous l'eau (3 images : posée, puis deux en marche).")] private Sprite[] _critter = new Sprite[0];
-        [SerializeField, Tooltip("L'épuisette dans l'eau (40×40, cercle centré au pixel 16, 24 depuis le bas).")] private Sprite _net;
+        [SerializeField, Tooltip("L'épuisette dans l'eau (60×60, cerceau centré au pixel 18, 42 depuis le bas).")] private Sprite _net;
 
         [SerializeField, Tooltip("Rochers de la flaque où les bêtes se cachent (pixels de la flaque, y depuis le bas).")]
         private Vector2[] _rocks =
@@ -104,6 +104,10 @@ namespace FishAndChill.UI
         private Critter _hooked;
         private bool _won;
         private float _flash;
+        private float _endTimer;
+
+        /// <summary>Temps pour lire le résultat avant que la flaque se ferme toute seule.</summary>
+        private const float EndDelay = 2.5f;
         private Image _ring;
         private Image _ringTarget;
         private Sprite _ringSprite;
@@ -175,6 +179,7 @@ namespace FishAndChill.UI
             _qte = null;
             _hooked = null;
             _won = false;
+            _endTimer = 0f;
             _ring.enabled = _ringTarget.enabled = false;
             _netPos = _netTarget = _lastNet = new Vector2(PoolWidth * 0.5f, PoolHeight * 0.5f);
             _lastMouse = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
@@ -301,7 +306,8 @@ namespace FishAndChill.UI
             }
 
             bool finished = Finished;
-            if (scoopPressed && finished && _scoop < 0f)
+            if (finished && _scoop < 0f) _endTimer += dt;   // fin : la flaque se ferme toute seule après un moment
+            if ((scoopPressed || _endTimer >= EndDelay) && finished && _scoop < 0f)
             {
                 Close();
                 return;
@@ -370,7 +376,7 @@ namespace FishAndChill.UI
         /// <summary>La flaque est finie : une bête prise, ou plus de coups.</summary>
         private bool Finished => _won || _triesLeft <= 0;
 
-        private string EndLine => _won ? string.Empty : "\nPlus de coups : la bête a gagné cette fois.   Clic ou Espace : revenir";
+        private string EndLine => _won ? string.Empty : "\nPlus de coups : la bête a gagné cette fois.";
 
         /// <summary>Le cercle se referme : une seule bête au plus, la plus proche ; sa remontée commence.</summary>
         private void FinishScoop()
@@ -440,7 +446,7 @@ namespace FishAndChill.UI
                 _fishing.CatchLog.Register(c.Species.Id, Mathf.Lerp(range.x, range.y, (float)_random.NextDouble()));
                 string color = ColorUtility.ToHtmlStringRGB(c.Species.Rarity.DisplayColor());
                 Say($"Dans l'épuisette : <color=#{color}>{c.Species.CommonName}</color>{(first ? " (nouvelle espèce !)" : string.Empty)}, "
-                    + "notée puis relâchée.\nLes bulles se dispersent.   Clic ou Espace : revenir");
+                    + "notée puis relâchée.\nLes bulles se dispersent.");
                 return;
             }
 
@@ -669,8 +675,8 @@ namespace FishAndChill.UI
             _netImage.sprite = _net;
             _netRect = _netImage.rectTransform;
             _netRect.anchorMin = _netRect.anchorMax = Vector2.zero;
-            _netRect.pivot = new Vector2(16f / 40f, 24f / 40f);
-            _netRect.sizeDelta = Vector2.one * 40f * Zoom;
+            _netRect.pivot = new Vector2(18f / 60f, 42f / 60f);   // le centre du cerceau (dessin 60×60, TidePoolArt.NetInWater)
+            _netRect.sizeDelta = Vector2.one * 60f * Zoom;
 
             _tries = UiFactory.Label(window.rectTransform, "Coups", 30, TextAnchor.MiddleLeft, new Color(1f, 0.84f, 0.3f));
             UiFactory.Bold(_tries);
