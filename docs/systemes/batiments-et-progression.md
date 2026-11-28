@@ -95,9 +95,9 @@
   le retard de l'eau ; bougée vite près d'une bête, elle l'inquiète. **Une seule prise par flaque**, 3 coups (clic, Espace,
   A) : l'éclaboussure fait fuir les bêtes déjà inquiètes ; la bête calme la plus proche sous le cercle est dans le filet
   et la **remontée** commence (`Fishing/Core/RingQte`, testé) : des anneaux se resserrent un par un sur elle, il faut
-  appuyer quand l'anneau touche son contour (doré à ce moment). Commune 2 anneaux, peu commune et rare 3, épique 4,
-  légendaire 5 ; plus rare = anneaux plus rapides et marge plus fine ; un raté permis pour commune et peu commune,
-  aucun au-delà ; un anneau qui passe la bête compte raté. Rythme par famille : crabes et crustacés serrent par à-coups,
+  appuyer quand l'anneau touche son contour (doré à ce moment). Commune 1 anneau, peu commune et rare 2, épique et
+  légendaire 3 ; plus rare = anneaux un peu plus rapides et marge plus fine ; deux ratés permis pour commune et peu commune,
+  un au-delà ; un anneau qui passe la bête compte raté. Rythme par famille : crabes et crustacés serrent en hésitant (sans à-coups),
   crevettes, poissons et vers changent de vitesse à chaque anneau, l'encre des céphalopodes cache l'anneau au milieu de
   sa course, coquillages et oursins lents mais marge étroite. Pendant la remontée l'épuisette devient transparente. La flaque se ferme toute seule 2,5 s après la fin (un clic la ferme tout de suite). Dessin du filet (`TidePoolArt.Landing`, 60×60 dans l'eau, 32×32 en icône) : cerceau en D au bord droit devant comme un haveneau, poche à mailles en losange qui se resserrent vers le fond, fourche, long manche en bambou.
   Réussie : la bête est notée, le coin à bulles se disperse (`FishingSpots.Deplete`) ; ratée : elle s'échappe et la

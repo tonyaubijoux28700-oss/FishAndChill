@@ -15,7 +15,7 @@ namespace FishAndChill.Fishing
     /// QTE de la remontée de l'épuisette : des anneaux se resserrent un par un sur la bête prise dans le filet ; il faut
     /// appuyer quand l'anneau la touche (rayon 1 = le bord de la bête, l'anneau part de <see cref="StartRadius"/>).
     /// Plus la bête est rare, plus il y a d'anneaux, plus ils vont vite et plus la marge est fine. Chaque famille a son
-    /// rythme : les crabes serrent par à-coups, les crevettes et poissons changent de vitesse, l'encre des pieuvres cache
+    /// rythme : les crabes serrent en hésitant (plus vite, puis plus lentement), les crevettes et poissons changent de vitesse, l'encre des pieuvres cache
     /// l'anneau un moment, les coquillages sont lents mais la marge est étroite. Logique pure, testée.
     /// </summary>
     public sealed class RingQte
@@ -26,10 +26,10 @@ namespace FishAndChill.Fishing
         /// <summary>Pause entre deux anneaux (secondes).</summary>
         public const float Pause = 0.35f;
 
-        private static readonly int[] RingsByRarity = { 2, 3, 3, 4, 5 };
-        private static readonly float[] SecondsByRarity = { 1.6f, 1.4f, 1.25f, 1.1f, 0.95f };
-        private static readonly float[] ToleranceByRarity = { 0.30f, 0.25f, 0.20f, 0.16f, 0.13f };
-        private static readonly int[] MissesByRarity = { 1, 1, 0, 0, 0 };
+        private static readonly int[] RingsByRarity = { 1, 2, 2, 3, 3 };
+        private static readonly float[] SecondsByRarity = { 2.0f, 1.85f, 1.7f, 1.55f, 1.4f };
+        private static readonly float[] ToleranceByRarity = { 0.42f, 0.37f, 0.32f, 0.28f, 0.24f };
+        private static readonly int[] MissesByRarity = { 2, 2, 1, 1, 1 };
 
         private readonly CritterBehaviour _behaviour;
         private readonly System.Random _random;
@@ -50,7 +50,7 @@ namespace FishAndChill.Fishing
             {
                 // Coquillages, oursins, étoiles : lents, mais il faut viser juste.
                 _baseSeconds *= 1.2f;
-                Tolerance *= 0.75f;
+                Tolerance *= 0.9f;
             }
 
             NextRing();
@@ -124,18 +124,17 @@ namespace FishAndChill.Fishing
             Progress = 0f;
             _pause = Pause;
             // Crevettes, poissons, vers : chaque anneau a sa vitesse.
-            _seconds = _behaviour == CritterBehaviour.Dart ? _baseSeconds * (0.7f + 0.45f * (float)_random.NextDouble()) : _baseSeconds;
+            _seconds = _behaviour == CritterBehaviour.Dart ? _baseSeconds * (0.88f + 0.24f * (float)_random.NextDouble()) : _baseSeconds;
         }
 
-        /// <summary>Part du chemin faite selon l'avancement : régulière, ou par à-coups pour les crabes.</summary>
+        /// <summary>
+        /// Part du chemin faite selon l'avancement : régulière, ou pour les crabes une hésitation douce (l'anneau accélère
+        /// puis ralentit, sans jamais sauter ni reculer ; il ralentit quand il arrive sur la bête).
+        /// </summary>
         private float Shape(float p)
         {
             if (_behaviour != CritterBehaviour.Hide) return p;
-            const int steps = 4;
-            float q = p * steps;
-            float step = Mathf.Floor(q);
-            float jump = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((q - step - 0.5f) / 0.5f));
-            return Mathf.Min(1f, (step + jump) / steps);
+            return Mathf.Clamp01(p + 0.035f * Mathf.Sin(p * Mathf.PI * 2f * 2f));
         }
     }
 }

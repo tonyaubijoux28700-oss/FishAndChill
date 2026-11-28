@@ -25,7 +25,7 @@ namespace FishAndChill.Tests
         public void PressingWhenTheRingTouches_CatchesTheCritter()
         {
             var qte = new RingQte(Rarity.Common, CritterBehaviour.Burrow, new System.Random(1));
-            Assert.That(qte.Rings, Is.EqualTo(2));
+            Assert.That(qte.Rings, Is.EqualTo(1), "une commune : un seul anneau");
             for (int i = 0; i < qte.Rings; i++)
             {
                 TickPastPause(qte);
@@ -37,13 +37,17 @@ namespace FishAndChill.Tests
         }
 
         [Test]
-        public void PressingTooEarly_IsAMiss_AndRareCrittersForgiveNothing()
+        public void PressingTooEarly_IsAMiss_AndRareCrittersForgiveOnlyOne()
         {
             var qte = new RingQte(Rarity.Rare, CritterBehaviour.Hide, new System.Random(2));
             TickPastPause(qte);
             qte.Tick(0.05f);
             Assert.That(qte.Press(), Is.EqualTo(RingResult.Miss), "l'anneau est encore loin");
-            Assert.That(qte.Failed, Is.True, "une rare s'échappe au premier raté");
+            Assert.That(qte.Failed, Is.False, "une rare pardonne un raté");
+            TickPastPause(qte);
+            qte.Tick(0.05f);
+            qte.Press();
+            Assert.That(qte.Failed, Is.True, "au deuxième raté, elle s'échappe");
         }
 
         [Test]
