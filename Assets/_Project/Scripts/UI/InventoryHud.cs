@@ -219,7 +219,7 @@ namespace FishAndChill.UI
                     int tab = TabPressed();
                     if (tab != 0)
                     {
-                        ShowPage((InventoryPage)(((int)_page + tab + 3) % 3));
+                        ShowPage((InventoryPage)(((int)_page + tab + 2) % 2));
                     }
                     else if (_page == InventoryPage.Relics)
                     {
@@ -297,7 +297,6 @@ namespace FishAndChill.UI
             Grow(_baitLabel.Rect, bait);
             Grow(_bagTab.rectTransform, Over(_bagTab.rectTransform, p));
             Grow(_relicTab.rectTransform, Over(_relicTab.rectTransform, p));
-            Grow(_questTab.rectTransform, Over(_questTab.rectTransform, p));
 
             bool onPicker = _picker.Contains(p);
             if (onPicker && _picker.HandleMouse(p, click, mouse.scroll.ReadValue().y))
@@ -310,7 +309,6 @@ namespace FishAndChill.UI
 
             if (Over(_bagTab.rectTransform, p)) ShowPage(InventoryPage.Bag);
             else if (Over(_relicTab.rectTransform, p)) ShowPage(InventoryPage.Relics);
-            else if (Over(_questTab.rectTransform, p)) ShowPage(InventoryPage.Quests);
             else if (rod) OpenPicker(GearCategory.Rod);
             else if (hook) OpenPicker(GearCategory.Hook);
             else if (bait) OpenPicker(GearCategory.Bait);
@@ -394,13 +392,6 @@ namespace FishAndChill.UI
             ShowPage(InventoryPage.Bag);
         }
 
-        /// <summary>Ouvre directement la page des quêtes (utilisable par script pour les tests).</summary>
-        public void OpenQuests()
-        {
-            Open();
-            ShowPage(InventoryPage.Quests);
-        }
-
         /// <summary>Ouvre directement la page des reliques (utilisable par script pour les tests).</summary>
         public void OpenRelics()
         {
@@ -423,6 +414,7 @@ namespace FishAndChill.UI
         /// <summary>E ouvre le sac seulement hors pêche, hors menu du marchand et loin de son comptoir.</summary>
         private bool CanOpenNow()
         {
+            if (QuestJournal.Busy) return false;   // le journal de quêtes est ouvert
             if (_shopMenu != null && (_shopMenu.IsOpen || _shopMenu.PlayerAtCounter))
             {
                 return false;
@@ -759,10 +751,9 @@ namespace FishAndChill.UI
             _windowHelp = UiFactory.Label(_windowRect, "Aide", 25, TextAnchor.MiddleCenter, Muted);
             UiFactory.Place(_windowHelp.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 20f), new Vector2(-30f, 30f));
 
-            // Trois onglets : le sac et le matériel, les reliques des légendes, les quêtes des habitants.
+            // Deux onglets : le sac et le matériel, les reliques des légendes (les quêtes ont leur journal : QuestJournal).
             _bagPage = Page("Page du sac");
             _relicPage = Page("Page des reliques");
-            _questPage = Page("Page des quêtes");
             Image Tab(string title, float x)
             {
                 UiFactory.TitlePlaque(_windowRect, _skin, title, 24, new Vector2(x, 345f), new Vector2(196f, 48f), out RectTransform tab);
@@ -771,11 +762,9 @@ namespace FishAndChill.UI
 
             _bagTab = Tab("Sac et matériel", -736f);
             _relicTab = Tab("Reliques", -534f);
-            _questTab = Tab("Quêtes", -332f);
 
             BuildGearPanel();
             _relics = new RelicChestPage(_relicPage, _skin, _relicChest, _jewelBox, _roundTag, _progress, _fishing);
-            _quests = new QuestPage(_questPage, _skin, _roundCard);
 
             _fishTitle = UiFactory.Label(_bagPage, "Titre poissons", 32, TextAnchor.MiddleLeft, Gold);
             UiFactory.Bold(_fishTitle);
@@ -803,16 +792,13 @@ namespace FishAndChill.UI
 
         // ---------- Onglets ----------
 
-        private enum InventoryPage { Bag, Relics, Quests }
+        private enum InventoryPage { Bag, Relics }
 
         private InventoryPage _page = InventoryPage.Bag;
         private RectTransform _bagPage;
         private RectTransform _relicPage;
         private Image _bagTab;
         private Image _relicTab;
-        private RectTransform _questPage;
-        private Image _questTab;
-        private QuestPage _quests;
         private RelicChestPage _relics;
 
         private RectTransform Page(string name)
@@ -841,19 +827,11 @@ namespace FishAndChill.UI
             _page = Choosing ? InventoryPage.Bag : page;
             _bagPage.gameObject.SetActive(_page == InventoryPage.Bag);
             _relicPage.gameObject.SetActive(_page == InventoryPage.Relics);
-            _questPage.gameObject.SetActive(_page == InventoryPage.Quests);
             Color dim = new Color(0.55f, 0.55f, 0.6f);
             _bagTab.color = _page == InventoryPage.Bag ? Color.white : dim;
             _relicTab.color = _page == InventoryPage.Relics ? Color.white : dim;
-            _questTab.color = _page == InventoryPage.Quests ? Color.white : dim;
             _bagTab.gameObject.SetActive(!Choosing);
             _relicTab.gameObject.SetActive(!Choosing);
-            _questTab.gameObject.SetActive(!Choosing);
-            if (_page == InventoryPage.Quests)
-            {
-                _quests.Refresh();
-            }
-
             if (_page == InventoryPage.Relics)
             {
                 _relics?.Refresh();

@@ -142,7 +142,7 @@
   côté du ponton), **Hinano** la maman et **Manu** son fils (maison pastel, 9 h - 18 h, parvis de l'aquarium ; Manu suit
   sa maman, `_leader`), **Mamie Rose** (chaumière, 10 h - 17 h, devant chez elle), **Chiyo** la vieille ama (baie d'Izu, toujours chez elle : 9e maison
   d'habitant, façade de la première maison de pêcheurs, cabane aux tatamis `HomeArt.AmaHut`, foulard `NpcExtras.Headscarf` ; donne l'épuisette,
-  pas de commandes, absente de l'onglet Quêtes). Dessinés par le même peintre que le
+  pas de commandes, absente des commandes du journal de quêtes). Dessinés par le même peintre que le
   pêcheur, dans les 4 directions avec le même pas (`CharacterPainter` + `NpcExtras` : barbe, bonnet à pompon, jupe,
   pantalon et bottes, lunettes, fleur dans les cheveux, taille d'enfant ; images faites au lancement par
   `CharacterSprites.Build(look, extras)`). **Leur journée** (`Villager`) : la nuit debout chez eux (« Habitant id » dans
@@ -167,11 +167,15 @@
   rareté (`Lines.Thanks` + « (+N pièces) »), refuse le seul exemplaire d'une espèce pas encore exposée (`Lines.KeepIt`),
   ou rappelle sa commande une fois sur deux (`Lines.Waiting`). Servi : la commande suivante arrive le lendemain matin,
   quand il ressort de chez lui (`DoneToday`).
-  **Onglet « Quêtes » de l'inventaire** (`UI/QuestPage`, 3e onglet après « Sac et matériel » et « Reliques », Tab ou
-  flèches pour changer ; `InventoryHud.OpenQuests` pour les tests) : une carte par habitant, 2 par rangée, avec son
+  **Journal de quêtes** (`UI/QuestJournal`, à part du sac : icône parchemin `UiArt.JournalIcon` à droite du carnet,
+  touche J ou clic, stick gauche enfoncé à la manette ; Gauche / Droite ou clic : rubrique ; J ou Échap : fermer ;
+  `QuestJournal.Open(rubrique)` pour les tests ; le sac ne s'ouvre pas par-dessus, `QuestJournal.Busy`). Trois rubriques :
+  **Commandes** (`UI/QuestPage`) : une carte par habitant qui passe commande, 2 par rangée, avec son
   portrait, où il est (à la maison / en balade), le poisson demandé (petite image, nom, zone où le pêcher, récompense)
   et l'état (`Villager.Quest`, `Villagers/QuestStatus`) : nouvelle commande à écouter (« ??? »), à pêcher, dans le
-  sac (à apporter), seul exemplaire à mettre d'abord à l'aquarium, servi aujourd'hui.
+  sac (à apporter), seul exemplaire à mettre d'abord à l'aquarium, servi aujourd'hui. **Chiyo** (`UI/ChiyoQuestPage`) : les 5
+  étapes de sa quête cochées au fur et à mesure (« ??? » tant qu'elles ne sont pas atteintes), avec la rangée des 9 perles.
+  **Légendes** (`UI/LegendQuestPage`) : une carte par légende, 3 par rangée (silhouette de l'artefact, fragments, étape, suite).
 - **Animalerie** (`World/PetShopBuilding`, objet « Animalerie », dessins `Editor/PetShopArt`, style en volume 32 px
   par case) : au sud-ouest de l'île, entre la maison et la plage, loin du laboratoire (`MapSetup`, site cherché depuis
   centre + (-16, -12)), petite cour pavée et chemin vers le chemin principal (`TownLayout.DecoratePetShop` : massifs,

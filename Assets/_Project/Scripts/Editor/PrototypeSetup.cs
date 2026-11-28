@@ -568,6 +568,18 @@ namespace FishAndChill.Editor
             // Onglet Reliques : coffre ouvert au fond de velours, creusé à la forme des artefacts par l'interface.
             hudSo.FindProperty("_relicChest").objectReferenceValue = RelicChestArt.Save();
             hudSo.FindProperty("_jewelBox").objectReferenceValue = JewelBoxArt.Save();
+
+            // Journal de quêtes, à part du sac : icône (parchemin) à droite du carnet, touche J.
+            var journal = hud.GetComponent<UI.QuestJournal>();
+            if (journal == null) journal = hud.gameObject.AddComponent<UI.QuestJournal>();
+            var journalSo = new SerializedObject(journal);
+            journalSo.FindProperty("_skin").objectReferenceValue = skin;
+            journalSo.FindProperty("_progress").objectReferenceValue = progress;
+            journalSo.FindProperty("_fishing").objectReferenceValue = controller;
+            journalSo.FindProperty("_player").objectReferenceValue = movement;
+            journalSo.FindProperty("_icon").objectReferenceValue = PixelArt.Save("Assets/_Project/Art/UI/IconeJournal.png", UiArt.JournalIcon(), 16, new Vector2(0.5f, 0.5f));
+            journalSo.FindProperty("_card").objectReferenceValue = hudSo.FindProperty("_roundCard").objectReferenceValue;
+            journalSo.ApplyModifiedPropertiesWithoutUndo();
             var skinMenuSo = new SerializedObject(shopMenu);
             skinMenuSo.FindProperty("_skin").objectReferenceValue = skin;
             skinMenuSo.ApplyModifiedPropertiesWithoutUndo();

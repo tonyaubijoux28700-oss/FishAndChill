@@ -5932,6 +5932,7 @@ GameObject:
   - component: {fileID: 332295284}
   - component: {fileID: 332295286}
   - component: {fileID: 332295287}
+  - component: {fileID: 332295288}
   m_Layer: 0
   m_Name: Partie
   m_TagString: Untagged
@@ -6478,6 +6479,24 @@ MonoBehaviour:
   - {x: 258, y: 67}
   - {x: 140, y: 152}
   - {x: 110, y: 32}
+--- !u!114 &332295288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332295270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9555b7a5163e5d46b6b832483cbc2c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.UI.QuestJournal
+  _skin: {fileID: 11400000, guid: e52e568a9945bf54b91f9eea7a942af8, type: 2}
+  _progress: {fileID: 332295271}
+  _fishing: {fileID: 1235020156}
+  _player: {fileID: 1141459283}
+  _icon: {fileID: 21300000, guid: bf1b4561b8d8d3e4b8a6a8381a360571, type: 3}
+  _card: {fileID: 21300000, guid: c86e2c7787262ba4aaa7bd70707427ab, type: 3}
 --- !u!1 &335281838
 GameObject:
   m_ObjectHideFlags: 0

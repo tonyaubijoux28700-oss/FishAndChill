@@ -55,6 +55,47 @@ namespace FishAndChill.Editor
         }
 
         /// <summary>
+        /// Journal de quêtes 20×20 : parchemin crème roulé en haut et en bas, lignes d'écriture à l'encre brune et sceau de
+        /// cire rouge.
+        /// </summary>
+        public static Color[,] JournalIcon()
+        {
+            var p = new Color[20, 20];
+            Color paper = C(0.96f, 0.90f, 0.72f);
+            Color paperShade = C(0.82f, 0.72f, 0.52f);
+            Color roll = C(0.88f, 0.78f, 0.56f);
+            Color rollDark = C(0.66f, 0.54f, 0.34f);
+            Color ink = C(0.40f, 0.26f, 0.14f);
+            Color wax = C(0.82f, 0.18f, 0.16f);
+            Color waxLight = C(0.98f, 0.42f, 0.36f);
+
+            // La feuille, un peu plus étroite que les rouleaux, ombrée à droite.
+            PixelArt.Rect(p, 4, 3, 15, 16, paper);
+            PixelArt.Rect(p, 15, 3, 15, 16, paperShade);
+            // Les rouleaux du haut et du bas, avec leurs bouts.
+            PixelArt.Rect(p, 2, 16, 17, 18, roll);
+            PixelArt.Rect(p, 2, 16, 17, 16, rollDark);
+            PixelArt.Rect(p, 2, 1, 17, 3, roll);
+            PixelArt.Rect(p, 2, 1, 17, 1, rollDark);
+            foreach (int x in new[] { 2, 17 })
+            {
+                PixelArt.Rect(p, x, 16, x, 18, rollDark);
+                PixelArt.Rect(p, x, 1, x, 3, rollDark);
+            }
+
+            // Lignes d'écriture.
+            PixelArt.Rect(p, 6, 13, 13, 13, ink);
+            PixelArt.Rect(p, 6, 11, 12, 11, ink);
+            PixelArt.Rect(p, 6, 9, 10, 9, ink);
+            // Le sceau de cire.
+            PixelArt.Rect(p, 11, 5, 14, 7, wax);
+            PixelArt.Rect(p, 12, 4, 13, 8, wax);
+            PixelArt.Set(p, 12, 7, waxLight);
+            PixelArt.Outline(p, C(0.18f, 0.11f, 0.06f));
+            return p;
+        }
+
+        /// <summary>
         /// Livre de l'index 20×20 : couverture bleu lagon, tranche des pages crème à droite, coins dorés,
         /// poisson doré en relief et marque-page rouge.
         /// </summary>
