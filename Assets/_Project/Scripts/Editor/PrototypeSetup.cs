@@ -561,6 +561,7 @@ namespace FishAndChill.Editor
             hudSo.FindProperty("_roundRim").objectReferenceValue = Round("Cadre_Lisere", BookArt.RoundedFrame(new Color(0f, 0f, 0f, 0f), new Color(0.86f, 0.68f, 0.30f), new Color(1f, 0.90f, 0.60f)));
             // Onglet Reliques : coffre ouvert au fond de velours, creusé à la forme des artefacts par l'interface.
             hudSo.FindProperty("_relicChest").objectReferenceValue = RelicChestArt.Save();
+            hudSo.FindProperty("_jewelBox").objectReferenceValue = JewelBoxArt.Save();
             var skinMenuSo = new SerializedObject(shopMenu);
             skinMenuSo.FindProperty("_skin").objectReferenceValue = skin;
             skinMenuSo.ApplyModifiedPropertiesWithoutUndo();

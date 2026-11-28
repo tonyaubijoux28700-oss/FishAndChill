@@ -118,7 +118,11 @@
   du filet (`TidePoolGame.FindPearl`, une seule fois). En parlant à Chiyo, elle enfile les perles rapportées et raconte un
   souvenir pour chacune, puis dit combien il en manque (`Villager.PearlLines`). Carnet, page Épuisette : la perle au bout de
   la barre de progression (silhouette à l'encre pâle, puis à sa couleur ; « À rapporter à Chiyo » / « Sur son collier »,
-  dessinée en jeu par `FishIndex.MakePearl`). Sauvegarde : `SaveData.PearlsFound` / `PearlsThreaded`.
+  dessinée en jeu par `UI/PearlSprite`). **Boîte à bijoux** (onglet Reliques : la plaque du coffre est un menu déroulant
+  « Coffre des reliques / Boîte à bijoux », clic ou Espace / Y ; dessin `Editor/JewelBoxArt`, même format que le coffre) :
+  laque noire et coussin de soie indigo creusé d'un seul emplacement en forme de collier (`PearlLore.NecklacePixel`) ;
+  perles en silhouette ombrée, puis à demi une fois trouvées, puis à leur couleur une fois enfilées ; l'étiquette donne
+  nom, zone et le souvenir de Chiyo (`RelicChestPage.RefreshJewels`). Sauvegarde : `SaveData.PearlsFound` / `PearlsThreaded`.
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).

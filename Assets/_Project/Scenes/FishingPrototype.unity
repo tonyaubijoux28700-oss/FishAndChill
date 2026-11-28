@@ -5846,6 +5846,7 @@ MonoBehaviour:
   _roundCard: {fileID: 21300000, guid: c86e2c7787262ba4aaa7bd70707427ab, type: 3}
   _roundRim: {fileID: 21300000, guid: ec648ab03d09a984da275798787c2951, type: 3}
   _relicChest: {fileID: 21300000, guid: 13e98ee4e3cf73f4fb8c4df7ed327fbf, type: 3}
+  _jewelBox: {fileID: 21300000, guid: d952f1b12a5746949aa32f318e74df55, type: 3}
   _toastSeconds: 5
 --- !u!4 &332295273
 Transform:

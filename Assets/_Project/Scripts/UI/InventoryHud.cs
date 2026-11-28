@@ -95,6 +95,7 @@ namespace FishAndChill.UI
         [SerializeField, Tooltip("Case sombre à coins arrondis (poissons, vitrine).")] private Sprite _roundCard;
         [SerializeField, Tooltip("Liseré doré à coins arrondis, posé sur la vitrine.")] private Sprite _roundRim;
         [SerializeField, Tooltip("Coffre ouvert de l'onglet Reliques (fond de velours).")] private Sprite _relicChest;
+        [SerializeField, Tooltip("Boîte à bijoux de l'onglet Reliques (collier de Chiyo).")] private Sprite _jewelBox;
 
         [SerializeField, Min(1f)] private float _toastSeconds = 5f;
 
@@ -773,7 +774,7 @@ namespace FishAndChill.UI
             _questTab = Tab("Quêtes", -332f);
 
             BuildGearPanel();
-            _relics = new RelicChestPage(_relicPage, _skin, _relicChest, _roundTag, _progress, _fishing);
+            _relics = new RelicChestPage(_relicPage, _skin, _relicChest, _jewelBox, _roundTag, _progress, _fishing);
             _quests = new QuestPage(_questPage, _skin, _roundCard);
 
             _fishTitle = UiFactory.Label(_bagPage, "Titre poissons", 32, TextAnchor.MiddleLeft, Gold);

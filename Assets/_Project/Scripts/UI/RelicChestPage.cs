@@ -57,6 +57,17 @@ namespace FishAndChill.UI
         private int _selected;
         private Vector2 _lastMouse = new Vector2(float.NaN, float.NaN);
 
+        // Boîte à bijoux (au choix avec le coffre, par le menu déroulant de la plaque) : le collier de Chiyo.
+        private readonly GameObject _chest;
+        private readonly GameObject _jewelBox;
+        private readonly RectTransform _plate;
+        private readonly GameObject _menu;
+        private readonly Text[] _menuItems = new Text[2];
+        private readonly List<Image> _pearls = new List<Image>();
+        private readonly Image _pearlGlow;
+        private bool _jewels;
+        private int _pearl = 3;
+
         private sealed class Slot
         {
             public RectTransform Root;
@@ -66,7 +77,7 @@ namespace FishAndChill.UI
             public readonly List<Image> Pieces = new List<Image>();
         }
 
-        public RelicChestPage(RectTransform page, UiSkin skin, Sprite chest, Sprite paper, PlayerProgress progress, FishingController fishing)
+        public RelicChestPage(RectTransform page, UiSkin skin, Sprite chest, Sprite jewelBox, Sprite paper, PlayerProgress progress, FishingController fishing)
         {
             _page = page;
             _skin = skin;
@@ -76,19 +87,58 @@ namespace FishAndChill.UI
             Image box = UiFactory.Plain(page, "Coffre aux reliques", chest != null ? Color.white : new Color(0.36f, 0.08f, 0.12f));
             box.sprite = chest;
             UiFactory.Center(box.rectTransform, ChestCenter, ChestSize);
+            _chest = box.gameObject;
 
             var velvet = new GameObject("Velours", typeof(RectTransform));
             _velvet = velvet.GetComponent<RectTransform>();
             _velvet.SetParent(box.rectTransform, false);
             UiFactory.Center(_velvet, VelvetArea.center, VelvetArea.size);
 
-            _header = UiFactory.Label(box.rectTransform, "Titre reliques", 28, TextAnchor.MiddleCenter, PlateInk);
-            UiFactory.Bold(_header);
-            UiFactory.Center(_header.rectTransform, PlateCenter, PlateSize);
-
             _empty = UiFactory.Label(_velvet, "Aucune légende", 26, TextAnchor.MiddleCenter, new Color(0.95f, 0.85f, 0.8f));
             _empty.text = "Aucune légende connue pour l'instant.";
             UiFactory.Stretch(_empty.rectTransform);
+
+            // La boîte à bijoux, à la même place : le collier de Chiyo et ses 9 perles.
+            Image jewels = UiFactory.Plain(page, "Boîte à bijoux", jewelBox != null ? Color.white : new Color(0.14f, 0.10f, 0.12f));
+            jewels.sprite = jewelBox;
+            UiFactory.Center(jewels.rectTransform, ChestCenter, ChestSize);
+            _jewelBox = jewels.gameObject;
+            _pearlGlow = UiFactory.Plain(jewels.rectTransform, "Halo de la perle", new Color(1f, 0.86f, 0.5f, 0.6f));
+            _pearlGlow.sprite = skin != null ? skin.Glow : null;
+            _pearlGlow.raycastTarget = false;
+            for (int i = 0; i < PearlLore.Count; i++)
+            {
+                Image pearl = UiFactory.Plain(jewels.rectTransform, $"Perle {i + 1}", Color.white);
+                pearl.sprite = PearlSprite.Get();
+                Vector2 at = PearlLore.NecklacePixel(PearlLore.PearlDegrees(i)) - new Vector2(150f, 80f);
+                UiFactory.Center(pearl.rectTransform, at * PixelSize, Vector2.one * PearlSprite.Size * PixelSize);
+                _pearls.Add(pearl);
+            }
+
+            _jewelBox.SetActive(false);
+
+            // Le titre sur la plaque de laiton, qui sert de menu déroulant : coffre ou boîte à bijoux.
+            Image plate = UiFactory.Plain(page, "Plaque", new Color(1f, 1f, 1f, 0f));
+            _plate = plate.rectTransform;
+            UiFactory.Center(_plate, ChestCenter + PlateCenter, PlateSize);
+            _header = UiFactory.Label(_plate, "Titre reliques", 28, TextAnchor.MiddleCenter, PlateInk);
+            UiFactory.Bold(_header);
+            UiFactory.Center(_header.rectTransform, new Vector2(-14f, 0f), PlateSize - new Vector2(40f, 0f));
+            Image chevron = UiFactory.Plain(_plate, "Ouvrir le menu", Color.white);
+            chevron.sprite = MakeChevron();
+            UiFactory.Center(chevron.rectTransform, new Vector2(PlateSize.x * 0.5f - 34f, -2f), new Vector2(9f, 6f) * PixelSize);
+
+            Image menu = UiFactory.Sliced(page, "Menu des boîtes", paper != null ? paper : skin != null ? skin.Slot : null, paper != null ? Color.white : new Color(0.93f, 0.88f, 0.74f));
+            UiFactory.Center(menu.rectTransform, ChestCenter + PlateCenter + new Vector2(0f, -PlateSize.y * 0.5f - 62f), new Vector2(PlateSize.x, 116f));
+            _menu = menu.gameObject;
+            string[] names = { "Coffre des reliques", "Boîte à bijoux" };
+            for (int i = 0; i < 2; i++)
+            {
+                _menuItems[i] = UiFactory.Label(menu.rectTransform, names[i], 28, TextAnchor.MiddleCenter, Ink);
+                UiFactory.Center(_menuItems[i].rectTransform, new Vector2(0f, 26f - i * 52f), new Vector2(PlateSize.x - 40f, 46f));
+            }
+
+            _menu.SetActive(false);
 
             // L'étiquette en papier de la relique choisie.
             Image label = UiFactory.Sliced(page, "Étiquette de la relique", paper != null ? paper : skin != null ? skin.Slot : null, paper != null ? Color.white : new Color(0.93f, 0.88f, 0.74f));
@@ -108,7 +158,67 @@ namespace FishAndChill.UI
         }
 
         /// <summary>Aide en bas de la fenêtre quand cette page est ouverte.</summary>
-        public string Help => "Souris ou Haut / Bas : choisir une relique   •   ";
+        public string Help => (_jewels ? "Souris ou Haut / Bas : choisir une perle" : "Souris ou Haut / Bas : choisir une relique")
+            + "   •   Plaque ou Espace : changer de boîte   •   ";
+
+        /// <summary>Petit chevron d'encre pointé vers le bas (9×6 px), au bout de la plaque : elle ouvre un menu.</summary>
+        private static Sprite MakeChevron()
+        {
+            const int width = 9, height = 6;
+            var texture = new Texture2D(width, height) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    int dx = Mathf.Abs(x - 4);
+                    bool on = y >= 1 && y - 1 >= dx - 0 && y - 1 <= dx + 1 && dx <= 4;
+                    texture.SetPixel(x, y, on ? PlateInk : new Color(0f, 0f, 0f, 0f));
+                }
+            }
+
+            texture.Apply();
+            return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 16f);
+        }
+
+        /// <summary>Passe du coffre à la boîte à bijoux (ou l'inverse).</summary>
+        public void ShowJewels(bool jewels)
+        {
+            _jewels = jewels;
+            _menu.SetActive(false);
+            Refresh();
+        }
+
+        /// <summary>Clic sur la plaque : ouvre ou ferme le menu ; clic sur un choix : change de boîte ; ailleurs : ferme.</summary>
+        private bool HandleMenu(Mouse mouse, Keyboard k, Gamepad g)
+        {
+            if ((k != null && k.spaceKey.wasPressedThisFrame) || (g != null && g.buttonNorth.wasPressedThisFrame))
+            {
+                ShowJewels(!_jewels);
+                return true;
+            }
+
+            if (mouse == null) return false;
+            Vector2 p = mouse.position.ReadValue();
+            if (_menu.activeSelf)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    bool over = RectTransformUtility.RectangleContainsScreenPoint(_menuItems[i].rectTransform, p, null);
+                    _menuItems[i].color = over ? Title : (i == 1) == _jewels ? Gold : Ink;
+                    if (over && mouse.leftButton.wasPressedThisFrame)
+                    {
+                        ShowJewels(i == 1);
+                        return true;
+                    }
+                }
+            }
+
+            if (!mouse.leftButton.wasPressedThisFrame) return _menu.activeSelf;
+            bool onPlate = RectTransformUtility.RectangleContainsScreenPoint(_plate, p, null);
+            if (!onPlate && !_menu.activeSelf) return false;   // un clic ailleurs : il choisit une relique
+            _menu.SetActive(onPlate && !_menu.activeSelf);
+            return true;
+        }
 
         private static Text Text(RectTransform parent, string name, int size, Color color, float y, float height)
         {
@@ -121,12 +231,19 @@ namespace FishAndChill.UI
         /// <summary>Souris sur un emplacement, ou Haut / Bas (croix de la manette) : change de relique.</summary>
         public void HandleInput()
         {
+            Keyboard k = Keyboard.current;
+            Gamepad g = Gamepad.current;
+            if (HandleMenu(Mouse.current, k, g)) return;
+            if (_jewels)
+            {
+                HandlePearls(k, g);
+                return;
+            }
+
             int count = _slots.Count;
             if (count == 0) return;
 
             int step = 0;
-            Keyboard k = Keyboard.current;
-            Gamepad g = Gamepad.current;
             if (k != null && (k.upArrowKey.wasPressedThisFrame || k.wKey.wasPressedThisFrame)) step = -1;
             if (k != null && (k.downArrowKey.wasPressedThisFrame || k.sKey.wasPressedThisFrame)) step = 1;
             if (g != null && g.dpad.up.wasPressedThisFrame) step = -1;
@@ -164,9 +281,102 @@ namespace FishAndChill.UI
             Refresh();
         }
 
+        /// <summary>Boîte à bijoux : souris sur une perle, ou Haut / Bas, pour la choisir ; son halo respire.</summary>
+        private void HandlePearls(Keyboard k, Gamepad g)
+        {
+            int step = 0;
+            if (k != null && (k.upArrowKey.wasPressedThisFrame || k.wKey.wasPressedThisFrame)) step = -1;
+            if (k != null && (k.downArrowKey.wasPressedThisFrame || k.sKey.wasPressedThisFrame)) step = 1;
+            if (g != null && g.dpad.up.wasPressedThisFrame) step = -1;
+            if (g != null && g.dpad.down.wasPressedThisFrame) step = 1;
+            int chosen = step != 0 ? (_pearl + step + PearlLore.Count) % PearlLore.Count : _pearl;
+
+            Mouse mouse = Mouse.current;
+            if (mouse != null)
+            {
+                Vector2 p = mouse.position.ReadValue();
+                if (p != _lastMouse)
+                {
+                    _lastMouse = p;
+                    for (int i = 0; i < _pearls.Count; i++)
+                    {
+                        if (RectTransformUtility.RectangleContainsScreenPoint(_pearls[i].rectTransform, p, null)) chosen = i;
+                    }
+                }
+            }
+
+            if (chosen != _pearl)
+            {
+                _pearl = chosen;
+                Refresh();
+            }
+
+            _pearlGlow.color = new Color(1f, 0.86f, 0.5f, 0.5f + 0.25f * Mathf.Sin(Time.unscaledTime * 3f));
+        }
+
+        /// <summary>
+        /// La boîte à bijoux : chaque perle en silhouette ombrée tant qu'elle n'est pas trouvée, à demi transparente une fois
+        /// trouvée, à sa couleur une fois enfilée par Chiyo ; l'étiquette dit son nom, sa zone et le souvenir de Chiyo.
+        /// </summary>
+        private void RefreshJewels()
+        {
+            PearlNecklace necklace = _progress.Pearls;
+            for (int i = 0; i < _pearls.Count; i++)
+            {
+                string zone = PearlLore.Zones[i];
+                PearlState state = necklace.StateOf(zone);
+                Color color = PearlLore.ColorOf(zone);
+                _pearls[i].color = state == PearlState.Threaded ? color
+                    : state == PearlState.Found ? new Color(color.r, color.g, color.b, 0.55f)
+                    : new Color(0.12f, 0.14f, 0.30f, 0.6f);
+                _pearls[i].rectTransform.localScale = Vector3.one * (i == _pearl ? 1.15f : 1f);
+            }
+
+            RectTransform chosen = _pearls[_pearl].rectTransform;
+            UiFactory.Center(_pearlGlow.rectTransform, chosen.anchoredPosition, chosen.sizeDelta * 2.2f);
+            _header.text = $"Boîte à bijoux   {necklace.ThreadedCount} / {PearlLore.Count} perles";
+
+            string id = PearlLore.Zones[_pearl];
+            PearlState pearlState = necklace.StateOf(id);
+            string name = PearlLore.NameOf(id);
+            _label.SetActive(true);
+            _gemRow.gameObject.SetActive(false);
+            _name.text = pearlState == PearlState.Missing ? "Perle inconnue" : char.ToUpper(name[0]) + name.Substring(1);
+            _zone.text = $"Du côté de « {PearlLore.ZoneNames[_pearl]} »";
+            switch (pearlState)
+            {
+                case PearlState.Threaded:
+                    _status.text = "Sur le collier";
+                    _status.color = Gold;
+                    _hint.text = $"« {PearlLore.MemoryOf(id)} »";
+                    break;
+                case PearlState.Found:
+                    _status.text = "Trouvée";
+                    _status.color = Pocket;
+                    _hint.text = "Rapporte-la à Chiyo, à Izu : elle l'enfilera sur son collier.";
+                    break;
+                default:
+                    _status.text = "Pas encore trouvée";
+                    _status.color = Ink;
+                    _hint.text = "Remplis toutes les bestioles de cette zone dans le carnet : elle brillera au fond de l'épuisette.";
+                    break;
+            }
+        }
+
         public void Refresh()
         {
             if (_fishing == null || _progress == null) return;
+            _chest.SetActive(!_jewels);
+            _jewelBox.SetActive(_jewels);
+            _menuItems[0].color = _jewels ? Ink : Gold;
+            _menuItems[1].color = _jewels ? Gold : Ink;
+            if (_jewels)
+            {
+                RefreshJewels();
+                return;
+            }
+
+            _gemRow.gameObject.SetActive(true);
 
             IReadOnlyList<LegendFish> legends = _fishing.Legends;
             var shown = new List<LegendFish>();

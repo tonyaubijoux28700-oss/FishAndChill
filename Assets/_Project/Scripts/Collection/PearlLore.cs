@@ -19,7 +19,7 @@ namespace FishAndChill.Collection
         {
             switch (zoneId)
             {
-                case "IleMahana": return new Pearl { Name = "la perle noire de Mahana", Color = new Color(0.22f, 0.26f, 0.30f),
+                case "IleMahana": return new Pearl { Name = "la perle noire de Mahana", Color = new Color(0.46f, 0.54f, 0.56f),
                     Memory = "Mahana... Je l'ai vue sortir de la mer, cette île. Les vieux disaient qu'on l'avait construite. Moi, je dis que la mer l'a permis." };
                 case "LacAnnecy": return new Pearl { Name = "la perle d'eau douce du lac", Color = new Color(0.96f, 0.92f, 0.80f),
                     Memory = "Un lac entre les montagnes, l'eau si claire qu'on voyait ses pieds à dix mètres. J'y ai appris que l'eau douce aussi garde des secrets." };
@@ -43,6 +43,30 @@ namespace FishAndChill.Collection
 
         /// <summary>Nombre de perles du collier (une par zone).</summary>
         public const int Count = 9;
+
+        /// <summary>Les zones, dans l'ordre des perles sur le collier (de gauche à droite).</summary>
+        public static readonly string[] Zones =
+            { "IleMahana", "LacAnnecy", "FleuveAmazone", "BaieJaponaise", "GrandeBarriere", "Maldives", "CoteDesSquelettes", "FjordsNorvege", "BaieHaLong" };
+
+        /// <summary>Nom affiché de chaque zone, dans le même ordre.</summary>
+        public static readonly string[] ZoneNames =
+            { "Île Mahana", "Lac d'Annecy", "Fleuve Amazone", "Baie d'Izu", "Grande Barrière", "Atoll des Maldives", "Côte des Squelettes", "Fjords de Norvège", "Baie d'Ha Long" };
+
+        /// <summary>
+        /// Le collier posé dans la boîte à bijoux (dessin de 300×160 px, y depuis le bas) : un arc en U dont
+        /// <paramref name="degrees"/> va de -90 (bout gauche) à 90 (bout droit), 0 au creux du U.
+        /// </summary>
+        public static Vector2 NecklacePixel(float degrees)
+        {
+            float a = degrees * Mathf.Deg2Rad;
+            return new Vector2(150f + 86f * Mathf.Sin(a), 92f - 62f * Mathf.Cos(a));
+        }
+
+        /// <summary>Angle de la perle <paramref name="index"/> sur l'arc (0 à 8, de gauche à droite).</summary>
+        public static float PearlDegrees(int index) => -60f + 15f * index;
+
+        /// <summary>Rayon d'une perle, en pixels du dessin.</summary>
+        public const float PearlRadius = 6f;
 
         public static string NameOf(string zoneId) => Of(zoneId).Name;
 
