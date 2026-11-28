@@ -298,10 +298,10 @@ namespace FishAndChill.UI
                     Select(SpeciesIndex.Move(_selected, dx, -dy, Columns, Current.Count));
                 }
 
-                if (zoneStep != 0 && _zoneSpecies.Count > 1)
+                if (zoneStep != 0 && ZoneCount > 1)
                 {
                     TurnPage(zoneStep);
-                    ShowZone((_zone + zoneStep + _zoneSpecies.Count) % _zoneSpecies.Count);
+                    ShowZone((_zone + zoneStep + ZoneCount) % ZoneCount);
                 }
 
                 if (!HandleMouse())
@@ -351,7 +351,7 @@ namespace FishAndChill.UI
             bool overColumn = Over(_columnRect, screen);
             if (Over(_zoneViewRect, screen))
             {
-                for (int i = 0; i < _zoneEntries.Count; i++)
+                for (int i = 0; i < ZoneCount; i++)
                 {
                     if (Over(_zoneEntries[i].Rect, screen))
                     {
@@ -380,7 +380,7 @@ namespace FishAndChill.UI
                 if (overColumn)
                 {
                     // Fait défiler la liste sans changer de zone (elle revient sur la zone choisie au prochain changement).
-                    float max = ZoneListScroll.MaxOffset(_zoneEntries.Count, ZoneRowHeight, ZoneRowGap, _zoneViewHeight);
+                    float max = ZoneListScroll.MaxOffset(ZoneCount, ZoneRowHeight, ZoneRowGap, _zoneViewHeight);
                     _zoneScrollTarget = Mathf.Clamp(_zoneScrollTarget + step * (ZoneRowHeight + ZoneRowGap), 0f, max);
                 }
                 else if (Over(_bookRect, screen) && Current.Count > PerPage)
@@ -510,10 +510,25 @@ namespace FishAndChill.UI
             }
         }
 
+        /// <summary>
+        /// Zones montrées dans la colonne : toutes, sauf la grotte de Chiyo (rangée en dernier) tant que son collier n'a pas
+        /// ses 9 perles.
+        /// </summary>
+        private int ZoneCount
+        {
+            get
+            {
+                int count = _zoneSpecies.Count;
+                bool caveLast = count > 0 && _zones.Length >= count && _zones[count - 1] != null && _zones[count - 1].Id == CaveRules.ZoneId;
+                bool locked = _progress == null || _progress.Pearls.ThreadedCount < PearlLore.Count;
+                return caveLast && locked ? count - 1 : count;
+            }
+        }
+
         /// <summary>Affiche une zone (comme si on la choisissait dans la colonne).</summary>
         public void ShowZone(int zone)
         {
-            _zone = Mathf.Clamp(zone, 0, Mathf.Max(0, _zoneSpecies.Count - 1));
+            _zone = Mathf.Clamp(zone, 0, Mathf.Max(0, ZoneCount - 1));
             _selected = 0;
             RefreshOrWait();
         }
@@ -806,6 +821,7 @@ namespace FishAndChill.UI
             for (int i = 0; i < _zoneEntries.Count; i++)
             {
                 ZoneEntryView entry = _zoneEntries[i];
+                entry.Rect.gameObject.SetActive(i < ZoneCount);   // la grotte de Chiyo reste cachée tant que le collier n'est pas complet
                 bool active = i == _zone;
                 Color color = ZoneColors[i % ZoneColors.Length];
                 entry.Ribbon.color = active ? color : Color.Lerp(color, new Color(0.4f, 0.36f, 0.3f), 0.55f);
@@ -821,8 +837,8 @@ namespace FishAndChill.UI
                 entry.Count.color = complete ? Gold : (active ? new Color(0.96f, 0.94f, 0.88f) : new Color(0.80f, 0.78f, 0.72f));
             }
 
-            _zoneScrollTarget = ZoneListScroll.Offset(_zoneScrollTarget, _zone, _zoneEntries.Count, ZoneRowHeight, ZoneRowGap, _zoneViewHeight, ZoneScrollMargin);
-            _zoneCounter.text = _zoneEntries.Count > 0 ? $"Zone {_zone + 1} / {_zoneEntries.Count}" : string.Empty;
+            _zoneScrollTarget = ZoneListScroll.Offset(_zoneScrollTarget, _zone, ZoneCount, ZoneRowHeight, ZoneRowGap, _zoneViewHeight, ZoneScrollMargin);
+            _zoneCounter.text = ZoneCount > 0 ? $"Zone {_zone + 1} / {ZoneCount}" : string.Empty;
         }
 
         /// <summary>Glissement doux de la liste vers la zone choisie, repères « Plus haut » / « Plus bas » et halo qui pulse.</summary>
@@ -837,7 +853,7 @@ namespace FishAndChill.UI
             if (Mathf.Abs(_zoneScroll - _zoneScrollTarget) < 0.5f) _zoneScroll = _zoneScrollTarget;
             _zoneContent.anchoredPosition = new Vector2(0f, Mathf.Round(_zoneScroll));
             _moreAbove.gameObject.SetActive(ZoneListScroll.MoreAbove(_zoneScroll));
-            _moreBelow.gameObject.SetActive(ZoneListScroll.MoreBelow(_zoneScroll, _zoneEntries.Count, ZoneRowHeight, ZoneRowGap, _zoneViewHeight));
+            _moreBelow.gameObject.SetActive(ZoneListScroll.MoreBelow(_zoneScroll, ZoneCount, ZoneRowHeight, ZoneRowGap, _zoneViewHeight));
 
             // Zone survolée à la souris : son nom passe en or.
             for (int i = 0; i < _zoneEntries.Count; i++)
