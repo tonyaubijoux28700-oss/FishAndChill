@@ -6,7 +6,8 @@ namespace FishAndChill.Editor
 {
     /// <summary>
     /// Triches d'essai (FishAndChill → Triche (test)), utilisables seulement pendant une partie en Play mode, comme le menu
-    /// des légendes. Les pièces données sont sauvegardées comme de vraies pièces. Raccourci : Ctrl + Alt + M.
+    /// des légendes. Ce qu'elles donnent est sauvegardé comme le vrai. Raccourcis : Ctrl + Alt + M (+1000 pièces), Ctrl + Alt + P
+    /// (collier de Chiyo complet).
     /// </summary>
     public static class CheatMenu
     {
@@ -27,5 +28,18 @@ namespace FishAndChill.Editor
 
         [MenuItem(Root + "+1000 pièces %&m", true)]
         private static bool CanGiveCoins() => InGame() && Fishing.Progress.Wallet != null;
+
+        /// <summary>L'épuisette et les 9 perles enfilées sur le collier de Chiyo : la grotte d'Ha Long s'ouvre.</summary>
+        [MenuItem(Root + "Collier de Chiyo complet %&p")]
+        private static void GiveNecklace()
+        {
+            var progress = Fishing.Progress;
+            progress.ReceiveNet();
+            progress.Pearls.Restore(null, Collection.PearlLore.Zones);   // déclenche Changed : la sauvegarde suit
+            Debug.Log("[FishAndChill] Collier de Chiyo complet : 9 perles enfilées, la grotte d'Ha Long est ouverte.");
+        }
+
+        [MenuItem(Root + "Collier de Chiyo complet %&p", true)]
+        private static bool CanGiveNecklace() => InGame();
     }
 }

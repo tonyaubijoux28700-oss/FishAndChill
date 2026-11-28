@@ -119,6 +119,7 @@ namespace FishAndChill.Collection
             Pets.Changed += RaiseChanged;
             Legends = new LegendProgress();
             Legends.Changed += RaiseChanged;
+            Pearls.Changed += RaiseChanged;   // perle trouvée ou enfilée : l'interface et la sauvegarde suivent
             if (_baitCatalog != null && _baitCatalog.Default != null)
             {
                 Baits.Add(_baitCatalog.Default.Id, 0); // l'appât de départ, toujours là
