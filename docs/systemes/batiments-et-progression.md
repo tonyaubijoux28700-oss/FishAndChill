@@ -168,14 +168,14 @@
   ou rappelle sa commande une fois sur deux (`Lines.Waiting`). Servi : la commande suivante arrive le lendemain matin,
   quand il ressort de chez lui (`DoneToday`).
   **Journal de quêtes** (`UI/QuestJournal`, à part du sac : icône parchemin `UiArt.JournalIcon` à droite du carnet,
-  touche J ou clic, stick gauche enfoncé à la manette ; Gauche / Droite ou clic : rubrique ; J ou Échap : fermer ;
-  `QuestJournal.Open(rubrique)` pour les tests ; le sac ne s'ouvre pas par-dessus, `QuestJournal.Busy`). Trois rubriques :
-  **Commandes** (`UI/QuestPage`) : une carte par habitant qui passe commande, 2 par rangée, avec son
-  portrait, où il est (à la maison / en balade), le poisson demandé (petite image, nom, zone où le pêcher, récompense)
-  et l'état (`Villager.Quest`, `Villagers/QuestStatus`) : nouvelle commande à écouter (« ??? »), à pêcher, dans le
-  sac (à apporter), seul exemplaire à mettre d'abord à l'aquarium, servi aujourd'hui. **Chiyo** (`UI/ChiyoQuestPage`) : les 5
-  étapes de sa quête cochées au fur et à mesure (« ??? » tant qu'elles ne sont pas atteintes), avec la rangée des 9 perles.
-  **Légendes** (`UI/LegendQuestPage`) : une carte par légende, 3 par rangée (silhouette de l'artefact, fragments, étape, suite).
+  touche J ou clic, stick gauche enfoncé à la manette ; Gauche / Droite : onglet, Haut / Bas ou clic : quête, J ou Échap :
+  fermer ; `QuestJournal.Open(onglet)` pour les tests ; le sac ne s'ouvre pas par-dessus, `QuestJournal.Busy`). Trois
+  onglets, chacun listant à gauche **seulement les quêtes récupérées** (en cours d'abord, terminées ensuite) et à droite
+  la fiche de celle choisie (image, étapes cochées en or, « ??? » pour celles pas encore atteintes, note) ; modèle commun
+  `UI/QuestEntry`, listes dans `UI/QuestCatalog` : **principales** = les légendes (une quête par légende dès son premier
+  fragment : fragments, socle, réveil, combat) ; **secondaires** = « Les perles de Chiyo » dès qu'on l'a rencontrée (5
+  étapes et la rangée des 9 perles ; d'autres quêtes secondaires viendront) ; **quotidiennes** = les commandes des
+  habitants dès qu'on les a écoutées (poisson et zone, l'apporter, récompense ; servie : la suivante le lendemain).
 - **Animalerie** (`World/PetShopBuilding`, objet « Animalerie », dessins `Editor/PetShopArt`, style en volume 32 px
   par case) : au sud-ouest de l'île, entre la maison et la plage, loin du laboratoire (`MapSetup`, site cherché depuis
   centre + (-16, -12)), petite cour pavée et chemin vers le chemin principal (`TownLayout.DecoratePetShop` : massifs,
