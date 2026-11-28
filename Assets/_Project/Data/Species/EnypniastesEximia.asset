@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: EnypniastesEximia
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: enypniastes-eximia
+  _commonName: "Concombre de mer poulet sans t\xEAte"
+  _scientificName: Enypniastes eximia
+  _rarity: 3
+  _kind: 6
+  _method: 1
+  _feminine: 0
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 10, y: 25}
+  _basePrice: 100
+  _placeholderColor: {r: 0.95686275, g: 0.5882353, b: 0.6666667, a: 1}
+  _description: "Rose et transparent, il nage en battant son voile comme un poulet qui aurait perdu la t\xEAte. On voit son repas au travers."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: da15ba2dcfae01d40a3a2499b74b22ed, type: 3}
+  _miniSprite: {fileID: 21300000, guid: d4c4501bcafbdfe4f9ab029b671ad663, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: d4c4501bcafbdfe4f9ab029b671ad663, type: 3}
+  - {fileID: 21300000, guid: 51c544762d2fb114fba0e82714db149e, type: 3}
+  - {fileID: 21300000, guid: 269ae27ff88696645abe5dae988bd214, type: 3}
+  - {fileID: 21300000, guid: 333498002f6d10e4695542696abc54d1, type: 3}
+  _lures: 
+  _hooks: 

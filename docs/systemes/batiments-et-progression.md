@@ -123,6 +123,14 @@
   laque noire et coussin de soie indigo creusé d'un seul emplacement en forme de collier (`PearlLore.NecklacePixel`) ;
   perles en silhouette ombrée, puis à demi une fois trouvées, puis à leur couleur une fois enfilées ; l'étiquette donne
   nom, zone et le souvenir de Chiyo (`RelicChestPage.RefreshJewels`). Sauvegarde : `SaveData.PearlsFound` / `PearlsThreaded`.
+  **Grotte de Chiyo** (baie d'Ha Long, montagne `HaLongPlan.CaveIndex` ; `World/CaveBuilding`, posée par `MapSetup.BuildCave`) :
+  lanternes éteintes (`KarstRange(..., lit: false)`) et entrée trop noire tant que le collier n'a pas ses 9 perles (on lit
+  une phrase en poussant l'entrée) ; collier complet : Chiyo y envoie le joueur, lanternes allumées, on entre. Salle de
+  13×9 cases (`Editor/CaveArt` : stalactites, stalagmites, grande flaque lumineuse), intérieur au-dessus de la cabane de
+  Chiyo. Au bord de la flaque, Espace sort l'épuisette (`TidePoolGame.UpdateCave`) ; zone **GrotteHaLong** (« Grotte de
+  Chiyo », 10e zone du carnet, sans voyage ni perle) : 8 bêtes étranges (`Editor/CaveNetArt`, table des espèces) qui se
+  montrent l'une après l'autre (celles déjà au carnet + la suivante, `Collection/CaveRules`, testé), méduse immortelle en
+  dernier ; **une prise par jour** (`PlayerProgress.CaveDay`, `SaveData.CaveDay`).
 - **Bâtiments à intérieur** : base commune `InteriorBuilding` (entrée par la porte, pièce hors de l'île, caméra
   calée, `InteriorBuilding.Occupied` = bâtiment où se trouve le joueur ; pas de pêche dedans). `ShopBuilding` et
   `AquariumBuilding` en héritent. Sites choisis par `MapSetup.FindBuildingSite` (l'aquarium au centre, la boutique à ≥ 14 cases).

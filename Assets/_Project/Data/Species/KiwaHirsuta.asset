@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: KiwaHirsuta
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: kiwa-hirsuta
+  _commonName: "Crabe y\xE9ti"
+  _scientificName: Kiwa hirsuta
+  _rarity: 3
+  _kind: 1
+  _method: 1
+  _feminine: 0
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 10, y: 15}
+  _basePrice: 100
+  _placeholderColor: {r: 0.9254902, g: 0.9019608, b: 0.8392157, a: 1}
+  _description: "Un crabe blanc sans yeux aux pinces poilues. Il cultive des bact\xE9ries dans ses poils et les mange ensuite."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 6f39e85d59940cc48a8aa949f6c533ee, type: 3}
+  _miniSprite: {fileID: 21300000, guid: b7c7b5e1a31891b43a0da84b46b7619e, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: b7c7b5e1a31891b43a0da84b46b7619e, type: 3}
+  - {fileID: 21300000, guid: 1e6894acce6b8674f96770d2f82b7c70, type: 3}
+  - {fileID: 21300000, guid: abe36b8844b2e8d4eb2bc7164e638adf, type: 3}
+  - {fileID: 21300000, guid: fe01daaa5bde4ed4fbe46e0dcbfe8e7b, type: 3}
+  _lures: 
+  _hooks: 

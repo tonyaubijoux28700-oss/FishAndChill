@@ -263,6 +263,7 @@ namespace FishAndChill.Save
             data.HasNet = _progress.HasNet;
             data.PearlsFound = new List<string>(_progress.Pearls.Found);
             data.PearlsThreaded = new List<string>(_progress.Pearls.Threaded);
+            data.CaveDay = _progress.CaveDay;
             data.TotalHours = _cycle != null ? _cycle.TotalHours : 0.0;
             foreach (string id in _progress.Baits.Owned)
             {
@@ -388,6 +389,7 @@ namespace FishAndChill.Save
             _progress.Pets.Load(data.Pets, data.EquippedPet);
             _progress.RestoreNet(data.HasNet);
             _progress.Pearls.Restore(data.PearlsFound, data.PearlsThreaded);
+            _progress.CaveDay = data.CaveDay;
             if (_weather != null && data.Weather >= 0 && System.Enum.IsDefined(typeof(Weather), data.Weather))
             {
                 _weather.SetWeather((Weather)data.Weather, data.WeatherHours);

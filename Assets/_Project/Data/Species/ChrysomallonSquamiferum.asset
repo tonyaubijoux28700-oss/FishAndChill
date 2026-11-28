@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ChrysomallonSquamiferum
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: chrysomallon-squamiferum
+  _commonName: "Escargot \xE0 pied \xE9cailleux"
+  _scientificName: Chrysomallon squamiferum
+  _rarity: 3
+  _kind: 5
+  _method: 1
+  _feminine: 0
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 2, y: 5}
+  _basePrice: 100
+  _placeholderColor: {r: 0.18039216, g: 0.18039216, b: 0.20392157, a: 1}
+  _description: "Le seul animal au monde dont la coquille et les \xE9cailles sont faites de fer. Il vit pr\xE8s des sources br\xFBlantes du fond."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 862b2127d318ae04e9e09608fde0e3da, type: 3}
+  _miniSprite: {fileID: 21300000, guid: 2e89def9f702ace46a86086cd7c08078, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: 2e89def9f702ace46a86086cd7c08078, type: 3}
+  - {fileID: 21300000, guid: be89e926e087e4042b7b5c290ef46c9a, type: 3}
+  - {fileID: 21300000, guid: f60072cfd9ccd5e46b720466a1068190, type: 3}
+  - {fileID: 21300000, guid: 8890f055ab226fb42a6f5dff2a81f865, type: 3}
+  _lures: 
+  _hooks: 

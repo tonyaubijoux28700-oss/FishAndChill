@@ -25,6 +25,7 @@ namespace FishAndChill.Editor
         private const string SkeletonZonePath = ZonesFolder + "/CoteDesSquelettes.asset";
         private const string FjordZonePath = ZonesFolder + "/FjordsNorvege.asset";
         private const string HaLongZonePath = ZonesFolder + "/BaieHaLong.asset";
+        private const string CaveZonePath = ZonesFolder + "/GrotteHaLong.asset";
         private const string ScenesFolder = Root + "/Scenes";
         private const string ScenePath = ScenesFolder + "/FishingPrototype.unity";
         private const string TemplateScenePath = "Assets/Scenes/SampleScene.unity";
@@ -129,6 +130,11 @@ namespace FishAndChill.Editor
             CreateOrUpdateZone(HaLongZonePath, "Baie d'Ha Long",
                 "Des milliers de pitons calcaires couverts de jungle dans une eau émeraude, jonques aux voiles rouges et village flottant. On dit qu'un dragon les a fait naître en frappant la mer de sa queue.", new Color(0.08f, 0.34f, 0.30f), rows,
                 new Vector2(0.77f, 0.58f), "Quang Ninh, Viêt Nam");
+
+            // La grotte de Chiyo, sous une montagne d'Ha Long : pas de voyage, on y entre une fois le collier complet.
+            CreateOrUpdateZone(CaveZonePath, "Grotte de Chiyo",
+                "Sous une montagne de la baie d'Ha Long, une salle noyée de lueurs bleues et une flaque immense où vivent les bêtes les plus étranges du monde.", new Color(0.06f, 0.16f, 0.24f), rows,
+                new Vector2(0.77f, 0.58f), "Baie d'Ha Long, Viêt Nam");
 
             string startPath = ZonesFolder + "/IleMahana.asset";
             CreateOrUpdateZone(startPath, "Île Mahana",
@@ -604,7 +610,8 @@ namespace FishAndChill.Editor
             var skeletonZone = AssetDatabase.LoadAssetAtPath<FishingZone>(SkeletonZonePath);
             var fjordZone = AssetDatabase.LoadAssetAtPath<FishingZone>(FjordZonePath);
             var haLongZone = AssetDatabase.LoadAssetAtPath<FishingZone>(HaLongZonePath);
-            zones.arraySize = 9;
+            zones.arraySize = 10;
+            zones.GetArrayElementAtIndex(9).objectReferenceValue = AssetDatabase.LoadAssetAtPath<FishingZone>(CaveZonePath);
             zones.GetArrayElementAtIndex(8).objectReferenceValue = haLongZone;
             zones.GetArrayElementAtIndex(7).objectReferenceValue = fjordZone;
             zones.GetArrayElementAtIndex(6).objectReferenceValue = skeletonZone;
@@ -650,7 +657,8 @@ namespace FishAndChill.Editor
             saveSo.FindProperty("_progress").objectReferenceValue = progress;
             saveSo.FindProperty("_fishing").objectReferenceValue = controller;
             SerializedProperty saveZones = saveSo.FindProperty("_zones");
-            saveZones.arraySize = 9;
+            saveZones.arraySize = 10;
+            saveZones.GetArrayElementAtIndex(9).objectReferenceValue = AssetDatabase.LoadAssetAtPath<FishingZone>(CaveZonePath);
             saveZones.GetArrayElementAtIndex(8).objectReferenceValue = haLongZone;
             saveZones.GetArrayElementAtIndex(7).objectReferenceValue = fjordZone;
             saveZones.GetArrayElementAtIndex(6).objectReferenceValue = skeletonZone;
@@ -832,7 +840,8 @@ namespace FishAndChill.Editor
             titleSo.FindProperty("_minimap").objectReferenceValue = minimap;
             titleSo.FindProperty("_skin").objectReferenceValue = skin;
             SerializedProperty titleZones = titleSo.FindProperty("_zones");
-            titleZones.arraySize = 9;
+            titleZones.arraySize = 10;
+            titleZones.GetArrayElementAtIndex(9).objectReferenceValue = AssetDatabase.LoadAssetAtPath<FishingZone>(CaveZonePath);
             titleZones.GetArrayElementAtIndex(8).objectReferenceValue = haLongZone;
             titleZones.GetArrayElementAtIndex(7).objectReferenceValue = fjordZone;
             titleZones.GetArrayElementAtIndex(6).objectReferenceValue = skeletonZone;

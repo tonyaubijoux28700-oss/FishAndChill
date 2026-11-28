@@ -142,7 +142,7 @@ namespace FishAndChill.Editor
         /// <summary>Les zones qui ont leur flaque (noms des assets de zone).</summary>
         public static readonly string[] PoolZones =
         {
-            "IleMahana", "LacAnnecy", "FleuveAmazone", "BaieJaponaise", "GrandeBarriere", "Maldives", "CoteDesSquelettes", "FjordsNorvege", "BaieHaLong",
+            "IleMahana", "LacAnnecy", "FleuveAmazone", "BaieJaponaise", "GrandeBarriere", "Maldives", "CoteDesSquelettes", "FjordsNorvege", "BaieHaLong", "GrotteHaLong",
         };
 
         public static Color[,] MahanaPool() => Pool("IleMahana");
@@ -163,7 +163,8 @@ namespace FishAndChill.Editor
                 case "Maldives": top = new[] { new Vector2(96f, 74f), new Vector2(250f, 148f), new Vector2(168f, 114f), new Vector2(40f, 160f) }; break;
                 case "CoteDesSquelettes": top = new[] { new Vector2(252f, 60f), new Vector2(238f, 150f), new Vector2(60f, 62f), new Vector2(46f, 168f) }; break;
                 case "FjordsNorvege": top = new[] { new Vector2(80f, 70f), new Vector2(232f, 132f), new Vector2(170f, 40f), new Vector2(60f, 160f) }; break;
-                case "BaieHaLong": top = new[] { new Vector2(46f, 46f), new Vector2(206f, 62f), new Vector2(124f, 150f), new Vector2(276f, 160f) }; break;
+                case "BaieHaLong":
+                case "GrotteHaLong": top = new[] { new Vector2(46f, 46f), new Vector2(206f, 62f), new Vector2(124f, 150f), new Vector2(276f, 160f) }; break;
                 default: top = new[] { new Vector2(70f, 55f), new Vector2(240f, 140f), new Vector2(258f, 125f), new Vector2(140f, 40f), new Vector2(110f, 160f) }; break;
             }
 
@@ -185,6 +186,7 @@ namespace FishAndChill.Editor
                 case "CoteDesSquelettes": return SkeletonPool();
                 case "FjordsNorvege": return FjordPool();
                 case "BaieHaLong": return HaLongPool();
+                case "GrotteHaLong": return CaveArt.Pool();
                 default: return IslandPool();
             }
         }

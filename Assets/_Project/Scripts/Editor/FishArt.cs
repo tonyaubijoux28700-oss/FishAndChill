@@ -267,7 +267,7 @@ namespace FishAndChill.Editor
             // d'après les vraies espèces. Les crustacés allongés et les calmars, dessinés tête en haut, sont couchés tête à
             // droite pour remplir les cases du carnet comme les poissons.
             if (CrabArt.TryGet(speciesId, out Color[,] net) || MolluscArt.TryGet(speciesId, out net) || EchinoArt.TryGet(speciesId, out net)
-                || CephaloArt.TryGet(speciesId, out net) || OtherNetArt.TryGet(speciesId, out net) || NewNetArt.TryGet(speciesId, out net))
+                || CephaloArt.TryGet(speciesId, out net) || OtherNetArt.TryGet(speciesId, out net) || NewNetArt.TryGet(speciesId, out net) || CaveNetArt.TryGet(speciesId, out net))
             {
                 if (speciesId == "loligo-forbesii" || speciesId == "watasenia-scintillans" || speciesId == "architeuthis-dux") net = HeadRight(net);
                 return PixelArt.Save($"{Folder}/{speciesId}.png", net, 16, new Vector2(0.5f, 0.5f));

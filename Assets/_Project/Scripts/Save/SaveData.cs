@@ -84,6 +84,9 @@ namespace FishAndChill.Save
         public List<string> PearlsFound = new List<string>();
         public List<string> PearlsThreaded = new List<string>();
 
+        /// <summary>Jour de la dernière prise dans la flaque de la grotte (-1 : jamais).</summary>
+        public int CaveDay = -1;
+
         /// <summary>Heures de jeu écoulées depuis le début de la partie (0 pour une ancienne sauvegarde).</summary>
         public double TotalHours;
 

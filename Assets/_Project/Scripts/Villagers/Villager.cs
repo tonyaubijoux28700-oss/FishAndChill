@@ -361,7 +361,7 @@ namespace FishAndChill.Villagers
             int left = PearlLore.Count - _progress.Pearls.ThreadedCount;
             pages.Add(left > 0
                 ? $"Plus que {left} perle{(left > 1 ? "s" : string.Empty)} et mon collier sera complet."
-                : "Mon collier... complet. Merci. Laisse-moi un peu de temps, j'ai quelque chose à te montrer.");
+                : "Mon collier... complet. Merci. Va en baie d'Ha Long, à la grotte au pied de la montagne. Les lanternes t'attendent. Tu comprendras.");
         }
 
         // ---------- Commandes ----------

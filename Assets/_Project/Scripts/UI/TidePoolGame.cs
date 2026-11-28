@@ -29,7 +29,7 @@ namespace FishAndChill.UI
         [SerializeField] private WorldMap _map;
         [SerializeField] private DayNightCycle _cycle;
         [SerializeField] private UiSkin _skin;
-        [SerializeField, Tooltip("La progression : il faut avoir acheté l'épuisette.")] private PlayerProgress _progress;
+        [SerializeField, Tooltip("La progression : il faut avoir reçu l'épuisette.")] private PlayerProgress _progress;
 
         [Header("Dessins")]
         [SerializeField, Tooltip("La flaque vue de dessus (320×192).")] private Sprite _pool;
@@ -98,6 +98,59 @@ namespace FishAndChill.UI
         private Vector2 _lastMouse;
         private int _openedFrame = -1;
         private int _closedFrame = -1;
+
+        // La flaque de la grotte de Chiyo (Ha Long) : sa zone tant qu'on y pêche.
+        private FishingZone _caveZone;
+
+        private FishingZone CurrentZone => _caveZone != null ? _caveZone : _fishing.Zone;
+
+        private int Today => CaveRules.DayOf(_cycle != null ? _cycle.TotalHours : 0.0);
+
+        /// <summary>Les bêtes de la grotte présentes aujourd'hui : celles déjà au carnet, plus la suivante.</summary>
+        private List<string> CaveAvailable(FishingZone zone)
+        {
+            var ordered = new List<string>();
+            foreach (FishingZone.SpeciesEntry entry in zone.NetSpecies)
+            {
+                if (entry.Species != null) ordered.Add(entry.Species.Id);
+            }
+
+            return CaveRules.Available(ordered, _fishing.CatchLog.IsDiscovered);
+        }
+
+        /// <summary>
+        /// Dans la grotte : la phrase de l'entrée fermée, ou au bord de la flaque l'invite à sortir l'épuisette (une prise par
+        /// jour). Vrai si la grotte a pris la main sur l'invite.
+        /// </summary>
+        private bool UpdateCave()
+        {
+            CaveBuilding cave = CaveBuilding.Current;
+            if (cave == null) return false;
+            if (cave.Hint != null)
+            {
+                _prompt.gameObject.SetActive(true);
+                _prompt.text = cave.Hint;
+                return true;
+            }
+
+            if (!cave.PlayerAtPool || cave.Zone == null || _player == null || _player.Locked) return false;
+            bool calm = _progress != null && !CaveRules.CanFish(_progress.CaveDay, Today);
+            _prompt.gameObject.SetActive(true);
+            _prompt.text = !HasNet ? "Une flaque immense… il faudrait une épuisette."
+                : calm ? "La flaque s'est calmée. Reviens demain."
+                : "Espace : sortir l'épuisette";
+            Keyboard k = Keyboard.current;
+            Gamepad g = Gamepad.current;
+            bool pressed = (k != null && k.spaceKey.wasPressedThisFrame) || (g != null && g.buttonSouth.wasPressedThisFrame);
+            if (pressed && HasNet && !calm && Time.frameCount != _closedFrame)
+            {
+                _caveZone = cave.Zone;
+                _spotSource = null;
+                Open();
+            }
+
+            return true;
+        }
 
         // Remontée de l'épuisette : une bête dans le filet, des anneaux qui se resserrent sur elle (RingQte).
         private RingQte _qte;
@@ -170,7 +223,7 @@ namespace FishAndChill.UI
         private void Open()
         {
             _openedFrame = Time.frameCount;
-            UseLookOf(_fishing.Zone);
+            UseLookOf(CurrentZone);
             _window.SetActive(true);
             _player.Locked = true;
             _triesLeft = NetRules.Tries;
@@ -213,19 +266,24 @@ namespace FishAndChill.UI
             _window.SetActive(false);
             if (_player != null) _player.Locked = false;
             // Une bête prise : le coin se disperse (une seule prise par flaque). Sinon il s'épuise et finira par partir.
+            if (_caveZone != null && _won && _progress != null) _progress.CaveDay = Today;   // une prise par jour dans la grotte
+            _caveZone = null;
             if (_won) _spotSource?.Deplete(_spotCenter);
             else _spotSource?.Consume(_spotCenter);
         }
 
         private void SpawnCritters()
         {
-            FishingZone zone = _fishing.Zone;
+            FishingZone zone = CurrentZone;
             float hour = _cycle != null ? _cycle.Hour : 12f;
             var pool = new List<FishingZone.SpeciesEntry>();
             float total = 0f;
+            // Dans la grotte : seulement les bêtes déjà au carnet et la suivante, à toute heure.
+            List<string> cave = _caveZone != null ? CaveAvailable(zone) : null;
             foreach (FishingZone.SpeciesEntry entry in zone.NetSpecies)
             {
                 if (entry.Species == null || !DayCycleMath.IsActive(entry.Species.ActiveTime, hour)) continue;
+                if (cave != null && !cave.Contains(entry.Species.Id)) continue;
                 pool.Add(entry);
                 total += entry.Weight;
             }
@@ -266,6 +324,7 @@ namespace FishAndChill.UI
         {
             if (!IsOpen)
             {
+                if (UpdateCave()) return;
                 bool aimed = CanStart && TryFindSpot(out _, out _);
                 _prompt.gameObject.SetActive(aimed);
                 if (aimed) _prompt.text = HasNet ? "Espace : sortir l'épuisette" : "Des bulles… Chiyo, la vieille ama d'Izu, saurait quoi en faire";
@@ -447,7 +506,7 @@ namespace FishAndChill.UI
                 string color = ColorUtility.ToHtmlStringRGB(c.Species.Rarity.DisplayColor());
                 string pearl = FindPearl();
                 Say($"Dans l'épuisette : <color=#{color}>{c.Species.CommonName}</color>{(first ? " (nouvelle espèce !)" : string.Empty)}, "
-                    + (pearl != null ? $"notée puis relâchée.\nQuelque chose brille au fond du filet : {pearl} ! Rapporte-la à Chiyo." : "notée puis relâchée.\nLes bulles se dispersent."));
+                    + (pearl != null ? $"notée puis relâchée.\nQuelque chose brille au fond du filet : {pearl} ! Rapporte-la à Chiyo." : "notée puis relâchée.\n" + (_caveZone != null ? "La flaque se calme jusqu'à demain." : "Les bulles se dispersent.")));
                 return;
             }
 
@@ -468,8 +527,8 @@ namespace FishAndChill.UI
         /// </summary>
         private string FindPearl()
         {
-            FishingZone zone = _fishing.Zone;
-            if (zone == null || _progress == null) return null;
+            FishingZone zone = CurrentZone;
+            if (zone == null || _progress == null || System.Array.IndexOf(PearlLore.Zones, zone.Id) < 0) return null;   // pas de perle pour la grotte
             var ids = new List<string>();
             foreach (FishingZone.SpeciesEntry entry in zone.NetSpecies)
             {

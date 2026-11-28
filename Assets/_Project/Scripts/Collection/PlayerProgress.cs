@@ -50,6 +50,9 @@ namespace FishAndChill.Collection
         /// <summary>Le collier de Chiyo : une perle par zone dont toutes les bestioles sont au carnet.</summary>
         public PearlNecklace Pearls { get; } = new PearlNecklace();
 
+        /// <summary>Jour de la dernière prise dans la flaque de la grotte (-1 : jamais) : une prise par jour.</summary>
+        public int CaveDay { get; set; } = -1;
+
         /// <summary>Chargement d'une partie : l'épuisette reçue ou non.</summary>
         public void RestoreNet(bool owned)
         {

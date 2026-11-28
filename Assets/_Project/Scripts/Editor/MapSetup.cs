@@ -501,6 +501,9 @@ namespace FishAndChill.Editor
                     new Vector2(0.5f + ChiyoDoorShift * VolumeCanvas.PixelsPerUnit / JapanLandmarkArt.HouseWidth, JapanLandmarkArt.HousePivot.y)),
                 new Vector2(3.5f, 1.9f), -ChiyoDoorShift);
 
+            // La grotte de Chiyo, à Ha Long : intérieur au-dessus de la cabane de Chiyo.
+            BuildCave(CaveDoor, new Vector2(bounds.xMax + 20f, bounds.yMin + 44f + 9 * 14f), worldMap, player.GetComponent<PlayerMovement>(), follow);
+
             for (int i = villagerCells.Count; i < 8; i++)
             {
                 foreach (string name in new[] { $"Maison d'habitant {i + 1}", $"Maison d'habitant {i + 1} - Intérieur" })
@@ -2693,8 +2696,22 @@ namespace FishAndChill.Editor
             for (int i = 0; i < plan.Karsts.Count; i++)
             {
                 Vector2Int c = plan.Karsts[i];
-                Landmark(i == plan.CaveIndex ? "Grotte" : $"Montagne de calcaire {i + 1}", i == plan.CaveIndex ? caveSprite : ranges[i % 2], c.x + 0.5f, c.y);
-                Solid(c.x + 0.5f, c.y - 0.1f, 8f, 7f);
+                if (i == plan.CaveIndex)
+                {
+                    // La grotte de Chiyo : on y entre (posée avec les maisons d'habitants, une fois le joueur créé) ;
+                    // lanternes éteintes tant que le collier n'est pas complet.
+                    Transform old = mapRoot.Find("Grotte");
+                    if (old != null) Object.DestroyImmediate(old.gameObject);
+                    CaveDoor = World(c.x + 0.5f, c.y);
+                    CaveLit = caveSprite;
+                    CaveDark = PixelArt.Save($"{TilesFolder}/HaLong_Grotte_Eteinte.png", HaLongLandmarkArt.KarstRange(2, true, false), ppu, HaLongLandmarkArt.KarstPivot);
+                }
+                else
+                {
+                    Landmark($"Montagne de calcaire {i + 1}", ranges[i % 2], c.x + 0.5f, c.y);
+                    Solid(c.x + 0.5f, c.y - 0.1f, 8f, 7f);
+                }
+
                 MinimapBlocks.Add((new Rect(bounds.xMin + c.x + 0.5f - 4f, bounds.yMin + c.y, 8f, height - c.y), new Color(0.36f, 0.50f, 0.30f), true));
             }
 
@@ -3458,6 +3475,48 @@ namespace FishAndChill.Editor
             keeperObject.transform.position = petShop.KeeperSpot;
             SetSprite(keeperObject, keeper, 10);
             return petShop;
+        }
+
+        /// <summary>Entrée de la grotte de Chiyo à Ha Long et la montagne, lanternes allumées ou éteintes (posées par <c>BuildHaLong</c>).</summary>
+        private static Vector3 CaveDoor;
+        private static Sprite CaveLit;
+        private static Sprite CaveDark;
+
+        /// <summary>
+        /// La grotte de Chiyo : la montagne vue de dehors (<see cref="CaveBuilding"/>, fermée tant que le collier n'est pas
+        /// complet) et sa salle hors de l'île (<see cref="CaveArt"/>), avec la flaque et les stalagmites infranchissables.
+        /// </summary>
+        private static void BuildCave(Vector3 position, Vector2 interiorOrigin, WorldMap map, PlayerMovement player, CameraFollow follow)
+        {
+            Sprite interior = PixelArt.Save("Assets/_Project/Art/Buildings/Grotte_Interieur.png", CaveArt.Interior(), VolumeCanvas.PixelsPerUnit, Vector2.zero);
+            GameObject go = EnsureObject("Grotte de Chiyo", null);
+            go.transform.position = position;
+            SetSprite(go, CaveDark, 10);
+            var cave = go.GetComponent<CaveBuilding>();
+            if (cave == null) cave = go.AddComponent<CaveBuilding>();
+
+            var so = new SerializedObject(cave);
+            so.FindProperty("_player").objectReferenceValue = player;
+            so.FindProperty("_map").objectReferenceValue = map;
+            so.FindProperty("_camera").objectReferenceValue = follow;
+            so.FindProperty("_interiorOrigin").vector2Value = interiorOrigin;
+            so.FindProperty("_footprint").vector2Value = new Vector2(8f, 7f);
+            so.FindProperty("_lit").objectReferenceValue = CaveLit;
+            so.FindProperty("_dark").objectReferenceValue = CaveDark;
+            so.FindProperty("_zone").objectReferenceValue = AssetDatabase.LoadAssetAtPath<FishingZone>("Assets/_Project/Data/Zones/GrotteHaLong.asset");
+            so.FindProperty("_poolCenter").vector2Value = CaveArt.PoolCenter;
+            so.FindProperty("_poolRadii").vector2Value = CaveArt.PoolRadii;
+            Rect[] obstacles = CaveArt.Obstacles();
+            SerializedProperty list = so.FindProperty("_obstacles");
+            list.arraySize = obstacles.Length;
+            for (int i = 0; i < obstacles.Length; i++) list.GetArrayElementAtIndex(i).rectValue = obstacles[i];
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            GameObject room = EnsureObject("Grotte de Chiyo - Intérieur", null);
+            room.transform.position = interiorOrigin;
+            GameObject floor = EnsureObject("Sol et parois", room.transform);
+            floor.transform.localPosition = Vector3.zero;
+            SetSprite(floor, interior, -5).spriteSortPoint = SpriteSortPoint.Center;
         }
 
         /// <summary>Porte de la cabane de Chiyo à Izu (posée par <c>BuildJapan</c>, utilisée avec les maisons d'habitants).</summary>

@@ -160,9 +160,9 @@ namespace FishAndChill.Editor
 
         /// <summary>
         /// Pan de montagne de calcaire couvert de jungle, en dômes ; <paramref name="cave"/> : la paroi s'ouvre au pied sur
-        /// une grotte sombre aux stalactites, une lanterne rouge de chaque côté.
+        /// une grotte sombre aux stalactites, une lanterne rouge de chaque côté (<paramref name="lit"/> : allumées).
         /// </summary>
-        public static Color[,] KarstRange(int variant, bool cave = false)
+        public static Color[,] KarstRange(int variant, bool cave = false, bool lit = true)
         {
             var cv = new VolumeCanvas(KarstWidth, KarstHeight);
             float seed = variant * 23f + 7f;
@@ -188,7 +188,7 @@ namespace FishAndChill.Editor
                 foreach (float lx in new[] { 80f, 176f })
                 {
                     cv.Piece(Box(lx - 1f, 196f, lx + 1f, 248f), WoodDark, 1f);
-                    cv.Piece(Ellipse(lx, 194f, 6f, 8f), C(0.86f, 0.16f, 0.10f), 4f, (x, y, c) => Mathf.Abs(y - 194f) < 1.2f ? Gold : c);
+                    cv.Piece(Ellipse(lx, 194f, 6f, 8f), lit ? C(0.86f, 0.16f, 0.10f) : C(0.30f, 0.14f, 0.12f), 4f, (x, y, c) => Mathf.Abs(y - 194f) < 1.2f ? (lit ? Gold : C(0.36f, 0.30f, 0.20f)) : c);   // éteintes tant que la grotte est fermée
                 }
             }
 

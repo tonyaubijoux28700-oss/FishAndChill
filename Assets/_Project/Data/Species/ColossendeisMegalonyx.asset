@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a92982aede12464686c150f64ae247d, type: 3}
+  m_Name: ColossendeisMegalonyx
+  m_EditorClassIdentifier: FishAndChill::FishAndChill.Collection.FishSpecies
+  _id: colossendeis-megalonyx
+  _commonName: "Pycnogonide g\xE9ant"
+  _scientificName: Colossendeis megalonyx
+  _rarity: 3
+  _kind: 9
+  _method: 1
+  _feminine: 0
+  _bodyShape: 1
+  _difficulty:
+    _cursorSpeed: 1.75
+    _zoneWidth: 0.13
+    _requiredHits: 4
+    _maxMisses: 1
+  _fightStyle: 0
+  _sizeRangeCm: {x: 30, y: 70}
+  _basePrice: 100
+  _placeholderColor: {r: 0.8392157, g: 0.3764706, b: 0.20392157, a: 1}
+  _description: "Une araign\xE9e de mer presque toute en pattes : son ventre est si petit que ses organes logent dans ses jambes."
+  _activeTime: 0
+  _weather: 0
+  _sprite: {fileID: 21300000, guid: 629148fb17b483044815ada32da83719, type: 3}
+  _miniSprite: {fileID: 21300000, guid: b7f2559f305996c4b9abc46f7e5abd67, type: 3}
+  _miniFrames:
+  - {fileID: 21300000, guid: b7f2559f305996c4b9abc46f7e5abd67, type: 3}
+  - {fileID: 21300000, guid: 67b1d83d732e38b47b26bfc750da48fd, type: 3}
+  - {fileID: 21300000, guid: 946f8c4c6288f9448b88a9869f5d9341, type: 3}
+  - {fileID: 21300000, guid: bd6a24feb71b2084ca10b26de404fa39, type: 3}
+  _lures: 
+  _hooks: 
